@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hizmetlerimiz - CarWash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-blue-600">
+                        <i class="fas fa-car-wash"></i> CarWash
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="search.html" class="text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-search"></i> Araç Yıkama Ara
+                    </a>
+                    <a href="../backend/auth/login.php" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
+                        <i class="fas fa-sign-in-alt"></i> Giriş Yap
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="bg-blue-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4">
+            <h1 class="text-4xl font-bold mb-4">Araç Yıkama Hizmetlerimiz</h1>
+            <p class="text-xl text-blue-100">Aracınız için en iyi bakım ve temizlik hizmetleri</p>
+        </div>
+    </div>
+
+    <!-- Service Packages -->
+    <div class="max-w-7xl mx-auto px-4 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Basic Package -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="bg-gray-100 px-6 py-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Temel Yıkama</h3>
+                    <p class="text-2xl font-bold text-blue-600 mt-2">₺99</p>
+                </div>
+                <div class="p-6">
+                    <ul class="space-y-4">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Dış Yıkama
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            İç Temizlik
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Lastik Temizliği
+                        </li>
+                    </ul>
+                    <a href="#" onclick="openBookingModal('basic', 99)" class="block text-center bg-blue-600 text-white px-4 py-2 rounded-full mt-6 hover:bg-blue-700">
+                        Rezervasyon Yap
+                    </a>
+                </div>
+            </div>
+
+            <!-- Premium Package -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden border-2 border-blue-600">
+                <div class="bg-blue-600 px-6 py-4 text-white">
+                    <h3 class="text-xl font-semibold">Premium Yıkama</h3>
+                    <p class="text-2xl font-bold mt-2">₺199</p>
+                </div>
+                <div class="p-6">
+                    <ul class="space-y-4">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Temel Yıkama Paketi
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Pasta Cila
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            İç Detaylı Temizlik
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Motor Temizliği
+                        </li>
+                    </ul>
+                    <a href="search.html" class="block text-center bg-blue-600 text-white px-4 py-2 rounded-full mt-6 hover:bg-blue-700">
+                        Rezervasyon Yap
+                    </a>
+                </div>
+            </div>
+
+            <!-- VIP Package -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="bg-gray-100 px-6 py-4">
+                    <h3 class="text-xl font-semibold text-gray-800">VIP Detailing</h3>
+                    <p class="text-2xl font-bold text-blue-600 mt-2">₺399</p>
+                </div>
+                <div class="p-6">
+                    <ul class="space-y-4">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Premium Yıkama Paketi
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Seramik Kaplama
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Döşeme Temizliği
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Koltuk Bakımı
+                        </li>
+                    </ul>
+                    <a href="search.html" class="block text-center bg-blue-600 text-white px-4 py-2 rounded-full mt-6 hover:bg-blue-700">
+                        Rezervasyon Yap
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Services -->
+    <div class="bg-gray-100 py-16">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Ek Hizmetlerimiz</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <i class="fas fa-spray-can text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Boya Koruma</h3>
+                    <p class="text-gray-600">Aracınızın boyasını koruyun ve parlaklığını artırın</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <i class="fas fa-chair text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Koltuk Temizliği</h3>
+                    <p class="text-gray-600">Derinlemesine koltuk temizliği ve bakımı</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <i class="fas fa-engine text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Motor Temizliği</h3>
+                    <p class="text-gray-600">Profesyonel motor bölmesi temizliği</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <i class="fas fa-car text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Seramik Kaplama</h3>
+                    <p class="text-gray-600">Uzun süreli boya koruma ve parlaklık</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">CarWash</h4>
+                    <p class="text-gray-400">Profesyonel araç yıkama hizmetleri</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Hızlı Bağlantılar</h4>
+                    <ul class="space-y-2">
+                        <li><a href="search.html" class="text-gray-400 hover:text-white">Araç Yıkama Ara</a></li>
+                        <li><a href="services.html" class="text-gray-400 hover:text-white">Hizmetlerimiz</a></li>
+                        <li><a href="contact.html" class="text-gray-400 hover:text-white">İletişim</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">İletişim</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-envelope w-6"></i> info@carwash.com
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-phone w-6"></i> +90 555 123 4567
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Sosyal Medya</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    Hizmet Rezervasyonu
+                </h3>
+                <form id="bookingForm" class="space-y-4">
+                    <input type="hidden" id="serviceType" name="service_type">
+                    <input type="hidden" id="servicePrice" name="service_price">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Araç Tipi</label>
+                        <select name="vehicle_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="sedan">Sedan</option>
+                            <option value="suv">SUV</option>
+                            <option value="van">Van</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tarih</label>
+                        <input type="date" name="booking_date" min="" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Saat</label>
+                        <select name="booking_time" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </select>
+                    </div>
+
+                    <div class="mt-5 flex justify-end space-x-2">
+                        <button type="button" onclick="closeBookingModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
+                            İptal
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">
+                            Rezervasyon Yap
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

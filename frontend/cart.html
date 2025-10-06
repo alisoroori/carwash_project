@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sepet - CarWash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <!-- ... existing nav code ... -->
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Sepetim</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Cart Items -->
+            <div class="md:col-span-2">
+                <div class="bg-white rounded-lg shadow-md p-6" id="cartItems">
+                    <!-- Cart items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="md:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                    <h2 class="text-xl font-bold mb-4">Sipariş Özeti</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span>Ara Toplam</span>
+                            <span id="subtotal">0.00 TL</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>KDV (%18)</span>
+                            <span id="tax">0.00 TL</span>
+                        </div>
+                        <div class="border-t pt-3 mt-3">
+                            <div class="flex justify-between font-bold">
+                                <span>Toplam</span>
+                                <span id="total">0.00 TL</span>
+                            </div>
+                        </div>
+                        <button onclick="proceedToCheckout()" 
+                                class="w-full bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 mt-4">
+                            Ödemeye Geç
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/cart.js"></script>
+</body>
+</html>

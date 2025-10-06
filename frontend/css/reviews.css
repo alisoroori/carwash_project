@@ -1,0 +1,23 @@
+.fixed {
+    z-index: 1000;
+}
+
+.fixed .bg-white {
+    animation: modal-appear 0.3s ease-out;
+}
+
+@keyframes modal-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.fixed textarea {
+    resize: vertical;
+    min-height: 100px;
+}

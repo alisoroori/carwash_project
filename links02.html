@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarWash Project Links Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            width: 95%;
+            max-width: 1400px;
+            height: 85vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(52, 152, 219, 0.1), rgba(44, 62, 80, 0.1));
+            pointer-events: none;
+        }
+
+        .sidebar-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .url-bar {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .url-display {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #2c3e50;
+            background: transparent;
+            border: none;
+            outline: none;
+            user-select: all;
+        }
+
+        .copy-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .copy-btn:hover {
+            background: linear-gradient(45deg, #2980b9, #1abc9c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .content-display {
+            flex: 1;
+            background: white;
+            border: none;
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        .content-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .link-category {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin: 20px 0 10px 0;
+            padding: 12px 15px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            text-align: center;
+        }
+
+        .link-category:first-child {
+            margin-top: 0;
+        }
+
+        .link-item {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .link-item:hover::before {
+            left: 100%;
+        }
+
+        .link-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .link-item.active {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            font-weight: 600;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Loading state */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #666;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+                height: 95vh;
+            }
+
+            .sidebar {
+                max-height: 300px;
+                padding: 20px;
+            }
+
+            .sidebar-title {
+                font-size: 20px;
+                margin-bottom: 20px;
+                padding: 15px;
+            }
+
+            .url-bar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .url-display {
+                text-align: center;
+                padding: 10px;
+                background: rgba(255, 255, 255, 0.5);
+                border-radius: 8px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-container {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .content-transition {
+            transition: all 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-title">CarWash Project Links</div>
+            
+            <div class="links-list">
+                <div class="link-category">Root Files</div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/README.md', 'README.md')">
+                    README.md
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/test_project.php', 'test_project.php')">
+                    test_project.php
+                </div>
+
+                <div class="link-category">Backend Main</div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/index.php', 'index.php')">
+                    backend/index.php
+                </div>
+
+                <div class="link-category">Authentication</div>
+                <div class="link-item active" onclick="loadLink('http://localhost/carwash_project/backend/auth/Car_Wash_Registration.php', 'Car_Wash_Registration.php')">
+                    Car_Wash_Registration.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/auth/Customer_Registration.php', 'Customer_Registration.php')">
+                    Customer_Registration.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/auth/forget_password.php', 'forget_password.php')">
+                    forget_password.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/auth/login.php', 'login.php')">
+                    login.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/auth/logout.php', 'logout.php')">
+                    logout.php
+                </div>
+
+                <div class="link-category">Dashboard</div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/dashboard/admin_panel.php', 'admin_panel.php')">
+                    admin_panel.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/dashboard/Car_Wash_Dashboard.php', 'Car_Wash_Dashboard.php')">
+                    Car_Wash_Dashboard.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/dashboard/Customer_Dashboard.php', 'Customer_Dashboard.php')">
+                    Customer_Dashboard.php
+                </div>
+
+                <div class="link-category">Includes</div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/includes/db.php', 'db.php')">
+                    db.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/includes/footer.php', 'footer.php')">
+                    footer.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/includes/functions.php', 'functions.php')">
+                    functions.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/includes/header.php', 'header.php')">
+                    header.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/includes/login_process.php', 'login_process.php')">
+                    login_process.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/includes/logout.php', 'logout.php')">
+                    logout.php
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/includes/register_process.php', 'register_process.php')">
+                    register_process.php
+                </div>
+
+                <div class="link-category">Frontend Assets</div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/frontend/css/style.css', 'style.css')">
+                    css/style.css
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/frontend/js/script.js', 'script.js')">
+                    js/script.js
+                </div>
+
+                <div class="link-category">Upload Images</div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/auth/uploads/pic01.jpg', 'pic01.jpg')">
+                    pic01.jpg
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/auth/uploads/pic02.jpg', 'pic02.jpg')">
+                    pic02.jpg
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/auth/uploads/pic03.jpg', 'pic03.jpg')">
+                    pic03.jpg
+                </div>
+                <div class="link-item" onclick="loadLink('http://localhost/carwash_project/backend/auth/uploads/pic04.jpg', 'pic04.jpg')">
+                    pic04.jpg
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="url-bar">
+                <input type="text" class="url-display" id="currentUrl" value="http://localhost/carwash_project/backend/auth/Car_Wash_Registration.php" readonly>
+                <button class="copy-btn" onclick="copyToClipboard()">Copy Link</button>
+            </div>
+            
+            <div class="content-display">
+                <iframe class="content-frame" id="contentFrame" src="http://localhost/carwash_project/backend/auth/Car_Wash_Registration.php"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            const urlText = document.getElementById('currentUrl');
+            urlText.select();
+            urlText.setSelectionRange(0, 99999);
+            
+            try {
+                document.execCommand('copy') || navigator.clipboard.writeText(urlText.value);
+                
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = 'linear-gradient(45deg, #3498db, #2980b9)';
+                }, 2000);
+            } catch (err) {
+                console.error('Copy failed: ', err);
+            }
+        }
+
+        function loadLink(url, filename) {
+            // Remove active class from all links
+            document.querySelectorAll('.link-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked link
+            event.target.classList.add('active');
+            
+            // Update URL
+            document.getElementById('currentUrl').value = url;
+            
+            // Load page in iframe
+            const iframe = document.getElementById('contentFrame');
+            const contentDisplay = document.querySelector('.content-display');
+            
+            // Show loading state
+            contentDisplay.innerHTML = '<div class="loading">Loading...</div>';
+            
+            // Create new iframe
+            setTimeout(() => {
+                contentDisplay.innerHTML = '<iframe class="content-frame" src="' + url + '"></iframe>';
+            }, 300);
+        }
+
+        // Click on URL to copy
+        document.getElementById('currentUrl').addEventListener('click', copyToClipboard);
+
+        // Smooth loading animation
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

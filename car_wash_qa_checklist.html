@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CarWash QA Checklist</title>
+  <style>
+    :root{
+      --bg:#0f172a; /* dark navy */
+      --card:#0b1220;
+      --muted:#94a3b8;
+      --accent:#22c55e;
+      --accent-2:#60a5fa;
+      --glass: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg) 0%, #071022 100%);
+      color:#e6eef8; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+    }
+    .wrap{max-width:980px;margin:0 auto}
+    header{display:flex;gap:18px;align-items:center;margin-bottom:18px}
+    .logo{width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#05203a}
+    h1{margin:0;font-size:20px}
+    .subtitle{color:var(--muted);margin-top:6px;font-size:13px}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);padding:18px;border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,0.6)}
+
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .btn{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;color:var(--muted);cursor:pointer;font-weight:600}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#021126;border:none}
+
+    .progress{height:12px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden;margin-top:12px}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;transition:width .25s ease}
+
+    section{margin-top:16px}
+    h2{font-size:14px;margin:0 0 8px 0}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    @media (max-width:720px){.grid{grid-template-columns:1fr}}
+
+    .section-card{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+    .task{display:flex;align-items:flex-start;gap:10px;padding:8px 6px;border-radius:8px}
+    .task input[type=checkbox]{width:18px;height:18px;margin-top:3px}
+    .task label{flex:1}
+    .muted{color:var(--muted);font-size:13px}
+
+    footer{margin-top:18px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
+    .small{font-size:12px;color:var(--muted)}
+
+    /* print */
+    @media print{
+      body{padding:10mm}
+      .controls, footer{display:none}
+      .card{box-shadow:none;border:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">CW</div>
+      <div>
+        <h1>CarWash QA Checklist</h1>
+        <div class="subtitle">A simple HTML+CSS checklist for testing your CarWash project (front-end & back-end)</div>
+      </div>
+    </header>
+
+    <div class="card" id="app">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <strong id="stats">0 / 0 tasks completed</strong>
+          <div class="muted">Progress saved in your browser (localStorage)</div>
+        </div>
+        <div class="controls">
+          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn" id="exportBtn">Export JSON</button>
+          <button class="btn primary" id="printBtn">Print / Save PDF</button>
+        </div>
+      </div>
+
+      <div class="progress" aria-hidden><i id="bar"></i></div>
+
+      <section>
+        <h2>General Setup</h2>
+        <div class="grid">
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="general_browser_console"><label>Browser console has no JS errors</label></div>
+            <div class="task"><input type="checkbox" data-key="general_fonts_css"><label>All fonts and CSS load correctly</label></div>
+            <div class="task"><input type="checkbox" data-key="general_links"><label>All header/footer links return 200 (no 404)</label></div>
+            <div class="task"><input type="checkbox" data-key="general_responsive"><label>Responsive layout on mobile/tablet</label></div>
+          </div>
+
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="general_accessibility"><label>Basic accessibility checks (labels, alt text)</label></div>
+            <div class="task"><input type="checkbox" data-key="general_performance"><label>Pages load quickly (no large blocking resources)</label></div>
+            <div class="task"><input type="checkbox" data-key="general_print"><label>Print view / PDF export looks OK</label></div>
+            <div class="task"><input type="checkbox" data-key="general_consistency"><label>Colors and styles consistent across pages</label></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Authentication (Register / Login / Logout)</h2>
+        <div class="grid">
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="auth_register_success"><label>Register: new user saved to database</label></div>
+            <div class="task"><input type="checkbox" data-key="auth_register_duplicate"><label>Register: duplicate email shows proper error</label></div>
+            <div class="task"><input type="checkbox" data-key="auth_password_hash"><label>Passwords stored hashed (not plain text)</label></div>
+            <div class="task"><input type="checkbox" data-key="auth_register_validation"><label>Register form validates required fields</label></div>
+          </div>
+
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="auth_login_success"><label>Login with correct credentials works</label></div>
+            <div class="task"><input type="checkbox" data-key="auth_login_failure"><label>Wrong credentials show an error</label></div>
+            <div class="task"><input type="checkbox" data-key="auth_session_created"><label>Session created after login</label></div>
+            <div class="task"><input type="checkbox" data-key="auth_logout"><label>Logout clears session and redirects</label></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Forget Password</h2>
+        <div class="grid">
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="fp_email_exists"><label>Existing email triggers reset flow / email</label></div>
+            <div class="task"><input type="checkbox" data-key="fp_email_notfound"><label>Unknown email shows appropriate message</label></div>
+            <div class="task"><input type="checkbox" data-key="fp_token_validity"><label>Reset tokens expire and are single-use</label></div>
+            <div class="task"><input type="checkbox" data-key="fp_frontend_msg"><label>Frontend shows success/error messages properly</label></div>
+          </div>
+
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="fp_reset_flow"><label>Reset link leads to secure reset form</label></div>
+            <div class="task"><input type="checkbox" data-key="fp_password_update"><label>Password is updated after reset (hashed)</label></div>
+            <div class="task"><input type="checkbox" data-key="fp_no_info_leak"><label>No sensitive info leaked during reset (error messages)</label></div>
+            <div class="task"><input type="checkbox" data-key="fp_rate_limit"><label>Rate limiting or abuse protection in place</label></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Dashboard & Roles</h2>
+        <div class="grid">
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="dash_customer"><label>Customer dashboard loads after login</label></div>
+            <div class="task"><input type="checkbox" data-key="dash_carwash"><label>Car wash dashboard loads and shows data</label></div>
+            <div class="task"><input type="checkbox" data-key="dash_protect_pages"><label>Protected pages redirect non-logged-in users</label></div>
+            <div class="task"><input type="checkbox" data-key="dash_role_permissions"><label>Role-based permissions are enforced</label></div>
+          </div>
+
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="dash_ui_elements"><label>UI elements (tables, buttons) behave correctly</label></div>
+            <div class="task"><input type="checkbox" data-key="dash_responsive"><label>Dashboard responsive on small screens</label></div>
+            <div class="task"><input type="checkbox" data-key="dash_performance"><label>Dashboard queries are efficient (no heavy lag)</label></div>
+            <div class="task"><input type="checkbox" data-key="dash_error_handling"><label>Server errors display friendly messages</label></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Front-end (HTML + CSS)</h2>
+        <div class="grid">
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="fe_html_valid"><label>HTML structure is valid (no unclosed tags)</label></div>
+            <div class="task"><input type="checkbox" data-key="fe_css_consistency"><label>CSS consistent across pages (colors/typography)</label></div>
+            <div class="task"><input type="checkbox" data-key="fe_buttons_hover"><label>Buttons have hover/focus states</label></div>
+            <div class="task"><input type="checkbox" data-key="fe_images_alt"><label>Images include alt attributes</label></div>
+          </div>
+
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="fe_forms_responsive"><label>Forms look good on mobile and desktop</label></div>
+            <div class="task"><input type="checkbox" data-key="fe_footer_header"><label>Header & footer display correctly across pages</label></div>
+            <div class="task"><input type="checkbox" data-key="fe_css_minified"><label>Build includes minified CSS for production</label></div>
+            <div class="task"><input type="checkbox" data-key="fe_link_targets"><label>Links open in same tab unless intentionally new</label></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Security & Misc</h2>
+        <div class="grid">
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="sec_xss"><label>Inputs sanitized to prevent XSS</label></div>
+            <div class="task"><input type="checkbox" data-key="sec_sql"><label>Database queries use prepared statements</label></div>
+            <div class="task"><input type="checkbox" data-key="sec_session"><label>Sessions handled securely (regenerate after login)</label></div>
+            <div class="task"><input type="checkbox" data-key="sec_https"><label>HTTPS enforced in production</label></div>
+          </div>
+
+          <div class="section-card">
+            <div class="task"><input type="checkbox" data-key="misc_backup"><label>Database backup strategy in place</label></div>
+            <div class="task"><input type="checkbox" data-key="misc_logs"><label>Error logs monitored (development and production)</label></div>
+            <div class="task"><input type="checkbox" data-key="misc_readme"><label>README and setup instructions updated</label></div>
+            <div class="task"><input type="checkbox" data-key="misc_git"><label>Project under version control (Git)</label></div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="small">Created for: CarWash project — quick QA checklist</div>
+        <div class="small">Last saved: <span id="savedAt">—</span></div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const keys = Array.from(document.querySelectorAll('input[type=checkbox]')).map(cb=>cb.dataset.key);
+      const stateKey = 'carwash_checklist_v1';
+      const savedAtEl = document.getElementById('savedAt');
+      const statsEl = document.getElementById('stats');
+      const bar = document.getElementById('bar');
+
+      function load(){
+        const raw = localStorage.getItem(stateKey);
+        let state = {};
+        if(raw){try{state = JSON.parse(raw)}catch(e){state={}}}
+        document.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+          const k = cb.dataset.key; cb.checked = !!state[k];
+        });
+        updateUI();
+        if(state._savedAt) savedAtEl.textContent = new Date(state._savedAt).toLocaleString();
+      }
+
+      function save(){
+        const state = {};
+        document.querySelectorAll('input[type=checkbox]').forEach(cb=> state[cb.dataset.key]=cb.checked);
+        state._savedAt = (new Date()).toISOString();
+        localStorage.setItem(stateKey, JSON.stringify(state));
+        savedAtEl.textContent = new Date(state._savedAt).toLocaleString();
+      }
+
+      function updateUI(){
+        const total = document.querySelectorAll('input[type=checkbox]').length;
+        const done = document.querySelectorAll('input[type=checkbox]:checked').length;
+        statsEl.textContent = `${done} / ${total} tasks completed`;
+        const pct = total? Math.round(done/total*100):0; bar.style.width = pct + '%';
+      }
+
+      document.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+        cb.addEventListener('change', ()=>{ updateUI(); save(); });
+      });
+
+      document.getElementById('resetBtn').addEventListener('click', ()=>{
+        if(!confirm('Reset checklist? This will clear saved progress.')) return;
+        document.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
+        localStorage.removeItem(stateKey);
+        savedAtEl.textContent = '—'; updateUI();
+      });
+
+      document.getElementById('exportBtn').addEventListener('click', ()=>{
+        const raw = localStorage.getItem(stateKey) || '{}';
+        const blob = new Blob([raw], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'carwash-checklist.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      });
+
+      document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+
+      // init
+      load();
+    })();
+  </script>
+</body>
+</html>
