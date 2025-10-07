@@ -1,45 +1,19 @@
 <?php
 // db.php
-$host = 'localhost';
-$port = 3307;         // پورت MySQL
-$dbname = 'carwash_db';
-$user = 'root';
-$pass = '';
+require_once 'config.php';
 
-function getDBConnection()
-{
-    global $host, $port, $dbname, $user, $pass;
-
-    try {
-        // اتصال PDO با پورت مشخص
-        $pdo = new PDO(
-            "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
-            $user,
-            $pass
-        );
-
-        // نمایش خطاها بصورت Exception
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        // بررسی اینکه دیتابیس واقعی وجود داره
-        $stmt = $pdo->query("SELECT DATABASE()");
-        if ($stmt->fetchColumn() !== $dbname) {
-            throw new Exception("Database '$dbname' not found!");
-        }
-
-        return $pdo;
-    } catch (PDOException $e) {
-        echo "Database connection failed (PDOException): " . $e->getMessage();
-        return null;
-    } catch (Exception $e) {
-        echo "Database error: " . $e->getMessage();
-        return null;
+try {
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
     }
+} catch (Exception $e) {
+    error_log($e->getMessage());
+    die("Database connection failed");
 }
 
 // تست اتصال
-$pdo = getDBConnection();
-if ($pdo) {
+if ($conn && !$conn->connect_error) {
     echo "✅ Database connected successfully!";
 } else {
     echo "❌ Database connection failed!";

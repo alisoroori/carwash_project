@@ -1,63 +1,37 @@
 <?php
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
-require_once '../../includes/payment_gateway.php';
-require_once '../../includes/classes/Payment.php';
+require_once '../../includes/classes/PaymentGateway.php';
 
 header('Content-Type: application/json');
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    die(json_encode(['error' => 'Method not allowed']));
+}
+
 try {
-    if (!isset($_POST['booking_id'])) {
-        throw new Exception('Booking ID is required');
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if (!isset($data['booking_id']) || !isset($data['amount'])) {
+        throw new Exception('Missing required parameters');
     }
 
-    $gateway = new PaymentGateway($conn);
-    
-    $amount = //... get amount from your data source
-    $customerId = //... get customer ID from your data source
-    $bookingId = $_POST['booking_id'];
+    $payment = new PaymentGateway($conn);
+    $result = $payment->processPayment(
+        $data['booking_id'],
+        $data['amount'],
+        $data['payment_details'] ?? []
+    );
 
-    // Create new payment
-    $payment = new Payment([
-        'amount' => $amount,
-        'customer_id' => $customerId,
-        'booking_id' => $bookingId
-    ]);
-
-    // Get payment details
-    echo $payment->getStatus(); // 'pending'
-    echo $payment->getAmount(); // 100.00
-
-    // Update payment status
-    $payment->setStatus('completed');
-    $payment->save();
-
-    $status = $payment->getStatus();
-    $paymentId = $payment->getId();
-
-    if ($status === 'success') {
-        // Record transaction
-        $stmt = $conn->prepare("
-            INSERT INTO transactions 
-            (booking_id, payment_id, amount, status)
-            VALUES (?, ?, ?, 'completed')
-        ");
-
-        $stmt->bind_param(
-            'isd',
-            $bookingId,
-            $paymentId,
-            $payment->getAmount()
-        );
-
-        $stmt->execute();
-
+    if ($result) {
         echo json_encode([
             'success' => true,
-            'payment_id' => $paymentId
+            'payment_id' => $result['payment_id'] ?? null,
+            'status' => $payment->getStatus()
         ]);
     } else {
-        throw new Exception('Payment failed. Please try again.');
+        throw new Exception($payment->getErrorMessage());
     }
 } catch (Exception $e) {
     http_response_code(400);
