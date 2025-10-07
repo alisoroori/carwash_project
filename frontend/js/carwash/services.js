@@ -1,134 +1,218 @@
 class ServiceManager {
     constructor() {
-        this.loadServices();
+        this.endpoints = {
+            services: '/carwash_project/backend/api/carwash/services/list.php',
+            update: '/carwash_project/backend/api/carwash/services/update.php',
+            availability: '/carwash_project/backend/api/carwash/services/availability.php',
+            stats: '/carwash_project/backend/api/carwash/services/stats.php'
+        };
+        this.activeServices = new Map();
+        this.init();
+    }
+
+    async init() {
         this.setupEventListeners();
+        await this.loadServices();
+        this.initializeServiceStats();
+        this.startAutoRefresh();
     }
 
     setupEventListeners() {
-        const form = document.getElementById('serviceForm');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveService(new FormData(form));
+        // Add service button
+        document.getElementById('addService')?.addEventListener('click', () => {
+            this.showServiceForm();
+        });
+
+        // Bulk actions
+        document.getElementById('bulkActions')?.addEventListener('change', (e) => {
+            this.handleBulkAction(e.target.value);
+        });
+
+        // Service status toggle
+        document.addEventListener('change', (e) => {
+            if (e.target.matches('.service-status-toggle')) {
+                this.toggleServiceStatus(e.target.dataset.serviceId);
+            }
+        });
+
+        // Search and filter
+        document.getElementById('serviceSearch')?.addEventListener('input', (e) => {
+            this.filterServices(e.target.value);
         });
     }
 
     async loadServices() {
         try {
-            const response = await fetch('../../api/carwash/get_services.php');
-            const data = await response.json();
+            const response = await fetch(this.endpoints.services);
+            const services = await response.json();
             
-            if (data.success) {
-                this.renderServices(data.services);
-            }
+            this.activeServices.clear();
+            services.forEach(service => this.activeServices.set(service.id, service));
+            
+            this.renderServices();
         } catch (error) {
-            console.error('Error loading services:', error);
+            this.showError('Failed to load services');
         }
     }
 
-    renderServices(services) {
-        const grid = document.getElementById('servicesGrid');
-        grid.innerHTML = services.map(service => `
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-lg font-semibold">${service.name}</h3>
-                    <div class="flex space-x-2">
-                        <button onclick="serviceManager.editService(${service.id})"
-                                class="text-blue-600 hover:text-blue-800">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="serviceManager.deleteService(${service.id})"
-                                class="text-red-600 hover:text-red-800">
-                            <i class="fas fa-trash"></i>
-                        </button>
+    renderServices() {
+        const container = document.getElementById('servicesList');
+        if (!container) return;
+
+        container.innerHTML = Array.from(this.activeServices.values()).map(service => `
+            <div class="service-card ${service.status}" data-id="${service.id}">
+                <div class="service-header">
+                    <h3>${this.sanitizeHTML(service.name)}</h3>
+                    <label class="switch">
+                        <input type="checkbox" 
+                               class="service-status-toggle"
+                               data-service-id="${service.id}"
+                               ${service.status === 'active' ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="service-details">
+                    <div class="price-duration">
+                        <span class="price">₺${service.price.toFixed(2)}</span>
+                        <span class="duration">${service.duration} mins</span>
+                    </div>
+                    <p class="description">${this.sanitizeHTML(service.description)}</p>
+                </div>
+
+                <div class="service-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Bookings</span>
+                        <span class="stat-value">${service.booking_count}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Rating</span>
+                        <span class="stat-value">${service.average_rating.toFixed(1)}★</span>
                     </div>
                 </div>
-                <p class="text-gray-600 mb-4">${service.description || 'Açıklama yok'}</p>
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-500">
-                        <i class="fas fa-clock"></i> ${service.duration} dakika
-                    </span>
-                    <span class="font-semibold">${service.price} TL</span>
+
+                <div class="service-actions">
+                    <button class="edit-btn" 
+                            onclick="serviceManager.editService('${service.id}')">
+                        Edit
+                    </button>
+                    <button class="availability-btn" 
+                            onclick="serviceManager.manageAvailability('${service.id}')">
+                        Availability
+                    </button>
                 </div>
             </div>
         `).join('');
     }
 
+    showServiceForm(serviceId = null) {
+        const service = serviceId ? this.activeServices.get(serviceId) : null;
+        const dialog = document.createElement('div');
+        dialog.className = 'service-dialog';
+        dialog.innerHTML = `
+            <div class="dialog-content">
+                <h3>${service ? 'Edit' : 'Add'} Service</h3>
+                <form id="serviceForm">
+                    <input type="hidden" name="id" value="${service?.id || ''}">
+                    
+                    <div class="form-group">
+                        <label>Service Name</label>
+                        <input type="text" 
+                               name="name" 
+                               value="${service?.name || ''}"
+                               required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price (₺)</label>
+                            <input type="number" 
+                                   name="price" 
+                                   min="0" 
+                                   step="0.01"
+                                   value="${service?.price || '0'}"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label>Duration (mins)</label>
+                            <input type="number" 
+                                   name="duration" 
+                                   min="15" 
+                                   step="15"
+                                   value="${service?.duration || '30'}"
+                                   required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" required>${service?.description || ''}</textarea>
+                    </div>
+
+                    <div class="dialog-actions">
+                        <button type="submit">${service ? 'Update' : 'Add'}</button>
+                        <button type="button" class="cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        document.body.appendChild(dialog);
+
+        dialog.querySelector('form').onsubmit = (e) => {
+            e.preventDefault();
+            this.saveService(new FormData(e.target));
+            dialog.remove();
+        };
+
+        dialog.querySelector('.cancel').onclick = () => dialog.remove();
+    }
+
     async saveService(formData) {
         try {
-            const serviceId = formData.get('serviceId');
-            const url = serviceId ? 
-                '../../api/carwash/update_service.php' : 
-                '../../api/carwash/add_service.php';
-
-            const response = await fetch(url, {
+            const response = await fetch(this.endpoints.update, {
                 method: 'POST',
                 body: formData
             });
 
-            const data = await response.json();
-            
-            if (data.success) {
-                this.loadServices();
-                this.closeServiceModal();
+            const result = await response.json();
+            if (result.success) {
+                this.showSuccess('Service saved successfully');
+                await this.loadServices();
             } else {
-                alert(data.error || 'İşlem başarısız');
+                this.showError(result.message);
             }
         } catch (error) {
-            console.error('Error saving service:', error);
-            alert('Sistem hatası');
+            this.showError('Failed to save service');
         }
     }
 
-    async deleteService(serviceId) {
-        if (!confirm('Bu hizmet paketini silmek istediğinizden emin misiniz?')) {
-            return;
-        }
-
-        try {
-            const response = await fetch('../../api/carwash/delete_service.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ serviceId })
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                this.loadServices();
-            } else {
-                alert(data.error || 'Silme işlemi başarısız');
-            }
-        } catch (error) {
-            console.error('Error deleting service:', error);
-            alert('Sistem hatası');
-        }
+    startAutoRefresh() {
+        setInterval(() => this.loadServices(), 300000); // Refresh every 5 minutes
     }
 
-    editService(serviceId) {
-        const service = document.querySelector(`[data-service-id="${serviceId}"]`);
-        document.getElementById('serviceId').value = serviceId;
-        document.getElementById('serviceName').value = service.dataset.name;
-        document.getElementById('serviceDescription').value = service.dataset.description;
-        document.getElementById('servicePrice').value = service.dataset.price;
-        document.getElementById('serviceDuration').value = service.dataset.duration;
-        
-        document.getElementById('modalTitle').textContent = 'Hizmet Paketini Düzenle';
-        this.showServiceModal();
+    sanitizeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 
-    showServiceModal() {
-        document.getElementById('serviceModal').classList.remove('hidden');
+    showSuccess(message) {
+        const alert = document.createElement('div');
+        alert.className = 'success-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 3000);
     }
 
-    closeServiceModal() {
-        document.getElementById('serviceModal').classList.add('hidden');
-        document.getElementById('serviceForm').reset();
-        document.getElementById('serviceId').value = '';
-        document.getElementById('modalTitle').textContent = 'Yeni Hizmet Paketi';
+    showError(message) {
+        const alert = document.createElement('div');
+        alert.className = 'error-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
     }
 }
 
-// Initialize
-const serviceManager = new ServiceManager();
+// Initialize service manager
+document.addEventListener('DOMContentLoaded', () => new ServiceManager());

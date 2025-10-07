@@ -1,95 +1,211 @@
 class ScheduleTemplates {
-    constructor(calendar) {
-        this.calendar = calendar;
-        this.templates = this.loadTemplates();
+    constructor() {
+        this.endpoints = {
+            templates: '/carwash_project/backend/api/carwash/templates/list.php',
+            save: '/carwash_project/backend/api/carwash/templates/save.php',
+            apply: '/carwash_project/backend/api/carwash/templates/apply.php',
+            preview: '/carwash_project/backend/api/carwash/templates/preview.php'
+        };
+        this.currentTemplate = null;
+        this.timeSlots = [];
         this.init();
     }
 
-    init() {
-        this.renderTemplatePanel();
+    async init() {
         this.setupEventListeners();
+        await this.loadTemplates();
+        this.initializeTimeGrid();
     }
 
-    renderTemplatePanel() {
-        const panel = document.createElement('div');
-        panel.className = 'bg-white rounded-lg shadow-lg p-4 mb-4';
-        panel.innerHTML = `
-            <h3 class="text-lg font-semibold mb-3">Program Şablonları</h3>
-            <div class="space-y-2" id="templateList">
-                ${this.renderTemplateList()}
+    setupEventListeners() {
+        // Template selection
+        document.getElementById('templateSelect')?.addEventListener('change', (e) => {
+            this.loadTemplate(e.target.value);
+        });
+
+        // Save template
+        document.getElementById('saveTemplate')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveTemplate(new FormData(e.target));
+        });
+
+        // Apply template
+        document.getElementById('applyTemplate')?.addEventListener('click', () => {
+            this.showApplyDialog();
+        });
+
+        // Time slot selection
+        document.getElementById('timeGrid')?.addEventListener('click', (e) => {
+            if (e.target.matches('.time-slot')) {
+                this.toggleTimeSlot(e.target);
+            }
+        });
+    }
+
+    async loadTemplates() {
+        try {
+            const response = await fetch(this.endpoints.templates);
+            const templates = await response.json();
+            this.renderTemplateList(templates);
+        } catch (error) {
+            this.showError('Failed to load templates');
+        }
+    }
+
+    renderTemplateList(templates) {
+        const select = document.getElementById('templateSelect');
+        if (!select) return;
+
+        select.innerHTML = `
+            <option value="">Select a template</option>
+            ${templates.map(template => `
+                <option value="${template.id}">${this.sanitizeHTML(template.name)}</option>
+            `).join('')}
+        `;
+    }
+
+    initializeTimeGrid() {
+        const grid = document.getElementById('timeGrid');
+        if (!grid) return;
+
+        const hours = Array.from({ length: 12 }, (_, i) => i + 8); // 8 AM to 8 PM
+        const minutes = ['00', '30'];
+
+        grid.innerHTML = hours.map(hour => minutes.map(minute => {
+            const time = `${hour.toString().padStart(2, '0')}:${minute}`;
+            return `
+                <div class="time-slot" data-time="${time}">
+                    <span class="time-label">${time}</span>
+                    <div class="slot-capacity">
+                        <input type="number" min="0" max="10" value="1">
+                    </div>
+                </div>
+            `;
+        }).join('')).join('');
+    }
+
+    async loadTemplate(templateId) {
+        if (!templateId) return;
+
+        try {
+            const response = await fetch(`${this.endpoints.templates}?id=${templateId}`);
+            const template = await response.json();
+            
+            this.currentTemplate = template;
+            this.displayTemplate(template);
+        } catch (error) {
+            this.showError('Failed to load template');
+        }
+    }
+
+    displayTemplate(template) {
+        // Reset all slots
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.classList.remove('active');
+            slot.querySelector('input').value = '1';
+        });
+
+        // Apply template slots
+        template.slots.forEach(slot => {
+            const slotElement = document.querySelector(`[data-time="${slot.time}"]`);
+            if (slotElement) {
+                slotElement.classList.add('active');
+                slotElement.querySelector('input').value = slot.capacity;
+            }
+        });
+
+        // Update template info
+        document.getElementById('templateName').value = template.name;
+        document.getElementById('templateDescription').value = template.description;
+    }
+
+    async saveTemplate(formData) {
+        const templateData = {
+            name: formData.get('templateName'),
+            description: formData.get('templateDescription'),
+            slots: this.getSelectedSlots()
+        };
+
+        try {
+            const response = await fetch(this.endpoints.save, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(templateData)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                this.showSuccess('Template saved successfully');
+                await this.loadTemplates();
+            } else {
+                this.showError(result.message);
+            }
+        } catch (error) {
+            this.showError('Failed to save template');
+        }
+    }
+
+    getSelectedSlots() {
+        return Array.from(document.querySelectorAll('.time-slot.active')).map(slot => ({
+            time: slot.dataset.time,
+            capacity: parseInt(slot.querySelector('input').value)
+        }));
+    }
+
+    showApplyDialog() {
+        if (!this.currentTemplate) {
+            this.showError('Please select a template first');
+            return;
+        }
+
+        const dialog = document.createElement('div');
+        dialog.className = 'template-dialog';
+        dialog.innerHTML = `
+            <div class="dialog-content">
+                <h3>Apply Template: ${this.sanitizeHTML(this.currentTemplate.name)}</h3>
+                <form id="applyTemplateForm">
+                    <div class="form-group">
+                        <label>Select Dates:</label>
+                        <input type="text" id="datePicker" class="flatpickr" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Override Existing:</label>
+                        <input type="checkbox" name="override">
+                    </div>
+                    <div class="dialog-actions">
+                        <button type="submit">Apply</button>
+                        <button type="button" class="cancel">Cancel</button>
+                    </div>
+                </form>
             </div>
-            <button id="addTemplate" class="mt-3 text-blue-600 hover:text-blue-800">
-                <i class="fas fa-plus"></i> Yeni Şablon
-            </button>
         `;
 
-        this.calendar.container.parentNode.insertBefore(panel, this.calendar.container);
+        document.body.appendChild(dialog);
+        this.initializeDatePicker();
     }
 
-    renderTemplateList() {
-        return this.templates.map((template, index) => `
-            <div class="flex items-center justify-between bg-gray-50 p-2 rounded">
-                <span>${template.name}</span>
-                <div class="space-x-2">
-                    <button class="text-blue-600 hover:text-blue-800" 
-                            onclick="scheduleTemplates.applyTemplate(${index})">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <button class="text-red-600 hover:text-red-800"
-                            onclick="scheduleTemplates.deleteTemplate(${index})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `).join('');
+    sanitizeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 
-    loadTemplates() {
-        return JSON.parse(localStorage.getItem('scheduleTemplates') || '[]');
+    showSuccess(message) {
+        const alert = document.createElement('div');
+        alert.className = 'success-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 3000);
     }
 
-    saveTemplates() {
-        localStorage.setItem('scheduleTemplates', JSON.stringify(this.templates));
-    }
-
-    async addTemplate() {
-        const name = await this.promptTemplateName();
-        if (!name) return;
-
-        const currentSchedules = await this.calendar.getAllSchedules();
-        this.templates.push({
-            name,
-            schedules: currentSchedules
-        });
-
-        this.saveTemplates();
-        this.updateTemplateList();
-    }
-
-    async applyTemplate(index) {
-        const template = this.templates[index];
-        if (confirm(`"${template.name}" şablonunu uygulamak istiyor musunuz?`)) {
-            await this.calendar.updateSchedules(template.schedules);
-        }
-    }
-
-    deleteTemplate(index) {
-        if (confirm('Bu şablonu silmek istediğinizden emin misiniz?')) {
-            this.templates.splice(index, 1);
-            this.saveTemplates();
-            this.updateTemplateList();
-        }
-    }
-
-    promptTemplateName() {
-        return new Promise(resolve => {
-            const name = prompt('Şablon adını girin:');
-            resolve(name);
-        });
-    }
-
-    updateTemplateList() {
-        const list = document.getElementById('templateList');
-        list.innerHTML = this.renderTemplateList();
+    showError(message) {
+        const alert = document.createElement('div');
+        alert.className = 'error-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
     }
 }
+
+// Initialize schedule templates
+document.addEventListener('DOMContentLoaded', () => new ScheduleTemplates());

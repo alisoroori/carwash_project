@@ -1,107 +1,222 @@
-class ServiceManager {
+class ServiceManagement {
     constructor() {
-        this.carwashId = document.querySelector('meta[name="carwash-id"]').content;
+        this.endpoints = {
+            services: '/carwash_project/backend/api/carwash/services/manage.php',
+            status: '/carwash_project/backend/api/carwash/services/status.php',
+            categories: '/carwash_project/backend/api/carwash/services/categories.php',
+            availability: '/carwash_project/backend/api/carwash/services/availability.php'
+        };
+        this.services = new Map();
+        this.categories = new Map();
         this.init();
     }
 
     async init() {
+        await Promise.all([
+            this.loadServices(),
+            this.loadCategories()
+        ]);
         this.setupEventListeners();
-        await this.loadServices();
+        this.initializeDragAndDrop();
+        this.startAutoRefresh();
     }
 
     setupEventListeners() {
-        document.getElementById('addServiceBtn').addEventListener('click', () => {
-            this.showModal();
+        // Category management
+        document.getElementById('addCategory')?.addEventListener('click', () => {
+            this.showCategoryDialog();
         });
 
-        document.getElementById('serviceForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveService();
+        // Service management
+        document.getElementById('addService')?.addEventListener('click', () => {
+            this.showServiceDialog();
+        });
+
+        // Bulk actions
+        document.getElementById('bulkActions')?.addEventListener('change', (e) => {
+            this.handleBulkAction(e.target.value);
+        });
+
+        // Search functionality
+        document.getElementById('serviceSearch')?.addEventListener('input', (e) => {
+            this.filterServices(e.target.value);
         });
     }
 
     async loadServices() {
         try {
-            const response = await fetch(`/carwash_project/backend/api/services/get_services.php?carwash_id=${this.carwashId}`);
-            const data = await response.json();
+            const response = await fetch(this.endpoints.services);
+            const services = await response.json();
             
-            if (data.success) {
-                this.renderServices(data.services);
-            }
+            this.services.clear();
+            services.forEach(service => this.services.set(service.id, service));
+            
+            this.renderServices();
+            this.updateServiceStats();
         } catch (error) {
-            console.error('Error loading services:', error);
+            this.showError('Failed to load services');
         }
     }
 
-    renderServices(services) {
-        // Group services by category
-        const categories = {
-            exterior: document.getElementById('exteriorServices'),
-            interior: document.getElementById('interiorServices'),
-            full: document.getElementById('fullServices'),
-            special: document.getElementById('specialServices')
-        };
+    renderServices() {
+        const container = document.getElementById('serviceGrid');
+        if (!container) return;
 
-        // Clear existing services
-        Object.values(categories).forEach(container => container.innerHTML = '');
-
-        // Render services by category
-        services.forEach(service => {
-            const container = categories[service.category];
-            if (container) {
-                container.innerHTML += this.createServiceCard(service);
-            }
-        });
-    }
-
-    createServiceCard(service) {
-        return `
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h4 class="font-semibold">${service.name}</h4>
-                        <p class="text-sm text-gray-600">${service.description}</p>
-                        <div class="mt-2 text-sm">
-                            <span class="text-blue-600 font-semibold">₺${service.price}</span>
-                            <span class="text-gray-500">· ${service.duration} min</span>
-                        </div>
-                    </div>
-                    <div class="space-x-2">
-                        <button onclick="serviceManager.editService(${service.id})"
-                                class="text-blue-600 hover:text-blue-800">
+        container.innerHTML = Array.from(this.services.values()).map(service => `
+            <div class="service-card ${service.status}" 
+                 data-id="${service.id}" 
+                 draggable="true">
+                <div class="service-header">
+                    <h3>${this.sanitizeHTML(service.name)}</h3>
+                    <div class="service-controls">
+                        <label class="switch">
+                            <input type="checkbox" 
+                                   class="service-toggle" 
+                                   ${service.active ? 'checked' : ''}
+                                   data-id="${service.id}">
+                            <span class="slider"></span>
+                        </label>
+                        <button class="edit-btn" 
+                                onclick="serviceManagement.editService('${service.id}')">
                             <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="serviceManager.toggleService(${service.id})"
-                                class="text-${service.status === 'active' ? 'red' : 'green'}-600">
-                            <i class="fas fa-${service.status === 'active' ? 'times' : 'check'}"></i>
                         </button>
                     </div>
                 </div>
+
+                <div class="service-details">
+                    <div class="price-info">
+                        <span class="price">₺${service.price.toFixed(2)}</span>
+                        <span class="duration">${service.duration} mins</span>
+                    </div>
+                    <p class="description">${this.sanitizeHTML(service.description)}</p>
+                    <div class="service-tags">
+                        ${this.renderServiceTags(service.tags)}
+                    </div>
+                </div>
+
+                <div class="service-metrics">
+                    <div class="metric">
+                        <span>Bookings</span>
+                        <strong>${service.booking_count}</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Revenue</span>
+                        <strong>₺${service.revenue.toLocaleString()}</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Rating</span>
+                        <strong>${service.rating.toFixed(1)}★</strong>
+                    </div>
+                </div>
+
+                <div class="service-actions">
+                    <button class="availability-btn" 
+                            onclick="serviceManagement.manageAvailability('${service.id}')">
+                        Manage Availability
+                    </button>
+                    <button class="pricing-btn"
+                            onclick="serviceManagement.managePricing('${service.id}')">
+                        Pricing Options
+                    </button>
+                </div>
             </div>
-        `;
+        `).join('');
+
+        this.initializeDragListeners();
     }
 
-    async saveService() {
-        const form = document.getElementById('serviceForm');
-        const formData = new FormData(form);
-        formData.append('carwash_id', this.carwashId);
+    showServiceDialog(serviceId = null) {
+        const service = serviceId ? this.services.get(serviceId) : null;
+        const dialog = document.createElement('div');
+        dialog.className = 'service-dialog';
+        dialog.innerHTML = `
+            <div class="dialog-content">
+                <h3>${service ? 'Edit' : 'Add'} Service</h3>
+                <form id="serviceForm">
+                    <input type="hidden" name="id" value="${service?.id || ''}">
+                    
+                    <div class="form-group">
+                        <label>Service Name</label>
+                        <input type="text" 
+                               name="name" 
+                               value="${service?.name || ''}" 
+                               required>
+                    </div>
 
-        try {
-            const response = await fetch('/carwash_project/backend/api/services/save_service.php', {
-                method: 'POST',
-                body: formData
-            });
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price (₺)</label>
+                            <input type="number" 
+                                   name="price" 
+                                   min="0" 
+                                   step="0.01" 
+                                   value="${service?.price || '0'}" 
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label>Duration (mins)</label>
+                            <select name="duration" required>
+                                ${[15, 30, 45, 60, 90, 120].map(d => `
+                                    <option value="${d}" 
+                                            ${service?.duration === d ? 'selected' : ''}>
+                                        ${d} minutes
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                    </div>
 
-            const data = await response.json();
-            if (data.success) {
-                this.closeModal();
-                await this.loadServices();
-            }
-        } catch (error) {
-            console.error('Error saving service:', error);
-        }
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="category_id" required>
+                            ${Array.from(this.categories.values()).map(cat => `
+                                <option value="${cat.id}" 
+                                        ${service?.category_id === cat.id ? 'selected' : ''}>
+                                    ${this.sanitizeHTML(cat.name)}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" required>${service?.description || ''}</textarea>
+                    </div>
+
+                    <div class="dialog-actions">
+                        <button type="submit">${service ? 'Update' : 'Add'} Service</button>
+                        <button type="button" class="cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        document.body.appendChild(dialog);
+        this.initializeDialogEvents(dialog);
+    }
+
+    sanitizeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    showSuccess(message) {
+        const alert = document.createElement('div');
+        alert.className = 'success-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 3000);
+    }
+
+    showError(message) {
+        const alert = document.createElement('div');
+        alert.className = 'error-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
     }
 }
 
-// Initialize service manager
-const serviceManager = new ServiceManager();
+// Initialize service management
+document.addEventListener('DOMContentLoaded', () => new ServiceManagement());

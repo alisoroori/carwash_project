@@ -5,12 +5,14 @@ require_once '../../includes/auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <title>Çalışma Saatleri - CarWash Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Service Selection -->
@@ -48,7 +50,9 @@ require_once '../../includes/auth_check.php';
         </button>
     </div>
 
-    <script src="../../frontend/js/carwash/availability-calendar.js"></script>
+    <script src="/carwash_project/frontend/js/carwash/scheduling/availability-calendar.js"></script>
+    <script src="/carwash_project/frontend/js/carwash/scheduling/schedule-optimizer.js"></script>
+    <script src="/carwash_project/frontend/js/carwash/scheduling/conflict-resolver.js"></script>
     <script src="../../frontend/js/carwash/service-selector.js"></script>
     <script src="../../frontend/js/carwash/batch-updater.js"></script>
     <script src="../../frontend/js/carwash/conflict-visualizer.js"></script>
@@ -56,8 +60,6 @@ require_once '../../includes/auth_check.php';
     <script src="../../frontend/js/carwash/schedule-clipboard.js"></script>
     <script src="../../frontend/js/carwash/schedule-templates.js"></script>
     <script src="../../frontend/js/carwash/schedule-history.js"></script>
-    <script src="../../frontend/js/carwash/conflict-resolver.js"></script>
-    <script src="../../frontend/js/carwash/schedule-optimizer.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -98,4 +100,5 @@ require_once '../../includes/auth_check.php';
         });
     </script>
 </body>
+
 </html>

@@ -1,136 +1,127 @@
 // Booking functionality
 class BookingManager {
-    constructor(carwashId, userId) {let selectedService = null;
+    constructor(carwashId, userId) {
         this.carwashId = carwashId;
         this.userId = userId;
         this.selectedServices = new Set();
-        this.selectedTime = null;Type;
+        this.selectedTime = null;
         this.selectedDate = null;
         document.getElementById('bookingModal').classList.remove('hidden');
         this.init();
     }
-ooking_date"]');
-    async init() {dateInput.min = new Date().toISOString().split('T')[0];
+
+    async init() {
+        const dateInput = document.querySelector('input[name="booking_date"]');
+        dateInput.min = new Date().toISOString().split('T')[0];
         await this.loadServices();
         this.setupEventListeners();
-        this.initializeWebSocket();t.querySelector('select[name="booking_time"]');
-    }   timeSelect.innerHTML = '';
-}
+        this.initializeWebSocket();
+    }
+
     async loadServices() {
         try {
-            const response = await fetch(`/carwash_project/backend/api/services/get_services.php?carwash_id=${this.carwashId}`);   document.getElementById('bookingModal').classList.add('hidden');
-            const data = await response.json();}
-            
+            const response = await fetch(`/carwash_project/backend/api/services/get_services.php?carwash_id=${this.carwashId}`);
+            const data = await response.json();
             if (data.success) {
-                this.renderServices(data.services);me="booking_date"]').addEventListener('change', async function(e) {
+                this.renderServices(data.services);
             }
-        } catch (error) {ime"]');
-            console.error('Error loading services:', error);    timeSelect.innerHTML = '<option value="">Yükleniyor...</option>';
+        } catch (error) {
+            console.error('Error loading services:', error);
         }
     }
-ait fetch('../backend/api/get_available_times.php', {
-    renderServices(services) {OST',
-        const container = document.getElementById('servicesList');
-        container.innerHTML = services.map(service => `  'Content-Type': 'application/x-www-form-urlencoded',
-            <div class="flex items-center justify-between p-4 border rounded hover:bg-gray-50">
-                <div> body: `date=${date}&service_type=${selectedService.type}`
-                    <div class="font-semibold">${service.name}</div>});
-                    <div class="text-sm text-gray-600">${service.description}</div>
-                    <div class="text-sm text-gray-600">Duration: ${service.duration} min</div>const data = await response.json();
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-lg font-semibold">₺${service.price}</div>
-                    <button data-service-id="${service.id}"n value="${time}">${time}</option>`
-                            class="service-select px-4 py-2 rounded border hover:bg-blue-50">in('');
-                        Select
-                    </button>   timeSelect.innerHTML = '<option value="">Uygun saat bulunamadı</option>';
-                </div>
+renderServices(services) {
+    const container = document.getElementById('servicesList');
+    container.innerHTML = services.map(service => `
+        <div class="flex items-center justify-between p-4 border rounded hover:bg-gray-50">
+            <div>
+                <div class="font-semibold">${service.name}</div>
+                <div class="text-sm text-gray-600">${service.description}</div>
+                <div class="text-sm text-gray-600">Duration: ${service.duration} min</div>
             </div>
-        `).join('');
-   timeSelect.innerHTML = '<option value="">Hata oluştu</option>';
-        // Add click handlers }
-        document.querySelectorAll('.service-select').forEach(button => {});
-            button.addEventListener('click', () => this.toggleService(button));
-        });
-    }('bookingForm').addEventListener('submit', async function(e) {
-e.preventDefault();
+            <div class="flex items-center space-x-4">
+                <div class="text-lg font-semibold">₺${service.price}</div>
+                <button data-service-id="${service.id}" class="service-select px-4 py-2 rounded border hover:bg-blue-50">
+                    Select
+                </button>
+            </div>
+        </div>
+    `).join('');
+    // Add click handlers
+    document.querySelectorAll('.service-select').forEach(button => {
+        button.addEventListener('click', () => this.toggleService(button));
+    });
+}
     setupEventListeners() {
         document.getElementById('appointmentDate').addEventListener('change', (e) => {const formData = new FormData(this);
             this.selectedDate = e.target.value;
             this.loadTimeSlots();
-        });ait fetch('../backend/api/create_booking.php', {
-,
-        document.getElementById('confirmBooking').addEventListener('click', () => { body: formData
-            this.confirmBooking();});
+    });
+    document.getElementById('confirmBooking').addEventListener('click', () => {
+        this.confirmBooking();
+    });
+}
+
+async loadTimeSlots() {
+    if (!this.selectedDate) return;
+
+    try {
+        const response = await fetch('/carwash_project/backend/api/booking/get_timeslots.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                carwashId: this.carwashId,
+                date: this.selectedDate,
+                services: Array.from(this.selectedServices)
+            })
         });
-    }const data = await response.json();
-
-    async loadTimeSlots() {s) {
-        if (!this.selectedDate) return;
-
-        try {
-            const response = await fetch('/carwash_project/backend/api/booking/get_timeslots.php', {şturuldu. Onay emaili gönderildi.',
-                method: 'POST', confirmButtonText: 'Tamam'
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({eBookingModal();
-                    carwashId: this.carwashId,
-                    date: this.selectedDate,
-                    services: Array.from(this.selectedServices)
-                })
-            });vasyon oluşturulurken bir hata oluştu.',
- confirmButtonText: 'Tamam'
-            const data = await response.json();   });
-            if (data.success) {
-                this.renderTimeSlots(data.slots);
-            }or('Error creating booking:', error);
-        } catch (error) {
-            console.error('Error loading time slots:', error);
+        const data = await response.json();
+        if (data.success) {
+            this.renderTimeSlots(data.slots);
         }
-    }ulurken bir hata oluştu.',
- confirmButtonText: 'Tamam'
-    initializeWebSocket() {   });
-        this.ws = new WebSocket('ws://localhost:8082'); }
+    } catch (error) {
+        console.error('Error loading time slots:', error);
+    }
+}
+    initializeWebSocket() {
+        this.ws = new WebSocket('ws://localhost:8082');
+        // Add WebSocket event handlers here if needed
+    }
 
 
+    renderTimeSlots(slots) {
+        const container = document.getElementById('timeSlotsList');
+        container.innerHTML = slots.map(_slot => `
+            <div class="flex items-center justify-between p-4 border rounded hover:bg-gray-50">
+                <div>
+                    <div class="font-semibold">Time: ${_slot.time}</div>
+                    <div class="text-sm text-gray-600">Duration: ${_slot.duration} min</div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button data-slot-id="${_slot.id}" class="slot-select px-4 py-2 rounded border hover:bg-blue-50">
+                        Select
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        // Add click handlers
+        document.querySelectorAll('.slot-select').forEach(button => {
+            button.addEventListener('click', () => this.selectTimeSlot(button));
+        });
+    }
 
+    toggleService(button) {
+        const serviceId = button.getAttribute('data-service-id');
+        if (this.selectedServices.has(serviceId)) {
+            this.selectedServices.delete(serviceId);
+            button.classList.remove('bg-blue-200');
+            button.textContent = 'Select';
+        } else {
+            this.selectedServices.add(serviceId);
+            button.classList.add('bg-blue-200');
+            button.textContent = 'Selected';
+        }
+        this.loadTimeSlots();
+    }
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const bookingManager = new BookingManager(carwashId, userId);// Initialize booking manager}    }        }            alert('Booking failed. Please try again.');            console.error('Error creating booking:', error);        } catch (error) {            }                alert(data.error || 'Booking failed');            } else {                window.location.href = `/carwash_project/frontend/booking/confirmation.php?id=${data.bookingId}`;            if (data.success) {            const data = await response.json();            });                })                    services: Array.from(this.selectedServices)                    time: this.selectedTime,                    date: this.selectedDate,                    userId: this.userId,                    carwashId: this.carwashId,                body: JSON.stringify({                headers: { 'Content-Type': 'application/json' },                method: 'POST',            const response = await fetch('/carwash_project/backend/api/booking/create_booking.php', {        try {        }            return;            alert('Please select date, time and services');        if (!this.selectedDate || !this.selectedTime || this.selectedServices.size === 0) {    async confirmBooking() {    }        };            }                this.loadTimeSlots();            if (data.type === 'slot_update' && data.carwashId === this.carwashId) {            const data = JSON.parse(event.data);        this.ws.onmessage = (event) => {        });
+var bookingManager = new BookingManager(carwashId, userId); // Initialize booking manager

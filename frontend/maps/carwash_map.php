@@ -36,7 +36,7 @@ $mapsConfig = new MapsConfig();
         </div>
     </div>
 
-    <script src="/carwash_project/frontend/js/maps/carwash-map.js"></script>
+    <script src="/carwash_project/frontend/js/customer/maps/carwash-locator.js"></script>
 </body>
 
 </html>

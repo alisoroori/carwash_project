@@ -20,6 +20,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/carwash_project/frontend/js/admin/analytics/metrics-dashboard.js"></script>
+    <link href="/carwash_project/frontend/css/admin/dashboard.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50">
@@ -102,8 +104,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
             </div>
         </div>
     </div>
-
-    <script src="../js/admin/dashboard.js"></script>
 </body>
 
 </html>

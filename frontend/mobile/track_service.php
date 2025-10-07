@@ -32,7 +32,7 @@ $mapsConfig = new MapsConfig();
         </div>
     </div>
 
-    <script src="/carwash_project/frontend/js/mobile/service-tracking.js"></script>
+    <script src="/carwash_project/frontend/js/carwash/tracking/service-progress.js"></script>
 </body>
 
 </html>

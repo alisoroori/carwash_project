@@ -80,7 +80,7 @@ if (!$booking) {
         </div>
     </div>
 
-    <script src="/carwash_project/frontend/js/reviews.js"></script>
+    <script src="/carwash_project/frontend/js/customer/reviews/review-submission.js"></script>
 </body>
 
 </html>

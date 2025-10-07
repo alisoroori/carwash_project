@@ -25,9 +25,12 @@ $carwash = $stmt->get_result()->fetch_assoc();
 
 <head>
     <meta charset="UTF-8">
-    <title>Book Appointment - <?= htmlspecialchars($carwash['name']) ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Wash Booking - <?= htmlspecialchars($carwash['name']) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="/carwash_project/frontend/css/style.css" rel="stylesheet">
+    <link href="/carwash_project/frontend/css/booking.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50">
@@ -87,7 +90,16 @@ $carwash = $stmt->get_result()->fetch_assoc();
         const carwashId = <?= $carwash_id ?>;
         const userId = <?= $_SESSION['user_id'] ?>;
     </script>
-    <script src="/carwash_project/frontend/js/booking.js"></script>
+    <!-- Update script paths to absolute -->
+    <script src="/carwash_project/frontend/js/customer/booking/booking-wizard.js"></script>
+    <script src="/carwash_project/frontend/js/shared/components/notifications.js"></script>
+
+    <!-- If package booking is needed -->
+    <script src="/carwash_project/frontend/js/customer/booking/package-booking.js"></script>
+
+    <!-- Add shared utilities -->
+    <script src="/carwash_project/frontend/js/shared/utils/form-validator.js"></script>
+    <script src="/carwash_project/frontend/js/admin/dashboard.js"></script>
 </body>
 
 </html>

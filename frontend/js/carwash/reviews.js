@@ -1,132 +1,204 @@
-class CarwashReviews {
+class ReviewManager {
     constructor() {
-        this.loadStats();
-        this.loadReviews();
-        this.currentReviewId = null;
-        
-        // Setup reply form
-        document.getElementById('replyForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.submitReply();
-        });
+        this.endpoints = {
+            reviews: '/carwash_project/backend/api/carwash/reviews/list.php',
+            respond: '/carwash_project/backend/api/carwash/reviews/respond.php',
+            metrics: '/carwash_project/backend/api/carwash/reviews/metrics.php',
+            report: '/carwash_project/backend/api/carwash/reviews/report.php'
+        };
+        this.filters = {
+            rating: 'all',
+            status: 'all',
+            timeframe: '30days'
+        };
+        this.init();
     }
 
-    async loadStats() {
-        try {
-            const response = await fetch('../../api/carwash/get_review_stats.php');
-            const data = await response.json();
-            
-            if (data.success) {
-                document.getElementById('avgRating').textContent = 
-                    data.stats.average_rating.toFixed(1) + ' ★';
-                document.getElementById('totalReviews').textContent = 
-                    data.stats.total_reviews;
-                document.getElementById('recentReviews').textContent = 
-                    data.stats.recent_reviews;
-                document.getElementById('responseRate').textContent = 
-                    data.stats.response_rate + '%';
-            }
-        } catch (error) {
-            console.error('Error loading stats:', error);
-        }
+    async init() {
+        this.setupEventListeners();
+        await this.loadReviews();
+        this.initializeMetricsChart();
+    }
+
+    setupEventListeners() {
+        // Rating filter
+        document.getElementById('ratingFilter')?.addEventListener('change', (e) => {
+            this.filters.rating = e.target.value;
+            this.loadReviews();
+        });
+
+        // Status filter
+        document.getElementById('statusFilter')?.addEventListener('change', (e) => {
+            this.filters.status = e.target.value;
+            this.loadReviews();
+        });
+
+        // Timeframe selector
+        document.getElementById('timeframeSelect')?.addEventListener('change', (e) => {
+            this.filters.timeframe = e.target.value;
+            this.loadReviews();
+        });
+
+        // Response form submissions are handled in renderReviews
     }
 
     async loadReviews() {
         try {
-            const response = await fetch('../../api/carwash/get_reviews.php');
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderReviews(data.reviews);
-            }
+            const params = new URLSearchParams(this.filters);
+            const [reviews, metrics] = await Promise.all([
+                fetch(`${this.endpoints.reviews}?${params}`).then(r => r.json()),
+                fetch(`${this.endpoints.metrics}?${params}`).then(r => r.json())
+            ]);
+
+            this.renderReviews(reviews);
+            this.updateMetrics(metrics);
         } catch (error) {
-            console.error('Error loading reviews:', error);
+            this.showError('Failed to load reviews');
         }
     }
 
     renderReviews(reviews) {
         const container = document.getElementById('reviewsList');
+        if (!container) return;
+
         container.innerHTML = reviews.map(review => `
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <div class="font-semibold">${review.user_name}</div>
-                        <div class="text-yellow-400">
-                            ${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            ${new Date(review.created_at).toLocaleDateString('tr-TR')}
-                        </div>
+            <div class="review-card ${review.status}" data-id="${review.id}">
+                <div class="review-header">
+                    <div class="rating">
+                        ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}
                     </div>
-                    ${!review.reply ? `
-                        <button onclick="carwashReviews.showReplyModal(${review.id})"
-                                class="text-blue-600 hover:text-blue-800">
-                            <i class="fas fa-reply"></i> Yanıtla
+                    <span class="review-date">
+                        ${new Date(review.created_at).toLocaleDateString()}
+                    </span>
+                </div>
+                
+                <div class="review-content">
+                    <p class="review-text">${this.sanitizeHTML(review.content)}</p>
+                    <div class="customer-info">
+                        <span>By: ${this.sanitizeHTML(review.customer_name)}</span>
+                        <span>Service: ${this.sanitizeHTML(review.service_name)}</span>
+                    </div>
+                </div>
+
+                ${review.response ? this.renderResponse(review.response) : ''}
+                
+                <div class="review-actions">
+                    ${!review.response ? `
+                        <button class="respond-btn" 
+                                onclick="reviewManager.showResponseForm('${review.id}')">
+                            Respond
                         </button>
                     ` : ''}
+                    <button class="report-btn" 
+                            onclick="reviewManager.reportReview('${review.id}')">
+                        Report
+                    </button>
                 </div>
-                <p class="text-gray-600 mb-4">${review.comment}</p>
-                ${review.reply ? `
-                    <div class="ml-8 p-4 bg-gray-50 rounded">
-                        <div class="text-sm font-semibold mb-1">Yanıtınız:</div>
-                        <p class="text-gray-600">${review.reply}</p>
-                        <div class="text-sm text-gray-500 mt-1">
-                            ${new Date(review.reply_date).toLocaleDateString('tr-TR')}
-                        </div>
-                    </div>
-                ` : ''}
             </div>
         `).join('');
     }
 
-    showReplyModal(reviewId) {
-        this.currentReviewId = reviewId;
-        document.getElementById('replyModal').classList.remove('hidden');
+    renderResponse(response) {
+        return `
+            <div class="review-response">
+                <h4>Our Response:</h4>
+                <p>${this.sanitizeHTML(response.content)}</p>
+                <span class="response-date">
+                    Responded on ${new Date(response.created_at).toLocaleDateString()}
+                </span>
+            </div>
+        `;
     }
 
-    closeReplyModal() {
-        this.currentReviewId = null;
-        document.getElementById('replyModal').classList.add('hidden');
-        document.getElementById('replyForm').reset();
+    showResponseForm(reviewId) {
+        const form = document.createElement('div');
+        form.className = 'response-form';
+        form.innerHTML = `
+            <form onsubmit="return reviewManager.submitResponse(event, '${reviewId}')">
+                <textarea name="response" 
+                          placeholder="Write your response..."
+                          required></textarea>
+                <div class="form-actions">
+                    <button type="submit">Submit Response</button>
+                    <button type="button" onclick="this.closest('.response-form').remove()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        `;
+
+        const reviewCard = document.querySelector(`[data-id="${reviewId}"]`);
+        reviewCard?.appendChild(form);
     }
 
-    async submitReply() {
-        if (!this.currentReviewId) return;
-
-        const form = document.getElementById('replyForm');
-        const reply = form.reply.value.trim();
-
-        if (!reply) {
-            alert('Lütfen bir yanıt yazın');
-            return;
-        }
+    async submitResponse(event, reviewId) {
+        event.preventDefault();
+        const form = event.target;
+        const response = form.response.value;
 
         try {
-            const response = await fetch('../../api/carwash/reply_to_review.php', {
+            const result = await fetch(this.endpoints.respond, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    reviewId: this.currentReviewId,
-                    reply: reply
-                })
-            });
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ review_id: reviewId, response })
+            }).then(r => r.json());
 
-            const data = await response.json();
-            
-            if (data.success) {
-                this.closeReplyModal();
-                this.loadReviews();
+            if (result.success) {
+                this.showSuccess('Response submitted successfully');
+                await this.loadReviews();
             } else {
-                alert(data.error || 'Yanıt gönderilemedi');
+                this.showError(result.message);
             }
         } catch (error) {
-            console.error('Error submitting reply:', error);
-            alert('Sistem hatası');
+            this.showError('Failed to submit response');
         }
+
+        return false;
+    }
+
+    async reportReview(reviewId) {
+        if (!confirm('Are you sure you want to report this review?')) return;
+
+        try {
+            const result = await fetch(this.endpoints.report, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ review_id: reviewId })
+            }).then(r => r.json());
+
+            if (result.success) {
+                this.showSuccess('Review reported successfully');
+                await this.loadReviews();
+            } else {
+                this.showError(result.message);
+            }
+        } catch (error) {
+            this.showError('Failed to report review');
+        }
+    }
+
+    sanitizeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    showSuccess(message) {
+        const alert = document.createElement('div');
+        alert.className = 'success-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 3000);
+    }
+
+    showError(message) {
+        const alert = document.createElement('div');
+        alert.className = 'error-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
     }
 }
 
-// Initialize
-const carwashReviews = new CarwashReviews();
+// Initialize review manager
+document.addEventListener('DOMContentLoaded', () => new ReviewManager());

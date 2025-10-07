@@ -1,198 +1,208 @@
-class ReportsManager {
+class ReviewReports {
     constructor() {
-        this.initializeFilters();
-        this.loadReports();
+        this.endpoints = {
+            reports: '/carwash_project/backend/api/admin/reviews/reports.php',
+            trends: '/carwash_project/backend/api/admin/reviews/report-trends.php',
+            categories: '/carwash_project/backend/api/admin/reviews/report-categories.php'
+        };
+        this.charts = new Map();
+        this.filters = {
+            timeRange: '30days',
+            category: 'all',
+            status: 'all'
+        };
+        this.init();
     }
 
-    initializeFilters() {
-        document.getElementById('statusFilter').addEventListener('change', () => this.loadReports());
-        document.getElementById('reasonFilter').addEventListener('change', () => this.loadReports());
+    async init() {
+        this.initializeCharts();
+        this.setupEventListeners();
+        await this.loadReportData();
+        this.startAutoRefresh();
     }
 
-    async loadReports() {
-        try {
-            const status = document.getElementById('statusFilter').value;
-            const reason = document.getElementById('reasonFilter').value;
-
-            const response = await fetch('../api/admin/get_reports.php?' + new URLSearchParams({
-                status,
-                reason
+    initializeCharts() {
+        // Reports by Category Chart
+        const categoryCtx = document.getElementById('reportCategoriesChart');
+        if (categoryCtx) {
+            this.charts.set('categories', new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Spam', 'Inappropriate', 'Fake', 'Other'],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#EF4444', // Red
+                            '#F59E0B', // Orange
+                            '#3B82F6', // Blue
+                            '#6B7280'  // Gray
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
             }));
+        }
 
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderReports(data.reports);
-            }
-        } catch (error) {
-            console.error('Error loading reports:', error);
+        // Reports Timeline Chart
+        const timelineCtx = document.getElementById('reportTimelineChart');
+        if (timelineCtx) {
+            this.charts.set('timeline', new Chart(timelineCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Reports Received',
+                        borderColor: '#EF4444',
+                        data: []
+                    }, {
+                        label: 'Reports Resolved',
+                        borderColor: '#10B981',
+                        data: []
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            }));
         }
     }
 
-    renderReports(reports) {
-        const tbody = document.getElementById('reportsTableBody');
-        tbody.innerHTML = reports.map(report => `
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    ${new Date(report.created_at).toLocaleDateString('tr-TR')}
-                </td>
-                <td class="px-6 py-4">
-                    <div class="text-sm">
-                        <div class="font-medium">${report.review_excerpt}</div>
-                        <div class="text-gray-500">${report.carwash_name}</div>
+    setupEventListeners() {
+        // Time range filter
+        document.getElementById('timeRangeFilter')?.addEventListener('change', (e) => {
+            this.filters.timeRange = e.target.value;
+            this.loadReportData();
+        });
+
+        // Category filter
+        document.getElementById('categoryFilter')?.addEventListener('change', (e) => {
+            this.filters.category = e.target.value;
+            this.loadReportData();
+        });
+
+        // Status filter
+        document.getElementById('statusFilter')?.addEventListener('change', (e) => {
+            this.filters.status = e.target.value;
+            this.loadReportData();
+        });
+
+        // Export reports
+        document.getElementById('exportReports')?.addEventListener('click', () => 
+            this.exportReportData()
+        );
+
+        // Bulk action handlers
+        document.getElementById('bulkResolve')?.addEventListener('click', () => 
+            this.handleBulkAction('resolve')
+        );
+    }
+
+    async loadReportData() {
+        try {
+            const queryParams = new URLSearchParams(this.filters);
+            const [reports, trends, categories] = await Promise.all([
+                this.fetchData(`${this.endpoints.reports}?${queryParams}`),
+                this.fetchData(`${this.endpoints.trends}?${queryParams}`),
+                this.fetchData(`${this.endpoints.categories}?${queryParams}`)
+            ]);
+
+            this.updateReportsList(reports);
+            this.updateCharts(trends, categories);
+            this.updateStats(reports.stats);
+        } catch (error) {
+            this.showError('Failed to load report data');
+            console.error('Report loading error:', error);
+        }
+    }
+
+    updateReportsList(reports) {
+        const container = document.getElementById('reportsContainer');
+        if (!container) return;
+
+        container.innerHTML = reports.items.map(report => `
+            <div class="report-card ${report.status}" data-id="${report.id}">
+                <div class="report-header">
+                    <span class="report-category ${report.category}">${report.category}</span>
+                    <span class="report-date">${new Date(report.created_at).toLocaleString()}</span>
+                </div>
+                <div class="report-content">
+                    <p class="report-reason">${this.sanitizeHTML(report.reason)}</p>
+                    <div class="reported-review">
+                        <strong>Reported Review:</strong>
+                        <p>${this.sanitizeHTML(report.review_content)}</p>
                     </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${this.getReasonClass(report.reason)}">
-                        ${this.getReasonText(report.reason)}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${this.getStatusClass(report.status)}">
-                        ${this.getStatusText(report.status)}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button onclick="reportsManager.showReportDetail(${report.id})"
-                            class="text-blue-600 hover:text-blue-900">
-                        Detaylar
+                </div>
+                <div class="report-actions">
+                    <button class="resolve-btn" onclick="reviewReports.resolveReport('${report.id}')">
+                        Resolve
                     </button>
-                </td>
-            </tr>
+                    <button class="delete-review-btn" onclick="reviewReports.deleteReview('${report.review_id}')">
+                        Delete Review
+                    </button>
+                </div>
+            </div>
         `).join('');
     }
 
-    async showReportDetail(reportId) {
+    async resolveReport(reportId) {
         try {
-            const response = await fetch(`../api/admin/get_report_detail.php?id=${reportId}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                const modal = document.getElementById('reportModal');
-                const detail = document.getElementById('reportDetail');
-                
-                detail.innerHTML = this.generateReportDetailHTML(data.report);
-                modal.classList.remove('hidden');
-            }
-        } catch (error) {
-            console.error('Error loading report detail:', error);
-        }
-    }
-
-    generateReportDetailHTML(report) {
-        return `
-            <div class="space-y-4">
-                <div class="flex justify-between items-start">
-                    <h3 class="text-lg font-bold">Rapor #${report.id}</h3>
-                    <button onclick="reportsManager.closeModal()"
-                            class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <div class="border-t pt-4">
-                    <h4 class="font-semibold mb-2">Değerlendirme</h4>
-                    <div class="bg-gray-50 p-4 rounded">
-                        <div class="mb-2">
-                            <span class="text-yellow-400">
-                                ${'★'.repeat(report.review.rating)}
-                            </span>
-                        </div>
-                        <p>${report.review.comment}</p>
-                        <div class="text-sm text-gray-500 mt-2">
-                            ${report.review.user_name} tarafından
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border-t pt-4">
-                    <h4 class="font-semibold mb-2">Bildirim Detayları</h4>
-                    <div class="space-y-2">
-                        <p><strong>Bildiren:</strong> ${report.reporter_name}</p>
-                        <p><strong>Neden:</strong> ${this.getReasonText(report.reason)}</p>
-                        <p><strong>Açıklama:</strong> ${report.description}</p>
-                    </div>
-                </div>
-
-                <div class="border-t pt-4 flex justify-end space-x-2">
-                    ${report.status === 'pending' ? `
-                        <button onclick="reportsManager.updateReportStatus(${report.id}, 'dismissed')"
-                                class="px-4 py-2 text-gray-600 hover:text-gray-800">
-                            Reddet
-                        </button>
-                        <button onclick="reportsManager.updateReportStatus(${report.id}, 'resolved')"
-                                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                            Değerlendirmeyi Kaldır
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    }
-
-    async updateReportStatus(reportId, status) {
-        try {
-            const response = await fetch('../api/admin/update_report_status.php', {
+            const response = await fetch(`${this.endpoints.reports}/resolve`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ reportId, status })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ report_id: reportId })
             });
 
-            const data = await response.json();
-            
-            if (data.success) {
-                this.closeModal();
-                this.loadReports();
+            const result = await response.json();
+            if (result.success) {
+                this.showSuccess('Report resolved successfully');
+                this.loadReportData();
+            } else {
+                this.showError(result.message);
             }
         } catch (error) {
-            console.error('Error updating report:', error);
+            this.showError('Failed to resolve report');
         }
     }
 
-    closeModal() {
-        document.getElementById('reportModal').classList.add('hidden');
+    sanitizeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 
-    getReasonClass(reason) {
-        const classes = {
-            spam: 'bg-yellow-100 text-yellow-800',
-            offensive: 'bg-red-100 text-red-800',
-            inappropriate: 'bg-orange-100 text-orange-800',
-            other: 'bg-gray-100 text-gray-800'
-        };
-        return classes[reason] || classes.other;
+    startAutoRefresh() {
+        setInterval(() => this.loadReportData(), 300000); // Refresh every 5 minutes
     }
 
-    getReasonText(reason) {
-        const texts = {
-            spam: 'Spam',
-            offensive: 'Rahatsız Edici',
-            inappropriate: 'Uygunsuz',
-            other: 'Diğer'
-        };
-        return texts[reason] || reason;
+    showSuccess(message) {
+        const alert = document.createElement('div');
+        alert.className = 'success-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 3000);
     }
 
-    getStatusClass(status) {
-        const classes = {
-            pending: 'bg-yellow-100 text-yellow-800',
-            resolved: 'bg-green-100 text-green-800',
-            dismissed: 'bg-gray-100 text-gray-800'
-        };
-        return classes[status] || classes.pending;
-    }
-
-    getStatusText(status) {
-        const texts = {
-            pending: 'Beklemede',
-            resolved: 'Çözüldü',
-            dismissed: 'Reddedildi'
-        };
-        return texts[status] || status;
+    showError(message) {
+        const alert = document.createElement('div');
+        alert.className = 'error-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
     }
 }
 
-// Initialize
-const reportsManager = new ReportsManager();
+// Initialize review reports
+const reviewReports = new ReviewReports();

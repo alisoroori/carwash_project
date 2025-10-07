@@ -86,7 +86,7 @@ $carwashId = $_SESSION['carwash_id'];
         </div>
     </div>
 
-    <script src="../../frontend/js/carwash/services.js"></script>
+    <script src="/carwash_project/frontend/js/carwash/services/service-manager.js"></script>
 </body>
 
 </html>

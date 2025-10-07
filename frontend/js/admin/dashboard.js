@@ -1,151 +1,163 @@
 class AdminDashboard {
     constructor() {
-        this.loadStats();
-        this.initCharts();
-        this.loadActivities();
+        this.endpoints = {
+            stats: '/carwash_project/backend/api/admin/stats.php',
+            bookings: '/carwash_project/backend/api/admin/bookings.php',
+            revenue: '/carwash_project/backend/api/admin/revenue.php'
+        };
+        this.charts = new Map();
+        this.refreshInterval = 300000; // 5 minutes
+        this.init();
     }
 
-    async loadStats() {
+    async init() {
+        this.initializeCharts();
+        await this.loadDashboardData();
+        this.setupEventListeners();
+        this.startAutoRefresh();
+    }
+
+    initializeCharts() {
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart');
+        if (revenueCtx) {
+            this.charts.set('revenue', new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Daily Revenue',
+                        data: [],
+                        borderColor: '#4F46E5',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => `$${value}`
+                            }
+                        }
+                    }
+                }
+            }));
+        }
+
+        // Bookings Chart
+        const bookingsCtx = document.getElementById('bookingsChart');
+        if (bookingsCtx) {
+            this.charts.set('bookings', new Chart(bookingsCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Daily Bookings',
+                        data: [],
+                        backgroundColor: '#10B981'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            }));
+        }
+    }
+
+    async loadDashboardData() {
         try {
-            const response = await fetch('../../api/admin/get_dashboard_stats.php');
-            const data = await response.json();
-            
-            if (data.success) {
-                this.updateStats(data.stats);
-            }
+            const [stats, bookings, revenue] = await Promise.all([
+                fetch(this.endpoints.stats).then(r => r.json()),
+                fetch(this.endpoints.bookings).then(r => r.json()),
+                fetch(this.endpoints.revenue).then(r => r.json())
+            ]);
+
+            this.updateStats(stats);
+            this.updateCharts(bookings, revenue);
         } catch (error) {
-            console.error('Error loading stats:', error);
+            console.error('Failed to load dashboard data:', error);
+            this.showError('Failed to load dashboard data');
         }
     }
 
     updateStats(stats) {
-        document.getElementById('totalRevenue').textContent = 
-            this.formatCurrency(stats.total_revenue);
-        document.getElementById('activeBusinesses').textContent = 
-            stats.active_businesses;
-        document.getElementById('totalBookings').textContent = 
-            stats.total_bookings;
-        document.getElementById('newUsers').textContent = 
-            stats.new_users;
-    }
+        const elements = {
+            totalBookings: document.getElementById('totalBookings'),
+            totalRevenue: document.getElementById('totalRevenue'),
+            activeUsers: document.getElementById('activeUsers'),
+            completionRate: document.getElementById('completionRate')
+        };
 
-    initCharts() {
-        this.initRevenueChart();
-        this.initServicesChart();
-    }
-
-    async initRevenueChart() {
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        const response = await fetch('../../api/admin/get_revenue_data.php');
-        const data = await response.json();
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    label: 'Aylık Gelir',
-                    data: data.values,
-                    borderColor: '#2563eb',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
+        for (const [key, element] of Object.entries(elements)) {
+            if (element && stats[key]) {
+                element.textContent = this.formatStatValue(key, stats[key]);
             }
-        });
-    }
-
-    async initServicesChart() {
-        const ctx = document.getElementById('servicesChart').getContext('2d');
-        const response = await fetch('../../api/admin/get_services_data.php');
-        const data = await response.json();
-
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    data: data.values,
-                    backgroundColor: [
-                        '#2563eb',
-                        '#7c3aed',
-                        '#db2777',
-                        '#dc2626',
-                        '#d97706'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-    }
-
-    async loadActivities() {
-        try {
-            const response = await fetch('../../api/admin/get_recent_activities.php');
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderActivities(data.activities);
-            }
-        } catch (error) {
-            console.error('Error loading activities:', error);
         }
     }
 
-    renderActivities(activities) {
-        const tbody = document.getElementById('activityTable').querySelector('tbody');
-        tbody.innerHTML = activities.map(activity => `
-            <tr>
-                <td class="py-2">${this.formatDate(activity.created_at)}</td>
-                <td class="py-2">${activity.action}</td>
-                <td class="py-2">${activity.user_name}</td>
-                <td class="py-2">
-                    <span class="px-2 py-1 rounded-full text-xs ${this.getStatusClass(activity.status)}">
-                        ${activity.status}
-                    </span>
-                </td>
-            </tr>
-        `).join('');
+    updateCharts(bookings, revenue) {
+        const revenueChart = this.charts.get('revenue');
+        if (revenueChart) {
+            revenueChart.data.labels = revenue.dates;
+            revenueChart.data.datasets[0].data = revenue.amounts;
+            revenueChart.update();
+        }
+
+        const bookingsChart = this.charts.get('bookings');
+        if (bookingsChart) {
+            bookingsChart.data.labels = bookings.dates;
+            bookingsChart.data.datasets[0].data = bookings.counts;
+            bookingsChart.update();
+        }
     }
 
-    formatCurrency(amount) {
-        return new Intl.NumberFormat('tr-TR', {
-            style: 'currency',
-            currency: 'TRY'
-        }).format(amount);
-    }
+    setupEventListeners() {
+        const dateRangeSelect = document.getElementById('dateRange');
+        if (dateRangeSelect) {
+            dateRangeSelect.addEventListener('change', () => this.loadDashboardData());
+        }
 
-    formatDate(dateString) {
-        return new Date(dateString).toLocaleDateString('tr-TR', {
-            day: 'numeric',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit'
+        document.querySelectorAll('.refresh-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.loadDashboardData());
         });
     }
 
-    getStatusClass(status) {
-        const classes = {
-            'success': 'bg-green-100 text-green-800',
-            'pending': 'bg-yellow-100 text-yellow-800',
-            'failed': 'bg-red-100 text-red-800'
-        };
-        return classes[status] || 'bg-gray-100 text-gray-800';
+    startAutoRefresh() {
+        setInterval(() => this.loadDashboardData(), this.refreshInterval);
+    }
+
+    formatStatValue(key, value) {
+        switch (key) {
+            case 'totalRevenue':
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                }).format(value);
+            case 'completionRate':
+                return `${value}%`;
+            default:
+                return value.toLocaleString();
+        }
+    }
+
+    showError(message) {
+        const alert = document.createElement('div');
+        alert.className = 'error-alert';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
     }
 }
 
 // Initialize dashboard
-const dashboard = new AdminDashboard();
+document.addEventListener('DOMContentLoaded', () => new AdminDashboard());
