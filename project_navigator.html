@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarWash Project Navigator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        .content {
+            padding: 1rem;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .category {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: #34495e;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .file-link {
+            display: block;
+            padding: 0.5rem;
+            color: #bdc3c7;
+            text-decoration: none;
+            margin: 0.2rem 0;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .file-link:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        iframe {
+            width: 100%;
+            height: calc(100vh - 2rem);
+            border: none;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 4px;
+            background: #34495e;
+            color: white;
+        }
+
+        .search-box::placeholder {
+            color: #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <input type="text" class="search-box" placeholder="Search files..." id="searchBox">
+
+            <!-- Backend Section -->
+            <div class="category">Backend</div>
+            
+            <!-- Auth -->
+            <div class="subsection">
+                <a href="backend/auth/login.php" class="file-link" target="content-frame">Auth - Login</a>
+                <a href="backend/auth/register.php" class="file-link" target="content-frame">Auth - Register</a>
+                <a href="backend/auth/reset_password.php" class="file-link" target="content-frame">Auth - Reset Password</a>
+            </div>
+
+            <!-- API -->
+            <div class="subsection">
+                <a href="backend/api/bookings/create.php" class="file-link" target="content-frame">API - Create Booking</a>
+                <a href="backend/api/bookings/list.php" class="file-link" target="content-frame">API - Bookings List</a>
+                <a href="backend/api/services/manage.php" class="file-link" target="content-frame">API - Manage Services</a>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="category">Dashboards</div>
+            <a href="backend/dashboard/admin/index.php" class="file-link" target="content-frame">Admin Dashboard</a>
+            <a href="backend/dashboard/carwash/index.php" class="file-link" target="content-frame">CarWash Dashboard</a>
+            <a href="backend/dashboard/customer/index.php" class="file-link" target="content-frame">Customer Dashboard</a>
+
+            <!-- Payment System -->
+            <div class="category">Payment System</div>
+            <a href="backend/includes/payment_gateway.php" class="file-link" target="content-frame">Payment Gateway</a>
+            <a href="backend/includes/transaction_manager.php" class="file-link" target="content-frame">Transaction Manager</a>
+
+            <!-- Location Services -->
+            <div class="category">Location Services</div>
+            <a href="backend/includes/location_manager.php" class="file-link" target="content-frame">Location Manager</a>
+            <a href="backend/includes/maps_config.php" class="file-link" target="content-frame">Maps Configuration</a>
+
+            <!-- Frontend Section -->
+            <div class="category">Frontend</div>
+            
+            <!-- Pages -->
+            <a href="frontend/index.html" class="file-link" target="content-frame">Home Page</a>
+            <a href="frontend/booking.html" class="file-link" target="content-frame">Booking Page</a>
+            <a href="frontend/services.html" class="file-link" target="content-frame">Services Page</a>
+
+            <!-- JavaScript -->
+            <div class="category">JavaScript</div>
+            <a href="frontend/js/maps/service-areas.js" class="file-link" target="content-frame">Maps Service Areas</a>
+            <a href="frontend/js/payment/checkout.js" class="file-link" target="content-frame">Payment Checkout</a>
+        </div>
+
+        <div class="content">
+            <iframe name="content-frame" src="frontend/index.html"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const links = document.getElementsByClassName('file-link');
+            
+            Array.from(links).forEach(link => {
+                const text = link.textContent.toLowerCase();
+                link.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+
+        // Track active link
+        const links = document.getElementsByClassName('file-link');
+        Array.from(links).forEach(link => {
+            link.addEventListener('click', function() {
+                const active = document.querySelector('.file-link.active');
+                if (active) active.classList.remove('active');
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

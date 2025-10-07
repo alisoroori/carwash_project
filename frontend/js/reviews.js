@@ -185,10 +185,90 @@ class ReviewComponent {
     }
 }
 
+class ReviewManager {
+    constructor() {
+        this.selectedRating = 0;
+        this.form = document.getElementById('reviewForm');
+        this.init();
+    }
+
+    init() {
+        this.setupRatingStars();
+        this.setupFormSubmission();
+    }
+
+    setupRatingStars() {
+        const stars = document.querySelectorAll('.rating-star');
+        
+        stars.forEach(star => {
+            star.addEventListener('click', (e) => {
+                const rating = parseInt(e.currentTarget.dataset.rating);
+                this.setRating(rating);
+            });
+
+            star.addEventListener('mouseover', (e) => {
+                const rating = parseInt(e.currentTarget.dataset.rating);
+                this.highlightStars(rating);
+            });
+        });
+
+        document.getElementById('ratingStars').addEventListener('mouseleave', () => {
+            this.highlightStars(this.selectedRating);
+        });
+    }
+
+    setRating(rating) {
+        this.selectedRating = rating;
+        this.highlightStars(rating);
+    }
+
+    highlightStars(rating) {
+        const stars = document.querySelectorAll('.rating-star');
+        stars.forEach((star, index) => {
+            star.classList.toggle('text-yellow-400', index < rating);
+            star.classList.toggle('text-gray-300', index >= rating);
+        });
+    }
+
+    setupFormSubmission() {
+        this.form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!this.selectedRating) {
+                alert('Please select a rating');
+                return;
+            }
+
+            const formData = new FormData(this.form);
+            formData.append('rating', this.selectedRating);
+
+            try {
+                const response = await fetch('/carwash_project/backend/api/reviews/submit_review.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = '/carwash_project/frontend/dashboard/user_dashboard.php?review_submitted=1';
+                } else {
+                    alert(data.error || 'Failed to submit review');
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Failed to submit review. Please try again.');
+            }
+        });
+    }
+}
+
 // Initialize component
 document.addEventListener('DOMContentLoaded', () => {
     const reviewsContainer = document.getElementById('reviewsComponent');
     if (reviewsContainer) {
         new ReviewComponent('reviewsComponent');
     }
+
+    const reviewManager = new ReviewManager();
 });

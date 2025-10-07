@@ -312,3 +312,33 @@
 </body>
 
 </html>
+<?php
+require_once '../includes/db.php';
+session_start();
+
+class UserAuth {
+    private $conn;
+
+    public function __construct($conn) {
+        $this->conn = $conn;
+    }
+
+    public function login($email, $password) {
+        $stmt = $this->conn->prepare("
+            SELECT id, email, password_hash, role 
+            FROM users 
+            WHERE email = ?
+        ");
+        
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+
+        if ($result && password_verify($password, $result['password_hash'])) {
+            $_SESSION['user_id'] = $result['id'];
+            $_SESSION['user_role'] = $result['role'];
+            return true;
+        }
+        return false;
+    }
+}

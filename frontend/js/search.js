@@ -137,3 +137,111 @@ document.querySelectorAll('select, input').forEach(element => {
         applyFilters(filters);
     });
 });
+
+class CarWashSearch {
+    constructor() {
+        this.form = document.getElementById('searchForm');
+        this.resultsContainer = document.getElementById('searchResults');
+        this.init();
+    }
+
+    init() {
+        this.form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.performSearch();
+        });
+
+        // Initialize location autocomplete
+        this.initLocationAutocomplete();
+    }
+
+    async performSearch() {
+        const location = document.getElementById('location').value;
+        const serviceType = document.getElementById('serviceType').value;
+
+        try {
+            const response = await fetch('../backend/api/search/find_carwash.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    location,
+                    serviceType
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                this.renderResults(data.carwashes);
+            } else {
+                this.showError(data.error);
+            }
+        } catch (error) {
+            this.showError('Search failed. Please try again.');
+        }
+    }
+
+    renderResults(carwashes) {
+        this.resultsContainer.innerHTML = carwashes.map(carwash => `
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <img src="${carwash.image}" alt="${carwash.name}" 
+                     class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2">${carwash.name}</h3>
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <span class="ml-1">${carwash.rating} (${carwash.reviews} reviews)</span>
+                    </div>
+                    <p class="text-gray-600 mb-4">${carwash.address}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-600 font-semibold">
+                            Starting from ${carwash.price_range}
+                        </span>
+                        <button onclick="window.location.href='booking.php?id=${carwash.id}'"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            Book Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    showError(message) {
+        this.resultsContainer.innerHTML = `
+            <div class="col-span-3 text-center py-8">
+                <div class="text-red-600 mb-2">
+                    <i class="fas fa-exclamation-circle text-xl"></i>
+                </div>
+                <p class="text-gray-600">${message}</p>
+            </div>
+        `;
+    }
+
+    initLocationAutocomplete() {
+        // Initialize location autocomplete using browser's geolocation
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                this.reverseGeocode(position.coords.latitude, position.coords.longitude);
+            });
+        }
+    }
+
+    async reverseGeocode(lat, lng) {
+        try {
+            const response = await fetch(
+                `../backend/api/location/reverse_geocode.php?lat=${lat}&lng=${lng}`
+            );
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('location').value = data.address;
+            }
+        } catch (error) {
+            console.error('Geocoding failed:', error);
+        }
+    }
+}
+
+// Initialize search functionality
+const carWashSearch = new CarWashSearch();
