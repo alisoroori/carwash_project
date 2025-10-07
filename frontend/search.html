@@ -108,5 +108,33 @@
     <!-- Add this before your other JavaScript files -->
     <script src="/carwash_project/frontend/js/config/api.js"></script>
     <script src="/carwash_project/frontend/js/booking/booking.js"></script>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Araç yıkama ara...">
+        <div id="searchResults"></div>
+    </div>
+
+    <script src="js/cart.js"></script>
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        searchInput.addEventListener('input', async (e) => {
+            try {
+                if (e.target.value.length < 2) return;
+                
+                const results = await cartManager.searchCarWash(e.target.value);
+                
+                searchResults.innerHTML = results.map(carwash => `
+                    <div class="carwash-item">
+                        <h3>${carwash.name}</h3>
+                        <p>${carwash.address}</p>
+                        <p>${carwash.phone}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                searchResults.innerHTML = '<p class="error">Arama başarısız oldu. Lütfen tekrar deneyin.</p>';
+            }
+        });
+    </script>
 </body>
 </html>

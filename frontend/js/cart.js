@@ -89,3 +89,63 @@ function proceedToCheckout() {
 
 // Initialize cart on page load
 document.addEventListener('DOMContentLoaded', loadCart);
+
+class CartManager {
+    constructor() {
+        this.baseUrl = '/carwash_project/backend/api';
+        this.initializeCart();
+    }
+
+    async searchCarWash(query) {
+        try {
+            const response = await fetch(`${this.baseUrl}/search_carwash.php?query=${encodeURIComponent(query)}`);
+            
+            if (!response.ok) {
+                throw new Error('Search request failed');
+            }
+
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.error || 'Search failed');
+            }
+
+            return data.results;
+        } catch (error) {
+            console.error('Search error:', error);
+            throw error;
+        }
+    }
+
+    async saveCart(cartData) {
+        try {
+            const response = await fetch(`${this.baseUrl}/save_cart.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(cartData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save cart');
+            }
+
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.error || 'Save failed');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Save cart error:', error);
+            throw error;
+        }
+    }
+
+    initializeCart() {
+        // ... existing initialization code ...
+    }
+}
+
+// Initialize cart manager
+const cartManager = new CartManager();
