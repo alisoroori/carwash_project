@@ -1,91 +1,77 @@
--- Core Tables
+-- Drop existing tables if they exist
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS carwash;
+DROP TABLE IF EXISTS users;
+
+-- Create users table
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'carwash', 'customer') NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('active', 'inactive', 'suspended') DEFAULT 'active'
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('customer', 'carwash', 'admin') DEFAULT 'customer',
+    name VARCHAR(100),
+    phone VARCHAR(20),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE carwashes (
+-- Create carwash table (singular form as per project convention)
+CREATE TABLE carwash (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
     name VARCHAR(100) NOT NULL,
-    address TEXT NOT NULL,
-    phone VARCHAR(20) NOT NULL,
+    address TEXT,
+    phone VARCHAR(20),
+    email VARCHAR(100),
     latitude DECIMAL(10,8),
     longitude DECIMAL(11,8),
-    opening_time TIME NOT NULL,
-    closing_time TIME NOT NULL,
     status ENUM('active', 'inactive') DEFAULT 'active',
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create services table with correct foreign key
 CREATE TABLE services (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    carwash_id INT NOT NULL,
+    carwash_id INT,
     name VARCHAR(100) NOT NULL,
     description TEXT,
-    price DECIMAL(10,2) NOT NULL,
-    duration INT NOT NULL, -- in minutes
+    price DECIMAL(10,2),
+    duration INT COMMENT 'Duration in minutes',
     status ENUM('active', 'inactive') DEFAULT 'active',
-    FOREIGN KEY (carwash_id) REFERENCES carwashes(id)
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (carwash_id) REFERENCES carwash(id) ON DELETE CASCADE
 );
 
+-- Create bookings table
 CREATE TABLE bookings (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    customer_id INT NOT NULL,
-    carwash_id INT NOT NULL,
-    service_id INT NOT NULL,
-    booking_date DATE NOT NULL,
-    booking_time TIME NOT NULL,
+    user_id INT,
+    carwash_id INT,
+    service_id INT,
+    booking_date DATE,
+    booking_time TIME,
     status ENUM('pending', 'confirmed', 'completed', 'cancelled') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES users(id),
-    FOREIGN KEY (carwash_id) REFERENCES carwashes(id),
+    total_price DECIMAL(10,2),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (carwash_id) REFERENCES carwash(id),
     FOREIGN KEY (service_id) REFERENCES services(id)
 );
 
-CREATE TABLE payments (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    booking_id INT NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
-    payment_method ENUM('credit_card', 'cash', 'digital_wallet') NOT NULL,
-    status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'pending',
-    transaction_id VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (booking_id) REFERENCES bookings(id)
-);
-
+-- Create reviews table with correct foreign key (referencing bookings instead of orders)
 CREATE TABLE reviews (
     id INT PRIMARY KEY AUTO_INCREMENT,
     booking_id INT NOT NULL,
+    user_id INT NOT NULL,
     rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (booking_id) REFERENCES bookings(id)
-);
-
--- Additional Tables for Enhanced Features
-CREATE TABLE service_availability (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    service_id INT NOT NULL,
-    day_of_week INT NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
-    start_time TIME NOT NULL,
-    end_time TIME NOT NULL,
-    max_bookings INT NOT NULL DEFAULT 1,
-    FOREIGN KEY (service_id) REFERENCES services(id)
-);
-
-CREATE TABLE notifications (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    type ENUM('booking', 'payment', 'system') NOT NULL,
-    is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- Add indexes for better performance
+CREATE INDEX idx_services_carwash ON services(carwash_id);
+CREATE INDEX idx_bookings_user ON bookings(user_id);
+CREATE INDEX idx_bookings_date ON bookings(booking_date);
+CREATE INDEX idx_reviews_booking ON reviews(booking_id);

@@ -313,9 +313,9 @@
 
 </html>
 <?php
-require_once '../../includes/db.php';
-require_once '../../includes/auth.php';
-require_once '../../includes/Auth.php'; // Add this line to include the Auth class definition
+require_once '../includes/db.php';
+require_once '../includes/config.php';
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -330,13 +330,40 @@ try {
     throw new Exception('Email and password are required');
   }
 
-  $auth = new Auth($conn);
-  $result = $auth->login($data['email'], $data['password']);
+  $email = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
+
+  $stmt = $conn->prepare("
+        SELECT id, email, password_hash, role, name, phone
+        FROM users 
+        WHERE email = ?
+    ");
+
+  $stmt->bind_param('s', $email);
+  $stmt->execute();
+  $result = $stmt->get_result();
+
+  if ($result->num_rows === 0) {
+    throw new Exception('Invalid email or password');
+  }
+
+  $user = $result->fetch_assoc();
+
+  if (!password_verify($data['password'], $user['password_hash'])) {
+    throw new Exception('Invalid email or password');
+  }
+
+  // Start session and store user data
+  session_start();
+  $_SESSION['user_id'] = $user['id'];
+  $_SESSION['user_role'] = $user['role'];
+  $_SESSION['user_name'] = $user['name'];
+
+  // Remove sensitive data before sending response
+  unset($user['password_hash']);
 
   echo json_encode([
     'success' => true,
-    'user' => $result['user'],
-    'token' => $result['token'] ?? null
+    'user' => $user
   ]);
 } catch (Exception $e) {
   http_response_code(400);
