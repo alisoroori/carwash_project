@@ -7,7 +7,9 @@ class ReviewNotifier
     public function __construct($conn)
     {
         $this->conn = $conn;
-        $this->initializeMailer();
+        // Initialize mailer if needed, e.g. $this->mailer = new PHPMailer();
+        // For now, just set mailer to null to avoid undefined method error.
+        $this->mailer = null;
     }
 
     public function notifyNewReview($reviewId)
@@ -64,5 +66,29 @@ class ReviewNotifier
             $review['id']
         );
         $stmt->execute();
+    }
+
+    private function notifyCarWash($review)
+    {
+        // Example: send email to carwash owner
+        $to = $review['carwash_email'];
+        $subject = "New Review Received for {$review['carwash_name']}";
+        $message = "Hello,\n\nYou have received a new review from {$review['customer_name']} with a rating of {$review['rating']} stars.\n\nReview: {$review['comment']}";
+        $headers = "From: noreply@carwash.local";
+
+        // Use PHP's mail function for demonstration (replace with PHPMailer if needed)
+        mail($to, $subject, $message, $headers);
+    }
+
+    private function notifyAdmin($review)
+    {
+        // Example: send email to admin when a low rating is received
+        $adminEmail = "admin@carwash.local";
+        $subject = "Low Rating Alert for {$review['carwash_name']}";
+        $message = "Attention Admin,\n\nA low rating ({$review['rating']} stars) was received for {$review['carwash_name']} from {$review['customer_name']}.\n\nReview: {$review['comment']}";
+        $headers = "From: noreply@carwash.local";
+
+        // Use PHP's mail function for demonstration (replace with PHPMailer if needed)
+        mail($adminEmail, $subject, $message, $headers);
     }
 }

@@ -11,6 +11,25 @@ class ProfileImageHandler
         $this->ensureUploadDirectory();
     }
 
+    private function validateImage($file)
+    {
+        if (!isset($file['error']) || is_array($file['error'])) {
+            throw new Exception('Invalid file parameters.');
+        }
+
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            throw new Exception('File upload error code: ' . $file['error']);
+        }
+
+        if (!in_array($file['type'], $this->allowedTypes)) {
+            throw new Exception('Unsupported image type.');
+        }
+
+        if ($file['size'] > $this->maxSize) {
+            throw new Exception('File size exceeds maximum allowed size.');
+        }
+    }
+
     private function ensureUploadDirectory()
     {
         if (!file_exists($this->uploadDir)) {

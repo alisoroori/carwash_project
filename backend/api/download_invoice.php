@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once '../includes/db.php';
-require_once '../includes/invoice_generator.php';
+require_once '../includes/receipt_generator.php';
 
 try {
     if (!isset($_SESSION['user_id'])) {
@@ -12,31 +12,47 @@ try {
         throw new Exception('Order ID is required');
     }
 
+    $orderId = intval($_GET['order_id']);
+
     // Verify order belongs to user
     $stmt = $conn->prepare("
         SELECT id FROM orders 
         WHERE id = ? AND user_id = ?
     ");
 
-    $stmt->bind_param('ii', $_GET['order_id'], $_SESSION['user_id']);
+    $stmt->bind_param('ii', $orderId, $_SESSION['user_id']);
     $stmt->execute();
 
     if (!$stmt->get_result()->fetch_assoc()) {
         throw new Exception('Order not found');
     }
 
-    // Generate invoice
-    $generator = new InvoiceGenerator($conn);
-    $pdf = $generator->generateInvoice($_GET['order_id']);
+    // Initialize receipt generator
+    $receiptGenerator = new ReceiptGenerator($conn);
 
-    if (!$pdf) {
-        throw new Exception('Failed to generate invoice');
+    // Load order data
+    if (!$receiptGenerator->loadOrder($orderId)) {
+        http_response_code(404);
+        die(json_encode(['error' => 'Order not found']));
     }
 
-    // Output PDF
+    // Generate PDF
+    $pdfContent = $receiptGenerator->generatePDF();
+
+    if ($pdfContent === false) {
+        http_response_code(500);
+        die(json_encode(['error' => 'Failed to generate PDF']));
+    }
+
+    // Set headers for PDF download
     header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="invoice_' . $_GET['order_id'] . '.pdf"');
-    echo $pdf->Output('invoice_' . $_GET['order_id'] . '.pdf', 'S');
+    header('Content-Disposition: attachment; filename="receipt_' . $orderId . '.pdf"');
+    header('Cache-Control: private, max-age=0, must-revalidate');
+    header('Pragma: public');
+
+    // Output PDF content
+    echo $pdfContent;
+    exit();
 } catch (Exception $e) {
     header('Content-Type: application/json');
     echo json_encode([

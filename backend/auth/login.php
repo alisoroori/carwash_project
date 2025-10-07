@@ -265,11 +265,11 @@
 
     <!-- Footer -->
     <!-- Farsça: پاورقی صفحه شامل لینک‌های شرایط استفاده و سیاست حفظ حریم خصوصی. -->
-    <!-- Türkçe: Sayfa altbilgisi, kullanım şartları ve gizlilik politikası bağlantılarını içerir. -->
+    <!-- Türkçe: Sayfa altbilgisi, kullanım şartları و gizlilik politikası bağlantılarını içerir. -->
     <!-- English: Page footer including terms of use and privacy policy links. -->
     <div class="text-center mt-8 animate-fade-in-up">
       <p class="text-gray-500 text-sm">
-        Giriş yaparak <a href="#" class="text-blue-600 hover:underline">Kullanım Şartları</a> ve
+        Giriş yaparak <a href="#" class="text-blue-600 hover:underline">Kullanım Şartları</a> و
         <a href="#" class="text-blue-600 hover:underline">Gizlilik Politikası</a>'nı kabul etmiş olursunuz.
       </p>
     </div>
@@ -313,32 +313,35 @@
 
 </html>
 <?php
-require_once '../includes/db.php';
-session_start();
+require_once '../../includes/db.php';
+require_once '../../includes/auth.php';
+require_once '../../includes/Auth.php'; // Add this line to include the Auth class definition
+header('Content-Type: application/json');
 
-class UserAuth {
-    private $conn;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  http_response_code(405);
+  die(json_encode(['error' => 'Method not allowed']));
+}
 
-    public function __construct($conn) {
-        $this->conn = $conn;
-    }
+try {
+  $data = json_decode(file_get_contents('php://input'), true);
 
-    public function login($email, $password) {
-        $stmt = $this->conn->prepare("
-            SELECT id, email, password_hash, role 
-            FROM users 
-            WHERE email = ?
-        ");
-        
-        $stmt->bind_param('s', $email);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_assoc();
+  if (!isset($data['email']) || !isset($data['password'])) {
+    throw new Exception('Email and password are required');
+  }
 
-        if ($result && password_verify($password, $result['password_hash'])) {
-            $_SESSION['user_id'] = $result['id'];
-            $_SESSION['user_role'] = $result['role'];
-            return true;
-        }
-        return false;
-    }
+  $auth = new Auth($conn);
+  $result = $auth->login($data['email'], $data['password']);
+
+  echo json_encode([
+    'success' => true,
+    'user' => $result['user'],
+    'token' => $result['token'] ?? null
+  ]);
+} catch (Exception $e) {
+  http_response_code(400);
+  echo json_encode([
+    'success' => false,
+    'error' => $e->getMessage()
+  ]);
 }

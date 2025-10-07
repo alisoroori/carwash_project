@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CarWash Project Navigator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --sidebar-width: 300px;
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --text-color: #ecf0f1;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -19,74 +28,196 @@
 
         .container {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: var(--sidebar-width) 1fr;
             height: 100vh;
+            position: relative;
         }
 
         .sidebar {
-            background: #2c3e50;
-            color: #ecf0f1;
+            background: var(--primary-color);
+            color: var(--text-color);
             padding: 1rem;
             overflow-y: auto;
             height: 100vh;
+            transition: all 0.3s ease;
         }
 
-        .content {
-            padding: 1rem;
-            height: 100vh;
-            overflow-y: auto;
+        .sidebar.collapsed {
+            width: 50px;
+            min-width: 50px;
+        }
+
+        .toggle-sidebar {
+            position: absolute;
+            left: var(--sidebar-width);
+            top: 1rem;
+            background: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 0 4px 4px 0;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed + .content .toggle-sidebar {
+            left: 50px;
         }
 
         .category {
-            margin: 1rem 0;
+            margin: 0.5rem 0;
             padding: 0.5rem;
-            background: #34495e;
+            background: var(--secondary-color);
             border-radius: 4px;
             font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category i {
+            transition: transform 0.3s ease;
+        }
+
+        .category.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .subsection {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .subsection.expanded {
+            max-height: 500px;
         }
 
         .file-link {
             display: block;
-            padding: 0.5rem;
+            padding: 0.5rem 1rem;
             color: #bdc3c7;
             text-decoration: none;
             margin: 0.2rem 0;
             border-radius: 4px;
             transition: all 0.3s;
+            font-size: 0.9rem;
         }
 
         .file-link:hover {
-            background: #3498db;
+            background: var(--accent-color);
             color: white;
+        }
+
+        .file-link.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            padding: 0.5rem;
+            background: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .search-box {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            background: #fff;
+            color: var(--primary-color);
+        }
+
+        .view-mode {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-mode button {
+            padding: 0.5rem;
+            background: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .view-mode button.active {
+            background: var(--accent-color);
+        }
+
+        .content {
+            padding: 1rem;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: #fff;
+            border-radius: 4px 4px 0 0;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background: #eee;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .tab-close {
+            border: none;
+            background: none;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .tab-close:hover {
+            opacity: 1;
+        }
+
+        .iframe-container {
+            flex: 1;
+            background: white;
+            border-radius: 0 0 4px 4px;
+            overflow: hidden;
         }
 
         iframe {
             width: 100%;
-            height: calc(100vh - 2rem);
+            height: 100%;
             border: none;
-            border-radius: 4px;
-            background: white;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border: none;
-            border-radius: 4px;
-            background: #34495e;
-            color: white;
-        }
-
-        .search-box::placeholder {
-            color: #bdc3c7;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
-            <input type="text" class="search-box" placeholder="Search files..." id="searchBox">
+            <div class="toolbar">
+                <input type="text" class="search-box" placeholder="Search files..." id="searchBox">
+                <div class="view-mode">
+                    <button id="listView" class="active"><i class="fas fa-list"></i></button>
+                    <button id="treeView"><i class="fas fa-folder-tree"></i></button>
+                </div>
+            </div>
 
             <!-- Backend Section -->
             <div class="category">Backend</div>
@@ -136,11 +267,110 @@
         </div>
 
         <div class="content">
-            <iframe name="content-frame" src="frontend/index.html"></iframe>
+            <button class="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="tabs" id="tabs"></div>
+            <div class="iframe-container">
+                <iframe name="content-frame" id="contentFrame"></iframe>
+            </div>
         </div>
     </div>
 
     <script>
+        // Add your JavaScript here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize components
+            initializeSidebar();
+            initializeTabs();
+            initializeSearch();
+            initializeViewModes();
+        });
+
+        function initializeSidebar() {
+            const toggleBtn = document.querySelector('.toggle-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+
+            // Initialize collapsible categories
+            document.querySelectorAll('.category').forEach(category => {
+                category.addEventListener('click', () => {
+                    category.classList.toggle('collapsed');
+                    const subsection = category.nextElementSibling;
+                    if (subsection.classList.contains('subsection')) {
+                        subsection.classList.toggle('expanded');
+                    }
+                });
+            });
+        }
+
+        function initializeTabs() {
+            const tabsContainer = document.getElementById('tabs');
+            const contentFrame = document.getElementById('contentFrame');
+            const openTabs = new Map();
+
+            document.querySelectorAll('.file-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const path = link.getAttribute('href');
+                    const title = link.textContent;
+                    
+                    if (!openTabs.has(path)) {
+                        const tab = createTab(path, title);
+                        tabsContainer.appendChild(tab);
+                        openTabs.set(path, tab);
+                    }
+                    
+                    activateTab(path);
+                    contentFrame.src = path;
+                });
+            });
+        }
+
+        function createTab(path, title) {
+            const tab = document.createElement('div');
+            tab.className = 'tab';
+            tab.dataset.path = path;
+            tab.innerHTML = `
+                <span>${title}</span>
+                <button class="tab-close">×</button>
+            `;
+            
+            tab.querySelector('.tab-close').addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeTab(path);
+            });
+            
+            return tab;
+        }
+
+        function activateTab(path) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const tab = document.querySelector(`[data-path="${path}"]`);
+            if (tab) {
+                tab.classList.add('active');
+            }
+        }
+
+        function closeTab(path) {
+            const tab = document.querySelector(`[data-path="${path}"]`);
+            if (tab) {
+                tab.remove();
+                // Switch to another tab if available
+                const remainingTabs = document.querySelectorAll('.tab');
+                if (remainingTabs.length > 0) {
+                    const lastTab = remainingTabs[remainingTabs.length - 1];
+                    activateTab(lastTab.dataset.path);
+                    document.getElementById('contentFrame').src = lastTab.dataset.path;
+                }
+            }
+        }
+
         // Search functionality
         document.getElementById('searchBox').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();

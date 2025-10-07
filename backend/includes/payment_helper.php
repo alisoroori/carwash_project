@@ -1,20 +1,28 @@
 <?php
 require_once 'payment_config.php';
 require_once __DIR__ . '/../../vendor/iyzico/iyzipay-php/IyzipayBootstrap.php';
+require_once __DIR__ . '/../../vendor/iyzico/iyzipay-php/autoload.php';
 
-class PaymentHelper {
+use Iyzipay\Options;
+use Iyzipay\Model\PaymentCard;
+use Iyzipay\Model\Payment;
+
+class PaymentHelper
+{
     private $options;
 
-    public function __construct() {
-        $this->options = new \Iyzipay\Options();
+    public function __construct()
+    {
+        $this->options = new Options();
         $this->options->setApiKey(IYZICO_API_KEY);
         $this->options->setSecretKey(IYZICO_SECRET_KEY);
         $this->options->setBaseUrl(IYZICO_BASE_URL);
     }
 
-    public function createPayment($orderData, $cardData) {
+    public function createPayment($orderData, $cardData)
+    {
         $request = new \Iyzipay\Request\CreatePaymentRequest();
-        
+
         // Set payment details
         $request->setLocale(\Iyzipay\Model\Locale::TR);
         $request->setConversationId('CarWash_' . $orderData['order_id']);
@@ -81,4 +89,3 @@ class PaymentHelper {
         return \Iyzipay\Model\Payment::create($request, $this->options);
     }
 }
-?>

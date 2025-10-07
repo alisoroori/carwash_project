@@ -27,7 +27,7 @@ try {
     $gateway = new PaymentGateway($conn);
     $result = $gateway->createPayment($orderData);
 
-    if ($result->getStatus() === 'success') {
+    if ($result['status'] === 'success') {
         // Save payment attempt
         $stmt = $conn->prepare("
             INSERT INTO payment_attempts (
@@ -40,7 +40,7 @@ try {
             ) VALUES (?, ?, ?, ?, 'pending', NOW())
         ");
 
-        $paymentId = $result->getPaymentId();
+        $paymentId = $result['payment_id'];
         $stmt->bind_param(
             'iids',
             $orderData['order_id'],
@@ -52,11 +52,11 @@ try {
 
         echo json_encode([
             'success' => true,
-            'paymentUrl' => $result->getPaymentPageUrl(),
+            'paymentUrl' => isset($result['payment_url']) ? $result['payment_url'] : '',
             'paymentId' => $paymentId
         ]);
     } else {
-        throw new Exception($result->getErrorMessage());
+        throw new Exception(isset($result['error_message']) ? $result['error_message'] : 'Payment failed');
     }
 } catch (Exception $e) {
     echo json_encode([

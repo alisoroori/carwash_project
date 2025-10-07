@@ -2,6 +2,7 @@
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
 require_once '../../includes/payment_gateway.php';
+require_once '../../includes/classes/Payment.php';
 
 header('Content-Type: application/json');
 
@@ -11,9 +12,30 @@ try {
     }
 
     $gateway = new PaymentGateway($conn);
-    $payment = $gateway->createPayment($_POST['booking_id']);
+    
+    $amount = //... get amount from your data source
+    $customerId = //... get customer ID from your data source
+    $bookingId = $_POST['booking_id'];
 
-    if ($payment->getStatus() === 'success') {
+    // Create new payment
+    $payment = new Payment([
+        'amount' => $amount,
+        'customer_id' => $customerId,
+        'booking_id' => $bookingId
+    ]);
+
+    // Get payment details
+    echo $payment->getStatus(); // 'pending'
+    echo $payment->getAmount(); // 100.00
+
+    // Update payment status
+    $payment->setStatus('completed');
+    $payment->save();
+
+    $status = $payment->getStatus();
+    $paymentId = $payment->getId();
+
+    if ($status === 'success') {
         // Record transaction
         $stmt = $conn->prepare("
             INSERT INTO transactions 
@@ -23,8 +45,8 @@ try {
 
         $stmt->bind_param(
             'isd',
-            $_POST['booking_id'],
-            $payment->getId(),
+            $bookingId,
+            $paymentId,
             $payment->getAmount()
         );
 
@@ -32,11 +54,10 @@ try {
 
         echo json_encode([
             'success' => true,
-            'payment_id' => $payment->getId(),
-            'redirect_url' => $payment->getRedirectUrl()
+            'payment_id' => $paymentId
         ]);
     } else {
-        throw new Exception($payment->getErrorMessage());
+        throw new Exception('Payment failed. Please try again.');
     }
 } catch (Exception $e) {
     http_response_code(400);
