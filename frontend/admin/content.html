@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Content Management - Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/content.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="dashboard-nav">
+            <!-- Include your admin navigation here -->
+        </nav>
+
+        <main class="content-manager">
+            <div class="content-header">
+                <h1>Content Management</h1>
+                <button id="addContentBtn" class="btn-primary">Add New Content</button>
+            </div>
+
+            <div class="content-filters">
+                <select id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="news">News</option>
+                    <option value="faq">FAQ</option>
+                    <option value="page">Static Pages</option>
+                </select>
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                </select>
+            </div>
+
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="contentList">
+                    <!-- Content will be loaded here -->
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <!-- Content Editor Modal -->
+    <div id="contentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Add New Content</h2>
+            <form id="contentForm">
+                <input type="hidden" id="contentId">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <select id="type" required>
+                        <option value="news">News</option>
+                        <option value="faq">FAQ</option>
+                        <option value="page">Static Page</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="content">Content</label>
+                    <textarea id="content" rows="10" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status">
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Save Content</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/admin/content.js"></script>
+</body>
+</html>

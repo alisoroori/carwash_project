@@ -1,0 +1,11 @@
+{
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "CarWash\\": "backend/",
+            "CarWash\\Tests\\": "tests/"
+        }
+    }
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Car Wash - Map Search</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/map-search.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <div class="search-container">
+        <div class="search-panel">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search car washes...">
+                <button id="searchButton">Search</button>
+            </div>
+            <div class="filters">
+                <select id="serviceFilter">
+                    <option value="">All Services</option>
+                </select>
+                <select id="ratingFilter">
+                    <option value="">Any Rating</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                </select>
+            </div>
+            <div class="results-list" id="resultsList">
+                <!-- Results will be loaded here -->
+            </div>
+        </div>
+        <div id="map" class="map-container"></div>
+    </div>
+
+    <!-- CarWash Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="carwashDetails"></div>
+        </div>
+    </div>
+
+    <script src="js/map-search.js"></script>
+</body>
+</html>

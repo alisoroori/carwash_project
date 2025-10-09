@@ -19,58 +19,35 @@ class AdminDashboard {
 
     initializeCharts() {
         // Revenue Chart
-        const revenueCtx = document.getElementById('revenueChart');
+        const revenueCtx = document.getElementById('revenue-chart');
         if (revenueCtx) {
-            this.charts.set('revenue', new Chart(revenueCtx, {
+            new Chart(revenueCtx, {
                 type: 'line',
                 data: {
-                    labels: [],
+                    labels: this.getLastNDays(30),
                     datasets: [{
                         label: 'Daily Revenue',
-                        data: [],
-                        borderColor: '#4F46E5',
-                        tension: 0.4
+                        data: [], // Will be populated via API
+                        borderColor: '#4CAF50'
                     }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: value => `$${value}`
-                            }
-                        }
-                    }
                 }
-            }));
+            });
         }
 
         // Bookings Chart
-        const bookingsCtx = document.getElementById('bookingsChart');
+        const bookingsCtx = document.getElementById('bookings-chart');
         if (bookingsCtx) {
-            this.charts.set('bookings', new Chart(bookingsCtx, {
+            new Chart(bookingsCtx, {
                 type: 'bar',
                 data: {
-                    labels: [],
+                    labels: this.getLastNDays(7),
                     datasets: [{
                         label: 'Daily Bookings',
-                        data: [],
-                        backgroundColor: '#10B981'
+                        data: [], // Will be populated via API
+                        backgroundColor: '#2196F3'
                     }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        }
-                    }
                 }
-            }));
+            });
         }
     }
 
@@ -152,10 +129,28 @@ class AdminDashboard {
 
     showError(message) {
         const alert = document.createElement('div');
-        alert.className = 'error-alert';
+        alert.className = 'alert alert-error';
         alert.textContent = message;
         document.body.appendChild(alert);
         setTimeout(() => alert.remove(), 5000);
+    }
+
+    showSuccess(message) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 3000);
+    }
+
+    getLastNDays(n) {
+        const dates = [];
+        for (let i = n - 1; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            dates.push(date.toLocaleDateString());
+        }
+        return dates;
     }
 }
 

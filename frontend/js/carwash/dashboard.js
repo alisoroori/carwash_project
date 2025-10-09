@@ -157,3 +157,112 @@ class CarwashDashboard {
 
 // Initialize dashboard
 const dashboard = new CarwashDashboard();
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEventListeners();
+    setupServiceModal();
+});
+
+function initializeEventListeners() {
+    // Booking actions
+    document.querySelectorAll('.btn-action[data-action]').forEach(button => {
+        button.addEventListener('click', handleBookingAction);
+    });
+
+    // Service actions
+    document.getElementById('addServiceBtn').addEventListener('click', () => {
+        openServiceModal();
+    });
+}
+
+async function handleBookingAction(e) {
+    const button = e.target;
+    const action = button.dataset.action;
+    const bookingId = button.dataset.id;
+
+    try {
+        const response = await fetch('/carwash_project/backend/api/carwash/booking.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: action,
+                booking_id: bookingId
+            })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('Booking ' + action + ' successful', 'success');
+            // Refresh bookings list
+            location.reload();
+        } else {
+            showNotification(data.error, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Failed to process booking action', 'error');
+    }
+}
+
+function setupServiceModal() {
+    const modal = document.getElementById('serviceModal');
+    const closeBtn = modal.querySelector('.close');
+    const form = document.getElementById('serviceForm');
+
+    closeBtn.onclick = () => modal.style.display = 'none';
+    window.onclick = (e) => {
+        if (e.target == modal) modal.style.display = 'none';
+    };
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        await saveService(new FormData(form));
+    };
+}
+
+function openServiceModal(serviceId = null) {
+    const modal = document.getElementById('serviceModal');
+    const form = document.getElementById('serviceForm');
+
+    if (serviceId) {
+        // Edit mode - fetch service details
+        fetchServiceDetails(serviceId);
+    } else {
+        // Add mode - reset form
+        form.reset();
+        document.getElementById('serviceId').value = '';
+    }
+
+    modal.style.display = 'block';
+}
+
+async function saveService(formData) {
+    try {
+        const response = await fetch('/carwash_project/backend/api/carwash/service.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification('Service saved successfully', 'success');
+            document.getElementById('serviceModal').style.display = 'none';
+            location.reload();
+        } else {
+            showNotification(data.error, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Failed to save service', 'error');
+    }
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}

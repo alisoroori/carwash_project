@@ -34,3 +34,19 @@ CREATE TABLE faqs (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX (category)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE content_pages (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    content TEXT,
+    type ENUM('news', 'faq', 'page') NOT NULL,
+    status ENUM('published', 'draft') DEFAULT 'draft',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by INT,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+CREATE INDEX idx_content_type ON content_pages(type);
+CREATE INDEX idx_content_status ON content_pages(status);

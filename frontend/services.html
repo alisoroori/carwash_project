@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hizmetlerimiz - CarWash</title>
+    <title>Car Wash Services</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/services.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Add this before your other JavaScript files -->
@@ -255,5 +256,23 @@
             </div>
         </div>
     </div>
+
+    <main class="services-container">
+        <div class="filters">
+            <input type="text" id="searchInput" placeholder="Search services...">
+            <select id="sortSelect">
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="duration">Duration</option>
+                <option value="rating">Rating</option>
+            </select>
+        </div>
+
+        <div class="services-grid" id="servicesGrid">
+            <!-- Services will be loaded dynamically -->
+        </div>
+    </main>
+
+    <script src="js/services.js"></script>
 </body>
 </html>
