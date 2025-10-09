@@ -88,8 +88,7 @@ try {
 
     // Send notifications
     $emailHelper = new EmailHelper();
-    $smsHelper = new SMSHelper();
-
+    $smsHelper = new SMSHelper($conn);
     // Send customer notifications
     $emailHelper->sendBookingConfirmation($booking_data);
     if (!empty($customer['phone'])) {

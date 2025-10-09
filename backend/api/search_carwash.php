@@ -2,90 +2,54 @@
 require_once '../includes/db.php';
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    die(json_encode(['error' => 'Method not allowed']));
+// Ensure $conn is a PDO instance from db.php
+if (!isset($conn) || !($conn instanceof PDO)) {
+    throw new Exception('Database connection error.');
 }
 
+header('Content-Type: application/json');
+
 try {
-    // Validate and sanitize search parameters
-    $search = isset($_GET['query']) ? trim($_GET['query']) : '';
+    $query = isset($_GET['query']) ? trim($_GET['query']) : '';
     $lat = isset($_GET['lat']) ? floatval($_GET['lat']) : null;
     $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : null;
 
-    // Build base query
-    $sql = "SELECT id, name, address, phone, email, latitude, longitude 
+    $sql = "SELECT id, name, address, phone, latitude, longitude 
             FROM carwash 
             WHERE status = 'active'";
     $params = [];
-    $types = "";
 
-    // Add search conditions if query provided
-    if (!empty($search)) {
+    if ($query) {
         $sql .= " AND (name LIKE ? OR address LIKE ?)";
-        $searchTerm = "%{$search}%";
+        $searchTerm = "%$query%";
         $params[] = $searchTerm;
         $params[] = $searchTerm;
-        $types .= "ss";
     }
 
-    // Add distance calculation if coordinates provided
-    if ($lat !== null && $lng !== null) {
+    if ($lat && $lng) {
         $sql .= " ORDER BY (
-            6371 * acos(
-                cos(radians(?)) * 
-                cos(radians(latitude)) * 
-                cos(radians(longitude) - radians(?)) + 
-                sin(radians(?)) * 
-                sin(radians(latitude))
-            )
-        )";
+            POW(69.1 * (latitude - ?), 2) +
+            POW(69.1 * (? - longitude) * COS(latitude / 57.3), 2)
+        ) ASC";
         $params[] = $lat;
         $params[] = $lng;
-        $params[] = $lat;
-        $types .= "ddd";
     } else {
-        $sql .= " ORDER BY name";
+        $sql .= " ORDER BY name ASC";
     }
 
-    // Add limit
-    $sql .= " LIMIT 10";
-
-    // Prepare and execute query
     $stmt = $conn->prepare($sql);
-    if ($types && $params) {
-        $stmt->bind_param($types, ...$params);
-    }
+    $stmt->execute($params);
 
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    // Format results
     $carwashes = [];
-    while ($row = $result->fetch_assoc()) {
-        $carwashes[] = [
-            'id' => (int)$row['id'],
-            'name' => $row['name'],
-            'address' => $row['address'],
-            'phone' => $row['phone'],
-            'email' => $row['email'],
-            'location' => [
-                'lat' => $row['latitude'] ? (float)$row['latitude'] : null,
-                'lng' => $row['longitude'] ? (float)$row['longitude'] : null
-            ]
-        ];
+    if ($stmt) {
+        $carwashes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     echo json_encode([
         'success' => true,
-        'results' => $carwashes
+        'carwashes' => $carwashes
     ]);
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Search failed: ' . $e->getMessage()
-    ]);
+    http_response_code(400);
+    echo json_encode(['error' => $e->getMessage()]);
 }

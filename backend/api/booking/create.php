@@ -2,45 +2,40 @@
 require_once '../../includes/db.php';
 require_once '../../includes/config.php';
 
+// Ensure $conn is a PDO instance for transaction support
+if (!($conn instanceof PDO)) {
+    throw new Exception('Database connection must use PDO for transactions.');
+}
+
 header('Content-Type: application/json');
 
-// Ensure user is authenticated
+// Verify user authentication
 session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
-    die(json_encode(['success' => false, 'error' => 'User not authenticated']));
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    die(json_encode(['error' => 'Method not allowed']));
+    die(json_encode(['error' => 'Authentication required']));
 }
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);
 
     // Validate required fields
-    $required_fields = ['service_id', 'date', 'time'];
-    foreach ($required_fields as $field) {
+    $required = ['service_id', 'date', 'time'];
+    foreach ($required as $field) {
         if (!isset($data[$field])) {
             throw new Exception("Missing required field: $field");
         }
     }
 
-    // Validate and sanitize inputs
+    // Sanitize inputs
     $service_id = filter_var($data['service_id'], FILTER_VALIDATE_INT);
     $date = date('Y-m-d', strtotime($data['date']));
     $time = date('H:i:s', strtotime($data['time']));
-    $user_id = $_SESSION['user_id'];
-
-    if (!$service_id || !$date || !$time) {
-        throw new Exception('Invalid input data');
-    }
 
     // Start transaction
-    $conn->begin_transaction();
+    $conn->beginTransaction();
 
-    // Get service details and validate
+    // Check service availability
     $stmt = $conn->prepare("
         SELECT s.*, c.id as carwash_id 
         FROM services s
@@ -48,58 +43,32 @@ try {
         WHERE s.id = ? AND s.status = 'active'
     ");
 
-    $stmt->bind_param('i', $service_id);
-    $stmt->execute();
-    $service = $stmt->get_result()->fetch_assoc();
+    $stmt->execute([$service_id]);
+    $service = $stmt->fetch();
 
     if (!$service) {
         throw new Exception('Service not found or inactive');
     }
 
-    // Check if timeslot is available
-    $stmt = $conn->prepare("
-        SELECT COUNT(*) as booking_count 
-        FROM bookings 
-        WHERE service_id = ? 
-        AND booking_date = ? 
-        AND booking_time = ?
-        AND status != 'cancelled'
-    ");
-
-    $stmt->bind_param('iss', $service_id, $date, $time);
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc();
-
-    if ($result['booking_count'] > 0) {
-        throw new Exception('Selected time slot is not available');
-    }
-
     // Create booking
     $stmt = $conn->prepare("
         INSERT INTO bookings (
-            user_id, carwash_id, service_id, 
-            booking_date, booking_time, 
-            status, total_price, created_at
+            user_id, service_id, carwash_id,
+            booking_date, booking_time, status,
+            total_price, created_at
         ) VALUES (?, ?, ?, ?, ?, 'pending', ?, NOW())
     ");
 
-    $stmt->bind_param(
-        'iiissd',
-        $user_id,
-        $service['carwash_id'],
+    $stmt->execute([
+        $_SESSION['user_id'],
         $service_id,
+        $service['carwash_id'],
         $date,
         $time,
         $service['price']
-    );
+    ]);
 
-    if (!$stmt->execute()) {
-        throw new Exception('Failed to create booking');
-    }
-
-    $booking_id = $conn->insert_id;
-
-    // Commit transaction
+    $booking_id = $conn->lastInsertId();
     $conn->commit();
 
     echo json_encode([
@@ -108,14 +77,9 @@ try {
         'total_price' => $service['price']
     ]);
 } catch (Exception $e) {
-    // Rollback transaction on error
-    if ($conn->connect_errno === 0) {
-        $conn->rollback();
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
     }
-
     http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+    echo json_encode(['error' => $e->getMessage()]);
 }
