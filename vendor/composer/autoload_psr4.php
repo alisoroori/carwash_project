@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Iyzipay\\' => array($vendorDir . '/iyzico/iyzipay-php/src/Iyzipay'),
+    'CarWash\\' => array($baseDir . '/backend'),
 );

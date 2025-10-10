@@ -6,7 +6,13 @@ if (!class_exists('TCPDF')) {
     if (file_exists($tcpdfPath)) {
         require_once $tcpdfPath;
     } else {
-        die('TCPDF library not found. Please install TCPDF in vendor/tecnickcom/tcpdf.');
+        // Try XAMPP typical path if not found in vendor
+        $tcpdfPathAlt = __DIR__ . '/../../../tcpdf/tcpdf.php';
+        if (file_exists($tcpdfPathAlt)) {
+            require_once $tcpdfPathAlt;
+        } else {
+            die('TCPDF library not found. Please install TCPDF in vendor/tecnickcom/tcpdf or tcpdf directory.');
+        }
     }
 }
 
@@ -100,7 +106,18 @@ class ReceiptGenerator
 
         // Ensure TCPDF is loaded
         if (!class_exists('TCPDF')) {
-            die('TCPDF library not loaded. Please check your vendor/tecnickcom/tcpdf installation.');
+            // Try to include TCPDF if not already loaded
+            $tcpdfPath = __DIR__ . '/../../vendor/tecnickcom/tcpdf/tcpdf.php';
+            if (file_exists($tcpdfPath)) {
+                require_once $tcpdfPath;
+            } else {
+                $tcpdfPathAlt = __DIR__ . '/../../../tcpdf/tcpdf.php';
+                if (file_exists($tcpdfPathAlt)) {
+                    require_once $tcpdfPathAlt;
+                } else {
+                    die('TCPDF library not loaded. Please check your vendor/tecnickcom/tcpdf or tcpdf installation.');
+                }
+            }
         }
         // Create new PDF document
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);

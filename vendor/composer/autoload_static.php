@@ -11,12 +11,20 @@ class ComposerStaticInit692bd14d7712147c27f49782a19bb394
         array (
             'Iyzipay\\' => 8,
         ),
+        'C' => 
+        array (
+            'CarWash\\' => 8,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'Iyzipay\\' => 
         array (
             0 => __DIR__ . '/..' . '/iyzico/iyzipay-php/src/Iyzipay',
+        ),
+        'CarWash\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/backend',
         ),
     );
 

@@ -1,11 +1,11 @@
 {
-    "require-dev": {
-        "phpunit/phpunit": "*"
+    "require": {
+        "tecnickcom/tcpdf": "^6.6",
+        "iyzico/iyzipay-php": "^2.0"
     },
     "autoload": {
         "psr-4": {
-            "CarWash\\": "backend/",
-            "CarWash\\Tests\\": "tests/"
+            "CarWash\\": "backend/"
         }
     }
 }
