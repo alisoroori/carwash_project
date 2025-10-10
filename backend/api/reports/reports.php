@@ -17,7 +17,7 @@ try {
         throw new Exception('Database connection failed');
     }
 
-    $period = filter_input(INPUT_GET, 'period', FILTER_SANITIZE_STRING) ?? 'month';
+    $period = filter_input(INPUT_GET, 'period', FILTER_DEFAULT) ?? 'month';
     if (!in_array($period, ['day', 'week', 'month', 'year'])) {
         throw new Exception('Invalid period specified');
     }

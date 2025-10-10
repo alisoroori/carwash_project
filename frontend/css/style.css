@@ -104,3 +104,102 @@ footer {
   color: #555;
   font-size: 14px;
 }
+
+/* Base styles */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --error-color: #e74c3c;
+    --text-color: #2c3e50;
+    --background-color: #f8f9fa;
+}
+
+/* Responsive container */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Responsive grid system */
+.grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(12, 1fr);
+}
+
+/* Responsive navigation */
+.main-nav {
+    background: var(--primary-color);
+    padding: 1rem;
+}
+
+.nav-toggle {
+    display: none;
+}
+
+/* Mobile first breakpoints */
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none;
+    }
+
+    .nav-menu.active {
+        display: block;
+    }
+
+    .grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Stack form elements */
+    .form-group {
+        grid-column: span 4;
+    }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(8, 1fr);
+    }
+
+    .form-group {
+        grid-column: span 4;
+    }
+}
+
+/* Error handling styles */
+#error-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 300px;
+}
+
+.alert-error {
+    background: var(--error-color);
+    color: white;
+}
+
+.alert .close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+}

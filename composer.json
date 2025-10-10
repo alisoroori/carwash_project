@@ -3,9 +3,13 @@
         "tecnickcom/tcpdf": "^6.6",
         "iyzico/iyzipay-php": "^2.0"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
     "autoload": {
         "psr-4": {
-            "CarWash\\": "backend/"
+            "CarWash\\": "backend/",
+            "CarWash\\Tests\\": "tests/"
         }
     }
 }

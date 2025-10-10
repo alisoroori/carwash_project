@@ -1,64 +1,82 @@
 <?php
 
-/**
- * Main Configuration File
- * Contains database connection and application settings
- */
+class Config
+{
+    private static $config = [];
+    private static $initialized = false;
 
-// Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_PORT', '3307');
-define('DB_NAME', 'carwash_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+    public static function init()
+    {
+        if (self::$initialized) {
+            return;
+        }
 
-// Application URLs and Paths
-define('BASE_URL', 'http://localhost/carwash_project');
-define('FRONTEND_URL', BASE_URL . '/frontend');
-define('BACKEND_URL', BASE_URL . '/backend');
-define('API_URL', BACKEND_URL . '/api');
+        // Load .env file
+        $envPath = __DIR__ . '/../../.env';
+        if (!file_exists($envPath)) {
+            die('Environment file not found. Please create .env file.');
+        }
 
-// File System Paths
-define('ROOT_PATH', dirname(dirname(dirname(__FILE__))));
-define('UPLOADS_PATH', ROOT_PATH . '/backend/uploads');
-define('LOGS_PATH', ROOT_PATH . '/backend/logs');
+        $envContent = file_get_contents($envPath);
+        $lines = explode("\n", $envContent);
 
-// Session Configuration
-define('SESSION_NAME', 'carwash_session');
-define('SESSION_LIFETIME', 3600); // 1 hour
-session_name(SESSION_NAME);
+        foreach ($lines as $line) {
+            $line = trim($line);
 
-// Application Settings
-define('APP_NAME', 'CarWash Management System');
-define('APP_VERSION', '1.0.0');
-define('DEBUG_MODE', true);
-define('TIMEZONE', 'UTC');
+            // Skip comments and empty lines
+            if (empty($line) || strpos($line, '#') === 0) {
+                continue;
+            }
 
-// Upload Settings
-define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
-define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png']);
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value, " \t\n\r\0\x0B\"'");
 
-// Business Rules
-define('MIN_BOOKING_NOTICE', 2); // hours
-define('MAX_BOOKING_ADVANCE', 30); // days
-define('CANCELLATION_WINDOW', 24); // hours
+            self::$config[$key] = $value;
+        }
 
-// Error Handling Setup
-if (DEBUG_MODE) {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-} else {
-    error_reporting(0);
-    ini_set('display_errors', 0);
+        // Set PHP configuration
+        ini_set('display_errors', self::get('APP_DEBUG', false));
+        ini_set('session.cookie_httponly', self::get('SESSION_HTTP_ONLY', true));
+        ini_set('session.cookie_secure', self::get('SESSION_SECURE', true));
+        ini_set('session.gc_maxlifetime', self::get('SESSION_LIFETIME', 7200));
+
+        self::$initialized = true;
+    }
+
+    public static function get($key, $default = null)
+    {
+        if (!self::$initialized) {
+            self::init();
+        }
+
+        return self::$config[$key] ?? $default;
+    }
+
+    public static function isDevelopment()
+    {
+        return self::get('APP_ENV') === 'development';
+    }
+
+    public static function isProduction()
+    {
+        return self::get('APP_ENV') === 'production';
+    }
 }
 
-// Timezone Setup
-date_default_timezone_set(TIMEZONE);
+// Initialize configuration
+Config::init();
 
-// Create required directories
-$directories = [UPLOADS_PATH, LOGS_PATH];
-foreach ($directories as $dir) {
-    if (!file_exists($dir)) {
-        mkdir($dir, 0755, true);
-    }
+// Security settings
+define('RATE_LIMIT_REQUESTS', 60);
+define('RATE_LIMIT_PERIOD', 60);
+define('PASSWORD_MIN_LENGTH', 8);
+define('ALLOWED_FILE_TYPES', ['jpg', 'jpeg', 'png', 'pdf']);
+define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
+
+// Enable security headers in production
+if (Config::isProduction()) {
+    ini_set('session.cookie_httponly', true);
+    ini_set('session.cookie_secure', true);
+    ini_set('session.use_strict_mode', true);
 }
