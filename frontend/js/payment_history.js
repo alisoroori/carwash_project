@@ -83,46 +83,42 @@ async function showPaymentDetail(orderId) {
                                 <span>${item.price} TL</span>
                             </div>
                         `).join('')}
-                    </div>
+        </div>
 
-                    <div class="border-t pt-4">
-                        <h3 class="font-semibold mb-2">Ödeme Bilgileri</h3>
-                        <div class="space-y-2">
-                            <div class="flex justify-between">
-                                <span>Ara Toplam</span>
-                                <span>${data.payment.subtotal} TL</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>KDV</span>
-                                <span>${data.payment.tax} TL</span>
-                            </div>
-                            ${data.payment.discount ? `
-                                <div class="flex justify-between text-green-600">
-                                    <span>İndirim</span>
-                                    <span>-${data.payment.discount} TL</span>
-                                </div>
-                            ` : ''}
-                            <div class="flex justify-between font-bold pt-2 border-t">
-                                <span>Toplam</span>
-                                <span>${data.payment.total} TL</span>
-                            </div>
-                        </div>
-                    </div>
-cd c:\xampp\htdocs\carwash_project
-mkdir vendor
-cd vendor
-git clone https://github.com/tecnickcom/TCPDF.git tecnickcom/tcpdf
-                    ${data.payment.status === 'completed' ? `
-                        <div class="mt-4 flex justify-end">
-                            <button onclick="downloadReceipt(${data.payment.order_id})"
-                                    class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
-                                <i class="fas fa-download mr-2"></i>
-                                Fatura İndir
-                            </button>
-                        </div>
-                    ` : ''}
+        <div class="border-t pt-4">
+            <h3 class="font-semibold mb-2">Ödeme Bilgileri</h3>
+            <div class="space-y-2">
+                <div class="flex justify-between">
+                    <span>Ara Toplam</span>
+                    <span>${data.payment.subtotal} TL</span>
                 </div>
-            `;
+                <div class="flex justify-between">
+                    <span>KDV</span>
+                    <span>${data.payment.tax} TL</span>
+                </div>
+                ${data.payment.discount ? `
+                    <div class="flex justify-between text-green-600">
+                        <span>İndirim</span>
+                        <span>-${data.payment.discount} TL</span>
+                    </div>
+                ` : ''}
+                <div class="flex justify-between font-bold pt-2 border-t">
+                    <span>Toplam</span>
+                    <span>${data.payment.total} TL</span>
+                </div>
+            </div>
+        </div>
+        ${data.payment.status === 'completed' ? `
+            <div class="mt-4 flex justify-end">
+                <button onclick="downloadReceipt(${data.payment.order_id})"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
+                    <i class="fas fa-download mr-2"></i>
+                    Fatura İndir
+                </button>
+            </div>
+        ` : ''}
+    </div>
+`;
             
             modal.classList.remove('hidden');
         }
