@@ -1,138 +1,156 @@
 <?php
-session_start();
-require_once '../includes/db.php';
+// filepath: c:\xampp\htdocs\carwash_project\backend\auth\login_process.php
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $password = $_POST['password'];
-    $remember = isset($_POST['remember']) ? true : false;
+/**
+ * Login Processing Script for CarWash Web Application
+ * Following project conventions with database compatibility checks
+ */
 
-    try {
-        // Check user exists
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
+require_once __DIR__ . '/../includes/db.php';
 
-            if (password_verify($password, $user['password'])) {
-                if ($user['status'] === 'active') {
-                    // Set session
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['user_type'] = $user['user_type'];
-                    $_SESSION['user_name'] = $user['name'];
-                    $_SESSION['last_activity'] = time();
-
-                    // Set remember me cookie if checked
-                    if ($remember) {
-                        $token = bin2hex(random_bytes(32));
-                        setcookie('remember_token', $token, time() + (86400 * 30), "/"); // 30 days
-
-                        // Store token in database
-                        $stmt = $conn->prepare("UPDATE users SET remember_token = ? WHERE id = ?");
-                        $stmt->bind_param("si", $token, $user['id']);
-                        $stmt->execute();
-                    }
-
-                    // Log login
-                    $stmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
-                    $stmt->bind_param("i", $user['id']);
-                    $stmt->execute();
-
-                    // Redirect based on user type
-                    switch ($user['user_type']) {
-                        case 'admin':
-                            header('Location: ../dashboard/admin/index.php');
-                            break;
-                        case 'carwash':
-                            header('Location: ../dashboard/carwash/index.php');
-                            break;
-                        case 'customer':
-                            header('Location: ../dashboard/customer/index.php');
-                            break;
-                    }
-                    exit();
-                } else {
-                    $_SESSION['error'] = "Hesabınız aktif değil. Lütfen yönetici ile iletişime geçin.";
-                }
-            } else {
-                $_SESSION['error'] = "Hatalı email veya şifre!";
-            }
-        } else {
-            $_SESSION['error'] = "Hatalı email veya şifre!";
-        }
-    } catch (Exception $e) {
-        error_log("Login error: " . $e->getMessage());
-        $_SESSION['error'] = "Giriş yapılırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
-    }
-
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: login.php');
-    exit();
-}
-header('Location: login.php');
-exit();
-$name = trim($_POST['name']);
-$email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-$phone = trim($_POST['phone']);
-$password = $_POST['password'];
-$password_confirm = $_POST['password_confirm'];
-$address = trim($_POST['address']);
-
-// Validation checks
-if (empty($name) || empty($email) || empty($phone) || empty($password) || empty($address)) {
-    $_SESSION['error'] = "Tüm alanları doldurunuz.";
-    header('Location: Customer_Registration.php');
-    exit();
-}
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $_SESSION['error'] = "Geçerli bir email adresi giriniz.";
-    header('Location: Customer_Registration.php');
-    exit();
-}
-
-if ($password !== $password_confirm) {
-    $_SESSION['error'] = "Şifreler eşleşmiyor.";
-    header('Location: Customer_Registration.php');
-    exit();
-}
-
-if (strlen($password) < 6) {
-    $_SESSION['error'] = "Şifre en az 6 karakter olmalıdır.";
-    header('Location: Customer_Registration.php');
     exit();
 }
 
 try {
-    // Check if email already exists
-    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    if ($stmt->get_result()->num_rows > 0) {
-        $_SESSION['error'] = "Bu email adresi zaten kayıtlı.";
-        header('Location: Customer_Registration.php');
-        exit();
+    $conn = getDBConnection();
+
+    // Sanitize inputs following CarWash project patterns
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $password = $_POST['password'] ?? '';
+    $user_type = $_POST['user_type'] ?? '';
+    $remember_me = isset($_POST['remember_me']);
+
+    // Validation
+    $errors = [];
+
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Geçerli bir e-posta adresi girin';
     }
 
-    // Hash password
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    if (empty($password)) {
+        $errors[] = 'Şifre alanı zorunludur';
+    }
 
-    // Insert new user
-    $stmt = $conn->prepare("INSERT INTO users (name, email, phone, password, address, user_type) VALUES (?, ?, ?, ?, ?, 'customer')");
-    $stmt->bind_param("sssss", $name, $email, $phone, $hashed_password, $address);
+    if (empty($user_type)) {
+        $errors[] = 'Hesap türünü seçin';
+    }
 
-    if ($stmt->execute()) {
-        $_SESSION['success'] = "Kayıt başarılı! Şimdi giriş yapabilirsiniz.";
+    if (!empty($errors)) {
+        $_SESSION['error_message'] = implode('<br>', $errors);
         header('Location: login.php');
         exit();
-    } else {
-        throw new Exception("Database error: " . $stmt->error);
     }
+
+    // Check if role column exists in users table
+    $check_columns = $conn->query("SHOW COLUMNS FROM users LIKE 'role'");
+    $has_role_column = $check_columns->rowCount() > 0;
+
+    // Prepare query based on available columns
+    if ($has_role_column) {
+        // Use role column if it exists
+        $stmt = $conn->prepare("SELECT id, name, email, password, role FROM users WHERE email = ? AND role = ?");
+        $stmt->execute([$email, $user_type]);
+    } else {
+        // Fallback: query without role column for backward compatibility
+        $stmt = $conn->prepare("SELECT id, name, email, password FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+    }
+
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        if ($has_role_column) {
+            $_SESSION['error_message'] = 'Bu e-posta adresi ve hesap türü ile kayıtlı kullanıcı bulunamadı';
+        } else {
+            $_SESSION['error_message'] = 'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı';
+        }
+        header('Location: login.php');
+        exit();
+    }
+
+    // Verify password
+    if (!password_verify($password, $user['password'])) {
+        $_SESSION['error_message'] = 'Şifre yanlış! Lütfen tekrar deneyin.';
+        header('Location: login.php');
+        exit();
+    }
+
+    // If no role column exists, assign role based on user_type
+    $user_role = $has_role_column ? $user['role'] : $user_type;
+
+    // For backward compatibility, allow login even if role doesn't match perfectly
+    if ($has_role_column && $user['role'] !== $user_type) {
+        $_SESSION['error_message'] = 'Seçilen hesap türü ile kullanıcı rolü uyuşmuyor';
+        header('Location: login.php');
+        exit();
+    }
+
+    // Successful login - Set session variables following CarWash project patterns
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['user_name'] = $user['name'];
+    $_SESSION['user_email'] = $user['email'];
+    $_SESSION['role'] = $user_role;
+    $_SESSION['login_time'] = time();
+
+    // Handle remember me functionality
+    if ($remember_me) {
+        $remember_token = bin2hex(random_bytes(32));
+        setcookie('carwash_remember', $remember_token, time() + (30 * 24 * 60 * 60), '/', '', false, true);
+
+        // Update remember token if column exists
+        try {
+            if ($has_role_column) {
+                $stmt = $conn->prepare("UPDATE users SET remember_token = ? WHERE id = ?");
+                $stmt->execute([$remember_token, $user['id']]);
+            }
+        } catch (PDOException $e) {
+            // Continue without error if column doesn't exist
+            error_log("Remember token update failed: " . $e->getMessage());
+        }
+    }
+
+    // Update last login if column exists
+    try {
+        $stmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+        $stmt->execute([$user['id']]);
+    } catch (PDOException $e) {
+        // Continue without error if column doesn't exist
+        error_log("Last login update failed: " . $e->getMessage());
+    }
+
+    // Log successful login
+    error_log("CarWash successful login: " . $user['email'] . " (Role: " . $user_role . ", ID: " . $user['id'] . ")");
+
+    // Redirect to appropriate dashboard following CarWash project structure
+    switch ($user_role) {
+        case 'admin':
+            header('Location: ../dashboard/admin_dashboard.php');
+            break;
+        case 'carwash':
+            header('Location: ../dashboard/Car_Wash_Dashboard.php');
+            break;
+        case 'customer':
+        default:
+            header('Location: ../dashboard/Customer_Dashboard.php');
+    }
+    exit();
+} catch (PDOException $e) {
+    error_log("CarWash database error in login: " . $e->getMessage());
+    $_SESSION['error_message'] = 'Veritabanı bağlantı hatası oluştu. Lütfen daha sonra tekrar deneyin.';
+    header('Location: login.php');
+    exit();
 } catch (Exception $e) {
-    error_log($e->getMessage());
-    $_SESSION['error'] = "Kayıt işlemi başarısız oldu. Lütfen daha sonra tekrar deneyiniz.";
-    header('Location: Customer_Registration.php');
+    error_log("CarWash login error: " . $e->getMessage());
+    $_SESSION['error_message'] = 'Giriş işlemi sırasında beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.';
+    header('Location: login.php');
     exit();
 }
+
+header('Location: login.php');
+exit();

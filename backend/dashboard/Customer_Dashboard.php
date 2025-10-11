@@ -1,122 +1,132 @@
 <?php
-session_start();
-require_once '../../includes/db.php';
+// filepath: c:\xampp\htdocs\carwash_project\backend\dashboard\Customer_Dashboard.php
 
-// Check if user is logged in and is a customer
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
-  header('Location: ../../auth/login.php');
+/**
+ * Customer Dashboard for CarWash Web Application
+ * Following project conventions: file-based routing, session management
+ */
+
+// Start session following project patterns
+if (session_status() == PHP_SESSION_NONE) {
+  session_start();
+}
+
+// Include database connection following project structure
+require_once __DIR__ . '/../includes/db.php';
+
+// Check if user is logged in and has customer role
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
+  header('Location: ../auth/login.php');
   exit();
 }
 
-// Get customer information
-$stmt = $conn->prepare("SELECT * FROM users WHERE id = ? AND user_type = 'customer'");
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$user = $stmt->get_result()->fetch_assoc();
+try {
+  $conn = getDBConnection();
+  $user_id = $_SESSION['user_id'];
+
+  // Get user information
+  $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+  $stmt->execute([$user_id]);
+  $user = $stmt->fetch();
+
+  if (!$user) {
+    session_destroy();
+    header('Location: ../auth/login.php');
+    exit();
+  }
+
+  // Get user statistics
+  $stats = [
+    'total_reservations' => 0,
+    'monthly_reservations' => 0,
+    'total_spent' => 0,
+    'average_rating' => 0
+  ];
+
+  // Get reservations count
+  try {
+    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM reservations WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $result = $stmt->fetch();
+    $stats['total_reservations'] = $result['total'] ?? 0;
+
+    // Monthly reservations
+    $stmt = $conn->prepare("SELECT COUNT(*) as monthly FROM reservations WHERE user_id = ? AND MONTH(created_at) = MONTH(CURRENT_DATE())");
+    $stmt->execute([$user_id]);
+    $result = $stmt->fetch();
+    $stats['monthly_reservations'] = $result['monthly'] ?? 0;
+
+    // Total spent
+    $stmt = $conn->prepare("SELECT SUM(price) as total_spent FROM reservations WHERE user_id = ? AND status = 'completed'");
+    $stmt->execute([$user_id]);
+    $result = $stmt->fetch();
+    $stats['total_spent'] = $result['total_spent'] ?? 0;
+  } catch (PDOException $e) {
+    // Tables might not exist, continue with default values
+    error_log("Customer dashboard stats error: " . $e->getMessage());
+  }
+
+  // Get active reservations
+  $active_reservations = [];
+  try {
+    $stmt = $conn->prepare("
+            SELECT r.*, c.business_name 
+            FROM reservations r 
+            LEFT JOIN carwashes c ON r.carwash_id = c.id 
+            WHERE r.user_id = ? AND r.status IN ('pending', 'confirmed') 
+            ORDER BY r.reservation_date ASC, r.reservation_time ASC 
+            LIMIT 5
+        ");
+    $stmt->execute([$user_id]);
+    $active_reservations = $stmt->fetchAll();
+  } catch (PDOException $e) {
+    error_log("Customer active reservations error: " . $e->getMessage());
+  }
+
+  // Get user vehicles
+  $user_vehicles = [];
+  try {
+    $stmt = $conn->prepare("
+            SELECT CONCAT(car_brand, ' ', car_model, ' - ', license_plate) as vehicle_display,
+                   car_brand, car_model, license_plate, car_year, car_color
+            FROM users 
+            WHERE id = ? AND car_brand IS NOT NULL
+        ");
+    $stmt->execute([$user_id]);
+    $user_vehicle = $stmt->fetch();
+    if ($user_vehicle) {
+      $user_vehicles[] = $user_vehicle;
+    }
+  } catch (PDOException $e) {
+    error_log("Customer vehicles error: " . $e->getMessage());
+  }
+
+  // Get recent history
+  $recent_history = [];
+  try {
+    $stmt = $conn->prepare("
+            SELECT r.*, c.business_name 
+            FROM reservations r 
+            LEFT JOIN carwashes c ON r.carwash_id = c.id 
+            WHERE r.user_id = ? AND r.status = 'completed' 
+            ORDER BY r.reservation_date DESC 
+            LIMIT 5
+        ");
+    $stmt->execute([$user_id]);
+    $recent_history = $stmt->fetchAll();
+  } catch (PDOException $e) {
+    error_log("Customer history error: " . $e->getMessage());
+  }
+} catch (Exception $e) {
+  error_log("Customer dashboard error: " . $e->getMessage());
+  $error_message = "Dashboard yüklenirken bir hata oluştu.";
+}
+
+// Handle success/error messages
+$success_message = $_SESSION['success_message'] ?? '';
+$error_message = $_SESSION['error_message'] ?? '';
+unset($_SESSION['success_message'], $_SESSION['error_message']);
 ?>
-
-<!DOCTYPE html>
-<html lang="tr">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Müşteri Paneli - AquaTR</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-
-<body class="bg-gray-50">
-  <!-- Navbar -->
-  <nav class="bg-white shadow-lg">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="flex justify-between items-center py-4">
-        <div class="flex items-center space-x-4">
-          <span class="text-xl font-semibold">
-            <i class="fas fa-user-circle text-blue-600"></i>
-            <?php echo htmlspecialchars($user['name']); ?>
-          </span>
-        </div>
-        <div>
-          <a href="../../auth/logout.php" class="text-red-500 hover:text-red-700">
-            <i class="fas fa-sign-out-alt"></i> Çıkış
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Content -->
-  <div class="max-w-6xl mx-auto px-4 py-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Quick Actions -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-4">Hızlı İşlemler</h2>
-        <div class="space-y-4">
-          <a href="new_booking.php" class="block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-            <i class="fas fa-calendar-plus"></i> Yeni Randevu
-          </a>
-          <a href="my_bookings.php" class="block bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
-            <i class="fas fa-calendar-check"></i> Randevularım
-          </a>
-        </div>
-      </div>
-
-      <!-- Active Bookings -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-4">Aktif Randevular</h2>
-        <?php
-        $stmt = $conn->prepare("
-                    SELECT b.*, c.business_name, s.service_name 
-                    FROM bookings b
-                    JOIN carwashes c ON b.carwash_id = c.id
-                    JOIN services s ON b.service_id = s.id
-                    WHERE b.customer_id = ? AND b.status IN ('pending', 'confirmed')
-                    ORDER BY b.booking_date ASC, b.booking_time ASC
-                    LIMIT 3
-                ");
-        $stmt->bind_param("i", $_SESSION['user_id']);
-        $stmt->execute();
-        $bookings = $stmt->get_result();
-
-        if ($bookings->num_rows > 0) {
-          while ($booking = $bookings->fetch_assoc()) {
-            echo '<div class="border-b pb-3 mb-3 last:border-0">';
-            echo '<p class="font-semibold">' . htmlspecialchars($booking['business_name']) . '</p>';
-            echo '<p class="text-sm text-gray-600">' . htmlspecialchars($booking['service_name']) . '</p>';
-            echo '<p class="text-sm text-gray-500">';
-            echo date('d.m.Y', strtotime($booking['booking_date'])) . ' - ';
-            echo date('H:i', strtotime($booking['booking_time']));
-            echo '</p>';
-            echo '</div>';
-          }
-        } else {
-          echo '<p class="text-gray-500">Aktif randevunuz bulunmamaktadır.</p>';
-        }
-        ?>
-      </div>
-
-      <!-- Profile Summary -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-4">Profil Bilgileri</h2>
-        <div class="space-y-2">
-          <p><i class="fas fa-envelope text-blue-600 w-6"></i> <?php echo htmlspecialchars($user['email']); ?></p>
-          <p><i class="fas fa-phone text-blue-600 w-6"></i> <?php echo htmlspecialchars($user['phone']); ?></p>
-          <p><i class="fas fa-map-marker-alt text-blue-600 w-6"></i> <?php echo htmlspecialchars($user['address']); ?></p>
-        </div>
-        <a href="edit_profile.php" class="block mt-4 text-blue-600 hover:text-blue-800">
-          <i class="fas fa-edit"></i> Profili Düzenle
-        </a>
-      </div>
-    </div>
-  </div>
-</body>
-
-</html><?php
-        // Farsça: این فایل شامل کدهای HTML داشبورد مشتری است.
-        // Türkçe: Bu dosya, müşteri paneli HTML kodlarını içermektedir.
-        // English: This file contains the HTML code for the customer dashboard.
-        ?>
 <!DOCTYPE html>
 <html lang="tr">
 
@@ -126,10 +136,8 @@ $user = $stmt->get_result()->fetch_assoc();
   <title>CarWash - Müşteri Paneli</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../../frontend/css/style.css">
   <style>
-    /* Farsça: انیمیشن برای ظاهر شدن تدریجی عناصر از پایین به بالا. */
-    /* Türkçe: Öğelerin aşağıdan yukarıya doğru yavaşça görünmesi için animasyon. */
-    /* English: Animation for elements to fade in from bottom to top. */
     @keyframes fadeInUp {
       from {
         opacity: 0;
@@ -142,9 +150,6 @@ $user = $stmt->get_result()->fetch_assoc();
       }
     }
 
-    /* Farsça: انیمیشن برای ورود تدریجی عناصر از چپ به راست. */
-    /* Türkçe: Öğelerin soldan sağa doğru yavaşça kayarak gelmesi için animasyon. */
-    /* English: Animation for elements to slide in from left to right. */
     @keyframes slideIn {
       from {
         opacity: 0;
@@ -157,37 +162,22 @@ $user = $stmt->get_result()->fetch_assoc();
       }
     }
 
-    /* Farsça: اعمال انیمیشن fadeInUp. */
-    /* Türkçe: fadeInUp animasyonunu uygular. */
-    /* English: Applies the fadeInUp animation. */
     .animate-fade-in-up {
       animation: fadeInUp 0.6s ease-out forwards;
     }
 
-    /* Farsça: اعمال انیمیشن slideIn. */
-    /* Türkçe: slideIn animasyonunu uygular. */
-    /* English: Applies the slideIn animation. */
     .animate-slide-in {
       animation: slideIn 0.5s ease-out forwards;
     }
 
-    /* Farsça: پس‌زمینه گرادیانت برای عناصر. */
-    /* Türkçe: Öğeler için gradyan arka plan. */
-    /* English: Gradient background for elements. */
     .gradient-bg {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
-    /* Farsça: گرادیانت برای نوار کناری. */
-    /* Türkçe: Kenar çubuğu için gradyan. */
-    /* English: Gradient for the sidebar. */
     .sidebar-gradient {
       background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
     }
 
-    /* Farsça: استایل کارت‌ها هنگام هاور: بزرگنمایی و سایه. */
-    /* Türkçe: Kartların üzerine gelindiğinde stili: büyütme ve gölge. */
-    /* English: Card style on hover: scale and shadow. */
     .card-hover {
       transition: all 0.3s ease;
     }
@@ -197,33 +187,21 @@ $user = $stmt->get_result()->fetch_assoc();
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
 
-    /* Farsça: استایل وضعیت "در انتظار". */
-    /* Türkçe: "Bekliyor" durumu stili. */
-    /* English: "Pending" status style. */
     .status-pending {
       background: #fef3c7;
       color: #92400e;
     }
 
-    /* Farsça: استایل وضعیت "تایید شده". */
-    /* Türkçe: "Onaylandı" durumu stili. */
-    /* English: "Confirmed" status style. */
     .status-confirmed {
       background: #d1fae5;
       color: #065f46;
     }
 
-    /* Farsça: استایل وضعیت "تکمیل شده". */
-    /* Türkçe: "Tamamlandı" durumu stili. */
-    /* English: "Completed" status style. */
     .status-completed {
       background: #e0e7ff;
       color: #3730a3;
     }
 
-    /* Farsça: استایل وضعیت "لغو شده". */
-    /* Türkçe: "İptal Edildi" durumu stili. */
-    /* English: "Cancelled" status style. */
     .status-cancelled {
       background: #fecaca;
       color: #991b1b;
@@ -233,10 +211,22 @@ $user = $stmt->get_result()->fetch_assoc();
 
 <body class="bg-gray-50 min-h-screen">
 
+  <!-- Success/Error Messages -->
+  <?php if (!empty($success_message)): ?>
+    <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50" id="successMessage">
+      <span class="block sm:inline"><?php echo htmlspecialchars($success_message); ?></span>
+      <button onclick="document.getElementById('successMessage').remove()" class="float-right ml-4">×</button>
+    </div>
+  <?php endif; ?>
+
+  <?php if (!empty($error_message)): ?>
+    <div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50" id="errorMessage">
+      <span class="block sm:inline"><?php echo htmlspecialchars($error_message); ?></span>
+      <button onclick="document.getElementById('errorMessage').remove()" class="float-right ml-4">×</button>
+    </div>
+  <?php endif; ?>
+
   <!-- Header -->
-  <!-- Farsça: این بخش سربرگ صفحه را شامل می‌شود. -->
-  <!-- Türkçe: Bu bölüm sayfa başlığını içerir. -->
-  <!-- English: This section includes the page header. -->
   <header class="bg-white shadow-lg sticky top-0 z-50">
     <div class="container mx-auto px-4">
       <div class="flex justify-between items-center py-4">
@@ -248,14 +238,14 @@ $user = $stmt->get_result()->fetch_assoc();
         <div class="flex items-center space-x-4">
           <div class="hidden md:flex items-center space-x-2">
             <i class="fas fa-user text-blue-600"></i>
-            <span class="text-gray-700 font-medium">Hoş Geldiniz, Ali Yılmaz</span>
+            <span class="text-gray-700 font-medium">Hoş Geldiniz, <?php echo htmlspecialchars($user['name']); ?></span>
           </div>
           <div class="flex space-x-2">
             <button onclick="toggleNotifications()" class="relative p-2 text-gray-600 hover:text-blue-600 transition-colors">
               <i class="fas fa-bell text-xl"></i>
               <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
             </button>
-            <a href="../index.php" class="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <a href="../../frontend/homes.html" class="p-2 text-gray-600 hover:text-blue-600 transition-colors">
               <i class="fas fa-home text-xl"></i>
             </a>
             <a href="../auth/logout.php" class="p-2 text-gray-600 hover:text-red-600 transition-colors">
@@ -269,17 +259,14 @@ $user = $stmt->get_result()->fetch_assoc();
 
   <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <!-- Farsça: نوار کناری شامل لینک‌های ناوبری. -->
-    <!-- Türkçe: Gezinme bağlantılarını içeren kenar çubuğu. -->
-    <!-- English: Sidebar containing navigation links. -->
     <aside class="w-64 sidebar-gradient text-white sticky top-20 h-fit">
       <div class="p-6">
         <div class="text-center mb-8">
           <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-user text-3xl"></i>
           </div>
-          <h3 class="text-xl font-bold">Ali Yılmaz</h3>
-          <p class="text-sm opacity-75">ali.yilmaz@email.com</p>
+          <h3 class="text-xl font-bold"><?php echo htmlspecialchars($user['name']); ?></h3>
+          <p class="text-sm opacity-75"><?php echo htmlspecialchars($user['email']); ?></p>
         </div>
 
         <nav class="space-y-2">
@@ -320,14 +307,8 @@ $user = $stmt->get_result()->fetch_assoc();
     </aside>
 
     <!-- Main Content -->
-    <!-- Farsça: محتوای اصلی داشبورد. -->
-    <!-- Türkçe: Ana kontrol paneli içeriği. -->
-    <!-- English: Main dashboard content. -->
     <main class="flex-1 p-8">
       <!-- Dashboard Overview -->
-      <!-- Farsça: بخش نمای کلی داشبورد. -->
-      <!-- Türkçe: Kontrol paneli genel bakış bölümü. -->
-      <!-- English: Dashboard Overview section. -->
       <section id="dashboard" class="section-content">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Genel Bakış</h2>
@@ -335,15 +316,12 @@ $user = $stmt->get_result()->fetch_assoc();
         </div>
 
         <!-- Stats Cards -->
-        <!-- Farsça: کارت‌های آمار. -->
-        <!-- Türkçe: İstatistik Kartları. -->
-        <!-- English: Stats Cards. -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div class="bg-white rounded-2xl p-6 card-hover shadow-lg">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Toplam Rezervasyon</p>
-                <p class="text-3xl font-bold text-blue-600">24</p>
+                <p class="text-3xl font-bold text-blue-600"><?php echo $stats['total_reservations']; ?></p>
               </div>
               <i class="fas fa-calendar-check text-4xl text-blue-600 opacity-20"></i>
             </div>
@@ -353,7 +331,7 @@ $user = $stmt->get_result()->fetch_assoc();
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Bu Ay</p>
-                <p class="text-3xl font-bold text-green-600">5</p>
+                <p class="text-3xl font-bold text-green-600"><?php echo $stats['monthly_reservations']; ?></p>
               </div>
               <i class="fas fa-calendar-day text-4xl text-green-600 opacity-20"></i>
             </div>
@@ -363,7 +341,7 @@ $user = $stmt->get_result()->fetch_assoc();
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Toplam Harcama</p>
-                <p class="text-3xl font-bold text-purple-600">₺1,240</p>
+                <p class="text-3xl font-bold text-purple-600">₺<?php echo number_format($stats['total_spent'], 0); ?></p>
               </div>
               <i class="fas fa-money-bill-wave text-4xl text-purple-600 opacity-20"></i>
             </div>
@@ -373,7 +351,7 @@ $user = $stmt->get_result()->fetch_assoc();
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Ortalama Puan</p>
-                <p class="text-3xl font-bold text-yellow-600">4.8★</p>
+                <p class="text-3xl font-bold text-yellow-600"><?php echo number_format($stats['average_rating'], 1); ?>★</p>
               </div>
               <i class="fas fa-star text-4xl text-yellow-600 opacity-20"></i>
             </div>
@@ -381,9 +359,6 @@ $user = $stmt->get_result()->fetch_assoc();
         </div>
 
         <!-- Recent Reservations -->
-        <!-- Farsça: رزروهای اخیر. -->
-        <!-- Türkçe: Son Rezervasyonlar. -->
-        <!-- English: Recent Reservations. -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div class="bg-white rounded-2xl p-6 shadow-lg">
             <h3 class="text-xl font-bold text-gray-800 mb-4">
@@ -391,21 +366,33 @@ $user = $stmt->get_result()->fetch_assoc();
               Yaklaşan Rezervasyonlar
             </h3>
             <div class="space-y-4">
-              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <h4 class="font-bold">Dış Yıkama + İç Temizlik</h4>
-                  <p class="text-sm text-gray-600">Bugün, 14:00 - CarWash Merkez</p>
-                </div>
-                <span class="status-confirmed px-3 py-1 rounded-full text-xs font-bold">Onaylandı</span>
-              </div>
-
-              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <h4 class="font-bold">Tam Detaylandırma</h4>
-                  <p class="text-sm text-gray-600">Yarın, 10:00 - CarWash Premium</p>
-                </div>
-                <span class="status-pending px-3 py-1 rounded-full text-xs font-bold">Bekliyor</span>
-              </div>
+              <?php if (empty($active_reservations)): ?>
+                <p class="text-gray-500 text-center py-4">Aktif rezervasyonunuz bulunmuyor.</p>
+              <?php else: ?>
+                <?php foreach ($active_reservations as $reservation): ?>
+                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <h4 class="font-bold"><?php echo htmlspecialchars($reservation['service_type'] ?? 'Genel Hizmet'); ?></h4>
+                      <p class="text-sm text-gray-600">
+                        <?php echo date('d.m.Y', strtotime($reservation['reservation_date'])); ?>,
+                        <?php echo date('H:i', strtotime($reservation['reservation_time'])); ?> -
+                        <?php echo htmlspecialchars($reservation['business_name'] ?? 'CarWash'); ?>
+                      </p>
+                    </div>
+                    <span class="status-<?php echo $reservation['status']; ?> px-3 py-1 rounded-full text-xs font-bold">
+                      <?php
+                      $status_text = [
+                        'pending' => 'Bekliyor',
+                        'confirmed' => 'Onaylandı',
+                        'completed' => 'Tamamlandı',
+                        'cancelled' => 'İptal'
+                      ];
+                      echo $status_text[$reservation['status']] ?? 'Bilinmiyor';
+                      ?>
+                    </span>
+                  </div>
+                <?php endforeach; ?>
+              <?php endif; ?>
             </div>
           </div>
 
@@ -416,23 +403,22 @@ $user = $stmt->get_result()->fetch_assoc();
             </h3>
             <div class="space-y-4">
               <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-600">
-                <p class="text-sm">Rezervasyonunuz onaylandı. 14:00'te CarWash Merkez'de olun.</p>
-                <p class="text-xs text-gray-500 mt-1">2 saat önce</p>
+                <p class="text-sm">Hoş geldiniz! Dashboard'unuza başarıyla giriş yaptınız.</p>
+                <p class="text-xs text-gray-500 mt-1">Şimdi</p>
               </div>
 
-              <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-600">
-                <p class="text-sm">Önceki hizmetiniz tamamlandı. Puan vererek deneyimlerinizi paylaşın!</p>
-                <p class="text-xs text-gray-500 mt-1">1 gün önce</p>
-              </div>
+              <?php if (!empty($active_reservations)): ?>
+                <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-600">
+                  <p class="text-sm">Aktif rezervasyonlarınız bulunuyor. Detaylar için rezervasyonlar bölümüne bakın.</p>
+                  <p class="text-xs text-gray-500 mt-1">Güncel</p>
+                </div>
+              <?php endif; ?>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Oto Yıkama Seçimi Section -->
-      <!-- Farsça: بخش انتخاب کارواش. -->
-      <!-- Türkçe: Oto Yıkama Seçimi Bölümü. -->
-      <!-- English: Car Wash Selection Section. -->
+      <!-- Car Wash Selection Section -->
       <section id="carWashSelection" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Oto Yıkama Seçimi</h2>
@@ -455,9 +441,6 @@ $user = $stmt->get_result()->fetch_assoc();
               <label for="districtFilter" class="block text-sm font-bold text-gray-700 mb-2">Mahalle</label>
               <select id="districtFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 <option value="">Tüm Mahalleler</option>
-                <!-- Farsça: گزینه‌ها به صورت پویا بر اساس شهر بارگذاری می‌شوند. -->
-                <!-- Türkçe: Seçenekler şehre göre dinamik olarak yüklenecektir. -->
-                <!-- English: Options will be dynamically loaded based on city. -->
               </select>
             </div>
             <div>
@@ -474,16 +457,11 @@ $user = $stmt->get_result()->fetch_assoc();
         </div>
 
         <div id="carWashList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Farsça: کارت‌های کارواش در اینجا توسط جاوا اسکریپت بارگذاری می‌شوند. -->
-          <!-- Türkçe: Araç yıkama kartları buraya JavaScript tarafından yüklenecektir. -->
-          <!-- English: Car wash cards will be loaded here by JavaScript. -->
+          <!-- Car wash cards will be loaded here by JavaScript -->
         </div>
       </section>
 
       <!-- Reservations Section -->
-      <!-- Farsça: بخش رزروها. -->
-      <!-- Türkçe: Rezervasyonlar Bölümü. -->
-      <!-- English: Reservations Section. -->
       <section id="reservations" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Rezervasyonlarım</h2>
@@ -492,9 +470,6 @@ $user = $stmt->get_result()->fetch_assoc();
 
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
           <!-- Reservation List View -->
-          <!-- Farsça: نمای لیست رزرو. -->
-          <!-- Türkçe: Rezervasyon Listesi Görünümü. -->
-          <!-- English: Reservation List View. -->
           <div id="reservationListView">
             <div class="p-6 border-b">
               <div class="flex justify-between items-center">
@@ -518,58 +493,66 @@ $user = $stmt->get_result()->fetch_assoc();
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">
-                      <div>
-                        <div class="font-medium">Dış Yıkama + İç Temizlik</div>
-                        <div class="text-sm text-gray-500">Toyota Corolla - 34 ABC 123</div>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 text-sm">15.12.2024<br>14:00</td>
-                    <td class="px-6 py-4 text-sm">CarWash Merkez</td>
-                    <td class="px-6 py-4"><span class="status-confirmed px-2 py-1 rounded-full text-xs">Onaylandı</span></td>
-                    <td class="px-6 py-4 font-medium">₺130</td>
-                    <td class="px-6 py-4 text-sm">
-                      <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
-                      <button class="text-red-600 hover:text-red-900">İptal</button>
-                    </td>
-                  </tr>
-
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">
-                      <div>
-                        <div class="font-medium">Tam Detaylandırma</div>
-                        <div class="text-sm text-gray-500">Honda Civic - 34 XYZ 789</div>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 text-sm">16.12.2024<br>10:00</td>
-                    <td class="px-6 py-4 text-sm">CarWash Premium</td>
-                    <td class="px-6 py-4"><span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span></td>
-                    <td class="px-6 py-4 font-medium">₺200</td>
-                    <td class="px-6 py-4 text-sm">
-                      <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
-                      <button class="text-red-600 hover:text-red-900">İptal</button>
-                    </td>
-                  </tr>
+                  <?php if (empty($active_reservations)): ?>
+                    <tr>
+                      <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        Aktif rezervasyonunuz bulunmuyor.
+                      </td>
+                    </tr>
+                  <?php else: ?>
+                    <?php foreach ($active_reservations as $reservation): ?>
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                          <div>
+                            <div class="font-medium"><?php echo htmlspecialchars($reservation['service_type'] ?? 'Genel Hizmet'); ?></div>
+                            <div class="text-sm text-gray-500"><?php echo htmlspecialchars($user['car_brand'] . ' ' . $user['car_model'] . ' - ' . $user['license_plate']); ?></div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                          <?php echo date('d.m.Y', strtotime($reservation['reservation_date'])); ?><br>
+                          <?php echo date('H:i', strtotime($reservation['reservation_time'])); ?>
+                        </td>
+                        <td class="px-6 py-4 text-sm"><?php echo htmlspecialchars($reservation['business_name'] ?? 'CarWash'); ?></td>
+                        <td class="px-6 py-4">
+                          <span class="status-<?php echo $reservation['status']; ?> px-2 py-1 rounded-full text-xs">
+                            <?php
+                            $status_text = [
+                              'pending' => 'Bekliyor',
+                              'confirmed' => 'Onaylandı',
+                              'completed' => 'Tamamlandı',
+                              'cancelled' => 'İptal'
+                            ];
+                            echo $status_text[$reservation['status']] ?? 'Bilinmiyor';
+                            ?>
+                          </span>
+                        </td>
+                        <td class="px-6 py-4 font-medium">₺<?php echo number_format($reservation['price'] ?? 0, 0); ?></td>
+                        <td class="px-6 py-4 text-sm">
+                          <?php if ($reservation['status'] === 'pending'): ?>
+                            <button onclick="editReservation(<?php echo $reservation['id']; ?>)" class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
+                            <button onclick="cancelReservation(<?php echo $reservation['id']; ?>)" class="text-red-600 hover:text-red-900">İptal</button>
+                          <?php else: ?>
+                            <span class="text-gray-400">-</span>
+                          <?php endif; ?>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
                 </tbody>
               </table>
             </div>
           </div>
 
           <!-- New Reservation Form -->
-          <!-- Farsça: فرم رزرو جدید. -->
-          <!-- Türkçe: Yeni Rezervasyon Formu. -->
-          <!-- English: New Reservation Form. -->
           <div id="newReservationForm" class="p-6 hidden">
             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
-            <form class="space-y-6" onsubmit="event.preventDefault(); submitNewReservation();">
+            <form action="Customer_Dashboard_process.php" method="POST" class="space-y-6">
+              <input type="hidden" name="action" value="create_reservation">
+
               <!-- Service Selection -->
-              <!-- Farsça: انتخاب سرویس. -->
-              <!-- Türkçe: Hizmet Seçimi. -->
-              <!-- English: Service Selection. -->
               <div>
                 <label for="service" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
-                <select id="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <select id="service" name="service_type" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   <option value="">Hizmet Seçiniz</option>
                   <option value="Dış Yıkama">Dış Yıkama</option>
                   <option value="Dış Yıkama + İç Temizlik">Dış Yıkama + İç Temizlik</option>
@@ -578,58 +561,31 @@ $user = $stmt->get_result()->fetch_assoc();
                 </select>
               </div>
 
-              <!-- Vehicle Selection -->
-              <!-- Farsça: انتخاب وسیله نقلیه. -->
-              <!-- Türkçe: Araç Seçimi. -->
-              <!-- English: Vehicle Selection. -->
-              <div>
-                <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
-                <select id="vehicle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                  <option value="">Araç Seçiniz</option>
-                  <option value="Toyota Corolla - 34 ABC 123">Toyota Corolla - 34 ABC 123</option>
-                  <option value="Honda Civic - 34 XYZ 789">Honda Civic - 34 XYZ 789</option>
-                  <!-- Farsça: وسایل نقلیه کاربر به صورت پویا در اینجا بارگذاری می‌شوند. -->
-                  <!-- Türkçe: Kullanıcının araçları buraya dinamik olarak yüklenecektir. -->
-                  <!-- English: Dynamically load user's vehicles here. -->
-                </select>
-              </div>
-
               <!-- Date and Time -->
-              <!-- Farsça: تاریخ و زمان. -->
-              <!-- Türkçe: Tarih ve Saat. -->
-              <!-- English: Date and Time. -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
-                  <input type="date" id="reservationDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <input type="date" id="reservationDate" name="reservation_date" required min="<?php echo date('Y-m-d'); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
                   <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
-                  <input type="time" id="reservationTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <input type="time" id="reservationTime" name="reservation_time" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
               </div>
 
               <!-- Location -->
-              <!-- Farsça: مکان. -->
-              <!-- Türkçe: Konum. -->
-              <!-- English: Location. -->
               <div>
                 <label for="location" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
-                <select id="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <select id="location" name="carwash_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   <option value="">Konum Seçiniz</option>
-                  <option value="CarWash Merkez">CarWash Merkez</option>
-                  <option value="CarWash Premium">CarWash Premium</option>
-                  <option value="CarWash Express">CarWash Express</option>
+                  <!-- Options will be loaded dynamically -->
                 </select>
               </div>
 
               <!-- Notes -->
-              <!-- Farsça: یادداشت‌ها. -->
-              <!-- Türkçe: Notlar. -->
-              <!-- English: Notes. -->
               <div>
                 <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (İsteğe Bağlı)</label>
-                <textarea id="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                <textarea id="notes" name="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
               </div>
 
               <div class="flex justify-end space-x-4">
@@ -646,9 +602,6 @@ $user = $stmt->get_result()->fetch_assoc();
       </section>
 
       <!-- Profile Management Section -->
-      <!-- Farsça: بخش مدیریت پروفایل. -->
-      <!-- Türkçe: Profil Yönetimi Bölümü. -->
-      <!-- English: Profile Management Section. -->
       <section id="profile" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Profil Yönetimi</h2>
@@ -659,31 +612,38 @@ $user = $stmt->get_result()->fetch_assoc();
           <div class="lg:col-span-2">
             <div class="bg-white rounded-2xl shadow-lg p-6">
               <h3 class="text-xl font-bold mb-6">Kişisel Bilgiler</h3>
-              <form class="space-y-6">
+              <form action="Customer_Dashboard_process.php" method="POST" class="space-y-6">
+                <input type="hidden" name="action" value="update_profile">
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Ad</label>
-                    <input type="text" value="Ali" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Ad Soyad</label>
+                    <input type="text" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   </div>
                   <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Soyad</label>
-                    <input type="text" value="Yılmaz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
+                    <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   </div>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
-                  <input type="email" value="ali.yilmaz@email.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
-                  <input type="tel" value="0555 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">Şehir</label>
+                  <select name="city" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    <option value="">Şehir Seçin</option>
+                    <option value="İstanbul" <?php echo ($user['city'] ?? '') === 'İstanbul' ? 'selected' : ''; ?>>İstanbul</option>
+                    <option value="Ankara" <?php echo ($user['city'] ?? '') === 'Ankara' ? 'selected' : ''; ?>>Ankara</option>
+                    <option value="İzmir" <?php echo ($user['city'] ?? '') === 'İzmir' ? 'selected' : ''; ?>>İzmir</option>
+                  </select>
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
-                  <textarea rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">İstanbul, Kadıköy, Moda Mahallesi</textarea>
+                  <textarea name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
                 </div>
 
                 <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
@@ -694,23 +654,44 @@ $user = $stmt->get_result()->fetch_assoc();
           </div>
 
           <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="text-xl font-bold mb-6">Profil Fotoğrafı</h3>
-            <div class="text-center">
-              <div class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-user text-4xl text-gray-400"></i>
+            <h3 class="text-xl font-bold mb-6">Araç Bilgileri</h3>
+            <form action="Customer_Dashboard_process.php" method="POST" class="space-y-4">
+              <input type="hidden" name="action" value="update_vehicle">
+
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Araç Markası</label>
+                <input type="text" name="car_brand" value="<?php echo htmlspecialchars($user['car_brand'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
               </div>
-              <button class="gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
-                <i class="fas fa-camera mr-2"></i>Fotoğraf Değiştir
+
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Model</label>
+                <input type="text" name="car_model" value="<?php echo htmlspecialchars($user['car_model'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Plaka</label>
+                <input type="text" name="license_plate" value="<?php echo htmlspecialchars($user['license_plate'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Yıl</label>
+                <input type="number" name="car_year" value="<?php echo htmlspecialchars($user['car_year'] ?? ''); ?>" min="1990" max="<?php echo date('Y'); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Renk</label>
+                <input type="text" name="car_color" value="<?php echo htmlspecialchars($user['car_color'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+
+              <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all">
+                <i class="fas fa-car mr-2"></i>Araç Bilgilerini Güncelle
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </section>
 
       <!-- Vehicles Section -->
-      <!-- Farsça: بخش وسایل نقلیه. -->
-      <!-- Türkçe: Araçlar Bölümü. -->
-      <!-- English: Vehicles Section. -->
       <section id="vehicles" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Araçlarım</h2>
@@ -762,9 +743,6 @@ $user = $stmt->get_result()->fetch_assoc();
       </section>
 
       <!-- History Section -->
-      <!-- Farsça: بخش تاریخچه. -->
-      <!-- Türkçe: Geçmiş Bölümü. -->
-      <!-- English: History Section. -->
       <section id="history" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Geçmiş İşlemler</h2>
@@ -832,9 +810,6 @@ $user = $stmt->get_result()->fetch_assoc();
       </section>
 
       <!-- Support Section -->
-      <!-- Farsça: بخش پشتیبانی. -->
-      <!-- Türkçe: Destek Bölümü. -->
-      <!-- English: Support Section. -->
       <section id="support" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Destek</h2>
@@ -893,9 +868,6 @@ $user = $stmt->get_result()->fetch_assoc();
       </section>
 
       <!-- Settings Section -->
-      <!-- Farsça: بخش تنظیمات. -->
-      <!-- Türkçe: Ayarlar Bölümü. -->
-      <!-- English: Settings Section. -->
       <section id="settings" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Ayarlar</h2>
@@ -950,9 +922,6 @@ $user = $stmt->get_result()->fetch_assoc();
   </div>
 
   <!-- Notification Panel -->
-  <!-- Farsça: پنل اعلان‌ها. -->
-  <!-- Türkçe: Bildirim Paneli. -->
-  <!-- English: Notification Panel. -->
   <div id="notificationPanel" class="fixed top-20 right-4 w-80 bg-white rounded-2xl shadow-2xl z-50 hidden">
     <div class="p-4 border-b">
       <div class="flex justify-between items-center">
@@ -979,9 +948,6 @@ $user = $stmt->get_result()->fetch_assoc();
   </div>
 
   <!-- Vehicle Modal -->
-  <!-- Farsça: مودال وسیله نقلیه. -->
-  <!-- Türkçe: Araç Modalı. -->
-  <!-- English: Vehicle Modal. -->
   <div id="vehicleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
       <h3 class="text-xl font-bold mb-6">Yeni Araç Ekle</h3>
@@ -1015,9 +981,7 @@ $user = $stmt->get_result()->fetch_assoc();
   </div>
 
   <script>
-    // Farsça: داده‌های نمونه برای کارواش‌ها.
-    // Türkçe: Araç yıkama yerleri için örnek veriler.
-    // English: Sample data for car washes.
+    // Sample data for car washes
     const allCarWashes = [{
         id: 1,
         name: 'CarWash Merkez',
@@ -1074,18 +1038,13 @@ $user = $stmt->get_result()->fetch_assoc();
       },
     ];
 
-    // Farsça: داده‌های نمونه مناطق (برای بارگذاری پویا).
-    // Türkçe: Örnek ilçe verileri (dinamik yükleme için).
-    // English: Sample districts data (for dynamic loading).
+    // Sample districts data (for dynamic loading)
     const districtsByCity = {
       'İstanbul': ['Kadıköy', 'Beşiktaş', 'Şişli', 'Fatih'],
       'Ankara': ['Çankaya', 'Kızılay', 'Yenimahalle'],
       'İzmir': ['Bornova', 'Konak', 'Karşıyaka']
     };
 
-    // Farsça: تابع برای نمایش بخش‌های مختلف داشبورد.
-    // Türkçe: Kontrol panelinin farklı bölümlerini göstermek için fonksiyon.
-    // English: Function to show different sections of the dashboard.
     function showSection(sectionId) {
       // Hide all sections
       document.querySelectorAll('.section-content').forEach(section => {
@@ -1110,25 +1069,16 @@ $user = $stmt->get_result()->fetch_assoc();
       }
 
       // Special handling for carWashSelection to load list
-      // Farsça: مدیریت خاص برای carWashSelection برای بارگذاری لیست.
-      // Türkçe: carWashSelection için listeyi yüklemek üzere özel işlem.
-      // English: Special handling for carWashSelection to load list.
       if (sectionId === 'carWashSelection') {
         loadDistrictOptions(); // Load districts for the default city or all
         filterCarWashes(); // Display all car washes initially
       }
       // Ensure reservation list is shown by default when navigating to reservations
-      // Farsça: اطمینان حاصل کنید که لیست رزرو به طور پیش‌فرض هنگام ناوبری به رزروها نمایش داده می‌شود.
-      // Türkçe: Rezervasyonlara giderken rezervasyon listesinin varsayılan olarak gösterildiğinden emin olun.
-      // English: Ensure reservation list is shown by default when navigating to reservations.
       if (sectionId === 'reservations') {
         hideNewReservationForm(); // Ensure the list view is active
       }
     }
 
-    // Farsça: توابع پنل اعلان.
-    // Türkçe: Bildirim Paneli fonksiyonları.
-    // English: Notification Panel functions.
     function toggleNotifications() {
       const panel = document.getElementById('notificationPanel');
       panel.classList.toggle('hidden');
@@ -1138,9 +1088,6 @@ $user = $stmt->get_result()->fetch_assoc();
       document.getElementById('notificationPanel').classList.add('hidden');
     }
 
-    // Farsça: توابع مودال وسیله نقلیه.
-    // Türkçe: Araç Modalı fonksiyonları.
-    // English: Vehicle Modal functions.
     function openVehicleModal() {
       document.getElementById('vehicleModal').classList.remove('hidden');
     }
@@ -1149,12 +1096,13 @@ $user = $stmt->get_result()->fetch_assoc();
       document.getElementById('vehicleModal').classList.add('hidden');
     }
 
-    // Farsça: توابع فرم رزرو جدید.
-    // Türkçe: Yeni Rezervasyon Formu fonksiyonları.
-    // English: Functions for New Reservation Form.
+    // Functions for New Reservation Form
     function showNewReservationForm() {
       document.getElementById('reservationListView').classList.add('hidden');
       document.getElementById('newReservationForm').classList.remove('hidden');
+
+      // Load available car washes
+      loadCarWashes();
     }
 
     function hideNewReservationForm() {
@@ -1162,150 +1110,59 @@ $user = $stmt->get_result()->fetch_assoc();
       document.getElementById('reservationListView').classList.remove('hidden');
     }
 
-    function submitNewReservation() {
-      // Here you would collect form data and send it to your backend
-      // Farsça: در اینجا شما داده‌های فرم را جمع‌آوری کرده و به بک‌اند خود ارسال می‌کنید.
-      // Türkçe: Burada form verilerini toplayıp arka ucunuza göndermeniz gerekir.
-      // English: Here you would collect form data and send it to your backend.
-      const service = document.getElementById('service').value;
-      const vehicle = document.getElementById('vehicle').value;
-      const date = document.getElementById('reservationDate').value;
-      const time = document.getElementById('reservationTime').value;
-      const location = document.getElementById('location').value; // This will be the selected car wash name
-      const notes = document.getElementById('notes').value;
+    function loadCarWashes() {
+      // This would typically fetch from the server
+      const locationSelect = document.getElementById('location');
+      locationSelect.innerHTML = '<option value="">Konum Seçiniz</option>';
 
-      // Basic validation (you'd want more robust validation)
-      // Farsça: اعتبارسنجی اولیه (شما اعتبارسنجی قوی‌تری می‌خواهید).
-      // Türkçe: Temel doğrulama (daha sağlam bir doğrulama isteyebilirsiniz).
-      // English: Basic validation (you'd want more robust validation).
-      if (!service || !vehicle || !date || !time || !location) {
-        alert('Lütfen tüm zorunlu alanları doldurun.');
-        return;
-      }
+      // Sample data - in real implementation, this would come from PHP/AJAX
+      const carWashes = [{
+          id: 1,
+          name: 'CarWash Merkez'
+        },
+        {
+          id: 2,
+          name: 'CarWash Premium'
+        },
+        {
+          id: 3,
+          name: 'CarWash Express'
+        }
+      ];
 
-      console.log('New Reservation Data:', {
-        service,
-        vehicle,
-        date,
-        time,
-        location,
-        notes
-      });
-      alert('Rezervasyonunuz başarıyla oluşturuldu! (Bu bir demo mesajıdır)');
-
-      // Optionally, clear the form
-      // Farsça: به صورت اختیاری، فرم را پاک کنید.
-      // Türkçe: İsteğe bağlı olarak, formu temizle.
-      // English: Optionally, clear the form.
-      document.getElementById('service').value = '';
-      document.getElementById('vehicle').value = '';
-      document.getElementById('reservationDate').value = '';
-      document.getElementById('reservationTime').value = '';
-      document.getElementById('location').value = '';
-      document.getElementById('notes').value = '';
-
-      hideNewReservationForm(); // Go back to the reservation list after submission
-    }
-
-    // Farsça: توابع انتخاب کارواش.
-    // Türkçe: Araç Yıkama Seçimi fonksiyonları.
-    // English: Car Wash Selection Functions.
-    function loadDistrictOptions() {
-      const cityFilter = document.getElementById('cityFilter');
-      const districtFilter = document.getElementById('districtFilter');
-      const selectedCity = cityFilter.value;
-
-      districtFilter.innerHTML = '<option value="">Tüm Mahalleler</option>'; // Reset districts
-
-      if (selectedCity && districtsByCity[selectedCity]) {
-        districtsByCity[selectedCity].forEach(district => {
-          const option = document.createElement('option');
-          option.value = district;
-          option.textContent = district;
-          districtFilter.appendChild(option);
-        });
-      }
-    }
-
-    function filterCarWashes() {
-      const cityFilter = document.getElementById('cityFilter').value.toLowerCase();
-      const districtFilter = document.getElementById('districtFilter').value.toLowerCase();
-      const carWashNameFilter = document.getElementById('carWashNameFilter').value.toLowerCase();
-      const favoriteFilter = document.getElementById('favoriteFilter').checked;
-      const carWashListDiv = document.getElementById('carWashList');
-      carWashListDiv.innerHTML = ''; // Clear current list
-
-      const filteredWashes = allCarWashes.filter(carWash => {
-        const matchesCity = !cityFilter || carWash.city.toLowerCase().includes(cityFilter);
-        const matchesDistrict = !districtFilter || carWash.district.toLowerCase().includes(districtFilter);
-        const matchesName = !carWashNameFilter || carWash.name.toLowerCase().includes(carWashNameFilter);
-        const matchesFavorite = !favoriteFilter || carWash.isFavorite;
-
-        return matchesCity && matchesDistrict && matchesName && matchesFavorite;
-      });
-
-      if (filteredWashes.length === 0) {
-        carWashListDiv.innerHTML = '<p class="text-gray-600 text-center col-span-full">Seçiminize uygun oto yıkama bulunamadı.</p>';
-        return;
-      }
-
-      filteredWashes.forEach(carWash => {
-        const carWashCard = `
-          <div class="bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col">
-            <div class="flex justify-between items-start mb-4">
-              <h4 class="font-bold text-xl text-gray-800">${carWash.name}</h4>
-              <button onclick="toggleFavorite(${carWash.id})" class="text-gray-400 hover:text-red-500 transition-colors">
-                <i class="${carWash.isFavorite ? 'fas text-red-500' : 'far'} fa-heart text-xl"></i>
-              </button>
-            </div>
-            <p class="text-sm text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${carWash.district}, ${carWash.city}</p>
-            <p class="text-sm text-gray-600 mb-4"><i class="fas fa-star text-yellow-400 mr-2"></i>${carWash.rating} (${(Math.random() * 100).toFixed(0)} yorum)</p>
-            <div class="flex flex-wrap gap-2 mb-4">
-              ${carWash.services.map(service => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${service}</span>`).join('')}
-            </div>
-            <button onclick="selectCarWashForReservation('${carWash.name}')" class="mt-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
-              <i class="fas fa-calendar-alt mr-2"></i>Rezervasyon Yap
-            </button>
-          </div>
-        `;
-        carWashListDiv.innerHTML += carWashCard;
+      carWashes.forEach(carWash => {
+        const option = document.createElement('option');
+        option.value = carWash.id;
+        option.textContent = carWash.name;
+        locationSelect.appendChild(option);
       });
     }
 
-    function toggleFavorite(carWashId) {
-      const carWashIndex = allCarWashes.findIndex(cw => cw.id === carWashId);
-      if (carWashIndex > -1) {
-        allCarWashes[carWashIndex].isFavorite = !allCarWashes[carWashIndex].isFavorite;
-        filterCarWashes(); // Re-render the list to update heart icon
+    function cancelReservation(reservationId) {
+      if (confirm('Bu rezervasyonu iptal etmek istediğinizden emin misiniz?')) {
+        // Create a form to submit the cancellation
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'Customer_Dashboard_process.php';
+
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'cancel_reservation';
+
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'reservation_id';
+        idInput.value = reservationId;
+
+        form.appendChild(actionInput);
+        form.appendChild(idInput);
+        document.body.appendChild(form);
+        form.submit();
       }
     }
-
-    function selectCarWashForReservation(carWashName) {
-      // Set the selected car wash in the reservation form's location field
-      // Farsça: کارواش انتخاب شده را در فیلد مکان فرم رزرو تنظیم کنید.
-      // Türkçe: Seçilen araç yıkama yerini rezervasyon formunun konum alanına ayarlayın.
-      // English: Set the selected car wash in the reservation form's location field.
-      document.getElementById('location').value = carWashName;
-      // Switch to the reservations section and show the new reservation form
-      // Farsça: به بخش رزروها بروید و فرم رزرو جدید را نمایش دهید.
-      // Türkçe: Rezervasyonlar bölümüne geçin ve yeni rezervasyon formunu gösterin.
-      // English: Switch to the reservations section and show the new reservation form.
-      showSection('reservations');
-      showNewReservationForm();
-      // Optionally, scroll to the new reservation form
-      // Farsça: به صورت اختیاری، به فرم رزرو جدید اسکرول کنید.
-      // Türkçe: İsteğe bağlı olarak, yeni rezervasyon formuna kaydırın.
-      // English: Optionally, scroll to the new reservation form.
-      document.getElementById('newReservationForm').scrollIntoView({
-        behavior: 'smooth'
-      });
-    }
-
 
     // Close modals when clicking outside
-    // Farsça: بستن مودال‌ها هنگام کلیک در خارج از آنها.
-    // Türkçe: Dışarı tıklandığında modalları kapat.
-    // English: Close modals when clicking outside.
     window.onclick = function(event) {
       const modal = document.getElementById('vehicleModal');
       const notificationPanel = document.getElementById('notificationPanel');
@@ -1320,11 +1177,16 @@ $user = $stmt->get_result()->fetch_assoc();
     }
 
     // Initialize dashboard
-    // Farsça: مقداردهی اولیه داشبورد.
-    // Türkçe: Kontrol panelini başlat.
-    // English: Initialize dashboard.
     document.addEventListener('DOMContentLoaded', function() {
       showSection('dashboard');
+
+      // Auto-hide messages after 5 seconds
+      setTimeout(() => {
+        const successMsg = document.getElementById('successMessage');
+        const errorMsg = document.getElementById('errorMessage');
+        if (successMsg) successMsg.remove();
+        if (errorMsg) errorMsg.remove();
+      }, 5000);
     });
   </script>
 

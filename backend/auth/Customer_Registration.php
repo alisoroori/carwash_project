@@ -2,6 +2,19 @@
 // Farsça: این فایل شامل کدهای HTML صفحه ثبت نام مشتری است.
 // Türkçe: Bu dosya, müşteri kayıt sayfasının HTML kodlarını içermektedir.
 // English: This file contains the HTML code for the customer registration page.
+
+// Add this to the top of your Customer_Registration.php file
+session_start();
+
+// Handle success and error messages following project patterns
+$registration_success = $_SESSION['registration_success'] ?? false;
+$success_message = $_SESSION['success_message'] ?? '';
+$error_message = $_SESSION['error_message'] ?? '';
+
+// Clear session messages after retrieving them
+if (isset($_SESSION['registration_success'])) unset($_SESSION['registration_success']);
+if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
+if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -29,7 +42,7 @@
     }
 
     /* Farsça: انیمیشن برای ورود تدریجی عناصر از چپ به راست. */
-    /* Türkçe: Öğelerin soldan sağa doğru yavaşça kayarak gelmesi için animasyon. */
+    /* Türkçe: Öğelerin soldan sağa doğru yavaşça kayarak gelmesi برای animasyon. */
     /* English: Animation for elements to slide in from left to right. */
     @keyframes slideIn {
       from {
@@ -65,7 +78,7 @@
     }
 
     /* Farsça: استایل کانتینر فرم با پس‌زمینه شفاف و فیلتر بلور. */
-    /* Türkçe: Şeffaf arka plan ve bulanıklık filtresi ile form kapsayıcı stili. */
+    /* Türkçe: Şeffaf arka plan و bulanıklık filtresi ile form kapsayıcı stili. */
     /* English: Form container style with transparent background and blur filter. */
     .form-container {
       background: rgba(255, 255, 255, 0.95);
@@ -73,7 +86,7 @@
     }
 
     /* Farsça: استایل ورودی‌ها هنگام فوکوس: بزرگنمایی و سایه. */
-    /* Türkçe: Odaklanıldığında girişlerin stili: büyütme ve gölge. */
+    /* Türkçe: Odaklanıldığında girişlerin stili: büyütme و gölge. */
     /* English: Input style on focus: scale and shadow. */
     .input-focus:focus {
       transform: scale(1.02);
@@ -103,7 +116,7 @@
           <i class="fas fa-car text-2xl text-blue-600"></i>
           <h1 class="text-xl font-bold text-blue-600">CarWash</h1>
         </div>
-        <a href="../index.php" class="text-gray-600 hover:text-blue-600 transition-colors">
+        <a href="../../frontend/homes.html" class="text-gray-600 hover:text-blue-600 transition-colors">
           <i class="fas fa-home mr-2"></i>Ana Sayfa
         </a>
       </div>
@@ -125,10 +138,11 @@
           <i class="fas fa-user-plus text-3xl text-white"></i>
         </div>
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Müşteri Kayıt Formu</h1>
-        <p class="text-gray-600">Hesabınızı oluşturun ve araç yıkama hizmetlerimizden yararlanın</p>
+        <p class="text-gray-600">Hesabınızı oluşturun و araç yıkama خدماتimizden yararlanın</p>
       </div>
 
-      <form action="customer/register.php" method="POST" class="space-y-8">
+      <!-- Fixed form action path -->
+      <form action="register_process.php" method="POST" class="space-y-8">
         <!-- Personal Information Section -->
         <!-- Farsça: بخش اطلاعات شخصی. -->
         <!-- Türkçe: Kişisel Bilgiler bölümü. -->
@@ -198,6 +212,9 @@
             </div>
           </div>
         </div>
+
+        <!-- Hidden field for role -->
+        <input type="hidden" name="role" value="customer">
 
         <!-- Address Information -->
         <!-- Farsça: بخش اطلاعات آدرس. -->
@@ -391,7 +408,7 @@
 
         <!-- Terms and Submit -->
         <!-- Farsça: بخش شرایط و ارسال فرم. -->
-        <!-- Türkçe: Şartlar ve Gönder bölümü. -->
+        <!-- Türkçe: Şartlar و Gönder bölümü. -->
         <!-- English: Terms and Submit Section. -->
         <div class="animate-slide-in" style="animation-delay: 0.5s">
           <div class="section-divider my-6"></div>
@@ -420,13 +437,81 @@
       <div class="text-center mt-8 animate-slide-in" style="animation-delay: 0.6s">
         <p class="text-gray-600 mb-4">Zaten hesabınız var mı?</p>
         <a
-          href="../auth/login.php"
+          href="login.php"
           class="inline-block gradient-bg text-white px-8 py-3 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
           <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
         </a>
       </div>
     </div>
   </div>
+
+  <!-- Add this error/success message display section after your header -->
+  <?php if ($registration_success): ?>
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-8 max-w-md mx-4 text-center animate-bounce">
+        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-check text-white text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-green-600 mb-4">Başarılı!</h2>
+        <p class="text-gray-700 mb-6"><?php echo htmlspecialchars($success_message); ?></p>
+
+        <div class="mb-4">
+          <div class="text-sm text-gray-500 mb-2">Otomatik yönlendirme:</div>
+          <div class="text-lg font-bold text-blue-600" id="countdown">5</div>
+        </div>
+
+        <div class="space-y-2">
+          <button onclick="redirectToDashboard()"
+            class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
+            <i class="fas fa-tachometer-alt mr-2"></i>Şimdi Panele Git
+          </button>
+          <button onclick="closeModal()"
+            class="w-full bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors">
+            Kapat
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Success modal functionality following project JS patterns
+      let countdownTimer = 5;
+
+      function updateCountdown() {
+        document.getElementById('countdown').textContent = countdownTimer;
+        if (countdownTimer <= 0) {
+          redirectToDashboard();
+          return;
+        }
+        countdownTimer--;
+        setTimeout(updateCountdown, 1000);
+      }
+
+      function redirectToDashboard() {
+        // Redirect to customer dashboard following project structure
+        window.location.href = '../dashboard/Customer_Dashboard.php';
+      }
+
+      function closeModal() {
+        document.getElementById('successModal').style.display = 'none';
+      }
+
+      // Start countdown when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        updateCountdown();
+      });
+    </script>
+  <?php endif; ?>
+
+  <!-- Add error message display following project patterns -->
+  <?php if (!empty($error_message)): ?>
+    <div class="max-w-4xl mx-auto mb-4">
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+        <strong class="font-bold">Hata!</strong>
+        <span class="block sm:inline"><?php echo $error_message; ?></span>
+      </div>
+    </div>
+  <?php endif; ?>
 
   <script>
     // Farsça: تابع برای تغییر دید رمز عبور.

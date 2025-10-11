@@ -1,0 +1,42 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    city VARCHAR(100),
+    address TEXT,
+    car_brand VARCHAR(100),
+    car_model VARCHAR(100),
+    car_year VARCHAR(10),
+    car_color VARCHAR(50),
+    license_plate VARCHAR(20),
+    role ENUM('customer', 'carwash', 'admin') DEFAULT 'customer',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add missing columns to users table for CarWash project
+
+-- Check current structure
+DESCRIBE users;
+
+-- Add role column if it doesn't exist
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role ENUM('customer', 'carwash', 'admin') DEFAULT 'customer';
+
+-- Add other potentially missing columns based on CarWash project structure
+ALTER TABLE users ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS car_brand VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS car_model VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS car_year YEAR;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS car_color VARCHAR(30);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS license_plate VARCHAR(20);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS notifications JSON;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS preferred_services JSON;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login TIMESTAMP NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS remember_token VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Update existing records to have default role
+UPDATE users SET role = 'customer' WHERE role IS NULL;
