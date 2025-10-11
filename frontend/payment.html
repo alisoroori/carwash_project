@@ -1,74 +1,566 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr" dir="ltr">
 <head>
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
-    <title>Payment - CarWash Booking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>Güvenli Ödeme - CarWash | Araç Yıkama Rezervasyon Sistemi</title>
+    <meta name="description" content="CarWash güvenli ödeme sayfası. Araç yıkama rezervasyonunuz için hızlı ve güvenli ödeme yapın. SSL korumalı ödeme sistemi.">
+    <meta name="keywords" content="güvenli ödeme, araç yıkama, car wash, rezervasyon ödemesi, kredi kartı, CarWash">
+    <meta name="author" content="CarWash Team">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Güvenli Ödeme - CarWash">
+    <meta property="og:description" content="CarWash güvenli ödeme sayfası. Araç yıkama rezervasyonunuz için hızlı ve güvenli ödeme yapın.">
+    <meta property="og:url" content="https://carwash.com/payment">
+    <meta property="og:site_name" content="CarWash">
+    <meta property="og:locale" content="tr_TR">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Güvenli Ödeme - CarWash">
+    <meta name="twitter:description" content="CarWash güvenli ödeme sayfası">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/carwash_project/frontend/images/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/carwash_project/frontend/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/carwash_project/frontend/images/favicon-32x32.png">
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    
+    <!-- CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/payment.css">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'carwash-primary': '#2563eb',
+                        'carwash-secondary': '#64748b',
+                        'carwash-success': '#10b981',
+                        'carwash-warning': '#f59e0b',
+                        'carwash-error': '#ef4444',
+                        'carwash-info': '#0ea5e9'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'bounce-in': 'bounceIn 0.6s ease-out',
+                        'pulse-payment': 'pulse 2s infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Güvenli Ödeme - CarWash",
+        "description": "CarWash güvenli ödeme sayfası",
+        "url": "https://carwash.com/payment",
+        "inLanguage": "tr",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "CarWash",
+            "url": "https://carwash.com"
+        }
+    }
+    </script>
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com;">
+    
+    <!-- Accessibility & Performance -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Performance Hints -->
+    <link rel="preload" href="js/payment.js" as="script">
+    <link rel="preload" href="css/payment.css" as="style">
 </head>
-<body>
-    <div class="payment-container">
-        <div class="booking-summary">
-            <h2>Booking Summary</h2>
-            <div id="bookingDetails"></div>
-        </div>
 
-        <div class="payment-form">
-            <h2>Payment Details</h2>
-            <form id="paymentForm">
-                <input type="hidden" id="bookingId" name="booking_id">
-                
-                <div class="form-group">
-                    <label for="cardNumber">Card Number</label>
-                    <input type="text" id="cardNumber" maxlength="16" required
-                           placeholder="1234 5678 9012 3456">
-                </div>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-sans antialiased">
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-carwash-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:z-50 focus:outline-none focus:ring-2 focus:ring-white">
+        Ana içeriğe atla
+    </a>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="expiryDate">Expiry Date</label>
-                        <input type="text" id="expiryDate" maxlength="5" required
-                               placeholder="MM/YY">
-                    </div>
-                    <div class="form-group">
-                        <label for="cvv">CVV</label>
-                        <input type="text" id="cvv" maxlength="3" required
-                               placeholder="123">
-                    </div>
-                </div>
-
-                <div class="total-amount">
-                    <span>Total Amount:</span>
-                    <span id="totalAmount">$0.00</span>
-                </div>
-
-                <button type="submit" class="btn-pay">Pay Now</button>
-            </form>
+    <!-- Security Banner -->
+    <div class="bg-green-600 text-white py-2 px-4 text-center text-sm" role="banner">
+        <div class="flex items-center justify-center gap-2">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+            <span>Bu sayfa SSL sertifikası ile korunmaktadır. Ödeme bilgileriniz güvendedir.</span>
         </div>
     </div>
 
-    <!-- Receipt Modal -->
-    <div id="receiptModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div id="receipt" class="receipt">
-                <div class="receipt-header">
-                    <h2>Payment Receipt</h2>
-                    <p id="receiptDateTime"></p>
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40" role="banner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/carwash_project/frontend/homes.html" 
+                       class="flex items-center space-x-2 text-carwash-primary hover:text-blue-700 transition-colors duration-200"
+                       aria-label="CarWash ana sayfası">
+                        <i class="fas fa-car text-2xl" aria-hidden="true"></i>
+                        <span class="text-xl font-bold hidden sm:inline">CarWash</span>
+                    </a>
                 </div>
-                <div id="receiptContent"></div>
-                <div class="receipt-actions">
-                    <button onclick="downloadReceipt()" class="btn-secondary">
-                        Download PDF
+                
+                <!-- Payment Progress -->
+                <nav aria-label="Ödeme adımları" class="hidden md:flex">
+                    <ol class="flex items-center space-x-4">
+                        <li class="flex items-center">
+                            <div class="w-8 h-8 bg-carwash-success rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                                <i class="fas fa-check" aria-hidden="true"></i>
+                            </div>
+                            <span class="ml-2 text-sm font-medium text-gray-900">Rezervasyon</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-0.5 h-8 bg-gray-300 mx-4"></div>
+                            <div class="w-8 h-8 bg-carwash-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                                2
+                            </div>
+                            <span class="ml-2 text-sm font-medium text-carwash-primary">Ödeme</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-0.5 h-8 bg-gray-300 mx-4"></div>
+                            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-500 text-sm font-semibold">
+                                3
+                            </div>
+                            <span class="ml-2 text-sm font-medium text-gray-500">Onay</span>
+                        </li>
+                    </ol>
+                </nav>
+
+                <!-- Help Link -->
+                <div class="flex items-center space-x-4">
+                    <a href="tel:+902121234567" 
+                       class="text-gray-700 hover:text-carwash-primary transition-colors duration-200 flex items-center gap-1">
+                        <i class="fas fa-phone text-sm" aria-hidden="true"></i>
+                        <span class="hidden sm:inline">Yardım</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8" role="main">
+        <!-- Page Header -->
+        <div class="mb-8 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-credit-card text-carwash-primary mr-3" aria-hidden="true"></i>
+                Güvenli Ödeme
+            </h1>
+            <p class="text-gray-600">Rezervasyonunuzu tamamlamak için ödeme bilgilerinizi girin</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Booking Summary -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24" aria-labelledby="booking-summary-heading">
+                    <h2 id="booking-summary-heading" class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-list-alt text-carwash-primary mr-2" aria-hidden="true"></i>
+                        Rezervasyon Özeti
+                    </h2>
+                    
+                    <!-- Loading State -->
+                    <div id="bookingSummaryLoading" class="text-center py-4" aria-live="polite">
+                        <div class="animate-spin text-2xl text-carwash-primary mb-2" aria-hidden="true">
+                            <i class="fas fa-circle-notch"></i>
+                        </div>
+                        <p class="text-gray-600">Rezervasyon bilgileri yükleniyor...</p>
+                    </div>
+
+                    <!-- Booking Details -->
+                    <div id="bookingDetails" class="hidden space-y-4" aria-live="polite">
+                        <!-- Details will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Security Info -->
+                    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h3 class="text-sm font-semibold text-blue-900 mb-2">
+                            <i class="fas fa-shield-alt text-blue-600 mr-2" aria-hidden="true"></i>
+                            Güvenlik Garantisi
+                        </h3>
+                        <ul class="text-xs text-blue-800 space-y-1">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-blue-600 mt-0.5 mr-2 flex-shrink-0" aria-hidden="true"></i>
+                                <span>256-bit SSL şifreleme</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-blue-600 mt-0.5 mr-2 flex-shrink-0" aria-hidden="true"></i>
+                                <span>PCI DSS uyumlu</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-blue-600 mt-0.5 mr-2 flex-shrink-0" aria-hidden="true"></i>
+                                <span>Kart bilgileri saklanmaz</span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Payment Form -->
+            <div class="lg:col-span-2 order-1 lg:order-2">
+                <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8" aria-labelledby="payment-form-heading">
+                    <h2 id="payment-form-heading" class="text-xl font-semibold text-gray-900 mb-6">
+                        <i class="fas fa-payment text-carwash-primary mr-3" aria-hidden="true"></i>
+                        Ödeme Bilgileri
+                    </h2>
+
+                    <form id="paymentForm" class="space-y-6" novalidate>
+                        <input type="hidden" id="bookingId" name="booking_id">
+                        <input type="hidden" id="csrf_token" name="csrf_token" value="">
+
+                        <!-- Card Number -->
+                        <div class="form-group">
+                            <label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-2">
+                                Kart Numarası
+                                <span class="text-red-500" aria-label="Zorunlu alan">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       id="cardNumber" 
+                                       name="card_number"
+                                       maxlength="19" 
+                                       required
+                                       autocomplete="cc-number"
+                                       placeholder="1234 5678 9012 3456"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-carwash-primary focus:border-carwash-primary transition-colors duration-200 text-lg tracking-widest"
+                                       aria-describedby="cardNumber-error cardNumber-help">
+                                <div id="cardTypeIcon" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" aria-hidden="true">
+                                    <i class="fas fa-credit-card text-xl"></i>
+                                </div>
+                            </div>
+                            <p id="cardNumber-help" class="mt-1 text-xs text-gray-500">16 haneli kart numaranızı girin</p>
+                            <div id="cardNumber-error" class="mt-1 text-sm text-red-600 hidden" role="alert" aria-live="polite"></div>
+                        </div>
+
+                        <!-- Card Details Row -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Expiry Date -->
+                            <div class="form-group">
+                                <label for="expiryDate" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Son Kullanma Tarihi
+                                    <span class="text-red-500" aria-label="Zorunlu alan">*</span>
+                                </label>
+                                <input type="text" 
+                                       id="expiryDate" 
+                                       name="expiry_date"
+                                       maxlength="5" 
+                                       required
+                                       autocomplete="cc-exp"
+                                       placeholder="AA/YY"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-carwash-primary focus:border-carwash-primary transition-colors duration-200 text-lg"
+                                       aria-describedby="expiryDate-error expiryDate-help">
+                                <p id="expiryDate-help" class="mt-1 text-xs text-gray-500">AA/YY formatında</p>
+                                <div id="expiryDate-error" class="mt-1 text-sm text-red-600 hidden" role="alert" aria-live="polite"></div>
+                            </div>
+
+                            <!-- CVV -->
+                            <div class="form-group">
+                                <label for="cvv" class="block text-sm font-medium text-gray-700 mb-2">
+                                    CVV/CVC
+                                    <span class="text-red-500" aria-label="Zorunlu alan">*</span>
+                                    <button type="button" 
+                                            class="ml-1 text-carwash-primary hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-carwash-primary rounded"
+                                            aria-describedby="cvv-tooltip"
+                                            onclick="toggleCVVTooltip()">
+                                        <i class="fas fa-question-circle text-sm" aria-hidden="true"></i>
+                                    </button>
+                                </label>
+                                <input type="text" 
+                                       id="cvv" 
+                                       name="cvv"
+                                       maxlength="4" 
+                                       required
+                                       autocomplete="cc-csc"
+                                       placeholder="123"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-carwash-primary focus:border-carwash-primary transition-colors duration-200 text-lg"
+                                       aria-describedby="cvv-error cvv-help">
+                                <p id="cvv-help" class="mt-1 text-xs text-gray-500">Kartınızın arkasındaki 3 haneli kod</p>
+                                <div id="cvv-error" class="mt-1 text-sm text-red-600 hidden" role="alert" aria-live="polite"></div>
+                                
+                                <!-- CVV Tooltip -->
+                                <div id="cvv-tooltip" class="hidden absolute z-10 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg max-w-xs">
+                                    <div class="flex items-start gap-2">
+                                        <i class="fas fa-credit-card text-blue-400 mt-0.5" aria-hidden="true"></i>
+                                        <div>
+                                            <p class="font-semibold mb-1">CVV/CVC Kodu Nedir?</p>
+                                            <p>Kartınızın arkasında bulunan 3 haneli güvenlik kodudur. American Express kartlarda ön yüzde 4 haneli olabilir.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cardholder Name -->
+                        <div class="form-group">
+                            <label for="cardholderName" class="block text-sm font-medium text-gray-700 mb-2">
+                                Kart Sahibinin Adı
+                                <span class="text-red-500" aria-label="Zorunlu alan">*</span>
+                            </label>
+                            <input type="text" 
+                                   id="cardholderName" 
+                                   name="cardholder_name"
+                                   required
+                                   autocomplete="cc-name"
+                                   placeholder="Kartın üzerinde yazan isim"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-carwash-primary focus:border-carwash-primary transition-colors duration-200"
+                                   aria-describedby="cardholderName-error cardholderName-help">
+                            <p id="cardholderName-help" class="mt-1 text-xs text-gray-500">Kartın üzerinde yazan ismi tam olarak girin</p>
+                            <div id="cardholderName-error" class="mt-1 text-sm text-red-600 hidden" role="alert" aria-live="polite"></div>
+                        </div>
+
+                        <!-- Total Amount Display -->
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-medium text-gray-900">Toplam Tutar:</span>
+                                <div class="text-right">
+                                    <span id="totalAmount" class="text-2xl font-bold text-carwash-primary">0,00 TL</span>
+                                    <p class="text-xs text-gray-500 mt-1">KDV dahil</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" 
+                                   id="agreeTerms" 
+                                   name="agree_terms"
+                                   required
+                                   class="mt-1 h-4 w-4 text-carwash-primary focus:ring-carwash-primary border-gray-300 rounded">
+                            <label for="agreeTerms" class="text-sm text-gray-700">
+                                <a href="/carwash_project/frontend/terms.html" target="_blank" class="text-carwash-primary hover:text-blue-700 underline">Kullanım Şartları</a> 
+                                ve 
+                                <a href="/carwash_project/frontend/privacy.html" target="_blank" class="text-carwash-primary hover:text-blue-700 underline">Gizlilik Politikası</a>'nı 
+                                okudum ve kabul ediyorum
+                                <span class="text-red-500" aria-label="Zorunlu alan">*</span>
+                            </label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" 
+                                id="payButton"
+                                class="w-full bg-carwash-primary text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-carwash-primary focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="payButtonText">
+                                <i class="fas fa-lock mr-2" aria-hidden="true"></i>
+                                Güvenli Ödeme Yap
+                            </span>
+                            <span id="payButtonLoading" class="hidden">
+                                <i class="fas fa-circle-notch animate-spin mr-2" aria-hidden="true"></i>
+                                İşleminiz gerçekleştiriliyor...
+                            </span>
+                        </button>
+
+                        <!-- Payment Security Info -->
+                        <div class="text-center text-xs text-gray-500 space-y-1">
+                            <p>Bu işlem SSL şifreleme ile korunmaktadır</p>
+                            <div class="flex items-center justify-center space-x-4">
+                                <span class="flex items-center">
+                                    <i class="fab fa-cc-visa text-lg mr-1" aria-hidden="true"></i>
+                                    Visa
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fab fa-cc-mastercard text-lg mr-1" aria-hidden="true"></i>
+                                    Mastercard
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fab fa-cc-amex text-lg mr-1" aria-hidden="true"></i>
+                                    Amex
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" 
+         class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50" 
+         role="dialog" 
+         aria-modal="true" 
+         aria-labelledby="receipt-title">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="relative bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 id="receipt-title" class="text-xl font-semibold text-gray-900">
+                        <i class="fas fa-receipt text-carwash-primary mr-2" aria-hidden="true"></i>
+                        Ödeme Makbuzu
+                    </h3>
+                    <button onclick="closeReceiptModal()" 
+                            class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-carwash-primary rounded-md p-2"
+                            aria-label="Makbuzu kapat">
+                        <i class="fas fa-times text-xl" aria-hidden="true"></i>
                     </button>
-                    <button onclick="emailReceipt()" class="btn-secondary">
-                        Email Receipt
-                    </button>
+                </div>
+                
+                <!-- Modal Content -->
+                <div id="receipt" class="p-6">
+                    <!-- Receipt Header -->
+                    <div class="text-center mb-6">
+                        <div class="flex items-center justify-center mb-4">
+                            <i class="fas fa-car text-3xl text-carwash-primary mr-3" aria-hidden="true"></i>
+                            <span class="text-2xl font-bold text-gray-900">CarWash</span>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-2">Ödeme Makbuzu</h4>
+                        <p id="receiptDateTime" class="text-gray-600"></p>
+                    </div>
+                    
+                    <!-- Receipt Content -->
+                    <div id="receiptContent" class="space-y-4">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Receipt Actions -->
+                    <div class="border-t pt-6 mt-6">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button onclick="downloadReceipt()" 
+                                    class="flex-1 bg-carwash-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-carwash-primary focus:ring-offset-2 transition-colors duration-200">
+                                <i class="fas fa-download mr-2" aria-hidden="true"></i>
+                                PDF İndir
+                            </button>
+                            <button onclick="emailReceipt()" 
+                                    class="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
+                                <i class="fas fa-envelope mr-2" aria-hidden="true"></i>
+                                E-posta Gönder
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="js/payment.js"></script>
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-12" role="contentinfo">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-car text-2xl text-carwash-primary" aria-hidden="true"></i>
+                        <span class="text-xl font-bold">CarWash</span>
+                    </div>
+                    <p class="text-gray-400">
+                        Türkiye'nin en güvenilir araç yıkama rezervasyon platformu
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Destek</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>
+                            <i class="fas fa-phone mr-2" aria-hidden="true"></i>
+                            <a href="tel:+902121234567" class="hover:text-white transition-colors">0212 123 45 67</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope mr-2" aria-hidden="true"></i>
+                            <a href="mailto:destek@carwash.com" class="hover:text-white transition-colors">destek@carwash.com</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Güvenlik</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-center">
+                            <i class="fas fa-shield-alt mr-2 text-green-400" aria-hidden="true"></i>
+                            SSL Sertifikalı
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-lock mr-2 text-green-400" aria-hidden="true"></i>
+                            PCI DSS Uyumlu
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 CarWash. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Screen Reader Announcements -->
+    <div id="sr-announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Scripts -->
+    <script src="/carwash_project/frontend/js/config/api.js" defer></script>
+    <script src="/carwash_project/frontend/js/booking/booking.js" defer></script>
+    <script src="js/payment.js" defer></script>
+
+    <!-- Performance Monitoring -->
+    <script>
+        // Basic performance monitoring
+        window.addEventListener('load', function() {
+            if ('performance' in window) {
+                const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+                console.log('Payment page load time:', loadTime + 'ms');
+            }
+        });
+
+        // Error tracking
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript error on payment page:', e.error);
+        });
+    </script>
+
+    <!-- Accessibility Enhancement -->
+    <script>
+        // Focus management for modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('receiptModal');
+                if (!modal.classList.contains('hidden')) {
+                    closeReceiptModal();
+                }
+            }
+        });
+
+        // CVV Tooltip functionality
+        function toggleCVVTooltip() {
+            const tooltip = document.getElementById('cvv-tooltip');
+            if (tooltip) {
+                tooltip.classList.toggle('hidden');
+            }
+        }
+
+        // Close CVV tooltip when clicking outside
+        document.addEventListener('click', function(e) {
+            const tooltip = document.getElementById('cvv-tooltip');
+            const cvvButton = e.target.closest('[onclick="toggleCVVTooltip()"]');
+            
+            if (!cvvButton && tooltip && !tooltip.classList.contains('hidden')) {
+                tooltip.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

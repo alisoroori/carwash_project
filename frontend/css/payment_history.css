@@ -1,0 +1,1123 @@
+/**
+ * CarWash Payment History Page Styles
+ * Following CarWash project conventions and modern CSS practices
+ * 
+ * @version 1.0.0
+ * @author CarWash Team
+ */
+
+/* ========================================
+   CSS Custom Properties (Variables)
+   ======================================== */
+
+:root {
+    /* CarWash Brand Colors */
+    --carwash-primary: #2563eb;
+    --carwash-primary-hover: #1d4ed8;
+    --carwash-primary-light: #dbeafe;
+    --carwash-secondary: #64748b;
+    --carwash-success: #10b981;
+    --carwash-success-light: #d1fae5;
+    --carwash-warning: #f59e0b;
+    --carwash-warning-light: #fef3c7;
+    --carwash-error: #ef4444;
+    --carwash-error-light: #fee2e2;
+    --carwash-info: #0ea5e9;
+    --carwash-info-light: #e0f2fe;
+    
+    /* Gray Scale */
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    
+    /* Typography */
+    --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    
+    /* Border Radius */
+    --radius-sm: 0.125rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    
+    /* Transitions */
+    --transition-fast: 150ms ease-in-out;
+    --transition-normal: 300ms ease-in-out;
+    --transition-slow: 500ms ease-in-out;
+    
+    /* Z-Index Scale */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-tooltip: 1070;
+}
+
+/* ========================================
+   Reset & Base Styles
+   ======================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    color: var(--gray-900);
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   Accessibility Enhancements
+   ======================================== */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus styles for better accessibility */
+*:focus {
+    outline: 2px solid var(--carwash-primary);
+    outline-offset: 2px;
+}
+
+/* Remove outline for mouse users */
+.js-focus-visible *:focus:not(.focus-visible) {
+    outline: none;
+}
+
+/* Skip link styles */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background-color: var(--carwash-primary);
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    z-index: var(--z-tooltip);
+    transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
+/* ========================================
+   Header Styles
+   ======================================== */
+
+header {
+    background-color: white;
+    box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid var(--gray-200);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.header-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--carwash-primary);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: var(--font-size-xl);
+    transition: color var(--transition-fast);
+}
+
+.logo-link:hover {
+    color: var(--carwash-primary-hover);
+}
+
+.logo-icon {
+    font-size: var(--font-size-2xl);
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+}
+
+.breadcrumb-item {
+    color: var(--gray-500);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.breadcrumb-item:hover {
+    color: var(--carwash-primary);
+}
+
+.breadcrumb-separator {
+    color: var(--gray-400);
+    font-size: var(--font-size-xs);
+}
+
+.breadcrumb-current {
+    color: var(--gray-900);
+    font-weight: 500;
+}
+
+/* User Menu */
+.user-menu-button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    background: none;
+    border: none;
+    color: var(--gray-700);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: color var(--transition-fast);
+}
+
+.user-menu-button:hover {
+    color: var(--carwash-primary);
+}
+
+/* ========================================
+   Main Content Styles
+   ======================================== */
+
+main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-4);
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: var(--space-8);
+}
+
+.page-title {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.page-description {
+    color: var(--gray-600);
+    font-size: var(--font-size-base);
+}
+
+.export-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background-color: white;
+    border: 2px solid var(--carwash-primary);
+    color: var(--carwash-primary);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.export-button:hover {
+    background-color: var(--carwash-primary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   Filters Section
+   ======================================== */
+
+.filters-section {
+    background-color: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+.filters-heading {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+    .filters-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .filters-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.filter-label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.filter-input,
+.filter-select {
+    width: 100%;
+    padding: var(--space-3);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    background-color: white;
+    transition: all var(--transition-fast);
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    border-color: var(--carwash-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+.filter-input:hover,
+.filter-select:hover {
+    border-color: var(--gray-400);
+}
+
+.filter-help {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+}
+
+.filter-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+}
+
+@media (min-width: 640px) {
+    .filter-actions {
+        flex-direction: row;
+    }
+}
+
+.filter-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.filter-button-primary {
+    background-color: var(--carwash-primary);
+    color: white;
+}
+
+.filter-button-primary:hover {
+    background-color: var(--carwash-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.filter-button-secondary {
+    background-color: var(--gray-100);
+    color: var(--gray-700);
+}
+
+.filter-button-secondary:hover {
+    background-color: var(--gray-200);
+}
+
+/* ========================================
+   Summary Cards
+   ======================================== */
+
+.summary-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+@media (min-width: 768px) {
+    .summary-section {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.summary-card {
+    background-color: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    padding: var(--space-6);
+    transition: all var(--transition-fast);
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-card-content {
+    display: flex;
+    align-items: center;
+}
+
+.summary-icon-container {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--space-4);
+}
+
+.summary-icon-success {
+    background-color: var(--carwash-success-light);
+    color: var(--carwash-success);
+}
+
+.summary-icon-info {
+    background-color: var(--carwash-info-light);
+    color: var(--carwash-info);
+}
+
+.summary-icon-warning {
+    background-color: var(--carwash-warning-light);
+    color: var(--carwash-warning);
+}
+
+.summary-label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--gray-600);
+    margin-bottom: var(--space-1);
+}
+
+.summary-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+/* ========================================
+   Payments Table Section
+   ======================================== */
+
+.table-section {
+    background-color: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+}
+
+.table-header {
+    padding: var(--space-6) var(--space-6) var(--space-4);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.table-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--space-1);
+}
+
+.table-description {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+}
+
+/* Loading State */
+.loading-state {
+    padding: var(--space-8);
+    text-align: center;
+}
+
+.loading-spinner {
+    font-size: var(--font-size-4xl);
+    color: var(--carwash-primary);
+    margin-bottom: var(--space-4);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: var(--gray-600);
+}
+
+/* Table Styles */
+.table-container {
+    overflow-x: auto;
+}
+
+.payments-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-header-row {
+    background-color: var(--gray-50);
+}
+
+.table-header-cell {
+    padding: var(--space-3) var(--space-6);
+    text-align: left;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.table-sort-button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.table-sort-button:hover {
+    color: var(--gray-700);
+}
+
+.table-sort-icon {
+    color: var(--gray-400);
+}
+
+.table-body-row {
+    background-color: white;
+    transition: background-color var(--transition-fast);
+}
+
+.table-body-row:hover {
+    background-color: var(--gray-50);
+}
+
+.table-body-cell {
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px solid var(--gray-200);
+    font-size: var(--font-size-sm);
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-completed {
+    background-color: var(--carwash-success-light);
+    color: var(--carwash-success);
+}
+
+.status-pending {
+    background-color: var(--carwash-warning-light);
+    color: var(--carwash-warning);
+}
+
+.status-cancelled {
+    background-color: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.status-failed {
+    background-color: var(--carwash-error-light);
+    color: var(--carwash-error);
+}
+
+/* Action Buttons */
+.action-button {
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--gray-300);
+    background-color: white;
+    color: var(--gray-700);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.action-button:hover {
+    background-color: var(--gray-50);
+    border-color: var(--gray-400);
+    transform: translateY(-1px);
+}
+
+.action-button-primary {
+    background-color: var(--carwash-primary);
+    border-color: var(--carwash-primary);
+    color: white;
+}
+
+.action-button-primary:hover {
+    background-color: var(--carwash-primary-hover);
+    border-color: var(--carwash-primary-hover);
+}
+
+/* Empty State */
+.empty-state {
+    padding: var(--space-8);
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: var(--gray-300);
+    margin-bottom: var(--space-4);
+}
+
+.empty-title {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    color: var(--gray-900);
+    margin-bottom: var(--space-2);
+}
+
+.empty-description {
+    color: var(--gray-600);
+    margin-bottom: var(--space-4);
+}
+
+.empty-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background-color: var(--carwash-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.empty-action:hover {
+    background-color: var(--carwash-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   Pagination
+   ======================================== */
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-6);
+    padding: var(--space-4) 0;
+}
+
+.pagination-info {
+    font-size: var(--font-size-sm);
+    color: var(--gray-700);
+}
+
+.pagination-buttons {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.pagination-button {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--gray-300);
+    background-color: white;
+    color: var(--gray-700);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.pagination-button:hover {
+    background-color: var(--gray-50);
+    border-color: var(--gray-400);
+}
+
+.pagination-button.active {
+    background-color: var(--carwash-primary);
+    border-color: var(--carwash-primary);
+    color: white;
+}
+
+.pagination-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   Modal Styles
+   ======================================== */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(17, 24, 39, 0.5);
+    z-index: var(--z-modal-backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+}
+
+.modal-container {
+    position: relative;
+    background-color: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    max-width: 32rem;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-6);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.modal-title {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.modal-close {
+    padding: var(--space-2);
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: color var(--transition-fast);
+}
+
+.modal-close:hover {
+    color: var(--gray-600);
+}
+
+.modal-content {
+    padding: var(--space-6);
+}
+
+/* ========================================
+   Footer Styles
+   ======================================== */
+
+footer {
+    background-color: var(--gray-900);
+    color: white;
+    padding: var(--space-8) 0;
+    margin-top: var(--space-12);
+}
+
+.footer-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+}
+
+@media (min-width: 768px) {
+    .footer-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.footer-brand-icon {
+    font-size: var(--font-size-2xl);
+    color: var(--carwash-primary);
+}
+
+.footer-brand-text {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+}
+
+.footer-description {
+    color: var(--gray-400);
+}
+
+.footer-section-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-4);
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.footer-link {
+    color: var(--gray-400);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.footer-link:hover {
+    color: white;
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--gray-800);
+    margin-top: var(--space-8);
+    padding-top: var(--space-8);
+    text-align: center;
+    color: var(--gray-400);
+}
+
+/* ========================================
+   Responsive Design Enhancements
+   ======================================== */
+
+@media (max-width: 640px) {
+    .page-title {
+        font-size: var(--font-size-2xl);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-4);
+    }
+    
+    .export-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .table-container {
+        font-size: var(--font-size-xs);
+    }
+    
+    .table-header-cell,
+    .table-body-cell {
+        padding: var(--space-2) var(--space-3);
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        gap: var(--space-4);
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .breadcrumb {
+        display: none;
+    }
+    
+    .modal-container {
+        margin: var(--space-4);
+        max-width: calc(100vw - 2rem);
+    }
+}
+
+/* ========================================
+   Animation Classes
+   ======================================== */
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-down {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pulse-slow {
+    animation: pulseSlow 2s infinite;
+}
+
+@keyframes pulseSlow {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.lowercase {
+    text-transform: lowercase;
+}
+
+.capitalize {
+    text-transform: capitalize;
+}
+
+/* ========================================
+   Dark Mode Support (Optional)
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    /* Dark mode styles can be added here if needed */
+    /* This is optional for the current CarWash project */
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+    body {
+        background: white !important;
+    }
+    
+    header,
+    footer,
+    .export-button,
+    .filter-actions,
+    .action-button {
+        display: none !important;
+    }
+    
+    .table-section {
+        box-shadow: none !important;
+        border: 1px solid var(--gray-300) !important;
+    }
+    
+    .summary-card {
+        box-shadow: none !important;
+        border: 1px solid var(--gray-300) !important;
+    }
+    
+    .table-body-row:hover {
+        background-color: transparent !important;
+    }
+}
+
+/* ========================================
+   High Contrast Mode Support
+   ======================================== */
+
+@media (prefers-contrast: high) {
+    :root {
+        --carwash-primary: #0000ff;
+        --gray-900: #000000;
+        --gray-50: #ffffff;
+    }
+    
+    .status-badge,
+    .summary-icon-container {
+        border: 2px solid currentColor;
+    }
+}
+
+/* ========================================
+   Reduced Motion Support
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

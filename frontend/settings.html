@@ -1,106 +1,774 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
+    <!-- Essential Meta Tags -->
     <meta charset="UTF-8">
-    <title>User Settings - CarWash</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>User Settings - CarWash | Manage Your Profile & Preferences</title>
+    <meta name="description" content="Manage your CarWash account settings, update profile information, configure security preferences, and customize notification settings.">
+    <meta name="keywords" content="car wash settings, profile management, account security, notification preferences, user dashboard">
+    <meta name="author" content="CarWash">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.carwash.com/settings">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="User Settings - CarWash">
+    <meta property="og:description" content="Manage your CarWash account settings and preferences">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.carwash.com/settings">
+    <meta property="og:image" content="https://www.carwash.com/images/settings-og.jpg">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="User Settings - CarWash">
+    <meta name="twitter:description" content="Manage your CarWash account settings">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+    <!-- Preconnect to External Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Files -->
     <link rel="stylesheet" href="css/settings.css">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "User Settings",
+        "description": "Manage your CarWash account settings and preferences",
+        "url": "https://www.carwash.com/settings",
+        "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": "https://www.carwash.com"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Dashboard",
+                    "item": "https://www.carwash.com/dashboard"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "Settings",
+                    "item": "https://www.carwash.com/settings"
+                }
+            ]
+        }
+    }
+    </script>
 </head>
-<body>
-    <div class="settings-container">
-        <nav class="settings-nav">
-            <ul>
-                <li><a href="#profile" class="active">Profile Settings</a></li>
-                <li><a href="#security">Security</a></li>
-                <li><a href="#notifications">Notification Preferences</a></li>
-                <li><a href="#privacy">Privacy</a></li>
-            </ul>
-        </nav>
 
-        <main class="settings-content">
+<body class="bg-gray-50 text-gray-900 antialiased">
+    <!-- Skip to Main Content (Accessibility) -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg">
+        Skip to main content
+    </a>
+    
+    <!-- Screen Reader Announcements -->
+    <div id="sr-announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+    
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="Breadcrumb" class="bg-white border-b border-gray-200 px-4 py-3 lg:px-8">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="/" class="hover:text-primary-600 transition-colors" itemprop="item">
+                    <span itemprop="name">Home</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </li>
+            <li class="flex items-center">
+                <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/dashboard" class="hover:text-primary-600 transition-colors" itemprop="item">
+                        <span itemprop="name">Dashboard</span>
+                    </a>
+                    <meta itemprop="position" content="2" />
+                </span>
+            </li>
+            <li class="flex items-center">
+                <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="font-medium text-gray-900" aria-current="page">Settings</span>
+            </li>
+        </ol>
+    </nav>
+    
+    <!-- Main Container -->
+    <div class="min-h-screen flex flex-col lg:flex-row">
+        <!-- Mobile Menu Button -->
+        <button 
+            id="mobile-menu-btn"
+            type="button"
+            class="lg:hidden fixed top-20 left-4 z-40 p-2 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 focus:ring-2 focus:ring-primary-500 transition-all"
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
+            aria-controls="settings-nav">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+        
+        <!-- Sidebar Navigation -->
+        <aside 
+            id="settings-nav"
+            class="fixed lg:sticky top-0 left-0 z-30 w-64 h-screen bg-white border-r border-gray-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto"
+            role="navigation"
+            aria-label="Settings navigation">
+            
+            <!-- Navigation Header -->
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+                <h1 class="text-xl font-bold text-gray-900">Settings</h1>
+                <button 
+                    id="close-menu-btn"
+                    type="button"
+                    class="lg:hidden absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 focus:ring-2 focus:ring-primary-500 rounded-lg"
+                    aria-label="Close navigation menu">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="px-4 py-6">
+                <ul class="space-y-2" role="list">
+                    <li>
+                        <a href="#profile" 
+                           class="nav-link active flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all hover:bg-gray-50"
+                           aria-current="page"
+                           role="menuitem">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span>Profile Settings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#security" 
+                           class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all hover:bg-gray-50"
+                           role="menuitem">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            <span>Security</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#notifications" 
+                           class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all hover:bg-gray-50"
+                           role="menuitem">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span>Notification Preferences</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#privacy" 
+                           class="nav-link flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all hover:bg-gray-50"
+                           role="menuitem">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            <span>Privacy</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Keyboard Shortcuts Info -->
+                <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <h3 class="text-xs font-semibold text-blue-900 uppercase tracking-wider mb-2">Keyboard Shortcuts</h3>
+                    <ul class="space-y-1 text-xs text-blue-700">
+                        <li class="flex items-center justify-between">
+                            <span>Navigate sections</span>
+                            <kbd class="px-2 py-1 bg-white rounded border border-blue-200 font-mono">↑ ↓</kbd>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span>Save form</span>
+                            <kbd class="px-2 py-1 bg-white rounded border border-blue-200 font-mono">Ctrl+S</kbd>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Overlay for Mobile Menu -->
+        <div 
+            id="nav-overlay"
+            class="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden hidden transition-opacity duration-300"
+            aria-hidden="true">
+        </div>
+        
+        <!-- Main Content -->
+        <main 
+            id="main-content" 
+            class="flex-1 px-4 py-8 lg:px-12 lg:py-10 max-w-4xl mx-auto w-full"
+            role="main">
+            
             <!-- Profile Settings Section -->
-            <section id="profile" class="settings-section active">
-                <h2>Profile Settings</h2>
-                <form id="profileForm" class="settings-form">
+            <section 
+                id="profile" 
+                class="settings-section bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:p-8 mb-8"
+                aria-labelledby="profile-heading">
+                
+                <header class="mb-6 pb-4 border-b border-gray-200">
+                    <h2 id="profile-heading" class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                        Profile Settings
+                    </h2>
+                    <p class="text-sm text-gray-600">
+                        Manage your personal information and profile details
+                    </p>
+                </header>
+                
+                <form 
+                    id="profileForm" 
+                    class="space-y-6"
+                    novalidate
+                    aria-label="Profile settings form"
+                    action="../backend/dashboard/settings_process.php"
+                    method="POST">
+                    
+                    <input type="hidden" name="action" value="update_profile">
+                    
+                    <!-- Full Name -->
                     <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
+                        <label 
+                            for="name" 
+                            class="block text-sm font-semibold text-gray-700 mb-2">
+                            Full Name <span class="text-red-500" aria-label="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            required
+                            autocomplete="name"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-base"
+                            placeholder="John Doe"
+                            aria-required="true"
+                            aria-describedby="name-error"
+                            aria-invalid="false">
+                        <p id="name-error" class="mt-2 text-sm text-red-600 hidden" role="alert"></p>
                     </div>
+                    
+                    <!-- Email Address -->
                     <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
+                        <label 
+                            for="email" 
+                            class="block text-sm font-semibold text-gray-700 mb-2">
+                            Email Address <span class="text-red-500" aria-label="required">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required
+                            autocomplete="email"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-base"
+                            placeholder="john@example.com"
+                            aria-required="true"
+                            aria-describedby="email-error"
+                            aria-invalid="false">
+                        <p id="email-error" class="mt-2 text-sm text-red-600 hidden" role="alert"></p>
                     </div>
+                    
+                    <!-- Phone Number -->
                     <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
+                        <label 
+                            for="phone" 
+                            class="block text-sm font-semibold text-gray-700 mb-2">
+                            Phone Number
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone"
+                            autocomplete="tel"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-base"
+                            placeholder="+1 (555) 000-0000"
+                            pattern="[+]?[0-9\s\-\(\)]+"
+                            aria-describedby="phone-hint phone-error">
+                        <p id="phone-hint" class="mt-2 text-xs text-gray-500">
+                            Optional: Used for booking confirmations
+                        </p>
+                        <p id="phone-error" class="mt-2 text-sm text-red-600 hidden" role="alert"></p>
                     </div>
-                    <button type="submit" class="btn-primary">Update Profile</button>
+                    
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                        <button 
+                            type="submit" 
+                            class="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base"
+                            aria-label="Update profile information">
+                            <svg class="w-5 h-5 mr-2 hidden" id="profile-loading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Update Profile</span>
+                        </button>
+                        <button 
+                            type="button"
+                            class="inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 focus:ring-4 focus:ring-gray-300 transition-all text-base"
+                            aria-label="Cancel and reset form">
+                            Cancel
+                        </button>
+                    </div>
                 </form>
             </section>
-
+            
             <!-- Security Settings Section -->
-            <section id="security" class="settings-section">
-                <h2>Security Settings</h2>
-                <form id="passwordForm" class="settings-form">
+            <section 
+                id="security" 
+                class="settings-section bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:p-8 mb-8 hidden"
+                aria-labelledby="security-heading">
+                
+                <header class="mb-6 pb-4 border-b border-gray-200">
+                    <h2 id="security-heading" class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                        Security Settings
+                    </h2>
+                    <p class="text-sm text-gray-600">
+                        Manage your password and authentication methods
+                    </p>
+                </header>
+                
+                <!-- Password Change Form -->
+                <form 
+                    id="passwordForm" 
+                    class="space-y-6 mb-8 pb-8 border-b border-gray-200"
+                    novalidate
+                    aria-label="Password change form"
+                    action="../backend/dashboard/settings_process.php"
+                    method="POST">
+                    
+                    <input type="hidden" name="action" value="change_password">
+                    
+                    <h3 class="text-lg font-semibold text-gray-900">Change Password</h3>
+                    
+                    <!-- Current Password -->
                     <div class="form-group">
-                        <label for="currentPassword">Current Password</label>
-                        <input type="password" id="currentPassword" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="newPassword">New Password</label>
-                        <input type="password" id="newPassword" required>
-                        <div class="password-strength"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm New Password</label>
-                        <input type="password" id="confirmPassword" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Change Password</button>
-                </form>
-
-                <div class="two-factor-section">
-                    <h3>Two-Factor Authentication</h3>
-                    <div class="two-factor-toggle">
-                        <label class="switch">
-                            <input type="checkbox" id="twoFactorToggle">
-                            <span class="slider"></span>
+                        <label 
+                            for="currentPassword" 
+                            class="block text-sm font-semibold text-gray-700 mb-2">
+                            Current Password <span class="text-red-500" aria-label="required">*</span>
                         </label>
-                        <span>Enable Two-Factor Authentication</span>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="currentPassword" 
+                                name="currentPassword"
+                                required
+                                autocomplete="current-password"
+                                class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-base"
+                                aria-required="true"
+                                aria-describedby="current-password-error"
+                                aria-invalid="false">
+                            <button 
+                                type="button"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                                data-toggle-password="currentPassword"
+                                aria-label="Toggle password visibility">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p id="current-password-error" class="mt-2 text-sm text-red-600 hidden" role="alert"></p>
+                    </div>
+                    
+                    <!-- New Password -->
+                    <div class="form-group">
+                        <label 
+                            for="newPassword" 
+                            class="block text-sm font-semibold text-gray-700 mb-2">
+                            New Password <span class="text-red-500" aria-label="required">*</span>
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="newPassword" 
+                                name="newPassword"
+                                required
+                                autocomplete="new-password"
+                                class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-base"
+                                aria-required="true"
+                                aria-describedby="new-password-hint new-password-error password-strength-text"
+                                aria-invalid="false">
+                            <button 
+                                type="button"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                                data-toggle-password="newPassword"
+                                aria-label="Toggle password visibility">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Password Strength Meter -->
+                        <div class="password-strength-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Password strength">
+                            <div id="password-strength-fill" class="password-strength-fill"></div>
+                        </div>
+                        <p id="password-strength-text" class="mt-2 text-xs font-medium" aria-live="polite"></p>
+                        
+                        <p id="new-password-hint" class="mt-2 text-xs text-gray-500">
+                            Password must be at least 8 characters with uppercase, lowercase, number, and special character
+                        </p>
+                        <p id="new-password-error" class="mt-2 text-sm text-red-600 hidden" role="alert"></p>
+                    </div>
+                    
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <label 
+                            for="confirmPassword" 
+                            class="block text-sm font-semibold text-gray-700 mb-2">
+                            Confirm New Password <span class="text-red-500" aria-label="required">*</span>
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword"
+                                required
+                                autocomplete="new-password"
+                                class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-base"
+                                aria-required="true"
+                                aria-describedby="confirm-password-error"
+                                aria-invalid="false">
+                            <button 
+                                type="button"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                                data-toggle-password="confirmPassword"
+                                aria-label="Toggle password visibility">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p id="confirm-password-error" class="mt-2 text-sm text-red-600 hidden" role="alert"></p>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                        <button 
+                            type="submit" 
+                            class="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base"
+                            aria-label="Change password">
+                            <svg class="w-5 h-5 mr-2 hidden" id="password-loading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Change Password</span>
+                        </button>
+                        <button 
+                            type="button"
+                            class="inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 focus:ring-4 focus:ring-gray-300 transition-all text-base"
+                            aria-label="Cancel password change">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Two-Factor Authentication -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Two-Factor Authentication</h3>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-semibold text-blue-900 mb-1">Enhanced Security</h4>
+                                <p class="text-sm text-blue-700">
+                                    Add an extra layer of security to your account with two-factor authentication. You'll need to enter a code from your phone in addition to your password.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex-1 mr-4">
+                            <p class="text-sm font-semibold text-gray-900 mb-1">Two-Factor Authentication Status</p>
+                            <p class="text-xs text-gray-600" id="2fa-status-text">Currently disabled</p>
+                        </div>
+                        
+                        <!-- Toggle Switch -->
+                        <label class="relative inline-flex items-center cursor-pointer" for="twoFactorToggle">
+                            <input 
+                                type="checkbox" 
+                                id="twoFactorToggle" 
+                                class="sr-only peer"
+                                role="switch"
+                                aria-checked="false"
+                                aria-label="Enable two-factor authentication">
+                            <div class="w-14 h-7 bg-gray-300 peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                        </label>
                     </div>
                 </div>
             </section>
-
-            <!-- Notification Preferences -->
-            <section id="notifications" class="settings-section">
-                <h2>Notification Preferences</h2>
-                <form id="notificationPrefsForm" class="settings-form">
-                    <div class="notification-option">
-                        <label class="switch">
-                            <input type="checkbox" name="email_notifications">
-                            <span class="slider"></span>
+            
+            <!-- Notification Preferences Section -->
+            <section 
+                id="notifications" 
+                class="settings-section bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:p-8 mb-8 hidden"
+                aria-labelledby="notifications-heading">
+                
+                <header class="mb-6 pb-4 border-b border-gray-200">
+                    <h2 id="notifications-heading" class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                        Notification Preferences
+                    </h2>
+                    <p class="text-sm text-gray-600">
+                        Choose how and when you want to receive notifications
+                    </p>
+                </header>
+                
+                <form 
+                    id="notificationPrefsForm" 
+                    class="space-y-6"
+                    aria-label="Notification preferences form"
+                    action="../backend/dashboard/settings_process.php"
+                    method="POST">
+                    
+                    <input type="hidden" name="action" value="update_notifications">
+                    
+                    <!-- Email Notifications -->
+                    <div class="notification-option flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                        <div class="flex-1 mr-4">
+                            <label for="email_notifications" class="text-sm font-semibold text-gray-900 cursor-pointer mb-1 block">
+                                Email Notifications
+                            </label>
+                            <p class="text-xs text-gray-600">
+                                Receive important updates and information via email
+                            </p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                id="email_notifications"
+                                name="email_notifications"
+                                value="1"
+                                class="sr-only peer"
+                                role="switch"
+                                aria-checked="false"
+                                checked>
+                            <div class="w-14 h-7 bg-gray-300 peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
                         </label>
-                        <span>Email Notifications</span>
                     </div>
-                    <div class="notification-option">
-                        <label class="switch">
-                            <input type="checkbox" name="booking_reminders">
-                            <span class="slider"></span>
+                    
+                    <!-- Booking Reminders -->
+                    <div class="notification-option flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                        <div class="flex-1 mr-4">
+                            <label for="booking_reminders" class="text-sm font-semibold text-gray-900 cursor-pointer mb-1 block">
+                                Booking Reminders
+                            </label>
+                            <p class="text-xs text-gray-600">
+                                Get reminders about upcoming car wash appointments
+                            </p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                id="booking_reminders"
+                                name="booking_reminders"
+                                value="1"
+                                class="sr-only peer"
+                                role="switch"
+                                aria-checked="false"
+                                checked>
+                            <div class="w-14 h-7 bg-gray-300 peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
                         </label>
-                        <span>Booking Reminders</span>
                     </div>
-                    <div class="notification-option">
-                        <label class="switch">
-                            <input type="checkbox" name="promotional_emails">
-                            <span class="slider"></span>
+                    
+                    <!-- Promotional Emails -->
+                    <div class="notification-option flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                        <div class="flex-1 mr-4">
+                            <label for="promotional_emails" class="text-sm font-semibold text-gray-900 cursor-pointer mb-1 block">
+                                Promotional Emails
+                            </label>
+                            <p class="text-xs text-gray-600">
+                                Receive special offers, discounts, and promotions
+                            </p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                id="promotional_emails"
+                                name="promotional_emails"
+                                value="1"
+                                class="sr-only peer"
+                                role="switch"
+                                aria-checked="false">
+                            <div class="w-14 h-7 bg-gray-300 peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
                         </label>
-                        <span>Promotional Emails</span>
                     </div>
-                    <button type="submit" class="btn-primary">Save Preferences</button>
+                    
+                    <!-- SMS Notifications -->
+                    <div class="notification-option flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                        <div class="flex-1 mr-4">
+                            <label for="sms_notifications" class="text-sm font-semibold text-gray-900 cursor-pointer mb-1 block">
+                                SMS Notifications
+                            </label>
+                            <p class="text-xs text-gray-600">
+                                Receive text messages for time-sensitive updates
+                            </p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                id="sms_notifications"
+                                name="sms_notifications"
+                                value="1"
+                                class="sr-only peer"
+                                role="switch"
+                                aria-checked="false">
+                            <div class="w-14 h-7 bg-gray-300 peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                        </label>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                        <button 
+                            type="submit" 
+                            class="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base"
+                            aria-label="Save notification preferences">
+                            <svg class="w-5 h-5 mr-2 hidden" id="notification-loading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Save Preferences</span>
+                        </button>
+                        <button 
+                            type="button"
+                            class="inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 focus:ring-4 focus:ring-gray-300 transition-all text-base"
+                            data-reset="notifications"
+                            aria-label="Reset notification preferences">
+                            Reset to Defaults
+                        </button>
+                    </div>
                 </form>
+            </section>
+            
+            <!-- Privacy Section -->
+            <section 
+                id="privacy" 
+                class="settings-section bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:p-8 mb-8 hidden"
+                aria-labelledby="privacy-heading">
+                
+                <header class="mb-6 pb-4 border-b border-gray-200">
+                    <h2 id="privacy-heading" class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                        Privacy Settings
+                    </h2>
+                    <p class="text-sm text-gray-600">
+                        Control your data and privacy preferences
+                    </p>
+                </header>
+                
+                <div class="space-y-6">
+                    <!-- Data Collection -->
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h3 class="text-base font-semibold text-gray-900 mb-3">Data Collection</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1 mr-4">
+                                    <label for="analytics" class="text-sm font-medium text-gray-900 cursor-pointer block mb-1">
+                                        Analytics & Performance
+                                    </label>
+                                    <p class="text-xs text-gray-600">
+                                        Help us improve by sharing usage data
+                                    </p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        id="analytics"
+                                        name="analytics"
+                                        class="sr-only peer"
+                                        role="switch"
+                                        aria-checked="false"
+                                        checked>
+                                    <div class="w-14 h-7 bg-gray-300 peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Management -->
+                    <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                        <h3 class="text-base font-semibold text-gray-900 mb-3">Account Management</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <button 
+                                    type="button"
+                                    class="inline-flex items-center px-4 py-2 bg-white text-primary-600 border border-primary-600 font-medium rounded-lg hover:bg-primary-50 focus:ring-4 focus:ring-primary-300 transition-all text-sm"
+                                    data-action="download-data"
+                                    aria-label="Download a copy of your account data">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    Download Your Data
+                                </button>
+                                <p class="text-xs text-gray-600 mt-2">
+                                    Get a copy of all your account data
+                                </p>
+                            </div>
+                            <div>
+                                <button 
+                                    type="button"
+                                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 transition-all text-sm"
+                                    data-action="delete-account"
+                                    aria-label="Permanently delete your account">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Delete Account
+                                </button>
+                                <p class="text-xs text-red-600 mt-2">
+                                    Warning: This action cannot be undone
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
     </div>
-
+    
+    <!-- Toast Notification Container -->
+    <div 
+        id="toast-container" 
+        class="fixed bottom-4 right-4 z-50 space-y-3"
+        role="region"
+        aria-label="Notifications"
+        aria-live="polite">
+    </div>
+    
+    <!-- JavaScript Files -->
     <script src="js/settings.js"></script>
 </body>
 </html>
