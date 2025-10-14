@@ -1,0 +1,5 @@
+# pack-refs with: peeled fully-peeled sorted 
+696704600b16e5c6374e5dd4b926e164b0d7c1b1 refs/heads/copilot/project-progress-assessment
+b821c0ddbfb61e5aa92cd785607347ede48b94dc refs/heads/main
+696704600b16e5c6374e5dd4b926e164b0d7c1b1 refs/pull/1/head
+27213e24cf73df700595024ed6b32f27df062ec3 refs/pull/1/merge
