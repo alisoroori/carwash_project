@@ -1,0 +1,34 @@
+{
+  "../src/input-legacy.css": {
+    "file": "assets/styles-legacy-CZu0oGuG.js",
+    "name": "styles",
+    "src": "../src/input-legacy.css",
+    "isEntry": true
+  },
+  "../src/input.css": {
+    "file": "assets/styles-UG_hUxuT.css",
+    "src": "../src/input.css",
+    "isEntry": true,
+    "names": [
+      "styles.css"
+    ]
+  },
+  "../vite/legacy-polyfills-legacy": {
+    "file": "assets/polyfills-legacy-BpgqBDQJ.js",
+    "name": "polyfills",
+    "src": "../vite/legacy-polyfills-legacy",
+    "isEntry": true
+  },
+  "js/main-legacy.js": {
+    "file": "assets/main-legacy-BlgFkmSo.js",
+    "name": "main",
+    "src": "js/main-legacy.js",
+    "isEntry": true
+  },
+  "js/main.js": {
+    "file": "assets/main-YOUhFAkY.js",
+    "name": "main",
+    "src": "js/main.js",
+    "isEntry": true
+  }
+}

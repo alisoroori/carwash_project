@@ -1,0 +1,4 @@
+<form id="bookingForm" method="POST" action="/backend/api/booking/create.php">
+    <input type="hidden" name="csrf_token" value="<?php echo Security::getInstance()->generateCSRFToken(); ?>">
+    <!-- ...existing form fields... -->
+</form>

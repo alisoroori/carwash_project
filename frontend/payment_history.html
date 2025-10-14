@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>Ödeme Geçmişi - CarWash | Araç Yıkama Rezervasyon Sistemi</title>
+    <meta name="description" content="CarWash ödeme geçmişi sayfası. Araç yıkama rezervasyon ödemelerinizi görüntüleyin ve yönetin. Türkiye'nin güvenilir araç yıkama platformu.">
+    <meta name="keywords" content="ödeme geçmişi, araç yıkama, car wash, rezervasyon, fatura, CarWash, İstanbul, Ankara">
+    <meta name="author" content="CarWash Team">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Ödeme Geçmişi - CarWash">
+    <meta property="og:description" content="Araç yıkama rezervasyon ödemelerinizi görüntüleyin ve yönetin.">
+    <meta property="og:url" content="https://carwash.com/payment_history">
+    <meta property="og:site_name" content="CarWash">
+    <meta property="og:locale" content="tr_TR">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Ödeme Geçmişi - CarWash">
+    <meta name="twitter:description" content="Araç yıkama rezervasyon ödemelerinizi görüntüleyin ve yönetin.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/carwash_project/frontend/images/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/carwash_project/frontend/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/carwash_project/frontend/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/carwash_project/frontend/images/favicon-16x16.png">
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    
+    <!-- CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'carwash-primary': '#2563eb',
+                        'carwash-secondary': '#64748b',
+                        'carwash-success': '#10b981',
+                        'carwash-warning': '#f59e0b',
+                        'carwash-error': '#ef4444',
+                        'carwash-info': '#0ea5e9'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-down': 'slideDown 0.3s ease-out',
+                        'pulse-slow': 'pulse 2s infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Ödeme Geçmişi - CarWash",
+        "description": "CarWash ödeme geçmişi sayfası",
+        "url": "https://carwash.com/payment_history",
+        "inLanguage": "tr",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "CarWash",
+            "url": "https://carwash.com"
+        }
+    }
+    </script>
+    
+    <!-- Accessibility & Performance -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Performance Hints -->
+    <link rel="preload" href="/carwash_project/frontend/js/payment_history.js" as="script">
+    <link rel="preload" href="/carwash_project/frontend/css/payment_history.css" as="style">
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-sans antialiased">
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-carwash-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:z-50 focus:outline-none focus:ring-2 focus:ring-white">
+        Ana içeriğe atla
+    </a>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40" role="banner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/carwash_project/frontend/homes.html" 
+                       class="flex items-center space-x-2 text-carwash-primary hover:text-blue-700 transition-colors duration-200"
+                       aria-label="CarWash ana sayfası">
+                        <i class="fas fa-car text-2xl" aria-hidden="true"></i>
+                        <span class="text-xl font-bold hidden sm:inline">CarWash</span>
+                    </a>
+                </div>
+                
+                <!-- Breadcrumb Navigation -->
+                <nav aria-label="Breadcrumb" class="hidden md:flex">
+                    <ol class="flex items-center space-x-2 text-sm">
+                        <li>
+                            <a href="/carwash_project/frontend/homes.html" class="text-gray-500 hover:text-carwash-primary transition-colors">
+                                Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="text-gray-400">
+                            <i class="fas fa-chevron-right text-xs" aria-hidden="true"></i>
+                        </li>
+                        <li>
+                            <a href="/carwash_project/backend/dashboard/Customer_Dashboard.php" class="text-gray-500 hover:text-carwash-primary transition-colors">
+                                Hesabım
+                            </a>
+                        </li>
+                        <li class="text-gray-400">
+                            <i class="fas fa-chevron-right text-xs" aria-hidden="true"></i>
+                        </li>
+                        <li class="text-gray-900 font-medium" aria-current="page">
+                            Ödeme Geçmişi
+                        </li>
+                    </ol>
+                </nav>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-carwash-primary focus:outline-none focus:ring-2 focus:ring-carwash-primary focus:ring-offset-2 rounded-md p-2"
+                                aria-expanded="false" aria-haspopup="true" id="user-menu-button">
+                            <i class="fas fa-user-circle text-xl" aria-hidden="true"></i>
+                            <span class="hidden sm:inline">Hesabım</span>
+                            <i class="fas fa-chevron-down text-xs" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8" role="main">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                        <i class="fas fa-credit-card text-carwash-primary mr-3" aria-hidden="true"></i>
+                        Ödeme Geçmişi
+                    </h1>
+                    <p class="text-gray-600">Araç yıkama rezervasyon ödemelerinizi görüntüleyin ve yönetin</p>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    <button onclick="exportPayments()" 
+                            class="inline-flex items-center px-4 py-2 border border-carwash-primary text-carwash-primary bg-white hover:bg-carwash-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-carwash-primary focus:ring-offset-2 rounded-md transition-colors duration-200">
+                        <i class="fas fa-download mr-2" aria-hidden="true"></i>
+                        Dışa Aktar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6" aria-labelledby="filters-heading">
+            <h2 id="filters-heading" class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-filter text-carwash-primary mr-2" aria-hidden="true"></i>
+                Filtreler
+            </h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Status Filter -->
+                <div class="space-y-2">
+                    <label for="statusFilter" class="block text-sm font-medium text-gray-700">
+                        Ödeme Durumu
+                    </label>
+                    <select id="statusFilter" 
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-carwash-primary focus:ring-carwash-primary focus:ring-1 transition-colors"
+                            aria-describedby="status-help">
+                        <option value="">Tümü</option>
+                        <option value="completed">Tamamlandı</option>
+                        <option value="pending">Beklemede</option>
+                        <option value="cancelled">İptal Edildi</option>
+                        <option value="failed">Başarısız</option>
+                    </select>
+                    <p id="status-help" class="text-xs text-gray-500">Ödeme durumuna göre filtreleyin</p>
+                </div>
+
+                <!-- Date Range Filter -->
+                <div class="space-y-2">
+                    <label for="dateFromFilter" class="block text-sm font-medium text-gray-700">
+                        Başlangıç Tarihi
+                    </label>
+                    <input type="date" id="dateFromFilter" 
+                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-carwash-primary focus:ring-carwash-primary focus:ring-1 transition-colors">
+                </div>
+
+                <div class="space-y-2">
+                    <label for="dateToFilter" class="block text-sm font-medium text-gray-700">
+                        Bitiş Tarihi
+                    </label>
+                    <input type="date" id="dateToFilter" 
+                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-carwash-primary focus:ring-carwash-primary focus:ring-1 transition-colors">
+                </div>
+
+                <!-- Amount Range Filter -->
+                <div class="space-y-2">
+                    <label for="amountFilter" class="block text-sm font-medium text-gray-700">
+                        Tutar Aralığı
+                    </label>
+                    <select id="amountFilter" 
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-carwash-primary focus:ring-carwash-primary focus:ring-1 transition-colors">
+                        <option value="">Tümü</option>
+                        <option value="0-50">0 - 50 TL</option>
+                        <option value="50-100">50 - 100 TL</option>
+                        <option value="100-200">100 - 200 TL</option>
+                        <option value="200+">200+ TL</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Filter Actions -->
+            <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                <button onclick="applyFilters()" 
+                        class="flex items-center justify-center px-4 py-2 bg-carwash-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-carwash-primary focus:ring-offset-2 transition-colors duration-200">
+                    <i class="fas fa-search mr-2" aria-hidden="true"></i>
+                    Filtrele
+                </button>
+                <button onclick="clearFilters()" 
+                        class="flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200">
+                    <i class="fas fa-times mr-2" aria-hidden="true"></i>
+                    Temizle
+                </button>
+            </div>
+        </section>
+
+        <!-- Summary Cards -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6" aria-labelledby="summary-heading">
+            <h2 id="summary-heading" class="sr-only">Ödeme Özeti</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-carwash-success bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-carwash-success" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Toplam Ödeme</p>
+                        <p id="totalAmount" class="text-2xl font-bold text-gray-900">0 TL</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-carwash-info bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-receipt text-carwash-info" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Toplam İşlem</p>
+                        <p id="totalTransactions" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-carwash-warning bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-carwash-warning" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Bekleyen Ödeme</p>
+                        <p id="pendingAmount" class="text-2xl font-bold text-gray-900">0 TL</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payments Table -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" aria-labelledby="payments-heading">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 id="payments-heading" class="text-lg font-semibold text-gray-900">
+                    Ödeme Listesi
+                </h2>
+                <p class="text-sm text-gray-600 mt-1">Araç yıkama rezervasyon ödemelerinizin detaylı listesi</p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="p-8 text-center" aria-live="polite">
+                <div class="animate-spin text-4xl text-carwash-primary mb-4" aria-hidden="true">
+                    <i class="fas fa-circle-notch"></i>
+                </div>
+                <p class="text-gray-600">Ödeme geçmişi yükleniyor...</p>
+            </div>
+
+            <!-- Table -->
+            <div id="tableContainer" class="hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" role="table" aria-label="Ödeme geçmişi tablosu">
+                        <thead class="bg-gray-50">
+                            <tr role="row">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <button class="flex items-center space-x-1 hover:text-gray-700 focus:outline-none" onclick="sortTable('order_id')">
+                                        <span>Sipariş No</span>
+                                        <i class="fas fa-sort text-gray-400" aria-hidden="true"></i>
+                                    </button>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <button class="flex items-center space-x-1 hover:text-gray-700 focus:outline-none" onclick="sortTable('date')">
+                                        <span>Tarih</span>
+                                        <i class="fas fa-sort text-gray-400" aria-hidden="true"></i>
+                                    </button>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Araç Yıkama
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Hizmet
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <button class="flex items-center space-x-1 hover:text-gray-700 focus:outline-none" onclick="sortTable('amount')">
+                                        <span>Tutar</span>
+                                        <i class="fas fa-sort text-gray-400" aria-hidden="true"></i>
+                                    </button>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Durum
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    İşlemler
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Payment rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden p-8 text-center">
+                <div class="text-6xl text-gray-300 mb-4" aria-hidden="true">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Henüz ödeme kaydı bulunmuyor</h3>
+                <p class="text-gray-600 mb-4">İlk rezervasyonunuzu yaparak ödeme geçmişinizi oluşturmaya başlayın</p>
+                <a href="/carwash_project/frontend/search.html" 
+                   class="inline-flex items-center px-4 py-2 bg-carwash-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-carwash-primary focus:ring-offset-2 transition-colors duration-200">
+                    <i class="fas fa-search mr-2" aria-hidden="true"></i>
+                    Araç Yıkama Bul
+                </a>
+            </div>
+        </section>
+
+        <!-- Pagination -->
+        <nav class="flex justify-between items-center mt-6" aria-label="Sayfalama">
+            <div class="text-sm text-gray-700">
+                <span id="showingCount">0</span> / <span id="totalCount">0</span> ödeme gösteriliyor
+            </div>
+            <div class="flex space-x-2" id="pagination">
+                <!-- Pagination buttons will be rendered here -->
+            </div>
+        </nav>
+    </main>
+
+    <!-- Payment Detail Modal -->
+    <div id="paymentModal" 
+         class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50" 
+         role="dialog" 
+         aria-modal="true" 
+         aria-labelledby="modal-title">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="relative bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 id="modal-title" class="text-xl font-semibold text-gray-900">
+                        Ödeme Detayları
+                    </h3>
+                    <button onclick="closePaymentModal()" 
+                            class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-carwash-primary rounded-md p-2"
+                            aria-label="Modalı kapat">
+                        <i class="fas fa-times text-xl" aria-hidden="true"></i>
+                    </button>
+                </div>
+                
+                <!-- Modal Content -->
+                <div id="paymentDetail" class="p-6">
+                    <!-- Payment details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-12" role="contentinfo">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-car text-2xl text-carwash-primary" aria-hidden="true"></i>
+                        <span class="text-xl font-bold">CarWash</span>
+                    </div>
+                    <p class="text-gray-400">
+                        Türkiye'nin en güvenilir araç yıkama rezervasyon platformu
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Destek</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>
+                            <i class="fas fa-phone mr-2" aria-hidden="true"></i>
+                            <a href="tel:+902121234567" class="hover:text-white transition-colors">0212 123 45 67</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope mr-2" aria-hidden="true"></i>
+                            <a href="mailto:destek@carwash.com" class="hover:text-white transition-colors">destek@carwash.com</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Hızlı Linkler</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>
+                            <a href="/carwash_project/frontend/privacy.html" class="hover:text-white transition-colors">Gizlilik Politikası</a>
+                        </li>
+                        <li>
+                            <a href="/carwash_project/frontend/terms.html" class="hover:text-white transition-colors">Kullanım Şartları</a>
+                        </li>
+                        <li>
+                            <a href="/carwash_project/backend/dashboard/Customer_Dashboard.php" class="hover:text-white transition-colors">Hesabım</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 CarWash. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Screen Reader Announcements -->
+    <div id="sr-announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Scripts -->
+    <script src="/carwash_project/frontend/js/config/api.js" defer></script>
+    <script src="/carwash_project/frontend/js/booking/booking.js" defer></script>
+    <script src="/carwash_project/frontend/js/payment_history.js" defer></script>
+
+    <!-- Performance Monitoring -->
+    <script>
+        // Basic performance monitoring
+        window.addEventListener('load', function() {
+            if ('performance' in window) {
+                const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+                console.log('Payment History page load time:', loadTime + 'ms');
+            }
+        });
+
+        // Error tracking
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript error on payment history page:', e.error);
+        });
+    </script>
+
+    <!-- Accessibility Enhancement -->
+    <script>
+        // Focus management for modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('paymentModal');
+                if (!modal.classList.contains('hidden')) {
+                    closePaymentModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

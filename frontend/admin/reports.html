@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports & Statistics - Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/reports.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="dashboard-nav">
+            <!-- Include your admin navigation here -->
+        </nav>
+
+        <main class="reports-content">
+            <!-- Date Range Filter -->
+            <div class="date-filter">
+                <select id="dateRange">
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month" selected>This Month</option>
+                    <option value="year">This Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+                <div id="customRange" class="custom-range" style="display: none;">
+                    <input type="date" id="startDate">
+                    <input type="date" id="endDate">
+                    <button id="applyRange">Apply</button>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>Total Revenue</h3>
+                    <p id="totalRevenue">$0.00</p>
+                    <span class="trend" id="revenueTrend"></span>
+                </div>
+                <div class="card">
+                    <h3>Total Bookings</h3>
+                    <p id="totalBookings">0</p>
+                    <span class="trend" id="bookingsTrend"></span>
+                </div>
+                <div class="card">
+                    <h3>Average Rating</h3>
+                    <p id="avgRating">0.0</p>
+                    <span class="trend" id="ratingTrend"></span>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Revenue Trend</h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Popular Services</h3>
+                    <canvas id="servicesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Bookings by Day</h3>
+                    <canvas id="bookingsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Customer Ratings</h3>
+                    <canvas id="ratingsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed Reports Table -->
+            <div class="detailed-reports">
+                <h3>Detailed Reports</h3>
+                <table id="reportsTable">
+                    <thead>
+                        <tr>
+                            <th>Car Wash</th>
+                            <th>Total Bookings</th>
+                            <th>Revenue</th>
+                            <th>Avg Rating</th>
+                            <th>Popular Service</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/admin/reports.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+/* Layout utilities */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+/* Spacing utilities */
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.m-4 { margin: 1rem; }
+.mt-4 { margin-top: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+
+/* Background utilities */
+.bg-blue-600 { background-color: #2563eb; }
+.bg-purple-600 { background-color: #7c3aed; }
+.bg-white { background-color: white; }
+.bg-gray-50 { background-color: #f9fafb; }
+
+/* Text utilities */
+.text-white { color: white; }
+.text-center { text-align: center; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+.font-bold { font-weight: bold; }
+
+/* Border utilities */
+.rounded { border-radius: 0.25rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.border { border: 1px solid #e5e7eb; }
+
+/* CarWash specific components */
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.card {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #1e40af 100%);
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .md\:flex-row { flex-direction: row; }
+  .md\:text-xl { font-size: 1.25rem; }
+}

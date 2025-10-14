@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>Ödeme Sonucu - CarWash | Araç Yıkama Rezervasyon Sistemi</title>
+    <meta name="description" content="CarWash ödeme sonucu sayfası. Rezervasyon işlemlerinizin durumunu kontrol edin. Türkiye'nin güvenilir araç yıkama rezervasyon platformu.">
+    <meta name="keywords" content="araç yıkama, car wash, ödeme sonucu, rezervasyon, İstanbul, Ankara, Turkey">
+    <meta name="author" content="CarWash Team">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Ödeme Sonucu - CarWash">
+    <meta property="og:description" content="CarWash ödeme sonucu sayfası. Rezervasyon işlemlerinizin durumunu kontrol edin.">
+    <meta property="og:url" content="https://carwash.com/payment_result">
+    <meta property="og:site_name" content="CarWash">
+    <meta property="og:locale" content="tr_TR">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Ödeme Sonucu - CarWash">
+    <meta name="twitter:description" content="CarWash ödeme sonucu sayfası. Rezervasyon işlemlerinizin durumunu kontrol edin.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/carwash_project/frontend/images/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/carwash_project/frontend/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/carwash_project/frontend/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/carwash_project/frontend/images/favicon-16x16.png">
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    
+    <!-- CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'carwash-primary': '#2563eb',
+                        'carwash-secondary': '#64748b',
+                        'carwash-success': '#10b981',
+                        'carwash-warning': '#f59e0b',
+                        'carwash-error': '#ef4444'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'bounce-in': 'bounceIn 0.6s ease-out'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Ödeme Sonucu - CarWash",
+        "description": "CarWash ödeme sonucu sayfası",
+        "url": "https://carwash.com/payment_result",
+        "inLanguage": "tr",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "CarWash",
+            "url": "https://carwash.com"
+        }
+    }
+    </script>
+    
+    <!-- Accessibility -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Performance Hints -->
+    <link rel="preload" href="/carwash_project/frontend/js/payment_result.js" as="script">
+    <link rel="preload" href="/carwash_project/frontend/css/payment_result.css" as="style">
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-sans antialiased">
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-carwash-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:z-50 focus:outline-none focus:ring-2 focus:ring-white">
+        Ana içeriğe atla
+    </a>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200" role="banner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/carwash_project/frontend/homes.html" 
+                       class="flex items-center space-x-2 text-carwash-primary hover:text-blue-700 transition-colors duration-200"
+                       aria-label="CarWash ana sayfası">
+                        <i class="fas fa-car text-2xl" aria-hidden="true"></i>
+                        <span class="text-xl font-bold">CarWash</span>
+                    </a>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-6" aria-label="Ana navigasyon">
+                    <a href="/carwash_project/frontend/homes.html" 
+                       class="text-gray-700 hover:text-carwash-primary transition-colors duration-200 font-medium">
+                        Ana Sayfa
+                    </a>
+                    <a href="/carwash_project/frontend/services.html" 
+                       class="text-gray-700 hover:text-carwash-primary transition-colors duration-200 font-medium">
+                        Hizmetler
+                    </a>
+                    <a href="/carwash_project/frontend/search.html" 
+                       class="text-gray-700 hover:text-carwash-primary transition-colors duration-200 font-medium">
+                        Araç Yıkama Bul
+                    </a>
+                </nav>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <a href="/carwash_project/backend/auth/login.php" 
+                       class="text-gray-700 hover:text-carwash-primary transition-colors duration-200">
+                        <i class="fas fa-user mr-1" aria-hidden="true"></i>
+                        Giriş
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16" role="main">
+        <!-- Loading State -->
+        <div id="loadingContainer" class="animate-fade-in" aria-live="polite" aria-label="Yükleniyor">
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center border border-gray-200">
+                <div class="animate-spin text-5xl text-carwash-primary mb-6" aria-hidden="true">
+                    <i class="fas fa-circle-notch"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-4">İşleminiz Kontrol Ediliyor</h1>
+                <p class="text-gray-600 text-lg">Lütfen bekleyiniz, ödeme sonucunuz doğrulanıyor...</p>
+                
+                <!-- Progress Bar -->
+                <div class="mt-6 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div class="bg-carwash-primary h-2 rounded-full animate-pulse" style="width: 60%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Result -->
+        <div id="successContainer" class="hidden animate-slide-up" aria-live="polite">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <!-- Success Header -->
+                <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-6">
+                    <div class="flex items-center justify-center">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <i class="fas fa-check text-3xl text-green-500" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold">Ödeme Başarılı!</h1>
+                            <p class="text-green-100 mt-1">Rezervasyonunuz onaylandı</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Success Content -->
+                <div class="p-8">
+                    <div class="space-y-6">
+                        <!-- Order Details -->
+                        <div class="border rounded-lg p-6 bg-gray-50">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Rezervasyon Detayları</h2>
+                            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Rezervasyon No</dt>
+                                    <dd id="bookingId" class="text-lg font-semibold text-gray-900">#---</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Ödeme Tutarı</dt>
+                                    <dd id="paymentAmount" class="text-lg font-semibold text-carwash-success">--- TL</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Araç Yıkama</dt>
+                                    <dd id="carwashName" class="text-base text-gray-900">---</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Tarih & Saat</dt>
+                                    <dd id="appointmentDateTime" class="text-base text-gray-900">---</dd>
+                                </div>
+                            </dl>
+                        </div>
+
+                        <!-- Next Steps -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-blue-900 mb-3">
+                                <i class="fas fa-info-circle mr-2" aria-hidden="true"></i>
+                                Sıradaki Adımlar
+                            </h3>
+                            <ul class="space-y-2 text-blue-800">
+                                <li class="flex items-start">
+                                    <i class="fas fa-envelope text-blue-600 mt-1 mr-3 flex-shrink-0" aria-hidden="true"></i>
+                                    <span>Rezervasyon onay e-postası gönderildi</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-sms text-blue-600 mt-1 mr-3 flex-shrink-0" aria-hidden="true"></i>
+                                    <span>Randevu saatinden 1 saat önce SMS hatırlatması alacaksınız</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-map-marker-alt text-blue-600 mt-1 mr-3 flex-shrink-0" aria-hidden="true"></i>
+                                    <span>Belirtilen tarih ve saatte araç yıkama noktasına geliniz</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button id="viewBookingBtn" 
+                                    class="flex-1 bg-carwash-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                <i class="fas fa-calendar-check mr-2" aria-hidden="true"></i>
+                                Rezervasyonu Görüntüle
+                            </button>
+                            <a href="/carwash_project/frontend/homes.html" 
+                               class="flex-1 bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors duration-200 text-center focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                <i class="fas fa-home mr-2" aria-hidden="true"></i>
+                                Ana Sayfaya Dön
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Result -->
+        <div id="errorContainer" class="hidden animate-slide-up" aria-live="polite">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <!-- Error Header -->
+                <div class="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-6">
+                    <div class="flex items-center justify-center">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <i class="fas fa-times text-3xl text-red-500" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold">Ödeme Başarısız</h1>
+                            <p class="text-red-100 mt-1">İşleminiz tamamlanamadı</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Content -->
+                <div class="p-8">
+                    <div class="space-y-6">
+                        <!-- Error Message -->
+                        <div class="border border-red-200 rounded-lg p-6 bg-red-50">
+                            <h2 class="text-lg font-semibold text-red-900 mb-3">Hata Detayları</h2>
+                            <p id="errorMessage" class="text-red-800">
+                                Ödeme işlemi sırasında bir hata oluştu. Lütfen tekrar deneyiniz.
+                            </p>
+                        </div>
+
+                        <!-- Support Info -->
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-yellow-900 mb-3">
+                                <i class="fas fa-question-circle mr-2" aria-hidden="true"></i>
+                                Yardıma mı ihtiyacınız var?
+                            </h3>
+                            <div class="space-y-2 text-yellow-800">
+                                <p class="flex items-center">
+                                    <i class="fas fa-phone mr-3 text-yellow-600" aria-hidden="true"></i>
+                                    <span>Destek Hattı: <a href="tel:+902121234567" class="font-semibold underline">0212 123 45 67</a></span>
+                                </p>
+                                <p class="flex items-center">
+                                    <i class="fas fa-envelope mr-3 text-yellow-600" aria-hidden="true"></i>
+                                    <span>E-posta: <a href="mailto:destek@carwash.com" class="font-semibold underline">destek@carwash.com</a></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button id="retryPaymentBtn" 
+                                    class="flex-1 bg-carwash-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                <i class="fas fa-redo mr-2" aria-hidden="true"></i>
+                                Tekrar Dene
+                            </button>
+                            <a href="/carwash_project/frontend/search.html" 
+                               class="flex-1 bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors duration-200 text-center focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                <i class="fas fa-search mr-2" aria-hidden="true"></i>
+                                Yeni Arama
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-auto" role="contentinfo">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-car text-2xl text-carwash-primary" aria-hidden="true"></i>
+                        <span class="text-xl font-bold">CarWash</span>
+                    </div>
+                    <p class="text-gray-400">
+                        Türkiye'nin en güvenilir araç yıkama rezervasyon platformu
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">İletişim</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>
+                            <i class="fas fa-phone mr-2" aria-hidden="true"></i>
+                            <a href="tel:+902121234567" class="hover:text-white transition-colors">0212 123 45 67</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope mr-2" aria-hidden="true"></i>
+                            <a href="mailto:info@carwash.com" class="hover:text-white transition-colors">info@carwash.com</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Hızlı Linkler</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>
+                            <a href="/carwash_project/frontend/privacy.html" class="hover:text-white transition-colors">Gizlilik Politikası</a>
+                        </li>
+                        <li>
+                            <a href="/carwash_project/frontend/terms.html" class="hover:text-white transition-colors">Kullanım Şartları</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 CarWash. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Screen Reader Announcements -->
+    <div id="sr-announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Scripts -->
+    <script src="/carwash_project/frontend/js/config/api.js" defer></script>
+    <script src="/carwash_project/frontend/js/booking/booking.js" defer></script>
+    <script src="/carwash_project/frontend/js/payment_result.js" defer></script>
+
+    <!-- Performance Monitoring -->
+    <script>
+        // Basic performance monitoring
+        window.addEventListener('load', function() {
+            if ('performance' in window) {
+                const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+                console.log('Page load time:', loadTime + 'ms');
+            }
+        });
+    </script>
+
+    <!-- Error Tracking -->
+    <script>
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript error:', e.error);
+            // Could send to analytics service
+        });
+    </script>
+</body>
+</html>

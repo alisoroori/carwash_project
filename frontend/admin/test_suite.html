@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CarWash Project Test Suite</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/test-suite.css">
+</head>
+<body>
+    <div class="test-container">
+        <header class="test-header">
+            <h1>System Test Dashboard</h1>
+            <div class="test-actions">
+                <button id="runAllTests" class="btn-primary">Run All Tests</button>
+                <button id="clearResults" class="btn-secondary">Clear Results</button>
+            </div>
+        </header>
+
+        <main class="test-content">
+            <div class="test-groups">
+                <!-- Authentication Tests -->
+                <div class="test-group">
+                    <h2>Authentication Tests</h2>
+                    <div class="test-case" data-test="register">
+                        <span class="test-name">User Registration</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                    <div class="test-case" data-test="login">
+                        <span class="test-name">User Login</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                </div>
+
+                <!-- Booking Tests -->
+                <div class="test-group">
+                    <h2>Booking System Tests</h2>
+                    <div class="test-case" data-test="services">
+                        <span class="test-name">Fetch Services</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                    <div class="test-case" data-test="timeslots">
+                        <span class="test-name">Get Time Slots</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                    <div class="test-case" data-test="booking">
+                        <span class="test-name">Create Booking</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                </div>
+
+                <!-- Payment Tests -->
+                <div class="test-group">
+                    <h2>Payment Tests</h2>
+                    <div class="test-case" data-test="payment">
+                        <span class="test-name">Process Payment</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                    <div class="test-case" data-test="receipt">
+                        <span class="test-name">Generate Receipt</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                </div>
+
+                <!-- Dashboard Tests -->
+                <div class="test-group">
+                    <h2>Dashboard Tests</h2>
+                    <div class="test-case" data-test="adminDashboard">
+                        <span class="test-name">Admin Dashboard</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                    <div class="test-case" data-test="carwashDashboard">
+                        <span class="test-name">CarWash Dashboard</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                    <div class="test-case" data-test="customerDashboard">
+                        <span class="test-name">Customer Dashboard</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                </div>
+
+                <!-- Notification Tests -->
+                <div class="test-group">
+                    <h2>Notification Tests</h2>
+                    <div class="test-case" data-test="notifications">
+                        <span class="test-name">Send/Receive Notifications</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                </div>
+
+                <!-- Content Management Tests -->
+                <div class="test-group">
+                    <h2>Content Management Tests</h2>
+                    <div class="test-case" data-test="cms">
+                        <span class="test-name">CMS Operations</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-logs">
+                <h2>Test Logs</h2>
+                <div id="testOutput" class="log-content"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/admin/test-suite.js"></script>
+</body>
+</html>
