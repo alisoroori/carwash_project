@@ -95,25 +95,24 @@
   <!-- English: This section includes the page header. -->
   <header class="bg-white shadow-lg sticky top-0 z-50">
     <div class="container mx-auto px-4">
-      <div class="flex justify-between items-center py-4">
+      <div class="flex justify-between items-center py-3 md:py-4">
         <div class="flex items-center space-x-2">
-          <i class="fas fa-car text-3xl text-blue-600"></i>
-          <h1 class="text-2xl font-bold text-gradient">CarWash</h1>
+          <i class="fas fa-car text-2xl md:text-3xl text-blue-600"></i>
+          <h1 class="text-xl md:text-2xl font-bold text-gradient">CarWash</h1>
         </div>
 
-        <nav class="hidden md:flex space-x-8">
+        <nav class="hidden md:flex space-x-6 lg:space-x-8">
           <a href="#home" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Ana Sayfa</a>
           <a href="#services" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Hizmetler</a>
           <a href="#about" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Hakkımızda</a>
           <a href="#contact" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">İletişim</a>
-          <a href="#register" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Kayıt Ol</a>
         </nav>
 
-        <div class="flex space-x-4">
-          <a href="../backend/auth/login.php" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        <div class="hidden md:flex space-x-3 lg:space-x-4">
+          <a href="../backend/auth/login.php" class="bg-blue-600 text-white px-4 lg:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm lg:text-base">
             Giriş
           </a>
-          <a href="#register" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all font-medium">
+          <a href="../backend/auth/Customer_Registration.php" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 lg:px-6 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all font-medium text-sm lg:text-base">
             Kayıt Ol
           </a>
         </div>
@@ -122,7 +121,7 @@
         <!-- Farsça: دکمه منوی موبایل. -->
         <!-- Türkçe: Mobil menü düğmesi. -->
         <!-- English: Mobile menu button. -->
-        <button class="md:hidden text-gray-700" onclick="toggleMobileMenu()">
+        <button class="md:hidden text-gray-700 p-2" onclick="toggleMobileMenu()">
           <i class="fas fa-bars text-xl"></i>
         </button>
       </div>
@@ -131,13 +130,20 @@
       <!-- Farsça: منوی موبایل. -->
       <!-- Türkçe: Mobil menü. -->
       <!-- English: Mobile menu. -->
-      <div id="mobileMenu" class="hidden md:hidden pb-4">
-        <div class="flex flex-col space-y-2">
-          <a href="#home" class="text-gray-700 hover:text-blue-600 py-2">Ana Sayfa</a>
-          <a href="#services" class="text-gray-700 hover:text-blue-600 py-2">Hizmetler</a>
-          <a href="#about" class="text-gray-700 hover:text-blue-600 py-2">Hakkımızda</a>
-          <a href="#contact" class="text-gray-700 hover:text-blue-600 py-2">İletişim</a>
-          <a href="#register" class="text-gray-700 hover:text-blue-600 py-2">Kayıt Ol</a>
+      <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-gray-200">
+        <div class="flex flex-col space-y-3 pt-4">
+          <a href="#home" class="text-gray-700 hover:text-blue-600 py-2 px-2">Ana Sayfa</a>
+          <a href="#services" class="text-gray-700 hover:text-blue-600 py-2 px-2">Hizmetler</a>
+          <a href="#about" class="text-gray-700 hover:text-blue-600 py-2 px-2">Hakkımızda</a>
+          <a href="#contact" class="text-gray-700 hover:text-blue-600 py-2 px-2">İletişim</a>
+          <div class="flex flex-col space-y-2 pt-3">
+            <a href="../backend/auth/login.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center">
+              Giriş
+            </a>
+            <a href="../backend/auth/Customer_Registration.php" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all font-medium text-center">
+              Kayıt Ol
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -288,69 +294,69 @@
   <!-- Farsça: بخش درباره ما. -->
   <!-- Türkçe: Hakkımızda Bölümü. -->
   <!-- English: About Us Section. -->
-  <section id="about" class="py-20 bg-white">
+  <section id="about" class="py-16 md:py-20 bg-white">
     <div class="container mx-auto px-4">
-      <section class="text-center mb-16 animate-fade-in-up">
-        <h2 class="text-5xl font-bold text-gray-800 mb-6">
+      <section class="text-center mb-12 md:mb-16 animate-fade-in-up">
+        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 md:mb-6">
           <span class="text-gradient">CarWash</span> Hakkında
         </h2>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
           Türkiye'nin en iyi online araç yıkama rezervasyon platformu olarak, araç bakımını kolay, hızlı ve güvenilir hale getiriyoruz.
         </p>
       </section>
 
-      <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-        <div class="animate-fade-in-up">
-          <img src="../backend/auth/uploads/pic04.jpg" alt="Our Mission" class="rounded-2xl shadow-xl w-full h-auto object-cover">
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center mb-12 md:mb-16">
+        <div class="animate-fade-in-up order-2 lg:order-1">
+          <img src="../backend/auth/uploads/pic04.jpg" alt="Our Mission" class="rounded-2xl shadow-xl w-full h-64 md:h-80 lg:h-auto object-cover">
         </div>
-        <div class="space-y-6 animate-fade-in-up" style="animation-delay: 0.2s;">
-          <h3 class="text-3xl font-bold text-gray-800">Misyonumuz</h3>
-          <p class="text-lg text-gray-700 leading-relaxed">
+        <div class="space-y-4 md:space-y-6 animate-fade-in-up order-1 lg:order-2" style="animation-delay: 0.2s;">
+          <h3 class="text-2xl md:text-3xl font-bold text-gray-800">Misyonumuz</h3>
+          <p class="text-base md:text-lg text-gray-700 leading-relaxed">
             Müşterilerimize en yüksek kalitede araç yıkama ve detaylandırma hizmetlerini, yenilikçi bir online rezervasyon deneyimiyle sunmaktır. Zamanınızın değerli olduğunu biliyor, bu yüzden hızlı, güvenilir ve sorunsuz bir hizmet vaat ediyoruz.
           </p>
-          <p class="text-lg text-gray-700 leading-relaxed">
+          <p class="text-base md:text-lg text-gray-700 leading-relaxed">
             Çevreye duyarlı yaklaşımlarımızla, su ve enerji tasarrufu sağlayan yöntemleri benimseyerek sürdürülebilir bir gelecek için çalışıyoruz.
           </p>
         </div>
       </section>
 
-      <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-        <div class="space-y-6 animate-fade-in-up" style="animation-delay: 0.4s;">
-          <h3 class="text-3xl font-bold text-gray-800">Değerlerimiz</h3>
-          <ul class="space-y-3 text-lg text-gray-700">
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3"></i> Müşteri Memnuniyeti</li>
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3"></i> Kalite ve Güvenilirlik</li>
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3"></i> Yenilikçilik</li>
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3"></i> Çevreye Duyarlılık</li>
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3"></i> Profesyonellik</li>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center mb-12 md:mb-16">
+        <div class="space-y-4 md:space-y-6 animate-fade-in-up" style="animation-delay: 0.4s;">
+          <h3 class="text-2xl md:text-3xl font-bold text-gray-800">Değerlerimiz</h3>
+          <ul class="space-y-3 text-base md:text-lg text-gray-700">
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3 text-lg md:text-xl"></i> Müşteri Memnuniyeti</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3 text-lg md:text-xl"></i> Kalite ve Güvenilirlik</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3 text-lg md:text-xl"></i> Yenilikçilik</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3 text-lg md:text-xl"></i> Çevreye Duyarlılık</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-3 text-lg md:text-xl"></i> Profesyonellik</li>
           </ul>
         </div>
         <div class="animate-fade-in-up" style="animation-delay: 0.6s;">
-          <img src="../backend/auth/uploads/pic02.jpg" alt="Our Values" class="rounded-2xl shadow-xl w-full h-auto object-cover">
+          <img src="../backend/auth/uploads/pic02.jpg" alt="Our Values" class="rounded-2xl shadow-xl w-full h-64 md:h-80 lg:h-auto object-cover">
         </div>
       </section>
 
-      <section class="text-center py-16 hero-gradient text-white rounded-2xl shadow-xl animate-fade-in-up" style="animation-delay: 0.8s;">
-        <h3 class="text-4xl font-bold mb-4">Neden CarWash'ı Seçmelisiniz?</h3>
-        <p class="text-xl text-gray-200 max-w-3xl mx-auto mb-8">
+      <section class="text-center py-12 md:py-16 hero-gradient text-white rounded-2xl shadow-xl animate-fade-in-up px-4 md:px-8" style="animation-delay: 0.8s;">
+        <h3 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Neden CarWash'ı Seçmelisiniz?</h3>
+        <p class="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto mb-6 md:mb-8">
           CarWash, size sadece bir araç yıkama hizmeti sunmakla kalmaz, aynı zamanda zamanınızı ve enerjinizi koruyan bir deneyim sunar.
         </p>
-        <div class="flex flex-wrap justify-center gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
           <div class="flex flex-col items-center">
-            <i class="fas fa-clock text-5xl mb-3"></i>
-            <p class="font-bold text-lg">Hızlı Rezervasyon</p>
+            <i class="fas fa-clock text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3"></i>
+            <p class="font-bold text-sm md:text-base lg:text-lg">Hızlı Rezervasyon</p>
           </div>
           <div class="flex flex-col items-center">
-            <i class="fas fa-shield-alt text-5xl mb-3"></i>
-            <p class="font-bold text-lg">Güvenli Ödeme</p>
+            <i class="fas fa-shield-alt text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3"></i>
+            <p class="font-bold text-sm md:text-base lg:text-lg">Güvenli Ödeme</p>
           </div>
           <div class="flex flex-col items-center">
-            <i class="fas fa-star text-5xl mb-3"></i>
-            <p class="font-bold text-lg">Üstün Kalite</p>
+            <i class="fas fa-star text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3"></i>
+            <p class="font-bold text-sm md:text-base lg:text-lg">Üstün Kalite</p>
           </div>
           <div class="flex flex-col items-center">
-            <i class="fas fa-map-marker-alt text-5xl mb-3"></i>
-            <p class="font-bold text-lg">Yaygın Ağ</p>
+            <i class="fas fa-map-marker-alt text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3"></i>
+            <p class="font-bold text-sm md:text-base lg:text-lg">Yaygın Ağ</p>
           </div>
         </div>
       </section>
@@ -361,22 +367,22 @@
   <!-- Farsça: بخش نظرات مشتریان. -->
   <!-- Türkçe: Müşteri Yorumları Bölümü. -->
   <!-- English: Testimonials Section. -->
-  <section class="py-20 bg-gray-50">
+  <section class="py-16 md:py-20 bg-gray-50">
     <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl font-bold text-gray-800 mb-4">Müşteri Yorumları</h2>
-        <p class="text-xl text-gray-600">CarWash Hizmetlerinden Müşterilerimizin Deneyimleri</p>
+      <div class="text-center mb-12 md:mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-4">Müşteri Yorumları</h2>
+        <p class="text-lg md:text-xl text-gray-600">CarWash Hizmetlerinden Müşterilerimizin Deneyimleri</p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="bg-white rounded-2xl p-8 shadow-lg">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-lg">
           <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+            <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm md:text-base">
               A
             </div>
-            <div class="ml-4">
-              <h4 class="font-bold text-gray-800">Ali Yılmaz</h4>
-              <div class="flex text-yellow-400">
+            <div class="ml-3 md:ml-4">
+              <h4 class="font-bold text-gray-800 text-sm md:text-base">Ali Yılmaz</h4>
+              <div class="flex text-yellow-400 text-sm">
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
@@ -385,17 +391,17 @@
               </div>
             </div>
           </div>
-          <p class="text-gray-600">"Mükemmel hizmet ve hız. Profesyonel ekip ve uygun fiyat. Kesinlikle tekrar kullanacağım."</p>
+          <p class="text-gray-600 text-sm md:text-base">"Mükemmel hizmet ve hız. Profesyonel ekip ve uygun fiyat. Kesinlikle tekrar kullanacağım."</p>
         </div>
 
-        <div class="bg-white rounded-2xl p-8 shadow-lg">
+        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-lg">
           <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
+            <div class="w-10 h-10 md:w-12 md:h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-sm md:text-base">
               M
             </div>
-            <div class="ml-4">
-              <h4 class="font-bold text-gray-800">Merve Kaya</h4>
-              <div class="flex text-yellow-400">
+            <div class="ml-3 md:ml-4">
+              <h4 class="font-bold text-gray-800 text-sm md:text-base">Merve Kaya</h4>
+              <div class="flex text-yellow-400 text-sm">
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
@@ -404,17 +410,17 @@
               </div>
             </div>
           </div>
-          <p class="text-gray-600">"İlk kez online araç yıkama hizmetini kullandım. İş kalitesinden gerçekten memnunum."</p>
+          <p class="text-gray-600 text-sm md:text-base">"İlk kez online araç yıkama hizmetini kullandım. İş kalitesinden gerçekten memnunum."</p>
         </div>
 
-        <div class="bg-white rounded-2xl p-8 shadow-lg">
+        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-lg md:col-span-2 lg:col-span-1">
           <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+            <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm md:text-base">
               R
             </div>
-            <div class="ml-4">
-              <h4 class="font-bold text-gray-800">Recep Demir</h4>
-              <div class="flex text-yellow-400">
+            <div class="ml-3 md:ml-4">
+              <h4 class="font-bold text-gray-800 text-sm md:text-base">Recep Demir</h4>
+              <div class="flex text-yellow-400 text-sm">
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
@@ -423,7 +429,7 @@
               </div>
             </div>
           </div>
-          <p class="text-gray-600">"Araç yıkama rezervasyonu için en iyi platform. Kolay, hızlı ve kaliteli. Tavsiye ederim."</p>
+          <p class="text-gray-600 text-sm md:text-base">"Araç yıkama rezervasyonu için en iyi platform. Kolay, hızlı ve kaliteli. Tavsiye ederim."</p>
         </div>
       </div>
     </div>
@@ -433,51 +439,51 @@
   <!-- Farsça: بخش تماس. -->
   <!-- Türkçe: İletişim Bölümü. -->
   <!-- English: Contact Section. -->
-  <section id="contact" class="py-20 bg-white">
+  <section id="contact" class="py-16 md:py-20 bg-white">
     <div class="container mx-auto px-4">
-      <section class="text-center mb-16 animate-fade-in-up">
-        <h2 class="text-5xl font-bold text-gray-800 mb-6">
+      <section class="text-center mb-12 md:mb-16 animate-fade-in-up">
+        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 md:mb-6">
           Bize <span class="text-gradient">Ulaşın</span>
         </h2>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4">
           Sorularınız, geri bildirimleriniz veya destek talepleriniz için bizimle iletişime geçmekten çekinmeyin.
         </p>
       </section>
 
-      <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16">
         <!-- Contact Information -->
         <!-- Farsça: اطلاعات تماس. -->
         <!-- Türkçe: İletişim Bilgileri. -->
         <!-- English: Contact Information. -->
-        <div class="bg-gray-50 rounded-2xl p-8 shadow-lg animate-fade-in-up">
-          <h3 class="text-3xl font-bold text-gray-800 mb-6">İletişim Bilgileri</h3>
-          <div class="space-y-6">
-            <div class="flex items-center">
-              <i class="fas fa-map-marker-alt text-blue-600 text-2xl mr-4"></i>
+        <div class="bg-gray-50 rounded-2xl p-6 md:p-8 shadow-lg animate-fade-in-up">
+          <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6">İletişim Bilgileri</h3>
+          <div class="space-y-4 md:space-y-6">
+            <div class="flex items-start">
+              <i class="fas fa-map-marker-alt text-blue-600 text-xl md:text-2xl mr-3 md:mr-4 mt-1"></i>
               <div>
-                <h4 class="font-bold text-gray-800">Adres</h4>
-                <p class="text-gray-600">Örnek Mah. Örnek Cad. No: 123, İstanbul, Türkiye</p>
+                <h4 class="font-bold text-gray-800 text-sm md:text-base">Adres</h4>
+                <p class="text-gray-600 text-sm md:text-base">Örnek Mah. Örnek Cad. No: 123, İstanbul, Türkiye</p>
               </div>
             </div>
             <div class="flex items-center">
-              <i class="fas fa-phone text-blue-600 text-2xl mr-4"></i>
+              <i class="fas fa-phone text-blue-600 text-xl md:text-2xl mr-3 md:mr-4"></i>
               <div>
-                <h4 class="font-bold text-gray-800">Telefon</h4>
-                <p class="text-gray-600">0212-12345678</p>
+                <h4 class="font-bold text-gray-800 text-sm md:text-base">Telefon</h4>
+                <p class="text-gray-600 text-sm md:text-base">0212-12345678</p>
               </div>
             </div>
             <div class="flex items-center">
-              <i class="fas fa-envelope text-blue-600 text-2xl mr-4"></i>
+              <i class="fas fa-envelope text-blue-600 text-xl md:text-2xl mr-3 md:mr-4"></i>
               <div>
-                <h4 class="font-bold text-gray-800">E-posta</h4>
-                <p class="text-gray-600">info@carwash.com</p>
+                <h4 class="font-bold text-gray-800 text-sm md:text-base">E-posta</h4>
+                <p class="text-gray-600 text-sm md:text-base">info@carwash.com</p>
               </div>
             </div>
-            <div class="flex items-center">
-              <i class="fas fa-clock text-blue-600 text-2xl mr-4"></i>
+            <div class="flex items-start">
+              <i class="fas fa-clock text-blue-600 text-xl md:text-2xl mr-3 md:mr-4 mt-1"></i>
               <div>
-                <h4 class="font-bold text-gray-800">Çalışma Saatleri</h4>
-                <p class="text-gray-600">Pazartesi - Cumartesi: 09:00 - 18:00</p>
+                <h4 class="font-bold text-gray-800 text-sm md:text-base">Çalışma Saatleri</h4>
+                <p class="text-gray-600 text-sm md:text-base">Pazartesi - Cumartesi: 09:00 - 18:00</p>
               </div>
             </div>
           </div>
@@ -487,26 +493,26 @@
         <!-- Farsça: فرم تماس. -->
         <!-- Türkçe: İletişim Formu. -->
         <!-- English: Contact Form. -->
-        <div class="bg-gray-50 rounded-2xl p-8 shadow-lg animate-fade-in-up" style="animation-delay: 0.2s;">
-          <h3 class="text-3xl font-bold text-gray-800 mb-6">Mesaj Gönderin</h3>
-          <form class="space-y-6">
+        <div class="bg-gray-50 rounded-2xl p-6 md:p-8 shadow-lg animate-fade-in-up" style="animation-delay: 0.2s;">
+          <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6">Mesaj Gönderin</h3>
+          <form class="space-y-4 md:space-y-6">
             <div>
               <label for="contactName" class="block text-sm font-bold text-gray-700 mb-2">Adınız Soyadınız</label>
-              <input type="text" id="contactName" placeholder="Adınız Soyadınız" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <input type="text" id="contactName" placeholder="Adınız Soyadınız" class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm md:text-base">
             </div>
             <div>
               <label for="contactEmail" class="block text-sm font-bold text-gray-700 mb-2">E-posta Adresiniz</label>
-              <input type="email" id="contactEmail" placeholder="email@example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <input type="email" id="contactEmail" placeholder="email@example.com" class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm md:text-base">
             </div>
             <div>
               <label for="contactSubject" class="block text-sm font-bold text-gray-700 mb-2">Konu</label>
-              <input type="text" id="contactSubject" placeholder="Konu" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <input type="text" id="contactSubject" placeholder="Konu" class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm md:text-base">
             </div>
             <div>
               <label for="contactMessage" class="block text-sm font-bold text-gray-700 mb-2">Mesajınız</label>
-              <textarea id="contactMessage" rows="5" placeholder="Mesajınızı buraya yazın..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+              <textarea id="contactMessage" rows="4" placeholder="Mesajınızı buraya yazın..." class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm md:text-base resize-none"></textarea>
             </div>
-            <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all">
+            <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all text-sm md:text-base">
               <i class="fas fa-paper-plane mr-2"></i>Mesajı Gönder
             </button>
           </form>
@@ -517,124 +523,21 @@
       <!-- Farsça: بخش نقشه. -->
       <!-- Türkçe: Harita Bölümü. -->
       <!-- English: Map Section. -->
-      <section class="mb-16 animate-fade-in-up" style="animation-delay: 0.4s;">
-        <h3 class="text-3xl font-bold text-gray-800 mb-6 text-center">Konumumuz</h3>
+      <section class="mb-12 md:mb-16 animate-fade-in-up" style="animation-delay: 0.4s;">
+        <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">Konumumuz</h3>
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.7600000000007!2d28.97835891526708!3d41.00823797929982!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cac24e2b2b2b2b%3A0x123456789abcdef!2sIstanbul%2C%20Turkey!5e0!3m2!1sen!2sus!4v1678901234567!5m2!1sen!2sus"
             width="100%"
-            height="450"
+            height="300"
             style="border:0;"
             allowfullscreen=""
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
-            class="rounded-2xl"
+            class="rounded-2xl md:h-96"
           ></iframe>
         </div>
       </section>
-    </div>
-  </section>
-
-  <!-- Register Section -->
-  <!-- Farsça: بخش ثبت نام. -->
-  <!-- Türkçe: Kayıt Bölümü. -->
-  <!-- English: Register Section. -->
-  <section id="register" class="py-20 hero-gradient text-white">
-    <div class="container mx-auto px-4">
-      <section class="text-center mb-16 animate-fade-in-up">
-        <h2 class="text-5xl font-bold mb-6">
-          <span class="text-white">CarWash'a</span> Kayıt Olun
-        </h2>
-        <p class="text-xl text-gray-200 max-w-3xl mx-auto">
-          Hizmetlerimizden yararlanmak veya hizmet sağlayıcımız olmak için hemen kayıt olun!
-        </p>
-      </section>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <!-- Customer Registration -->
-        <!-- Farsça: ثبت نام مشتری. -->
-        <!-- Türkçe: Müşteri Kaydı. -->
-        <!-- English: Customer Registration. -->
-        <div class="bg-white rounded-2xl p-8 shadow-lg animate-fade-in-up">
-          <div class="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mx-auto mb-6">
-            <i class="fas fa-user-plus text-4xl text-blue-600"></i>
-          </div>
-          <h3 class="text-3xl font-bold text-gray-800 mb-4 text-center">Müşteri Olarak Kayıt Ol</h3>
-          <p class="text-gray-600 mb-8 text-center">
-            Aracınızı kolayca yıkatmak için hemen bir müşteri hesabı oluşturun.
-          </p>
-          <form class="space-y-6">
-            <div>
-              <label for="customerName" class="block text-sm font-bold text-gray-700 mb-2">Adınız Soyadınız</label>
-              <input type="text" id="customerName" placeholder="Adınız Soyadınız" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label for="customerEmail" class="block text-sm font-bold text-gray-700 mb-2">E-posta Adresiniz</label>
-              <input type="email" id="customerEmail" placeholder="email@example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label for="customerPassword" class="block text-sm font-bold text-gray-700 mb-2">Şifre</label>
-              <input type="password" id="customerPassword" placeholder="Şifreniz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label for="customerPasswordConfirm" class="block text-sm font-bold text-gray-700 mb-2">Şifre Tekrar</label>
-              <input type="password" id="customerPasswordConfirm" placeholder="Şifrenizi tekrar girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <button type="submit" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors">
-              <i class="fas fa-user-plus mr-2"></i>Müşteri Kaydı Yap
-            </button>
-          </form>
-          <p class="text-center text-gray-600 mt-6">
-            Zaten hesabınız var mı? <a href="../backend/auth/login.php" class="text-blue-600 hover:underline font-medium">Giriş Yapın</a>
-          </p>
-        </div>
-
-        <!-- Service Provider Registration -->
-        <!-- Farsça: ثبت نام ارائه‌دهنده خدمات. -->
-        <!-- Türkçe: Hizmet Sağlayıcı Kaydı. -->
-        <!-- English: Service Provider Registration. -->
-        <div class="bg-white rounded-2xl p-8 shadow-lg animate-fade-in-up" style="animation-delay: 0.2s;">
-          <div class="flex items-center justify-center w-20 h-20 bg-purple-100 rounded-full mx-auto mb-6">
-            <i class="fas fa-store text-4xl text-purple-600"></i>
-          </div>
-          <h3 class="text-3xl font-bold text-gray-800 mb-4 text-center">Hizmet Sağlayıcı Olarak Kayıt Ol</h3>
-          <p class="text-gray-600 mb-8 text-center">
-            İşletmenizi büyütmek için CarWash ağına katılın.
-          </p>
-          <form class="space-y-6">
-            <div>
-              <label for="providerCompanyName" class="block text-sm font-bold text-gray-700 mb-2">Şirket Adı</label>
-              <input type="text" id="providerCompanyName" placeholder="Şirketinizin Adı" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label for="providerContactName" class="block text-sm font-bold text-gray-700 mb-2">Yetkili Adı Soyadı</label>
-              <input type="text" id="providerContactName" placeholder="Yetkili Adı Soyadı" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label for="providerEmail" class="block text-sm font-bold text-gray-700 mb-2">E-posta Adresi</label>
-              <input type="email" id="providerEmail" placeholder="email@company.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label for="providerPhone" class="block text-sm font-bold text-gray-700 mb-2">Telefon Numarası</label>
-              <input type="tel" id="providerPhone" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label for="providerPassword" class="block text-sm font-bold text-gray-700 mb-2">Şifre</label>
-              <input type="password" id="providerPassword" placeholder="Şifreniz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label for="providerPasswordConfirm" class="block text-sm font-bold text-gray-700 mb-2">Şifre Tekrar</label>
-              <input type="password" id="providerPasswordConfirm" placeholder="Şifrenizi tekrar girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all">
-              <i class="fas fa-store mr-2"></i>Hizmet Sağlayıcı Kaydı Yap
-            </button>
-          </form>
-          <p class="text-center text-gray-600 mt-6">
-            Zaten hesabınız var mı? <a href="../backend/auth/login.php" class="text-blue-600 hover:underline font-medium">Giriş Yapın</a>
-          </p>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -642,20 +545,20 @@
   <!-- Farsça: پاورقی. -->
   <!-- Türkçe: Altbilgi. -->
   <!-- English: Footer. -->
-  <footer class="bg-gray-800 text-white py-12">
+  <footer class="bg-gray-800 text-white py-8 md:py-12">
     <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div>
-          <div class="flex items-center space-x-2 mb-4">
-            <i class="fas fa-car text-2xl text-blue-400"></i>
-            <h3 class="text-xl font-bold">CarWash</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div class="sm:col-span-2 lg:col-span-1">
+          <div class="flex items-center space-x-2 mb-3 md:mb-4">
+            <i class="fas fa-car text-xl md:text-2xl text-blue-400"></i>
+            <h3 class="text-lg md:text-xl font-bold">CarWash</h3>
           </div>
-          <p class="text-gray-300">Türkiye'nin En İyi Online Araç Yıkama Rezervasyon Platformu</p>
+          <p class="text-gray-300 text-sm md:text-base">Türkiye'nin En İyi Online Araç Yıkama Rezervasyon Platformu</p>
         </div>
 
         <div>
-          <h4 class="font-bold mb-4">Hizmetler</h4>
-          <ul class="space-y-2 text-gray-300">
+          <h4 class="font-bold mb-3 md:mb-4 text-sm md:text-base">Hizmetler</h4>
+          <ul class="space-y-2 text-gray-300 text-sm md:text-base">
             <li><a href="#services" class="hover:text-white transition-colors">Dış Yıkama</a></li>
             <li><a href="#services" class="hover:text-white transition-colors">İç Temizlik</a></li>
             <li><a href="#services" class="hover:text-white transition-colors">Tam Detaylandırma</a></li>
@@ -663,8 +566,8 @@
         </div>
 
         <div>
-          <h4 class="font-bold mb-4">Destek</h4>
-          <ul class="space-y-2 text-gray-300">
+          <h4 class="font-bold mb-3 md:mb-4 text-sm md:text-base">Destek</h4>
+          <ul class="space-y-2 text-gray-300 text-sm md:text-base">
             <li><a href="#" class="hover:text-white transition-colors">Sık Sorulan Sorular</a></li>
             <li><a href="#contact" class="hover:text-white transition-colors">Bize Ulaşın</a></li>
             <li><a href="#" class="hover:text-white transition-colors">Kullanım Kılavuzu</a></li>
@@ -672,8 +575,8 @@
         </div>
 
         <div>
-          <h4 class="font-bold mb-4">İletişim</h4>
-          <div class="space-y-2 text-gray-300">
+          <h4 class="font-bold mb-3 md:mb-4 text-sm md:text-base">İletişim</h4>
+          <div class="space-y-2 text-gray-300 text-sm md:text-base">
             <p><i class="fas fa-phone mr-2"></i> 0212-12345678</p>
             <p><i class="fas fa-envelope mr-2"></i> info@carwash.com</p>
             <p><i class="fas fa-map-marker-alt mr-2"></i> İstanbul, Türkiye</p>
@@ -681,8 +584,8 @@
         </div>
       </div>
 
-      <div class="border-t border-gray-700 mt-8 pt-8 text-center">
-        <p class="text-gray-300">&copy; 2024 CarWash. Tüm Hakları Saklıdır.</p>
+      <div class="border-t border-gray-700 mt-6 md:mt-8 pt-6 md:pt-8 text-center">
+        <p class="text-gray-300 text-sm md:text-base">&copy; 2024 CarWash. Tüm Hakları Saklıdır.</p>
       </div>
     </div>
   </footer>
@@ -691,8 +594,8 @@
   <!-- Farsça: دکمه اسکرول به بالا. -->
   <!-- Türkçe: Yukarı kaydırma düğmesi. -->
   <!-- English: Scroll to top button. -->
-  <button id="scrollToTop" class="fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all opacity-0 invisible transform scale-0 hover:scale-110 z-50">
-    <i class="fas fa-chevron-up text-lg"></i>
+  <button id="scrollToTop" class="fixed bottom-4 right-4 bg-blue-600 text-white p-2 md:p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all opacity-0 invisible transform scale-0 hover:scale-110 z-50">
+    <i class="fas fa-chevron-up text-sm md:text-lg"></i>
   </button>
 
   <script>
