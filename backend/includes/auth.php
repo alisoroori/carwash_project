@@ -11,7 +11,7 @@ class Auth {
         $email = filter_var($email, FILTER_SANITIZE_EMAIL);
         
         // Prepare statement
-        $stmt = $this->conn->prepare("SELECT id, name, email, password, role FROM users WHERE email = ?");
+        $stmt = $this->conn->prepare("SELECT id, full_name, email, password, role FROM users WHERE email = ?");
         if (!$stmt) {
             throw new Exception('Database error');
         }
@@ -41,7 +41,7 @@ class Auth {
         // Set session variables
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_role'] = $user['role'];
-        $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_name'] = $user['full_name'];
 
         // Remove sensitive data before returning
         unset($user['password']);
@@ -89,8 +89,26 @@ class Auth {
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
         // Insert new user
-        $stmt = $this->conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param('ssss', $data['name'], $data['email'], $hashedPassword, $data['role']);
+        $stmt = $this->conn->prepare("INSERT INTO users (username, full_name, email, password, role) VALUES (?, ?, ?, ?, ?)");
+        
+        // Generate unique username if not provided
+        $username = $data['username'] ?? strtolower(explode('@', $data['email'])[0]);
+        $base_username = $username;
+        $counter = 1;
+        
+        // Check if username exists and modify if needed
+        while (true) {
+            $check_stmt = $this->conn->prepare("SELECT id FROM users WHERE username = ?");
+            $check_stmt->bind_param('s', $username);
+            $check_stmt->execute();
+            if (!$check_stmt->get_result()->fetch_assoc()) {
+                break; // Username is available
+            }
+            $username = $base_username . $counter;
+            $counter++;
+        }
+        
+        $stmt->bind_param('sssss', $username, $data['name'], $data['email'], $hashedPassword, $data['role']);
         
         if (!$stmt->execute()) {
             throw new Exception('Failed to create user');

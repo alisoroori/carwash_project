@@ -1,20 +1,158 @@
 <?php
-// Farsça: این فایل شامل کدهای HTML داشبورد مدیریت کارواش است.
-// Türkçe: Bu dosya, araç yıkama yönetim paneli HTML kodlarını içermektedir.
-// English: This file contains the HTML code for the car wash management dashboard.
+/**
+ * Car Wash Dashboard for CarWash Web Application
+ * Uses the universal header/footer system with dashboard context
+ * 
+ * Farsça: داشبورد مدیریت کارواش با سیستم هدر/فوتر جهانی
+ * Türkçe: Evrensel başlık/altbilgi sistemi ile araç yıkama yönetim paneli
+ * English: Car wash management dashboard with universal header/footer system
+ */
+
+// Start session
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if user is logged in and has carwash role
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'carwash') {
+    header('Location: ../auth/login.php');
+    exit();
+}
+
+// Set page-specific variables for the dashboard header
+$dashboard_type = 'carwash';  // Specify this is the car wash dashboard
+$page_title = 'İşletme Paneli - CarWash';
+$current_page = 'dashboard';
+
+// Custom header content - On/Off Toggle Switch
+$custom_header_content = '
+<style>
+    /* Toggle Switch Styles */
+    .workplace-toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-right: 1rem;
+    }
+    
+    .toggle-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: white;
+        display: none;
+    }
+    
+    @media (min-width: 640px) {
+        .toggle-label {
+            display: block;
+        }
+    }
+    
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ff3b30;
+        transition: .4s;
+        border-radius: 34px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    input:checked + .slider {
+        background-color: #34c759;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+    
+    .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.813rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .status-open {
+        background: rgba(52, 199, 89, 0.15);
+        color: #34c759;
+        border: 1px solid rgba(52, 199, 89, 0.3);
+    }
+    
+    .status-closed {
+        background: rgba(255, 59, 48, 0.15);
+        color: #ff3b30;
+        border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+    
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+</style>
+
+<div class="workplace-toggle-container">
+    <span class="toggle-label" id="toggleLabel">İşletme Kapalı</span>
+    <label class="toggle-switch" title="İşletme Durumu">
+        <input type="checkbox" id="workplaceStatus" checked onchange="toggleWorkplaceStatus()">
+        <span class="slider"></span>
+    </label>
+    <div class="status-indicator status-open" id="statusIndicator">
+        <span class="status-dot" style="background: currentColor;"></span>
+        <span id="statusText">Açık</span>
+    </div>
+</div>
+';
+
+// Include the universal dashboard header
+include '../includes/dashboard_header.php';
 ?>
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CarWash - İşletme Paneli</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* Farsça: انیمیشن برای ظاهر شدن تدریجی عناصر از پایین به بالا. */
-    /* Türkçe: Öğelerin aşağıdan yukarıya doğru yavaşça görünmesi için animasyon. */
-    /* English: Animation for elements to fade in from bottom to top. */
+
+<!-- Dashboard Specific Styles -->
+<style>
+    /* Dashboard-specific overrides only - Universal fixes included via header */
+    
+    /* Dashboard Content Animations */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -131,111 +269,380 @@
       color: #059669;
     }
 
-    /* Farsça: استایل‌های سوئیچ تغییر وضعیت. */
-    /* Türkçe: Geçiş anahtarı stilleri. */
-    /* English: Toggle Switch Styles. */
-    .toggle-switch {
+    /* Dashboard-specific responsive design - Full Mobile/Tablet/Desktop Support */
+    
+    /* Remove default body/html styles from header */
+    html, body {
+      height: auto !important;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    body {
+      display: block !important;
+      flex-direction: initial !important;
+    }
+    
+    /* Dashboard container - positioned below header */
+    .dashboard-container {
       position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #f8fafc;
     }
 
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
+    /* Mobile Sidebar (Hidden by default, slides in) */
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 280px;
+      height: 100vh;
+      z-index: 40;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      padding-top: 70px;
     }
 
-    .slider {
-      position: absolute;
-      cursor: pointer;
+    .mobile-sidebar.active {
+      left: 0;
+    }
+
+    .mobile-overlay {
+      position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 34px;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 39;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
     }
 
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
+    .mobile-overlay.active {
+      opacity: 1;
+      visibility: visible;
     }
 
-    input:checked + .slider {
-      background-color: #34c759; /* Green for On */
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+      display: block;
+      position: fixed;
+      top: 75px;
+      left: 1rem;
+      z-index: 50;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
-    input:checked + .slider:before {
-      transform: translateX(26px);
+    .mobile-menu-btn:hover {
+      background: #5a67d8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
 
-    /* Farsça: استایل خاص برای زمانی که چک‌باکس انتخاب نشده است (وضعیت خاموش). */
-    /* Türkçe: Onay kutusu işaretlenmediğinde (Kapalı durumu) özel stil. */
-    /* English: Specific style for when checkbox is unchecked (Off state). */
-    #workplaceStatus:not(:checked) + .slider {
-      background-color: #ff3b30; /* Red for Off */
+    .mobile-menu-btn:active {
+      transform: translateY(0);
+    }
+
+    .mobile-menu-btn.active {
+      background: #e53e3e;
+    }
+
+    /* Desktop Sidebar - Sticky position inside container */
+    .desktop-sidebar {
+      display: none;
+      position: sticky;
+      top: 65px;
+      left: 0;
+      width: 280px;
+      min-height: calc(100vh - 65px);
+      overflow: hidden;
+      flex-shrink: 0;
+      z-index: 30;
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+      align-self: stretch;
+    }
+    
+    /* Desktop sidebar inner content */
+    .desktop-sidebar .p-6 {
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 1.5rem;
+      box-sizing: border-box;
+    }
+    
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 1rem;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* Section content styling */
+    .section-content {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* Responsive Grid Adjustments */
+    .stats-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+
+    .content-grid-2 {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+
+    /* Table Responsiveness */
+    .universal-table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .universal-table-container table {
+      min-width: 600px;
+    }
+
+    /* Card Responsiveness */
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+
+    /* Mobile Responsive (< 768px) */
+    @media (max-width: 767px) {
+      .main-content {
+        padding: 1rem 0.75rem;
+      }
+      
+      .mobile-menu-btn {
+        top: 70px;
+        left: 0.75rem;
+        padding: 10px 14px;
+        font-size: 0.875rem;
+      }
+
+      .section-content h2 {
+        font-size: 1.5rem;
+      }
+
+      .section-content p {
+        font-size: 0.875rem;
+      }
+
+      /* Stack cards vertically */
+      .stats-grid {
+        gap: 0.75rem;
+      }
+
+      /* Adjust modal width */
+      .modal-content {
+        width: 95% !important;
+        max-width: 95% !important;
+        margin: 1rem;
+      }
+
+      /* Hide mobile sidebar text on very small screens */
+      .mobile-sidebar nav a span {
+        font-size: 0.875rem;
+      }
+
+      /* Compact status badges */
+      .status-pending,
+      .status-confirmed,
+      .status-in-progress,
+      .status-completed,
+      .status-cancelled {
+        font-size: 0.688rem;
+        padding: 0.25rem 0.5rem;
+      }
+    }
+
+    /* Tablet Responsive (768px - 1023px) */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .main-content {
+        padding: 1.5rem;
+      }
+      
+      .mobile-sidebar {
+        width: 320px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      .content-grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .section-content h2 {
+        font-size: 2rem;
+      }
+    }
+
+    /* Desktop Responsive (>= 1024px) */
+    @media (min-width: 1024px) {
+      .mobile-menu-btn {
+        display: none;
+      }
+      
+      .mobile-sidebar {
+        display: none;
+      }
+      
+      .desktop-sidebar {
+        display: block;
+      }
+      
+      .main-content {
+        padding: 2rem;
+      }
+      
+      .dashboard-container {
+        flex-direction: row;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+      }
+
+      .content-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+    }
+
+    /* Large Desktop (>= 1400px) */
+    @media (min-width: 1400px) {
+      .main-content {
+        max-width: calc(1400px);
+      }
+
+      .section-content {
+        max-width: 1200px;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      .mobile-menu-btn,
+      .mobile-sidebar,
+      .desktop-sidebar,
+      .mobile-overlay {
+        display: none !important;
+      }
+
+      .main-content {
+        padding: 0;
+      }
+    }
+    
+    /* Footer adjustments */
+    footer {
+      margin-top: 0 !important;
+      position: relative;
+    }
+
+    /* Smooth scrollbar styling */
+    .desktop-sidebar::-webkit-scrollbar,
+    .mobile-sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .desktop-sidebar::-webkit-scrollbar-track,
+    .mobile-sidebar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .desktop-sidebar::-webkit-scrollbar-thumb,
+    .mobile-sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+    }
+
+    .desktop-sidebar::-webkit-scrollbar-thumb:hover,
+    .mobile-sidebar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
     }
   </style>
-</head>
-<body class="bg-gray-50 min-h-screen">
 
-  <!-- Header -->
-  <!-- Farsça: این بخش سربرگ صفحه را شامل می‌شود. -->
-  <!-- Türkçe: Bu bölüm sayfa başlığını içerir. -->
-  <!-- English: This section includes the page header. -->
-  <header class="bg-white shadow-lg sticky top-0 z-50">
-    <div class="container mx-auto px-4">
-      <div class="flex justify-between items-center py-4">
-        <div class="flex items-center space-x-4">
-          <i class="fas fa-car text-3xl text-blue-600"></i>
-          <h1 class="text-2xl font-bold text-blue-600">CarWash Pro</h1>
+<!-- Mobile Menu Button -->
+<button class="mobile-menu-btn" onclick="toggleMobileSidebar()" id="mobileMenuBtn">
+    <i class="fas fa-bars" id="menuIcon"></i>
+</button>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" onclick="closeMobileSidebar()" id="mobileOverlay"></div>
+
+<!-- Dashboard Layout -->
+<div class="dashboard-container">
+    <!-- Mobile Sidebar -->
+    <aside class="mobile-sidebar sidebar-gradient text-white" id="mobileSidebar">
+      <div class="p-6">
+        <div class="text-center mb-8">
+          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-building text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-bold">CarWash Merkez</h3>
+          <p class="text-sm opacity-75">Premium İşletme</p>
         </div>
 
-        <div class="flex items-center space-x-4">
-          <div class="hidden md:flex items-center space-x-2">
-            <i class="fas fa-building text-blue-600"></i>
-            <span class="text-gray-700 font-medium">CarWash Merkez</span>
-          </div>
-          <div class="flex space-x-2 items-center">
-            <button onclick="toggleNotifications()" class="relative p-2 text-gray-600 hover:text-blue-600 transition-colors">
-              <i class="fas fa-bell text-xl"></i>
-              <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">5</span>
-            </button>
-            <a href="../index.php" class="p-2 text-gray-600 hover:text-blue-600 transition-colors">
-              <i class="fas fa-home text-xl"></i>
-            </a>
-            <!-- Farsça: دکمه تغییر وضعیت روشن/خاموش. -->
-            <!-- Türkçe: Açma/Kapama Geçiş Düğmesi. -->
-            <!-- English: On/Off Toggle Button. -->
-            <label class="toggle-switch">
-              <input type="checkbox" id="workplaceStatus" checked onchange="toggleWorkplaceStatus()">
-              <span class="slider"></span>
-            </label>
-            <a href="../auth/logout.php" class="p-2 text-gray-600 hover:text-red-600 transition-colors">
-              <i class="fas fa-sign-out-alt text-xl"></i>
-            </a>
-          </div>
-        </div>
+        <nav class="space-y-2">
+          <a href="#dashboard" onclick="showSection('dashboard')" class="flex items-center p-3 rounded-lg bg-white bg-opacity-20">
+            <i class="fas fa-tachometer-alt mr-3"></i>
+            Genel Bakış
+          </a>
+          <a href="#reservations" onclick="showSection('reservations')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-calendar-alt mr-3"></i>
+            Rezervasyonlar
+          </a>
+          <a href="#services" onclick="showSection('services')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-car-wash mr-3"></i>
+            Hizmetler
+          </a>
+          <a href="#customers" onclick="showSection('customers')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-users mr-3"></i>
+            Müşteriler
+          </a>
+          <a href="#staff" onclick="showSection('staff')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-user-tie mr-3"></i>
+            Personel
+          </a>
+          <a href="#reports" onclick="showSection('reports')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-chart-bar mr-3"></i>
+            Raporlar
+          </a>
+          <a href="#settings" onclick="showSection('settings')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-cog mr-3"></i>
+            Ayarlar
+          </a>
+        </nav>
       </div>
-    </div>
-  </header>
+    </aside>
 
-  <div class="flex min-h-screen">
-    <!-- Sidebar -->
-    <!-- Farsça: نوار کناری شامل لینک‌های ناوبری. -->
-    <!-- Türkçe: Gezinme bağlantılarını içeren kenar çubuğu. -->
-    <!-- English: Sidebar containing navigation links. -->
-    <aside class="w-64 sidebar-gradient text-white sticky top-20 h-fit">
+    <!-- Desktop Sidebar -->
+    <aside class="desktop-sidebar sidebar-gradient text-white">
       <div class="p-6">
         <div class="text-center mb-8">
           <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -290,7 +697,7 @@
     <!-- Farsça: محتوای اصلی داشبورد. -->
     <!-- Türkçe: Ana kontrol paneli içeriği. -->
     <!-- English: Main dashboard content. -->
-    <main class="flex-1 p-8">
+    <main class="main-content">
       <!-- Dashboard Overview -->
       <!-- Farsça: بخش نمای کلی داشبورد. -->
       <!-- Türkçe: Kontrol paneli genel bakış bölümü. -->
@@ -305,7 +712,7 @@
         <!-- Farsça: معیارهای کلیدی عملکرد. -->
         <!-- Türkçe: Temel performans metrikleri. -->
         <!-- English: Key Metrics. -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="stats-grid mb-8">
           <div class="bg-white rounded-2xl p-6 card-hover shadow-lg">
             <div class="flex items-center justify-between">
               <div>
@@ -355,7 +762,7 @@
         <!-- Farsça: برنامه امروز و فعالیت‌های اخیر. -->
         <!-- Türkçe: Bugünün Programı ve Son Aktiviteler. -->
         <!-- English: Today's Schedule & Recent Activity. -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="content-grid-2">
           <div class="bg-white rounded-2xl p-6 shadow-lg">
             <h3 class="text-xl font-bold text-gray-800 mb-4">
               <i class="fas fa-clock text-blue-600 mr-2"></i>
@@ -1497,7 +1904,6 @@
           </div>
         </section>
       </main>
-    </div>
 
     <!-- Notification Panel -->
     <!-- Farsça: پنل اعلان‌ها. -->
@@ -1698,6 +2104,37 @@
     </div>
 
     <script>
+      // Mobile Sidebar Functions
+      function toggleMobileSidebar() {
+        const sidebar = document.getElementById('mobileSidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const menuIcon = document.getElementById('menuIcon');
+
+        if (sidebar.classList.contains('active')) {
+          closeMobileSidebar();
+        } else {
+          sidebar.classList.add('active');
+          overlay.classList.add('active');
+          menuBtn.classList.add('active');
+          menuIcon.className = 'fas fa-times';
+          document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+      }
+
+      function closeMobileSidebar() {
+        const sidebar = document.getElementById('mobileSidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const menuIcon = document.getElementById('menuIcon');
+
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        menuBtn.classList.remove('active');
+        menuIcon.className = 'fas fa-bars';
+        document.body.style.overflow = ''; // Restore scrolling
+      }
+
       // Farsça: تابع برای نمایش بخش‌های مختلف داشبورد.
       // Türkçe: Kontrol panelinin farklı bölümlerini göstermek için fonksiyon.
       // English: Function to show different sections of the dashboard.
@@ -1710,13 +2147,18 @@
         // Show selected section
         document.getElementById(sectionId).classList.remove('hidden');
 
-        // Update sidebar active state
+        // Update sidebar active state for both mobile and desktop
         document.querySelectorAll('aside a').forEach(link => {
           link.classList.remove('bg-white', 'bg-opacity-20');
           if (link.getAttribute('href') === '#' + sectionId) {
             link.classList.add('bg-white', 'bg-opacity-20');
           }
         });
+
+        // Close mobile sidebar after selection
+        if (window.innerWidth < 1024) {
+          closeMobileSidebar();
+        }
       }
 
       // Farsça: بارگذاری اولیه: نمایش داشبورد.
@@ -1777,11 +2219,29 @@
       // English: Workplace Status Toggle Function.
       function toggleWorkplaceStatus() {
         const toggle = document.getElementById('workplaceStatus');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const toggleLabel = document.getElementById('toggleLabel');
+        
         if (toggle.checked) {
           localStorage.setItem('workplaceStatus', 'on');
+          if (statusIndicator) {
+            statusIndicator.className = 'status-indicator status-open';
+            statusText.textContent = 'Açık';
+          }
+          if (toggleLabel) {
+            toggleLabel.textContent = 'İşletme Açık';
+          }
           console.log('Workplace is now OPEN (Green)');
         } else {
           localStorage.setItem('workplaceStatus', 'off');
+          if (statusIndicator) {
+            statusIndicator.className = 'status-indicator status-closed';
+            statusText.textContent = 'Kapalı';
+          }
+          if (toggleLabel) {
+            toggleLabel.textContent = 'İşletme Kapalı';
+          }
           console.log('Workplace is now CLOSED (Red)');
         }
       }
@@ -1819,6 +2279,39 @@
         };
         reader.readAsDataURL(event.target.files[0]);
       }
+
+      // Handle window resize for responsive behavior
+      window.addEventListener('resize', function() {
+        if (window.innerWidth >= 1024) {
+          // Desktop view - close mobile sidebar if open
+          closeMobileSidebar();
+        }
+      });
+
+      // Close modals when clicking outside
+      window.onclick = function(event) {
+        const serviceModal = document.getElementById('serviceModal');
+        const staffModal = document.getElementById('staffModal');
+        const manualReservationModal = document.getElementById('manualReservationModal');
+        const customerModal = document.getElementById('customerModal');
+
+        if (event.target == serviceModal) {
+          serviceModal.classList.add('hidden');
+        }
+        if (event.target == staffModal) {
+          staffModal.classList.add('hidden');
+        }
+        if (event.target == manualReservationModal) {
+          manualReservationModal.classList.add('hidden');
+        }
+        if (event.target == customerModal) {
+          customerModal.classList.add('hidden');
+        }
+      }
     </script>
-</body>
-</html>
+</div> <!-- End Dashboard Layout -->
+
+<?php 
+// Include the universal footer
+include '../includes/footer.php'; 
+?>

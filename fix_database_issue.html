@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Schema Fix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">🔧 Database Schema Fix</h1>
+        
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <h2 class="font-bold text-yellow-800">Problem Found:</h2>
+            <p class="text-yellow-700">Your registration form is trying to use table "carwash" but your database has "carwashes" table.</p>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h2 class="font-bold text-blue-800">Solution:</h2>
+            <ol class="list-decimal list-inside text-blue-700 space-y-2">
+                <li>✅ Updated PHP code to use correct table name "carwashes"</li>
+                <li>🔄 Adding missing columns to match registration form</li>
+                <li>🧪 Testing the registration process</li>
+            </ol>
+        </div>
+
+        <div id="fix-results" class="border rounded-lg p-4 mb-6">
+            <button onclick="runDatabaseFix()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                🚀 Run Database Fix
+            </button>
+        </div>
+
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <h2 class="font-bold text-green-800">After Fix:</h2>
+            <p class="text-green-700 mb-4">Once the database is fixed, you can test the registration:</p>
+            <a href="backend/auth/Car_Wash_Registration.php" class="inline-block bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                📝 Test Registration Form
+            </a>
+        </div>
+    </div>
+
+    <script>
+        async function runDatabaseFix() {
+            const resultsDiv = document.getElementById('fix-results');
+            resultsDiv.innerHTML = '<p class="text-blue-600">🔄 Running database fix...</p>';
+            
+            try {
+                const response = await fetch('database_fix.php');
+                const html = await response.text();
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = '<p class="text-red-600">❌ Error: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

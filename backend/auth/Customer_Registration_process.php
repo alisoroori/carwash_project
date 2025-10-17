@@ -106,17 +106,56 @@ try {
     // Hash password for security
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
+    // Generate unique username from email
+    $username = strtolower(explode('@', $email)[0]);
+    $base_username = $username;
+    $counter = 1;
+    
+    // Check if username exists and modify if needed
+    while (true) {
+        $check_stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+        $check_stmt->execute([$username]);
+        if (!$check_stmt->fetch()) {
+            break; // Username is available
+        }
+        $username = $base_username . $counter;
+        $counter++;
+    }
+
     // Convert arrays to JSON for storage
     $notifications_json = json_encode($notifications);
     $services_json = json_encode($services);
 
-    // Insert new user following project DB conventions
+    // Insert new user following project DB conventions - only use existing columns
     $insert_sql = "INSERT INTO users (
-        name, 
+        username,
+        full_name, 
         email, 
         password, 
         phone, 
-        role,
+        role
+    ) VALUES (?, ?, ?, ?, ?, ?)";
+
+    $stmt = $conn->prepare($insert_sql);
+    $result = $stmt->execute([
+        $username,
+        $full_name,
+        $email,
+        $hashed_password,
+        $phone,
+        $role
+    ]);
+
+    if (!$result) {
+        throw new Exception('Kayıt sırasında bir hata oluştu');
+    }
+
+    // Get the new user ID
+    $user_id = $conn->lastInsertId();
+
+    // Insert customer profile data into separate table
+    $profile_sql = "INSERT INTO customer_profiles (
+        user_id,
         city, 
         address, 
         car_brand, 
@@ -125,17 +164,12 @@ try {
         car_color, 
         license_plate,
         notifications,
-        preferred_services,
-        created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        preferred_services
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    $stmt = $conn->prepare($insert_sql);
-    $result = $stmt->execute([
-        $full_name,
-        $email,
-        $hashed_password,
-        $phone,
-        $role,
+    $profile_stmt = $conn->prepare($profile_sql);
+    $profile_result = $profile_stmt->execute([
+        $user_id,
         $city,
         $address,
         $car_brand,
@@ -147,12 +181,11 @@ try {
         $services_json
     ]);
 
-    if (!$result) {
-        throw new Exception('Kayıt sırasında bir hata oluştu');
+    if (!$profile_result) {
+        // If profile insert fails, rollback user creation
+        $conn->prepare("DELETE FROM users WHERE id = ?")->execute([$user_id]);
+        throw new Exception('Profil bilgileri kaydedilirken hata oluştu');
     }
-
-    // Get the new user ID
-    $user_id = $conn->lastInsertId();
 
     // Set session variables for auto-login following project session patterns
     $_SESSION['user_id'] = $user_id;
@@ -160,15 +193,15 @@ try {
     $_SESSION['user_email'] = $email;
     $_SESSION['role'] = $role;
 
-    // Set success message following project messaging patterns
+    // Set success message and welcome flag following project messaging patterns
     $_SESSION['registration_success'] = true;
     $_SESSION['success_message'] = 'Kayıt işlemi başarıyla tamamlandı! Hoş geldiniz ' . htmlspecialchars($full_name);
 
     // Log successful registration for admin tracking
     error_log("CarWash new customer registration: " . $email . " (ID: " . $user_id . ")");
 
-    // Redirect back to registration page to show success modal
-    header('Location: Customer_Registration.php?success=1');
+    // Redirect to welcome page for first-time experience
+    header('Location: welcome.php');
     exit();
 } catch (PDOException $e) {
     // Database-specific error handling following project patterns

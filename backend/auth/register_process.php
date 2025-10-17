@@ -43,10 +43,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Hash password
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // Insert new user (adjust columns based on your actual users table structure)
-        $stmt = $conn->prepare("INSERT INTO users (name, email, password, phone) VALUES (?, ?, ?, ?)");
+        // Generate unique username from email
+        $username = strtolower(explode('@', $email)[0]);
+        $base_username = $username;
+        $counter = 1;
+        
+        // Check if username exists and modify if needed
+        while (true) {
+            $check_stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+            $check_stmt->execute([$username]);
+            if (!$check_stmt->fetch()) {
+                break; // Username is available
+            }
+            $username = $base_username . $counter;
+            $counter++;
+        }
 
-        if (!$stmt->execute([$full_name, $email, $hashedPassword, $phone])) {
+        // Insert new user (adjust columns based on your actual users table structure)
+        $stmt = $conn->prepare("INSERT INTO users (username, full_name, email, password, phone) VALUES (?, ?, ?, ?, ?)");
+
+        if (!$stmt->execute([$username, $full_name, $email, $hashedPassword, $phone])) {
             throw new Exception('خطا در ثبت اطلاعات');
         }
 
@@ -56,13 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_name'] = $full_name;
         $_SESSION['user_email'] = $email;
-        $_SESSION['user_type'] = 'customer';
+        $_SESSION['role'] = 'customer';
 
-        // Success message
+        // Set registration success flag for welcome page
+        $_SESSION['registration_success'] = true;
         $_SESSION['success_message'] = 'ثبت‌نام با موفقیت انجام شد!';
 
-        // Redirect to customer dashboard following your project structure
-        header('Location: ../dashboard/customer_dashboard.php');
+        // Redirect to welcome page for first-time experience
+        header('Location: welcome.php');
         exit();
     } catch (Exception $e) {
         // Store error message in session and redirect back to registration form

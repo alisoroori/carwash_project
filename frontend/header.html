@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarWash - Araç Yıkama Rezervasyon Sistemi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Smooth scroll behavior */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* Ensure body has proper padding for fixed header */
+    body {
+      padding-top: 64px; /* Default header height */
+    }
+    
+    @media (min-width: 1024px) {
+      body {
+        padding-top: 72px; /* Larger header height on desktop */
+      }
+    }
+    
+    /* Animation for mobile menu */
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .mobile-menu-show {
+      animation: slideDown 0.2s ease-out;
+    }
+    
+    /* Enhanced shadow effects */
+    .header-shadow {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-shadow:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- Fixed Header - Always visible at top with enhanced visual depth -->
+<header class="fixed top-0 left-0 right-0 bg-white header-shadow transition-all duration-300 z-50 border-b border-gray-100">
+  <div class="container mx-auto px-4">
+    <div class="flex justify-between items-center h-16 lg:h-18">
+      
+      <!-- Logo/Brand - Clickable link to home page -->
+      <div class="flex items-center">
+        <a href="home.html" class="flex items-center space-x-2 group transition-all duration-300 hover:scale-105 cursor-pointer" title="Ana Sayfaya Git">
+          <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center group-hover:shadow-lg transition-all duration-300">
+            <i class="fas fa-car text-white text-lg lg:text-xl group-hover:scale-110 transition-transform duration-300"></i>
+          </div>
+          <h1 class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-700 transition-all duration-300">
+            CarWash
+          </h1>
+        </a>
+      </div>
+
+      <!-- Desktop Navigation - Modern responsive design -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="home.html" 
+           class="text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 relative group py-2"
+           title="Ana Sayfa">
+          <span class="flex items-center">
+            <i class="fas fa-home mr-2"></i>
+            Home
+          </span>
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-200 group-hover:w-full"></span>
+        </a>
+        <a href="about.html" 
+           class="text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 relative group py-2"
+           title="Hakkımızda">
+          <span class="flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>
+            About Us
+          </span>
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-200 group-hover:w-full"></span>
+        </a>
+        <a href="contact.html" 
+           class="text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 relative group py-2"
+           title="İletişim">
+          <span class="flex items-center">
+            <i class="fas fa-envelope mr-2"></i>
+            Contact Us
+          </span>
+          <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-200 group-hover:w-full"></span>
+        </a>
+        
+        <!-- Login/Get Started button -->
+        <a href="login.html" 
+           class="bg-blue-600 text-white px-4 py-2 lg:px-6 lg:py-2.5 rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all duration-200 font-medium flex items-center"
+           title="Giriş Yap">
+          <i class="fas fa-sign-in-alt mr-2"></i>
+          Get Started
+        </a>
+      </nav>
+
+      <!-- Mobile Menu Button - Hamburger menu -->
+      <button id="mobileMenuBtn" 
+              class="md:hidden p-2 text-gray-700 hover:text-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
+              aria-label="Toggle mobile menu"
+              aria-expanded="false">
+        <svg id="hamburgerIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <svg id="closeIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation Menu - Responsive hamburger menu -->
+    <div id="mobileMenu" class="md:hidden hidden bg-white border-t border-gray-200 mobile-menu-show">
+      <div class="py-4 space-y-2">
+        <a href="home.html" 
+           class="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg mx-2">
+          <i class="fas fa-home mr-3 text-blue-600"></i>Home
+        </a>
+        <a href="about.html" 
+           class="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg mx-2">
+          <i class="fas fa-info-circle mr-3 text-blue-600"></i>About Us
+        </a>
+        <a href="contact.html" 
+           class="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg mx-2">
+          <i class="fas fa-envelope mr-3 text-blue-600"></i>Contact Us
+        </a>
+        
+        <!-- Mobile login button -->
+        <div class="px-2 pt-4 border-t border-gray-200 mt-4">
+          <a href="login.html" 
+             class="block bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-center">
+            <i class="fas fa-sign-in-alt mr-2"></i>Get Started
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Menu JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const hamburgerIcon = document.getElementById('hamburgerIcon');
+  const closeIcon = document.getElementById('closeIcon');
+  
+  mobileMenuBtn.addEventListener('click', function() {
+    const isHidden = mobileMenu.classList.contains('hidden');
+    
+    if (isHidden) {
+      mobileMenu.classList.remove('hidden');
+      hamburgerIcon.classList.add('hidden');
+      closeIcon.classList.remove('hidden');
+      mobileMenuBtn.setAttribute('aria-expanded', 'true');
+    } else {
+      mobileMenu.classList.add('hidden');
+      hamburgerIcon.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  
+  // Close mobile menu when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+      mobileMenu.classList.add('hidden');
+      hamburgerIcon.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  
+  // Close mobile menu on window resize to desktop
+  window.addEventListener('resize', function() {
+    if (window.innerWidth >= 768) {
+      mobileMenu.classList.add('hidden');
+      hamburgerIcon.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+});
+</script>

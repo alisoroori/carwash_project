@@ -1,165 +1,42 @@
 <?php
-// filepath: c:\xampp\htdocs\carwash_project\backend\dashboard\Customer_Dashboard.php
-
 /**
  * Customer Dashboard for CarWash Web Application
- * Following project conventions: file-based routing, session management
+ * Uses the universal header/footer system with dashboard context
  */
 
-// Start session following project patterns
+// Start session
 if (session_status() == PHP_SESSION_NONE) {
-  session_start();
+    session_start();
 }
-
-// Include database connection following project structure
-require_once __DIR__ . '/../includes/db.php';
 
 // Check if user is logged in and has customer role
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
-  header('Location: ../auth/login.php');
-  exit();
-}
-
-try {
-  $conn = getDBConnection();
-  $user_id = $_SESSION['user_id'];
-
-  // Get user information
-  $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-  $stmt->execute([$user_id]);
-  $user = $stmt->fetch();
-
-  if (!$user) {
-    session_destroy();
     header('Location: ../auth/login.php');
     exit();
-  }
-
-  // Get user statistics
-  $stats = [
-    'total_reservations' => 0,
-    'monthly_reservations' => 0,
-    'total_spent' => 0,
-    'average_rating' => 0
-  ];
-
-  // Get reservations count
-  try {
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM reservations WHERE user_id = ?");
-    $stmt->execute([$user_id]);
-    $result = $stmt->fetch();
-    $stats['total_reservations'] = $result['total'] ?? 0;
-
-    // Monthly reservations
-    $stmt = $conn->prepare("SELECT COUNT(*) as monthly FROM reservations WHERE user_id = ? AND MONTH(created_at) = MONTH(CURRENT_DATE())");
-    $stmt->execute([$user_id]);
-    $result = $stmt->fetch();
-    $stats['monthly_reservations'] = $result['monthly'] ?? 0;
-
-    // Total spent
-    $stmt = $conn->prepare("SELECT SUM(price) as total_spent FROM reservations WHERE user_id = ? AND status = 'completed'");
-    $stmt->execute([$user_id]);
-    $result = $stmt->fetch();
-    $stats['total_spent'] = $result['total_spent'] ?? 0;
-  } catch (PDOException $e) {
-    // Tables might not exist, continue with default values
-    error_log("Customer dashboard stats error: " . $e->getMessage());
-  }
-
-  // Get active reservations
-  $active_reservations = [];
-  try {
-    $stmt = $conn->prepare("
-            SELECT r.*, c.business_name 
-            FROM reservations r 
-            LEFT JOIN carwashes c ON r.carwash_id = c.id 
-            WHERE r.user_id = ? AND r.status IN ('pending', 'confirmed') 
-            ORDER BY r.reservation_date ASC, r.reservation_time ASC 
-            LIMIT 5
-        ");
-    $stmt->execute([$user_id]);
-    $active_reservations = $stmt->fetchAll();
-  } catch (PDOException $e) {
-    error_log("Customer active reservations error: " . $e->getMessage());
-  }
-
-  // Get user vehicles
-  $user_vehicles = [];
-  try {
-    $stmt = $conn->prepare("
-            SELECT CONCAT(car_brand, ' ', car_model, ' - ', license_plate) as vehicle_display,
-                   car_brand, car_model, license_plate, car_year, car_color
-            FROM users 
-            WHERE id = ? AND car_brand IS NOT NULL
-        ");
-    $stmt->execute([$user_id]);
-    $user_vehicle = $stmt->fetch();
-    if ($user_vehicle) {
-      $user_vehicles[] = $user_vehicle;
-    }
-  } catch (PDOException $e) {
-    error_log("Customer vehicles error: " . $e->getMessage());
-  }
-
-  // Get recent history
-  $recent_history = [];
-  try {
-    $stmt = $conn->prepare("
-            SELECT r.*, c.business_name 
-            FROM reservations r 
-            LEFT JOIN carwashes c ON r.carwash_id = c.id 
-            WHERE r.user_id = ? AND r.status = 'completed' 
-            ORDER BY r.reservation_date DESC 
-            LIMIT 5
-        ");
-    $stmt->execute([$user_id]);
-    $recent_history = $stmt->fetchAll();
-  } catch (PDOException $e) {
-    error_log("Customer history error: " . $e->getMessage());
-  }
-} catch (Exception $e) {
-  error_log("Customer dashboard error: " . $e->getMessage());
-  $error_message = "Dashboard yüklenirken bir hata oluştu.";
 }
 
-// Handle success/error messages
-$success_message = $_SESSION['success_message'] ?? '';
-$error_message = $_SESSION['error_message'] ?? '';
-unset($_SESSION['success_message'], $_SESSION['error_message']);
+// Set page-specific variables for the dashboard header
+$dashboard_type = 'customer';  // Specify this is the customer dashboard
+$page_title = 'Müşteri Paneli - CarWash';
+$current_page = 'dashboard';
+
+// Include the universal dashboard header
+include '../includes/dashboard_header.php';
 ?>
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CarWash - Müşteri Paneli</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="../../frontend/css/style.css">
-  <style>
+<!-- Dashboard Specific Styles -->
+<style>
+    /* Dashboard-specific overrides only - Universal fixes included via header */
+    
+    /* Dashboard Content Animations */
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-30px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .animate-fade-in-up {
@@ -184,7 +61,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
     .card-hover:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
 
     .status-pending {
@@ -202,103 +79,352 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
       color: #3730a3;
     }
 
-    .status-cancelled {
-      background: #fecaca;
-      color: #991b1b;
+    /* Dashboard-specific responsive design - Single scroll layout */
+    
+    /* Remove default body/html styles from header */
+    html, body {
+      height: auto !important;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
     }
-  </style>
-</head>
+    
+    body {
+      display: block !important;
+      flex-direction: initial !important;
+    }
+    
+    /* Dashboard container - positioned below header */
+    .dashboard-container {
+      position: relative;
+      width: 100%;
+      min-height: 100vh; /* Full viewport height to ensure sidebar stretches */
+      display: flex;
+      flex-direction: column;
+      background: #f8fafc;
+    }
 
-<body class="bg-gray-50 min-h-screen">
+    /* Dashboard Sidebar Styles */
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 280px;
+      height: 100vh;
+      z-index: 40;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      padding-top: 70px; /* Space for header */
+    }
 
-  <!-- Success/Error Messages -->
-  <?php if (!empty($success_message)): ?>
-    <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50" id="successMessage">
-      <span class="block sm:inline"><?php echo htmlspecialchars($success_message); ?></span>
-      <button onclick="document.getElementById('successMessage').remove()" class="float-right ml-4">×</button>
-    </div>
-  <?php endif; ?>
+    .mobile-sidebar.active {
+      left: 0;
+    }
 
-  <?php if (!empty($error_message)): ?>
-    <div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50" id="errorMessage">
-      <span class="block sm:inline"><?php echo htmlspecialchars($error_message); ?></span>
-      <button onclick="document.getElementById('errorMessage').remove()" class="float-right ml-4">×</button>
-    </div>
-  <?php endif; ?>
+    .mobile-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 39;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
 
-  <!-- Header -->
-  <header class="bg-white shadow-lg sticky top-0 z-50">
-    <div class="container mx-auto px-4">
-      <div class="flex justify-between items-center py-4">
-        <div class="flex items-center space-x-4">
-          <i class="fas fa-car text-3xl text-blue-600"></i>
-          <h1 class="text-2xl font-bold text-blue-600">CarWash</h1>
-        </div>
+    .mobile-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
 
-        <div class="flex items-center space-x-4">
-          <div class="hidden md:flex items-center space-x-2">
-            <i class="fas fa-user text-blue-600"></i>
-            <span class="text-gray-700 font-medium">Hoş Geldiniz, <?php echo htmlspecialchars($user['name']); ?></span>
-          </div>
-          <div class="flex space-x-2">
-            <button onclick="toggleNotifications()" class="relative p-2 text-gray-600 hover:text-blue-600 transition-colors">
-              <i class="fas fa-bell text-xl"></i>
-              <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
-            </button>
-            <a href="../../frontend/homes.html" class="p-2 text-gray-600 hover:text-blue-600 transition-colors">
-              <i class="fas fa-home text-xl"></i>
-            </a>
-            <a href="../auth/logout.php" class="p-2 text-gray-600 hover:text-red-600 transition-colors">
-              <i class="fas fa-sign-out-alt text-xl"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+    /* Dashboard Mobile Menu Button */
+    .mobile-menu-btn {
+      display: block;
+      position: fixed;
+      top: 75px;
+      left: 1rem;
+      z-index: 50;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-  <div class="flex min-h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 sidebar-gradient text-white sticky top-20 h-fit">
+    .mobile-menu-btn:hover {
+      background: #5a67d8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .mobile-menu-btn:active {
+      transform: translateY(0);
+    }
+
+    .mobile-menu-btn.active {
+      background: #e53e3e;
+    }
+
+    /* Desktop Sidebar - Sticky position inside container */
+    .desktop-sidebar {
+      display: none;
+      position: sticky;
+      top: 65px; /* Stick below header */
+      left: 0;
+      width: 280px;
+      min-height: calc(100vh - 65px); /* Minimum height from header to bottom of viewport */
+      overflow: hidden; /* no internal scroll by default */
+      flex-shrink: 0; /* Don't shrink in flex container */
+      z-index: 30;
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+      align-self: stretch; /* Stretch to fill full height of flex container */
+    }
+    
+    /* Desktop sidebar inner content - pinned and anchored */
+    .desktop-sidebar .p-6 {
+      height: 100%;
+      overflow: hidden; /* prevent internal scroll */
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 1.5rem;
+      box-sizing: border-box;
+      position: relative; /* ensure children are positioned relative to sidebar */
+    }
+    
+    /* User profile section - compact */
+    .desktop-sidebar .text-center {
+      flex-shrink: 0;
+    }
+    
+    /* Navigation section - anchor to top so items don't shift when page scrolls */
+    .desktop-sidebar nav {
+      flex: 0 0 auto; /* do not expand to force scroll */
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.4rem;
+      max-height: calc(100% - 120px); /* leave space for profile area */
+    }
+
+    /* If nav has more items than fit, optionally allow internal scrolling while keeping sidebar fixed */
+    .desktop-sidebar nav.scrollable {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Reduce spacing for nav items to fit all content */
+    .desktop-sidebar nav.space-y-2 {
+      gap: 0.4rem;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .desktop-sidebar .sidebar-link {
+      padding: 0.625rem 0.75rem;
+      flex-shrink: 0;
+    }
+    
+    /* Compact user profile */
+    .desktop-sidebar .w-20.h-20 {
+      width: 4rem;
+      height: 4rem;
+    }
+    
+    .desktop-sidebar .text-center.mb-8 {
+      margin-bottom: 1.5rem;
+    }
+    
+    /* Ensure sidebar icons and text fit */
+    .desktop-sidebar h3 {
+      font-size: 1.125rem;
+    }
+    
+    .desktop-sidebar .text-sm {
+      font-size: 0.813rem;
+    }
+
+    /* Main Content Area - Single scroll for all content */
+    .main-content {
+      flex: 1; /* Take remaining space */
+      padding: 1rem;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* Responsive Breakpoints */
+    @media (min-width: 1024px) {
+      .mobile-menu-btn {
+        display: none;
+      }
+      
+      .mobile-sidebar {
+        display: none;
+      }
+      
+      .desktop-sidebar {
+        display: block;
+      }
+      
+      .main-content {
+        padding: 2rem;
+      }
+      
+      .dashboard-container {
+        flex-direction: row;
+      }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .main-content {
+        padding: 1.5rem;
+      }
+      
+      .mobile-sidebar {
+        width: 320px;
+      }
+    }
+    
+    @media (max-width: 767px) {
+      .main-content {
+        padding: 1rem 0.75rem;
+      }
+      
+      .mobile-menu-btn {
+        top: 70px;
+        left: 0.75rem;
+        padding: 10px 14px;
+      }
+    }
+    
+    /* Footer adjustments */
+    footer {
+      margin-top: 0 !important;
+      position: relative;
+    }
+    
+    /* Section content styling */
+    .section-content {
+      width: 100%;
+      max-width: 100%;
+    }
+    
+    /* Card and content max-widths for readability */
+    @media (min-width: 1400px) {
+      .main-content {
+        max-width: calc(1200px + 280px);
+      }
+    }
+    
+    /* Smooth scrollbar styling */
+    .desktop-sidebar::-webkit-scrollbar {
+      display: none;
+    }
+</style>
+
+<!-- Mobile Menu Button -->
+<button class="mobile-menu-btn" onclick="toggleMobileSidebar()" id="mobileMenuBtn">
+    <i class="fas fa-bars" id="menuIcon"></i>
+</button>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" onclick="closeMobileSidebar()" id="mobileOverlay"></div>
+
+<!-- Dashboard Layout -->
+<div class="dashboard-container">
+    <!-- Mobile Sidebar -->
+    <aside class="mobile-sidebar sidebar-gradient text-white" id="mobileSidebar">
       <div class="p-6">
         <div class="text-center mb-8">
           <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-user text-3xl"></i>
           </div>
-          <h3 class="text-xl font-bold"><?php echo htmlspecialchars($user['name']); ?></h3>
-          <p class="text-sm opacity-75"><?php echo htmlspecialchars($user['email']); ?></p>
+          <h3 class="text-xl font-bold"><?php echo htmlspecialchars($_SESSION['name'] ?? $_SESSION['full_name'] ?? 'User'); ?></h3>
+          <p class="text-sm opacity-75"><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></p>
         </div>
 
         <nav class="space-y-2">
-          <a href="#dashboard" onclick="showSection('dashboard')" class="flex items-center p-3 rounded-lg bg-white bg-opacity-20">
+          <a href="#dashboard" onclick="showSection('dashboard')" class="flex items-center p-3 rounded-lg bg-white bg-opacity-20 sidebar-link">
             <i class="fas fa-tachometer-alt mr-3"></i>
             Genel Bakış
           </a>
-          <a href="#carWashSelection" onclick="showSection('carWashSelection')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+          <a href="#carWashSelection" onclick="showSection('carWashSelection')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
             <i class="fas fa-hand-pointer mr-3"></i>
             Oto Yıkama Seçimi
           </a>
-          <a href="#reservations" onclick="showSection('reservations')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+          <a href="#reservations" onclick="showSection('reservations')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
             <i class="fas fa-calendar-check mr-3"></i>
             Rezervasyonlarım
           </a>
-          <a href="#profile" onclick="showSection('profile')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+          <a href="#profile" onclick="showSection('profile')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
             <i class="fas fa-user-edit mr-3"></i>
             Profil Yönetimi
           </a>
-          <a href="#vehicles" onclick="showSection('vehicles')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+          <a href="#vehicles" onclick="showSection('vehicles')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
             <i class="fas fa-car mr-3"></i>
             Araçlarım
           </a>
-          <a href="#history" onclick="showSection('history')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+          <a href="#history" onclick="showSection('history')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
             <i class="fas fa-history mr-3"></i>
             Geçmiş İşlemler
           </a>
-          <a href="#support" onclick="showSection('support')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+          <a href="#support" onclick="showSection('support')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
             <i class="fas fa-headset mr-3"></i>
             Destek
           </a>
-          <a href="#settings" onclick="showSection('settings')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+          <a href="#settings" onclick="showSection('settings')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
+            <i class="fas fa-cog mr-3"></i>
+            Ayarlar
+          </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Desktop Sidebar -->
+    <aside class="desktop-sidebar sidebar-gradient text-white">
+      <div class="p-6">
+        <div class="text-center mb-8">
+          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-user text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-bold"><?php echo htmlspecialchars($_SESSION['name'] ?? $_SESSION['full_name'] ?? 'User'); ?></h3>
+          <p class="text-sm opacity-75"><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></p>
+        </div>
+
+        <nav class="space-y-2">
+          <a href="#dashboard" onclick="showSection('dashboard')" class="flex items-center p-3 rounded-lg bg-white bg-opacity-20 sidebar-link">
+            <i class="fas fa-tachometer-alt mr-3"></i>
+            Genel Bakış
+          </a>
+          <a href="#carWashSelection" onclick="showSection('carWashSelection')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
+            <i class="fas fa-hand-pointer mr-3"></i>
+            Oto Yıkama Seçimi
+          </a>
+          <a href="#reservations" onclick="showSection('reservations')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
+            <i class="fas fa-calendar-check mr-3"></i>
+            Rezervasyonlarım
+          </a>
+          <a href="#profile" onclick="showSection('profile')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
+            <i class="fas fa-user-edit mr-3"></i>
+            Profil Yönetimi
+          </a>
+          <a href="#vehicles" onclick="showSection('vehicles')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
+            <i class="fas fa-car mr-3"></i>
+            Araçlarım
+          </a>
+          <a href="#history" onclick="showSection('history')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
+            <i class="fas fa-history mr-3"></i>
+            Geçmiş İşlemler
+          </a>
+          <a href="#support" onclick="showSection('support')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
+            <i class="fas fa-headset mr-3"></i>
+            Destek
+          </a>
+          <a href="#settings" onclick="showSection('settings')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors sidebar-link">
             <i class="fas fa-cog mr-3"></i>
             Ayarlar
           </a>
@@ -307,7 +433,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-8">
+    <main class="main-content">
       <!-- Dashboard Overview -->
       <section id="dashboard" class="section-content">
         <div class="mb-8">
@@ -316,12 +442,12 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
           <div class="bg-white rounded-2xl p-6 card-hover shadow-lg">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Toplam Rezervasyon</p>
-                <p class="text-3xl font-bold text-blue-600"><?php echo $stats['total_reservations']; ?></p>
+                <p class="text-3xl font-bold text-blue-600">24</p>
               </div>
               <i class="fas fa-calendar-check text-4xl text-blue-600 opacity-20"></i>
             </div>
@@ -331,7 +457,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Bu Ay</p>
-                <p class="text-3xl font-bold text-green-600"><?php echo $stats['monthly_reservations']; ?></p>
+                <p class="text-3xl font-bold text-green-600">5</p>
               </div>
               <i class="fas fa-calendar-day text-4xl text-green-600 opacity-20"></i>
             </div>
@@ -341,7 +467,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Toplam Harcama</p>
-                <p class="text-3xl font-bold text-purple-600">₺<?php echo number_format($stats['total_spent'], 0); ?></p>
+                <p class="text-3xl font-bold text-purple-600">₺1,240</p>
               </div>
               <i class="fas fa-money-bill-wave text-4xl text-purple-600 opacity-20"></i>
             </div>
@@ -351,7 +477,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Ortalama Puan</p>
-                <p class="text-3xl font-bold text-yellow-600"><?php echo number_format($stats['average_rating'], 1); ?>★</p>
+                <p class="text-3xl font-bold text-yellow-600">4.8★</p>
               </div>
               <i class="fas fa-star text-4xl text-yellow-600 opacity-20"></i>
             </div>
@@ -359,40 +485,28 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
         </div>
 
         <!-- Recent Reservations -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
           <div class="bg-white rounded-2xl p-6 shadow-lg">
             <h3 class="text-xl font-bold text-gray-800 mb-4">
               <i class="fas fa-clock text-blue-600 mr-2"></i>
               Yaklaşan Rezervasyonlar
             </h3>
             <div class="space-y-4">
-              <?php if (empty($active_reservations)): ?>
-                <p class="text-gray-500 text-center py-4">Aktif rezervasyonunuz bulunmuyor.</p>
-              <?php else: ?>
-                <?php foreach ($active_reservations as $reservation): ?>
-                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <h4 class="font-bold"><?php echo htmlspecialchars($reservation['service_type'] ?? 'Genel Hizmet'); ?></h4>
-                      <p class="text-sm text-gray-600">
-                        <?php echo date('d.m.Y', strtotime($reservation['reservation_date'])); ?>,
-                        <?php echo date('H:i', strtotime($reservation['reservation_time'])); ?> -
-                        <?php echo htmlspecialchars($reservation['business_name'] ?? 'CarWash'); ?>
-                      </p>
-                    </div>
-                    <span class="status-<?php echo $reservation['status']; ?> px-3 py-1 rounded-full text-xs font-bold">
-                      <?php
-                      $status_text = [
-                        'pending' => 'Bekliyor',
-                        'confirmed' => 'Onaylandı',
-                        'completed' => 'Tamamlandı',
-                        'cancelled' => 'İptal'
-                      ];
-                      echo $status_text[$reservation['status']] ?? 'Bilinmiyor';
-                      ?>
-                    </span>
-                  </div>
-                <?php endforeach; ?>
-              <?php endif; ?>
+              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <h4 class="font-bold">Dış Yıkama + İç Temizlik</h4>
+                  <p class="text-sm text-gray-600">Bugün, 14:00 - CarWash Merkez</p>
+                </div>
+                <span class="status-confirmed px-3 py-1 rounded-full text-xs font-bold">Onaylandı</span>
+              </div>
+
+              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <h4 class="font-bold">Tam Detaylandırma</h4>
+                  <p class="text-sm text-gray-600">Yarın, 10:00 - CarWash Premium</p>
+                </div>
+                <span class="status-pending px-3 py-1 rounded-full text-xs font-bold">Bekliyor</span>
+              </div>
             </div>
           </div>
 
@@ -403,22 +517,20 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             </h3>
             <div class="space-y-4">
               <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-600">
-                <p class="text-sm">Hoş geldiniz! Dashboard'unuza başarıyla giriş yaptınız.</p>
-                <p class="text-xs text-gray-500 mt-1">Şimdi</p>
+                <p class="text-sm">Rezervasyonunuz onaylandı. 14:00'te CarWash Merkez'de olun.</p>
+                <p class="text-xs text-gray-500 mt-1">2 saat önce</p>
               </div>
 
-              <?php if (!empty($active_reservations)): ?>
-                <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-600">
-                  <p class="text-sm">Aktif rezervasyonlarınız bulunuyor. Detaylar için rezervasyonlar bölümüne bakın.</p>
-                  <p class="text-xs text-gray-500 mt-1">Güncel</p>
-                </div>
-              <?php endif; ?>
+              <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-600">
+                <p class="text-sm">Önceki hizmetiniz tamamlandı. Puan vererek deneyimlerinizi paylaşın!</p>
+                <p class="text-xs text-gray-500 mt-1">1 gün önce</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Car Wash Selection Section -->
+      <!-- Oto Yıkama Seçimi Section -->
       <section id="carWashSelection" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Oto Yıkama Seçimi</h2>
@@ -427,7 +539,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
         <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <h3 class="text-xl font-bold text-gray-800 mb-4">Filtreleme Seçenekleri</h3>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label for="cityFilter" class="block text-sm font-bold text-gray-700 mb-2">Şehir</label>
               <select id="cityFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
@@ -441,6 +553,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
               <label for="districtFilter" class="block text-sm font-bold text-gray-700 mb-2">Mahalle</label>
               <select id="districtFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 <option value="">Tüm Mahalleler</option>
+                <!-- Options will be dynamically loaded based on city -->
               </select>
             </div>
             <div>
@@ -456,7 +569,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
           </div>
         </div>
 
-        <div id="carWashList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="carWashList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
           <!-- Car wash cards will be loaded here by JavaScript -->
         </div>
       </section>
@@ -480,7 +593,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
               </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="universal-table-container">
               <table class="w-full">
                 <thead class="bg-gray-50">
                   <tr>
@@ -493,51 +606,39 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                  <?php if (empty($active_reservations)): ?>
-                    <tr>
-                      <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                        Aktif rezervasyonunuz bulunmuyor.
-                      </td>
-                    </tr>
-                  <?php else: ?>
-                    <?php foreach ($active_reservations as $reservation): ?>
-                      <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4">
-                          <div>
-                            <div class="font-medium"><?php echo htmlspecialchars($reservation['service_type'] ?? 'Genel Hizmet'); ?></div>
-                            <div class="text-sm text-gray-500"><?php echo htmlspecialchars($user['car_brand'] . ' ' . $user['car_model'] . ' - ' . $user['license_plate']); ?></div>
-                          </div>
-                        </td>
-                        <td class="px-6 py-4 text-sm">
-                          <?php echo date('d.m.Y', strtotime($reservation['reservation_date'])); ?><br>
-                          <?php echo date('H:i', strtotime($reservation['reservation_time'])); ?>
-                        </td>
-                        <td class="px-6 py-4 text-sm"><?php echo htmlspecialchars($reservation['business_name'] ?? 'CarWash'); ?></td>
-                        <td class="px-6 py-4">
-                          <span class="status-<?php echo $reservation['status']; ?> px-2 py-1 rounded-full text-xs">
-                            <?php
-                            $status_text = [
-                              'pending' => 'Bekliyor',
-                              'confirmed' => 'Onaylandı',
-                              'completed' => 'Tamamlandı',
-                              'cancelled' => 'İptal'
-                            ];
-                            echo $status_text[$reservation['status']] ?? 'Bilinmiyor';
-                            ?>
-                          </span>
-                        </td>
-                        <td class="px-6 py-4 font-medium">₺<?php echo number_format($reservation['price'] ?? 0, 0); ?></td>
-                        <td class="px-6 py-4 text-sm">
-                          <?php if ($reservation['status'] === 'pending'): ?>
-                            <button onclick="editReservation(<?php echo $reservation['id']; ?>)" class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
-                            <button onclick="cancelReservation(<?php echo $reservation['id']; ?>)" class="text-red-600 hover:text-red-900">İptal</button>
-                          <?php else: ?>
-                            <span class="text-gray-400">-</span>
-                          <?php endif; ?>
-                        </td>
-                      </tr>
-                    <?php endforeach; ?>
-                  <?php endif; ?>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                      <div>
+                        <div class="font-medium">Dış Yıkama + İç Temizlik</div>
+                        <div class="text-sm text-gray-500">Toyota Corolla - 34 ABC 123</div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm">15.12.2024<br>14:00</td>
+                    <td class="px-6 py-4 text-sm">CarWash Merkez</td>
+                    <td class="px-6 py-4"><span class="status-confirmed px-2 py-1 rounded-full text-xs">Onaylandı</span></td>
+                    <td class="px-6 py-4 font-medium">₺130</td>
+                    <td class="px-6 py-4 text-sm">
+                      <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
+                      <button class="text-red-600 hover:text-red-900">İptal</button>
+                    </td>
+                  </tr>
+
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                      <div>
+                        <div class="font-medium">Tam Detaylandırma</div>
+                        <div class="text-sm text-gray-500">Honda Civic - 34 XYZ 789</div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm">16.12.2024<br>10:00</td>
+                    <td class="px-6 py-4 text-sm">CarWash Premium</td>
+                    <td class="px-6 py-4"><span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span></td>
+                    <td class="px-6 py-4 font-medium">₺200</td>
+                    <td class="px-6 py-4 text-sm">
+                      <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
+                      <button class="text-red-600 hover:text-red-900">İptal</button>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -546,13 +647,11 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
           <!-- New Reservation Form -->
           <div id="newReservationForm" class="p-6 hidden">
             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
-            <form action="Customer_Dashboard_process.php" method="POST" class="space-y-6">
-              <input type="hidden" name="action" value="create_reservation">
-
+            <form class="space-y-6" onsubmit="event.preventDefault(); submitNewReservation();">
               <!-- Service Selection -->
               <div>
                 <label for="service" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
-                <select id="service" name="service_type" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <select id="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   <option value="">Hizmet Seçiniz</option>
                   <option value="Dış Yıkama">Dış Yıkama</option>
                   <option value="Dış Yıkama + İç Temizlik">Dış Yıkama + İç Temizlik</option>
@@ -561,34 +660,47 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 </select>
               </div>
 
+              <!-- Vehicle Selection -->
+              <div>
+                <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
+                <select id="vehicle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <option value="">Araç Seçiniz</option>
+                  <option value="Toyota Corolla - 34 ABC 123">Toyota Corolla - 34 ABC 123</option>
+                  <option value="Honda Civic - 34 XYZ 789">Honda Civic - 34 XYZ 789</option>
+                  <!-- Dynamically load user's vehicles here -->
+                </select>
+              </div>
+
               <!-- Date and Time -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                 <div>
                   <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
-                  <input type="date" id="reservationDate" name="reservation_date" required min="<?php echo date('Y-m-d'); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <input type="date" id="reservationDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
                   <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
-                  <input type="time" id="reservationTime" name="reservation_time" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <input type="time" id="reservationTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
               </div>
 
               <!-- Location -->
               <div>
                 <label for="location" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
-                <select id="location" name="carwash_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <select id="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   <option value="">Konum Seçiniz</option>
-                  <!-- Options will be loaded dynamically -->
+                  <option value="CarWash Merkez">CarWash Merkez</option>
+                  <option value="CarWash Premium">CarWash Premium</option>
+                  <option value="CarWash Express">CarWash Express</option>
                 </select>
               </div>
 
               <!-- Notes -->
               <div>
                 <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (İsteğe Bağlı)</label>
-                <textarea id="notes" name="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                <textarea id="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
               </div>
 
-              <div class="flex justify-end space-x-4">
+              <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
                 <button type="button" onclick="hideNewReservationForm()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition-colors">
                   Geri Dön
                 </button>
@@ -608,42 +720,35 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
           <p class="text-gray-600">Kişisel bilgilerinizi güncelleyin</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div class="lg:col-span-2">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+          <div class="xl:col-span-2">
             <div class="bg-white rounded-2xl shadow-lg p-6">
               <h3 class="text-xl font-bold mb-6">Kişisel Bilgiler</h3>
-              <form action="Customer_Dashboard_process.php" method="POST" class="space-y-6">
-                <input type="hidden" name="action" value="update_profile">
+              <form class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Ad</label>
+                    <input type="text" value="Ali" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Soyad</label>
+                    <input type="text" value="Yılmaz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  </div>
+                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Ad Soyad</label>
-                    <input type="text" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
-                    <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                  </div>
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
+                  <input type="email" value="ali.yilmaz@email.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
-                  <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2">Şehir</label>
-                  <select name="city" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                    <option value="">Şehir Seçin</option>
-                    <option value="İstanbul" <?php echo ($user['city'] ?? '') === 'İstanbul' ? 'selected' : ''; ?>>İstanbul</option>
-                    <option value="Ankara" <?php echo ($user['city'] ?? '') === 'Ankara' ? 'selected' : ''; ?>>Ankara</option>
-                    <option value="İzmir" <?php echo ($user['city'] ?? '') === 'İzmir' ? 'selected' : ''; ?>>İzmir</option>
-                  </select>
+                  <input type="tel" value="0555 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
-                  <textarea name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                  <textarea rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">İstanbul, Kadıköy, Moda Mahallesi</textarea>
                 </div>
 
                 <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
@@ -654,39 +759,15 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
           </div>
 
           <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="text-xl font-bold mb-6">Araç Bilgileri</h3>
-            <form action="Customer_Dashboard_process.php" method="POST" class="space-y-4">
-              <input type="hidden" name="action" value="update_vehicle">
-
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Araç Markası</label>
-                <input type="text" name="car_brand" value="<?php echo htmlspecialchars($user['car_brand'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <h3 class="text-xl font-bold mb-6">Profil Fotoğrafı</h3>
+            <div class="text-center">
+              <div class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-user text-4xl text-gray-400"></i>
               </div>
-
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Model</label>
-                <input type="text" name="car_model" value="<?php echo htmlspecialchars($user['car_model'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-              </div>
-
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Plaka</label>
-                <input type="text" name="license_plate" value="<?php echo htmlspecialchars($user['license_plate'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-              </div>
-
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Yıl</label>
-                <input type="number" name="car_year" value="<?php echo htmlspecialchars($user['car_year'] ?? ''); ?>" min="1990" max="<?php echo date('Y'); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-              </div>
-
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Renk</label>
-                <input type="text" name="car_color" value="<?php echo htmlspecialchars($user['car_color'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-              </div>
-
-              <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all">
-                <i class="fas fa-car mr-2"></i>Araç Bilgilerini Güncelle
+              <button class="gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
+                <i class="fas fa-camera mr-2"></i>Fotoğraf Değiştir
               </button>
-            </form>
+            </div>
           </div>
         </div>
       </section>
@@ -705,7 +786,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
           </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
           <div class="bg-white rounded-2xl p-6 card-hover shadow-lg">
             <div class="flex justify-between items-start mb-4">
               <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
@@ -754,7 +835,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <h3 class="text-xl font-bold">İşlem Geçmişi</h3>
           </div>
 
-          <div class="overflow-x-auto">
+          <div class="universal-table-container">
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
@@ -816,7 +897,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
           <p class="text-gray-600">Yardıma mı ihtiyacınız var? Size yardımcı olalım</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
           <div class="bg-white rounded-2xl p-6 shadow-lg">
             <h3 class="text-xl font-bold mb-4">
               <i class="fas fa-question-circle text-blue-600 mr-2"></i>
@@ -981,61 +1062,45 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
   </div>
 
   <script>
+    // Mobile Sidebar Functions
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('mobileSidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      const menuIcon = document.getElementById('menuIcon');
+
+      if (sidebar.classList.contains('active')) {
+        closeMobileSidebar();
+      } else {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+        menuBtn.classList.add('active');
+        menuIcon.className = 'fas fa-times';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      }
+    }
+
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById('mobileSidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      const menuIcon = document.getElementById('menuIcon');
+
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      menuBtn.classList.remove('active');
+      menuIcon.className = 'fas fa-bars';
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+
     // Sample data for car washes
-    const allCarWashes = [{
-        id: 1,
-        name: 'CarWash Merkez',
-        city: 'İstanbul',
-        district: 'Kadıköy',
-        rating: 4.8,
-        isFavorite: true,
-        services: ['Dış Yıkama', 'İç Temizlik']
-      },
-      {
-        id: 2,
-        name: 'CarWash Premium',
-        city: 'İstanbul',
-        district: 'Beşiktaş',
-        rating: 4.9,
-        isFavorite: false,
-        services: ['Tam Detaylandırma', 'Motor Temizliği']
-      },
-      {
-        id: 3,
-        name: 'CarWash Express',
-        city: 'İstanbul',
-        district: 'Şişli',
-        rating: 4.5,
-        isFavorite: true,
-        services: ['Dış Yıkama']
-      },
-      {
-        id: 4,
-        name: 'Ankara Oto Yıkama',
-        city: 'Ankara',
-        district: 'Çankaya',
-        rating: 4.7,
-        isFavorite: false,
-        services: ['Dış Yıkama', 'İç Temizlik']
-      },
-      {
-        id: 5,
-        name: 'İzmir Hızlı Yıkama',
-        city: 'İzmir',
-        district: 'Bornova',
-        rating: 4.6,
-        isFavorite: true,
-        services: ['Dış Yıkama']
-      },
-      {
-        id: 6,
-        name: 'Kadıköy Detay',
-        city: 'İstanbul',
-        district: 'Kadıköy',
-        rating: 4.9,
-        isFavorite: false,
-        services: ['Tam Detaylandırma']
-      },
+    const allCarWashes = [
+      { id: 1, name: 'CarWash Merkez', city: 'İstanbul', district: 'Kadıköy', rating: 4.8, isFavorite: true, services: ['Dış Yıkama', 'İç Temizlik'] },
+      { id: 2, name: 'CarWash Premium', city: 'İstanbul', district: 'Beşiktaş', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma', 'Motor Temizliği'] },
+      { id: 3, name: 'CarWash Express', city: 'İstanbul', district: 'Şişli', rating: 4.5, isFavorite: true, services: ['Dış Yıkama'] },
+      { id: 4, name: 'Ankara Oto Yıkama', city: 'Ankara', district: 'Çankaya', rating: 4.7, isFavorite: false, services: ['Dış Yıkama', 'İç Temizlik'] },
+      { id: 5, name: 'İzmir Hızlı Yıkama', city: 'İzmir', district: 'Bornova', rating: 4.6, isFavorite: true, services: ['Dış Yıkama'] },
+      { id: 6, name: 'Kadıköy Detay', city: 'İstanbul', district: 'Kadıköy', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma'] },
     ];
 
     // Sample districts data (for dynamic loading)
@@ -1054,18 +1119,20 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
       // Show selected section
       document.getElementById(sectionId).classList.remove('hidden');
 
-      // Update sidebar active state
-      document.querySelectorAll('aside a').forEach(link => {
+      // Update sidebar active state for both mobile and desktop
+      document.querySelectorAll('.sidebar-link').forEach(link => {
         link.classList.remove('bg-white', 'bg-opacity-20');
+        link.classList.add('hover:bg-white', 'hover:bg-opacity-20');
       });
 
       // Add active state to clicked link
       let targetLink = event.target;
-      while (targetLink && targetLink.tagName !== 'A') {
+      while (targetLink && !targetLink.classList.contains('sidebar-link')) {
         targetLink = targetLink.parentNode;
       }
       if (targetLink) {
         targetLink.classList.add('bg-white', 'bg-opacity-20');
+        targetLink.classList.remove('hover:bg-white', 'hover:bg-opacity-20');
       }
 
       // Special handling for carWashSelection to load list
@@ -1076,6 +1143,11 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
       // Ensure reservation list is shown by default when navigating to reservations
       if (sectionId === 'reservations') {
         hideNewReservationForm(); // Ensure the list view is active
+      }
+
+      // Close mobile sidebar after selection
+      if (window.innerWidth < 1024) {
+        closeMobileSidebar();
       }
     }
 
@@ -1100,9 +1172,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     function showNewReservationForm() {
       document.getElementById('reservationListView').classList.add('hidden');
       document.getElementById('newReservationForm').classList.remove('hidden');
-
-      // Load available car washes
-      loadCarWashes();
     }
 
     function hideNewReservationForm() {
@@ -1110,57 +1179,116 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
       document.getElementById('reservationListView').classList.remove('hidden');
     }
 
-    function loadCarWashes() {
-      // This would typically fetch from the server
-      const locationSelect = document.getElementById('location');
-      locationSelect.innerHTML = '<option value="">Konum Seçiniz</option>';
+    function submitNewReservation() {
+      // Here you would collect form data and send it to your backend
+      const service = document.getElementById('service').value;
+      const vehicle = document.getElementById('vehicle').value;
+      const date = document.getElementById('reservationDate').value;
+      const time = document.getElementById('reservationTime').value;
+      const location = document.getElementById('location').value; // This will be the selected car wash name
+      const notes = document.getElementById('notes').value;
 
-      // Sample data - in real implementation, this would come from PHP/AJAX
-      const carWashes = [{
-          id: 1,
-          name: 'CarWash Merkez'
-        },
-        {
-          id: 2,
-          name: 'CarWash Premium'
-        },
-        {
-          id: 3,
-          name: 'CarWash Express'
-        }
-      ];
+      // Basic validation (you'd want more robust validation)
+      if (!service || !vehicle || !date || !time || !location) {
+        alert('Lütfen tüm zorunlu alanları doldurun.');
+        return;
+      }
 
-      carWashes.forEach(carWash => {
-        const option = document.createElement('option');
-        option.value = carWash.id;
-        option.textContent = carWash.name;
-        locationSelect.appendChild(option);
+      console.log('New Reservation Data:', { service, vehicle, date, time, location, notes });
+      alert('Rezervasyonunuz başarıyla oluşturuldu! (Bu bir demo mesajıdır)');
+      
+      // Optionally, clear the form
+      document.getElementById('service').value = '';
+      document.getElementById('vehicle').value = '';
+      document.getElementById('reservationDate').value = '';
+      document.getElementById('reservationTime').value = '';
+      document.getElementById('location').value = '';
+      document.getElementById('notes').value = '';
+
+      hideNewReservationForm(); // Go back to the reservation list after submission
+    }
+
+    // Car Wash Selection Functions
+    function loadDistrictOptions() {
+      const cityFilter = document.getElementById('cityFilter');
+      const districtFilter = document.getElementById('districtFilter');
+      const selectedCity = cityFilter.value;
+
+      districtFilter.innerHTML = '<option value="">Tüm Mahalleler</option>'; // Reset districts
+
+      if (selectedCity && districtsByCity[selectedCity]) {
+        districtsByCity[selectedCity].forEach(district => {
+          const option = document.createElement('option');
+          option.value = district;
+          option.textContent = district;
+          districtFilter.appendChild(option);
+        });
+      }
+    }
+
+    function filterCarWashes() {
+      const cityFilter = document.getElementById('cityFilter').value.toLowerCase();
+      const districtFilter = document.getElementById('districtFilter').value.toLowerCase();
+      const carWashNameFilter = document.getElementById('carWashNameFilter').value.toLowerCase();
+      const favoriteFilter = document.getElementById('favoriteFilter').checked;
+      const carWashListDiv = document.getElementById('carWashList');
+      carWashListDiv.innerHTML = ''; // Clear current list
+
+      const filteredWashes = allCarWashes.filter(carWash => {
+        const matchesCity = !cityFilter || carWash.city.toLowerCase().includes(cityFilter);
+        const matchesDistrict = !districtFilter || carWash.district.toLowerCase().includes(districtFilter);
+        const matchesName = !carWashNameFilter || carWash.name.toLowerCase().includes(carWashNameFilter);
+        const matchesFavorite = !favoriteFilter || carWash.isFavorite;
+        
+        return matchesCity && matchesDistrict && matchesName && matchesFavorite;
+      });
+
+      if (filteredWashes.length === 0) {
+        carWashListDiv.innerHTML = '<p class="text-gray-600 text-center col-span-full">Seçiminize uygun oto yıkama bulunamadı.</p>';
+        return;
+      }
+
+      filteredWashes.forEach(carWash => {
+        const carWashCard = `
+          <div class="bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+              <h4 class="font-bold text-xl text-gray-800">${carWash.name}</h4>
+              <button onclick="toggleFavorite(${carWash.id})" class="text-gray-400 hover:text-red-500 transition-colors">
+                <i class="${carWash.isFavorite ? 'fas text-red-500' : 'far'} fa-heart text-xl"></i>
+              </button>
+            </div>
+            <p class="text-sm text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${carWash.district}, ${carWash.city}</p>
+            <p class="text-sm text-gray-600 mb-4"><i class="fas fa-star text-yellow-400 mr-2"></i>${carWash.rating} (${(Math.random() * 100).toFixed(0)} yorum)</p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              ${carWash.services.map(service => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${service}</span>`).join('')}
+            </div>
+            <button onclick="selectCarWashForReservation('${carWash.name}')" class="mt-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
+              <i class="fas fa-calendar-alt mr-2"></i>Rezervasyon Yap
+            </button>
+          </div>
+        `;
+        carWashListDiv.innerHTML += carWashCard;
       });
     }
 
-    function cancelReservation(reservationId) {
-      if (confirm('Bu rezervasyonu iptal etmek istediğinizden emin misiniz?')) {
-        // Create a form to submit the cancellation
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'Customer_Dashboard_process.php';
-
-        const actionInput = document.createElement('input');
-        actionInput.type = 'hidden';
-        actionInput.name = 'action';
-        actionInput.value = 'cancel_reservation';
-
-        const idInput = document.createElement('input');
-        idInput.type = 'hidden';
-        idInput.name = 'reservation_id';
-        idInput.value = reservationId;
-
-        form.appendChild(actionInput);
-        form.appendChild(idInput);
-        document.body.appendChild(form);
-        form.submit();
+    function toggleFavorite(carWashId) {
+      const carWashIndex = allCarWashes.findIndex(cw => cw.id === carWashId);
+      if (carWashIndex > -1) {
+        allCarWashes[carWashIndex].isFavorite = !allCarWashes[carWashIndex].isFavorite;
+        filterCarWashes(); // Re-render the list to update heart icon
       }
     }
+
+    function selectCarWashForReservation(carWashName) {
+      // Set the selected car wash in the reservation form's location field
+      document.getElementById('location').value = carWashName;
+      // Switch to the reservations section and show the new reservation form
+      showSection('reservations');
+      showNewReservationForm();
+      // Optionally, scroll to the new reservation form
+      document.getElementById('newReservationForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
 
     // Close modals when clicking outside
     window.onclick = function(event) {
@@ -1176,20 +1304,41 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
       }
     }
 
+    // Handle window resize for responsive behavior
+    window.addEventListener('resize', function() {
+      if (window.innerWidth >= 1024) {
+        // Desktop view - close mobile sidebar if open
+        closeMobileSidebar();
+      }
+    });
+
+    // Prevent body scroll when mobile menu is open
+    function preventBodyScroll(prevent) {
+      if (prevent) {
+        document.body.style.overflow = 'hidden';
+        document.body.style.height = '100%';
+      } else {
+        document.body.style.overflow = '';
+        document.body.style.height = '';
+      }
+    }
+
     // Initialize dashboard
     document.addEventListener('DOMContentLoaded', function() {
       showSection('dashboard');
-
-      // Auto-hide messages after 5 seconds
-      setTimeout(() => {
-        const successMsg = document.getElementById('successMessage');
-        const errorMsg = document.getElementById('errorMessage');
-        if (successMsg) successMsg.remove();
-        if (errorMsg) errorMsg.remove();
-      }, 5000);
+      
+      // Set minimum date for reservation form to today
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('reservationDate');
+      if (dateInput) {
+        dateInput.setAttribute('min', today);
+      }
     });
   </script>
 
-</body>
+</div> <!-- End Dashboard Layout -->
 
-</html>
+<?php 
+// Include the universal footer
+include '../includes/footer.php'; 
+?>

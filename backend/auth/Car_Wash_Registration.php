@@ -2,117 +2,93 @@
 // Farsça: این فایل شامل کدهای HTML صفحه ثبت نام کارواش است.
 // Türkçe: Bu dosya, araç yıkama işletmesi kayıt sayfasının HTML kodlarını içermektedir.
 // English: This file contains the HTML code for the car wash business registration page.
+
+// Set page-specific variables
+$page_title = 'Car Wash İşletme Kayıt - CarWash';
+$current_page = 'carwash_register';
+$show_login = false; // Don't show login button on registration page
+
+// Start session to check for error messages
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Include header
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CarWash - Car Wash İşletme Kayıt</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* Farsça: انیمیشن برای ظاهر شدن تدریجی عناصر از پایین به بالا. */
-    /* Türkçe: Öğelerin aşağıdan yukarıya doğru yavaşça görünmesi için animasyon. */
-    /* English: Animation for elements to fade in from bottom to top. */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
 
-    /* Farsça: انیمیشن برای ورود تدریجی عناصر از چپ به راست. */
-    /* Türkçe: Öğelerin soldan sağa doğru yavaşça kayarak gelmesi için animasyon. */
-    /* English: Animation for elements to slide in from left to right. */
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-30px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+<!-- Additional CSS for car wash registration page -->
+<style>
+  /* Custom animations for registration form */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    /* Farsça: اعمال انیمیشن fadeInUp. */
-    /* Türkçe: fadeInUp animasyonunu uygular. */
-    /* English: Applies the fadeInUp animation. */
-    .animate-fade-in-up {
-      animation: fadeInUp 0.6s ease-out forwards;
-    }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
 
-    /* Farsça: اعمال انیمیشن slideIn. */
-    /* Türkçe: slideIn animasyonunu uygular. */
-    /* English: Applies the slideIn animation. */
-    .animate-slide-in {
-      animation: slideIn 0.5s ease-out forwards;
-    }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
 
-    /* Farsça: پس‌زمینه گرادیانت برای عناصر. */
-    /* Türkçe: Öğeler için gradyan arka plan. */
-    /* English: Gradient background for elements. */
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+  }
 
-    /* Farsça: استایل کانتینر فرم با پس‌زمینه شفاف و فیلتر بلور. */
-    /* Türkçe: Şeffaf arka plan ve bulanıklık filtresi ile form kapsayıcı stili. */
-    /* English: Form container style with transparent background and blur filter. */
-    .form-container {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-    }
+  .gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
 
-    /* Farsça: استایل ورودی‌ها هنگام فوکوس: بزرگنمایی و سایه. */
-    /* Türkçe: Odaklanıldığında girişlerin stili: büyütme ve gölge. */
-    /* English: Input style on focus: scale and shadow. */
-    .input-focus:focus {
-      transform: scale(1.02);
-      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
-    }
+  .form-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+  }
 
-    /* Farsça: جداکننده بخش‌ها. */
-    /* Türkçe: Bölüm ayırıcı. */
-    /* English: Section divider. */
-    .section-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
-    }
-  </style>
-</head>
-<body class="bg-gray-50 min-h-screen p-4">
+  .input-focus:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+  }
 
-  <!-- Header -->
-  <!-- Farsça: این بخش سربرگ صفحه را شامل می‌شود. -->
-  <!-- Türkçe: Bu bölüm sayfa başlığını içerir. -->
-  <!-- English: This section includes the page header. -->
-  <header class="bg-white shadow-lg mb-8">
-    <div class="container mx-auto px-4 py-3">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <i class="fas fa-car text-2xl text-blue-600"></i>
-          <h1 class="text-xl font-bold text-blue-600">CarWash</h1>
-        </div>
-        <a href="../index.php" class="text-gray-600 hover:text-blue-600 transition-colors">
-          <i class="fas fa-home mr-2"></i>Ana Sayfa
-        </a>
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+  }
+</style>
+
+<!-- Registration Form -->
+<div class="max-w-5xl mx-auto">
+  <div class="form-container rounded-2xl shadow-2xl p-8 animate-fade-in-up">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4 animate-slide-in">
+        <i class="fas fa-store text-3xl text-white"></i>
       </div>
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Car Wash İşletme Kayıt Formu</h1>
+      <p class="text-gray-600">İşletmenizi kaydedin ve hizmetlerinizi müşterilerimize sunun</p>
+      
+      <?php
+      // Display error messages if any
+      if (isset($_SESSION['error_message'])) {
+          echo '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 mt-4">';
+          echo '<strong>Hata:</strong> ' . $_SESSION['error_message'];
+          echo '</div>';
+          unset($_SESSION['error_message']); // Clear the message after displaying
+      }
+      
+      // Display success messages if any
+      if (isset($_SESSION['success_message'])) {
+          echo '<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 mt-4">';
+          echo '<strong>Başarılı:</strong> ' . $_SESSION['success_message'];
+          echo '</div>';
+          unset($_SESSION['success_message']); // Clear the message after displaying
+      }
+      ?>
     </div>
-  </header>
 
-  <!-- Registration Form -->
-  <!-- Farsça: این بخش شامل فرم ثبت نام کارواش است. -->
-  <!-- Türkçe: Bu bölüm araç yıkama işletmesi kayıt formunu içerir. -->
-  <!-- English: This section contains the car wash business registration form. -->
-  <div class="max-w-5xl mx-auto">
-    <div class="form-container rounded-2xl shadow-2xl p-8 animate-fade-in-up">
-      <!-- Header -->
-      <!-- Farsça: سربرگ فرم ثبت نام. -->
-      <!-- Türkçe: Kayıt formunun başlığı. -->
-      <!-- English: Header for the registration form. -->
-      <div class="text-center mb-8">
-        <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4 animate-slide-in">
-          <i class="fas fa-store text-3xl text-white"></i>
-        </div>
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Car Wash İşletme Kayıt Formu</h1>
-        <p class="text-gray-600">İşletmenizi kaydedin ve hizmetlerinizi müşterilerimize sunun</p>
-      </div>
-
-      <form action="provider/register.php" method="POST" enctype="multipart/form-data" class="space-y-8">
+    <form action="Car_Wash_Registration_process.php" method="POST" enctype="multipart/form-data" class="space-y-8">
         <!-- Business Information Section -->
         <!-- Farsça: بخش اطلاعات کسب و کار. -->
         <!-- Türkçe: İşletme Bilgileri bölümü. -->
@@ -532,7 +508,7 @@
       <div class="text-center mt-8 animate-slide-in" style="animation-delay: 0.8s">
         <p class="text-gray-600 mb-4">Zaten hesabınız var mı?</p>
         <a
-          href="../auth/login.php"
+          href="login.php"
           class="inline-block gradient-bg text-white px-8 py-3 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
         >
           <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
@@ -577,5 +553,4 @@
     });
   </script>
 
-</body>
-</html>
+<?php include '../includes/footer.php'; ?>

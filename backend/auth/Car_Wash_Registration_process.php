@@ -125,7 +125,7 @@ try {
     }
     
     // Check if business name already exists
-    $stmt = $conn->prepare("SELECT id FROM carwashes WHERE business_name = ?");
+    $stmt = $conn->prepare("SELECT id FROM carwashes WHERE name = ?");
     $stmt->execute([$business_name]);
     
     if ($stmt->fetch()) {
@@ -173,30 +173,48 @@ try {
     $conn->beginTransaction();
     
     try {
+        // Generate unique username from email
+        $username = strtolower(explode('@', $email)[0]);
+        $base_username = $username;
+        $counter = 1;
+        
+        // Check if username exists and modify if needed
+        while (true) {
+            $check_stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+            $check_stmt->execute([$username]);
+            if (!$check_stmt->fetch()) {
+                break; // Username is available
+            }
+            $username = $base_username . $counter;
+            $counter++;
+        }
+
         // Insert user record following project DB conventions
         $user_sql = "INSERT INTO users (
-            name, 
+            username,
+            full_name, 
             email, 
             password, 
             phone, 
             role, 
             created_at
-        ) VALUES (?, ?, ?, ?, 'carwash', NOW())";
+        ) VALUES (?, ?, ?, ?, ?, 'carwash', NOW())";
         
         $stmt = $conn->prepare($user_sql);
-        $stmt->execute([$business_name, $email, $hashed_password, $phone]);
+        $stmt->execute([$username, $business_name, $email, $hashed_password, $phone]);
         $user_id = $conn->lastInsertId();
         
         // Insert carwash business record
         $carwash_sql = "INSERT INTO carwashes (
             user_id,
-            business_name,
+            owner_id,
+            name,
             email,
             phone,
             tax_number,
             license_number,
             owner_name,
-            owner_id,
+            tc_kimlik,
             owner_phone,
             birth_date,
             city,
@@ -213,32 +231,33 @@ try {
             logo_image,
             status,
             created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
         
         $stmt = $conn->prepare($carwash_sql);
         $stmt->execute([
-            $user_id,
-            $business_name,
-            $email,
-            $phone,
-            $tax_number,
-            $license_number,
-            $owner_name,
-            $owner_id,
-            $owner_phone,
-            $birth_date ?: null,
-            $city,
-            $district,
-            $address,
-            $exterior_price,
-            $interior_price,
-            $detailing_price,
-            $opening_time ?: null,
-            $closing_time ?: null,
-            $capacity ?: null,
-            $description,
-            $profile_image,
-            $logo_image
+            $user_id,           // user_id - references the user we just created
+            $user_id,           // owner_id - same user_id for foreign key constraint
+            $business_name,     // name
+            $email,             // email
+            $phone,             // phone
+            $tax_number,        // tax_number
+            $license_number,    // license_number
+            $owner_name,        // owner_name
+            $owner_id,          // tc_kimlik - Turkish ID number
+            $owner_phone,       // owner_phone
+            $birth_date ?: null, // birth_date
+            $city,              // city
+            $district,          // district
+            $address,           // address
+            $exterior_price,    // exterior_price
+            $interior_price,    // interior_price
+            $detailing_price,   // detailing_price
+            $opening_time ?: null, // opening_time
+            $closing_time ?: null, // closing_time
+            $capacity ?: null,  // capacity
+            $description,       // description
+            $profile_image,     // profile_image
+            $logo_image         // logo_image
         ]);
         
         $carwash_id = $conn->lastInsertId();
@@ -287,8 +306,8 @@ try {
         // Log successful registration
         error_log("CarWash new business registration: " . $email . " (Business: " . $business_name . ", ID: " . $carwash_id . ")");
         
-        // Redirect back to registration page to show success modal
-        header('Location: Car_Wash_Registration.php?success=1');
+        // Redirect to welcome page for first-time experience
+        header('Location: welcome.php');
         exit();
         
     } catch (Exception $e) {
@@ -300,7 +319,16 @@ try {
 } catch (PDOException $e) {
     // Database-specific error handling following project patterns
     error_log("CarWash database error in car wash registration: " . $e->getMessage());
-    $_SESSION['error_message'] = 'Veritabanı hatası oluştu. Lütfen tekrar deneyin.';
+    
+    // Show more specific error messages for debugging
+    if (strpos($e->getMessage(), 'Unknown column') !== false) {
+        $_SESSION['error_message'] = 'Veritabanı şeması uyumsuzluğu: ' . $e->getMessage() . '<br><a href="apply_schema_fix.php">Şemayı düzelt</a>';
+    } elseif (strpos($e->getMessage(), "Table") !== false && strpos($e->getMessage(), "doesn't exist") !== false) {
+        $_SESSION['error_message'] = 'Veritabanı tablosu bulunamadı: ' . $e->getMessage();
+    } else {
+        $_SESSION['error_message'] = 'Veritabanı hatası: ' . $e->getMessage();
+    }
+    
     header('Location: Car_Wash_Registration.php');
     exit();
     

@@ -2,52 +2,40 @@
 // Farsça: این فایل شامل کدهای HTML صفحه فراموشی رمز عبور است.
 // Türkçe: Bu dosya, şifre sıfırlama sayfasının HTML kodlarını içermektedir.
 // English: This file contains the HTML code for the forgot password page.
+
+// Set page-specific variables
+$page_title = 'Şifre Sıfırlama - CarWash';
+$current_page = 'forgot_password';
+$show_login = false; // Don't show login button on forgot password page
+
+// Include header
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CarWash - Şifre Sıfırlama</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* Farsça: انیمیشن برای ظاهر شدن تدریجی عناصر از پایین به بالا. */
-    /* Türkçe: Öğelerin aşağıdan yukarıya doğru yavaşça görünmesi için animasyon. */
-    /* English: Animation for elements to fade in from bottom to top. */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
 
-    /* Farsça: انیمیشن برای ورود تدریجی عناصر از چپ به راست. */
-    /* Türkçe: Öğelerin soldan sağa doğru yavaşça kayarak gelmesi için animasyon. */
-    /* English: Animation for elements to slide in from left to right. */
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-30px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+<!-- Additional CSS for forgot password page -->
+<style>
+  /* Custom animations for forgot password form */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    /* Farsça: اعمال انیمیشن fadeInUp. */
-    /* Türkçe: fadeInUp animasyonunu uygular. */
-    /* English: Applies the fadeInUp animation. */
-    .animate-fade-in-up {
-      animation: fadeInUp 0.6s ease-out forwards;
-    }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
 
-    /* Farsça: اعمال انیمیشن slideIn. */
-    /* Türkçe: slideIn animasyonunu uygular. */
-    /* English: Applies the slideIn animation. */
-    .animate-slide-in {
-      animation: slideIn 0.5s ease-out forwards;
-    }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
 
-    /* Farsça: پس‌زمینه گرادیانت برای عناصر. */
-    /* Türkçe: Öğeler için gradyan arka plan. */
-    /* English: Gradient background for elements. */
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
 
     /* Farsça: استایل کانتینر فرم با پس‌زمینه شفاف و فیلتر بلور. */
     /* Türkçe: Şeffaf arka plan ve bulanıklık filtresi ile form kapsayıcı stili. */
@@ -82,29 +70,12 @@
     }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen p-4">
+  }
+</style>
 
-  <!-- Header -->
-  <!-- Farsça: این بخش سربرگ صفحه را شامل می‌شود. -->
-  <!-- Türkçe: Bu bölüm sayfa başlığını içerir. -->
-  <!-- English: This section includes the page header. -->
-  <header class="bg-white shadow-lg mb-8">
-    <div class="container mx-auto px-4 py-3">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <i class="fas fa-car text-2xl text-blue-600"></i>
-          <h1 class="text-xl font-bold text-blue-600">CarWash</h1>
-        </div>
-        <a href="../index.php" class="text-gray-600 hover:text-blue-600 transition-colors">
-          <i class="fas fa-home mr-2"></i>Ana Sayfa
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Password Reset Form -->
-  <!-- Farsça: این بخش شامل فرم بازنشانی رمز عبور است. -->
-  <!-- Türkçe: Bu bölüm şifre sıfırlama formunu içerir. -->
+<!-- Password Reset Form -->
+<!-- Farsça: این بخش شامل فرم بازنشانی رمز عبور است. -->
+<!-- Türkçe: Bu bölüm şifre sıfırlama formunu içerir. -->
   <!-- English: This section contains the password reset form. -->
   <div class="max-w-md mx-auto">
     <div class="form-container rounded-2xl shadow-2xl p-8 animate-fade-in-up">
@@ -380,5 +351,4 @@
     });
   </script>
 
-</body>
-</html>
+<?php include '../includes/footer.php'; ?>

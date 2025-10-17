@@ -3,6 +3,11 @@
 // Türkçe: Bu dosya, müşteri kayıt sayfasının HTML kodlarını içermektedir.
 // English: This file contains the HTML code for the customer registration page.
 
+// Set page-specific variables
+$page_title = 'Müşteri Kayıt - CarWash';
+$current_page = 'register';
+$show_login = false; // Don't show login button on registration page
+
 // Add this to the top of your Customer_Registration.php file
 session_start();
 
@@ -15,184 +20,376 @@ $error_message = $_SESSION['error_message'] ?? '';
 if (isset($_SESSION['registration_success'])) unset($_SESSION['registration_success']);
 if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
 if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
+
+// Include header
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CarWash - Müşteri Kayıt</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* Farsça: انیمیشن برای ظاهر شدن تدریجی عناصر از پایین به بالا. */
-    /* Türkçe: Öğelerin aşağıdan yukarıya doğru yavaşça görünmesi için animasyon. */
-    /* English: Animation for elements to fade in from bottom to top. */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
+<!-- Additional CSS for registration page -->
+<style>
+  /* Custom animations for registration form */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .form-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+  }
+
+  .input-focus:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+  }
+
+  /* Comprehensive Responsive Design - Mobile First */
+  
+  /* Base styles for all devices */
+  body {
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .registration-wrapper {
+    flex: 1;
+    padding: 1rem;
+  }
+  
+  /* Ensure footer is always visible */
+  footer {
+    margin-top: auto;
+  }
+
+  /* Extra Small Mobile: 320px - 479px */
+  @media (max-width: 479px) {
+    .registration-wrapper {
+      padding: 0.75rem;
     }
 
-    /* Farsça: انیمیشن برای ورود تدریجی عناصر از چپ به راست. */
-    /* Türkçe: Öğelerin soldan sağa doğru yavaşça kayarak gelmesi برای animasyon. */
-    /* English: Animation for elements to slide in from left to right. */
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-30px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    /* Farsça: اعمال انیمیشن fadeInUp. */
-    /* Türkçe: fadeInUp animasyonunu uygular. */
-    /* English: Applies the fadeInUp animation. */
-    .animate-fade-in-up {
-      animation: fadeInUp 0.6s ease-out forwards;
-    }
-
-    /* Farsça: اعمال انیمیشن slideIn. */
-    /* Türkçe: slideIn animasyonunu uygular. */
-    /* English: Applies the slideIn animation. */
-    .animate-slide-in {
-      animation: slideIn 0.5s ease-out forwards;
-    }
-
-    /* Farsça: پس‌زمینه گرادیانت برای عناصر. */
-    /* Türkçe: Öğeler için gradyan arka plan. */
-    /* English: Gradient background for elements. */
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    /* Farsça: استایل کانتینر فرم با پس‌زمینه شفاف و فیلتر بلور. */
-    /* Türkçe: Şeffaf arka plan و bulanıklık filtresi ile form kapsayıcı stili. */
-    /* English: Form container style with transparent background and blur filter. */
     .form-container {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
+      padding: 1.25rem !important;
+      margin: 0.5rem 0;
     }
 
-    /* Farsça: استایل ورودی‌ها هنگام فوکوس: بزرگنمایی و سایه. */
-    /* Türkçe: Odaklanıldığında girişlerin stili: büyütme و gölge. */
-    /* English: Input style on focus: scale and shadow. */
+    .form-container h1 {
+      font-size: 1.5rem !important;
+      line-height: 2rem;
+    }
+
+    .form-container h2 {
+      font-size: 1.125rem !important;
+      line-height: 1.75rem;
+    }
+
+    .form-container p {
+      font-size: 0.875rem;
+    }
+
+    .icon-header {
+      width: 3rem !important;
+      height: 3rem !important;
+      margin-bottom: 0.75rem !important;
+    }
+
+    .icon-header i {
+      font-size: 1.5rem !important;
+    }
+
+    input, select, textarea {
+      font-size: 14px !important;
+      padding: 0.625rem 0.75rem !important;
+    }
+
+    label {
+      font-size: 0.813rem !important;
+      margin-bottom: 0.375rem !important;
+    }
+
+    button[type="submit"] {
+      padding: 0.875rem 1rem !important;
+      font-size: 0.938rem !important;
+    }
+
+    .grid {
+      gap: 1rem !important;
+    }
+
+    .space-y-8 > * + * {
+      margin-top: 1.5rem !important;
+    }
+  }
+
+  /* Small Mobile: 480px - 639px */
+  @media (min-width: 480px) and (max-width: 639px) {
+    .registration-wrapper {
+      padding: 1rem;
+    }
+
+    .form-container {
+      padding: 1.5rem !important;
+    }
+
+    .form-container h1 {
+      font-size: 1.75rem !important;
+    }
+
+    .form-container h2 {
+      font-size: 1.25rem !important;
+    }
+
+    input, select, textarea {
+      font-size: 15px !important;
+      padding: 0.75rem 0.875rem !important;
+    }
+  }
+
+  /* Tablet Portrait: 640px - 767px */
+  @media (min-width: 640px) and (max-width: 767px) {
+    .registration-wrapper {
+      padding: 1.5rem;
+    }
+
+    .form-container {
+      padding: 2rem !important;
+    }
+
+    .form-container h1 {
+      font-size: 2rem !important;
+    }
+
+    .form-container h2 {
+      font-size: 1.375rem !important;
+    }
+  }
+
+  /* Tablet Portrait/Landscape: 768px - 1023px */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .registration-wrapper {
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .form-container {
+      padding: 2.5rem !important;
+    }
+
+    .grid.md\:grid-cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Desktop: 1024px+ */
+  @media (min-width: 1024px) {
+    .registration-wrapper {
+      padding: 2rem;
+    }
+
+    .form-container {
+      padding: 3rem !important;
+    }
+
+    .grid.md\:grid-cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Large Desktop: 1280px+ */
+  @media (min-width: 1280px) {
+    .registration-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  }
+
+  /* Touch device optimizations */
+  @media (hover: none) and (pointer: coarse) {
+    input, select, textarea, button {
+      min-height: 44px;
+      font-size: 16px !important; /* Prevent zoom on iOS */
+    }
+
     .input-focus:focus {
-      transform: scale(1.02);
-      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+      transform: scale(1);
+    }
+  }
+
+  /* Landscape phone optimization */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .form-container {
+      padding: 1.5rem !important;
     }
 
-    /* Farsça: جداکننده بخش‌ها. */
-    /* Türkçe: Bölüm ayırıcı. */
-    /* English: Section divider. */
-    .section-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+    .icon-header {
+      width: 2.5rem !important;
+      height: 2.5rem !important;
     }
-  </style>
-</head>
 
-<body class="bg-gray-50 min-h-screen p-4">
+    .form-container h1 {
+      font-size: 1.5rem !important;
+      margin-bottom: 0.5rem !important;
+    }
 
-  <!-- Header -->
-  <!-- Farsça: این بخش سربرگ صفحه را شامل می‌شود. -->
-  <!-- Türkçe: Bu bölüm sayfa başlığını içerir. -->
-  <!-- English: This section includes the page header. -->
-  <header class="bg-white shadow-lg mb-8">
-    <div class="container mx-auto px-4 py-3">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <i class="fas fa-car text-2xl text-blue-600"></i>
-          <h1 class="text-xl font-bold text-blue-600">CarWash</h1>
-        </div>
-        <a href="../../frontend/homes.html" class="text-gray-600 hover:text-blue-600 transition-colors">
-          <i class="fas fa-home mr-2"></i>Ana Sayfa
-        </a>
-      </div>
-    </div>
-  </header>
+    .form-container h2 {
+      font-size: 1.125rem !important;
+    }
 
-  <!-- Registration Form -->
-  <!-- Farsça: این بخش شامل فرم ثبت نام مشتری است. -->
-  <!-- Türkçe: Bu bölüm müşteri kayıt formunu içerir. -->
-  <!-- English: This section contains the customer registration form. -->
+    .space-y-8 > * + * {
+      margin-top: 1.25rem !important;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up,
+    .animate-slide-in {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+
+    .input-focus:focus {
+      transform: none;
+    }
+
+    button:hover {
+      transform: none !important;
+    }
+  }
+
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    .form-container {
+      border: 2px solid #000;
+    }
+
+    input, select, textarea {
+      border-width: 2px;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .animate-fade-in-up,
+    .animate-slide-in {
+      animation: none;
+    }
+
+    button[type="submit"] {
+      display: none;
+    }
+  }
+
+  /* Custom scrollbar for better UX */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
+  }
+</style>
+
+<!-- Registration Form -->
+<div class="registration-wrapper">
   <div class="max-w-4xl mx-auto">
     <div class="form-container rounded-2xl shadow-2xl p-8 animate-fade-in-up">
       <!-- Header -->
-      <!-- Farsça: سربرگ فرم ثبت نام. -->
-      <!-- Türkçe: Kayıt formunun başlığı. -->
-      <!-- English: Header for the registration form. -->
-      <div class="text-center mb-8">
-        <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4 animate-slide-in">
-          <i class="fas fa-user-plus text-3xl text-white"></i>
+      <div class="text-center mb-6 sm:mb-8">
+        <div class="icon-header w-16 h-16 sm:w-20 sm:h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 animate-slide-in">
+          <i class="fas fa-user-plus text-2xl sm:text-3xl text-white"></i>
         </div>
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Müşteri Kayıt Formu</h1>
-        <p class="text-gray-600">Hesabınızı oluşturun و araç yıkama خدماتimizden yararlanın</p>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 px-2">Müşteri Kayıt Formu</h1>
+        <p class="text-sm sm:text-base text-gray-600 px-4">Hesabınızı oluşturun ve araç yıkama hizmetlerimizden yararlanın</p>
       </div>
 
-      <!-- Fixed form action path -->
-      <form action="register_process.php" method="POST" class="space-y-8">
+    <!-- Fixed form action path -->
+    <form action="Customer_Registration_process.php" method="POST" class="space-y-8">
         <!-- Personal Information Section -->
         <!-- Farsça: بخش اطلاعات شخصی. -->
         <!-- Türkçe: Kişisel Bilgiler bölümü. -->
         <!-- English: Personal Information Section. -->
         <div class="animate-slide-in" style="animation-delay: 0.1s">
-          <div class="flex items-center mb-6">
-            <i class="fas fa-user text-blue-600 text-xl mr-3"></i>
-            <h2 class="text-2xl font-bold text-gray-800">Kişisel Bilgiler</h2>
+          <div class="flex items-center mb-4 sm:mb-6">
+            <i class="fas fa-user text-blue-600 text-lg sm:text-xl mr-2 sm:mr-3"></i>
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Kişisel Bilgiler</h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-signature mr-2"></i>Ad Soyad *
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-signature mr-1 sm:mr-2 text-xs sm:text-sm"></i>Ad Soyad *
               </label>
               <input
                 type="text"
                 name="full_name"
                 placeholder="Adınızı ve soyadınızı girin"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base">
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-envelope mr-2"></i>E-posta Adresi *
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-envelope mr-1 sm:mr-2 text-xs sm:text-sm"></i>E-posta Adresi *
               </label>
               <input
                 type="email"
                 name="email"
                 placeholder="ornek@email.com"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base">
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-phone mr-2"></i>Telefon Numarası *
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-phone mr-1 sm:mr-2 text-xs sm:text-sm"></i>Telefon Numarası *
               </label>
               <input
                 type="tel"
                 name="phone"
                 placeholder="05XX XXX XX XX"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base">
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-lock mr-2"></i>Şifre *
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-lock mr-1 sm:mr-2 text-xs sm:text-sm"></i>Şifre *
               </label>
               <div class="relative">
                 <input
@@ -201,12 +398,13 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
                   id="password"
                   placeholder="Güçlü bir şifre belirleyin"
                   required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-12">
+                  class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
                 <button
                   type="button"
                   onclick="togglePassword()"
-                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors">
-                  <i class="fas fa-eye" id="passwordToggle"></i>
+                  class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors p-2"
+                  aria-label="Toggle password visibility">
+                  <i class="fas fa-eye text-sm sm:text-base" id="passwordToggle"></i>
                 </button>
               </div>
             </div>
@@ -221,20 +419,20 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
         <!-- Türkçe: Adres Bilgileri bölümü. -->
         <!-- English: Address Information Section. -->
         <div class="animate-slide-in" style="animation-delay: 0.2s">
-          <div class="flex items-center mb-6">
-            <i class="fas fa-map-marker-alt text-blue-600 text-xl mr-3"></i>
-            <h2 class="text-2xl font-bold text-gray-800">Adres Bilgileri</h2>
+          <div class="flex items-center mb-4 sm:mb-6">
+            <i class="fas fa-map-marker-alt text-blue-600 text-lg sm:text-xl mr-2 sm:mr-3"></i>
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Adres Bilgileri</h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div class="md:col-span-2">
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-city mr-2"></i>Şehir *
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-city mr-1 sm:mr-2 text-xs sm:text-sm"></i>Şehir *
               </label>
               <select
                 name="city"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base">
                 <option value="">Şehir seçin</option>
                 <option value="istanbul">İstanbul</option>
                 <option value="ankara">Ankara</option>
@@ -251,14 +449,14 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-address-card mr-2"></i>Adres Detayları
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-address-card mr-1 sm:mr-2 text-xs sm:text-sm"></i>Adres Detayları
               </label>
               <textarea
                 name="address"
                 rows="3"
                 placeholder="Sokak, mahalle, apartman numarası vb."
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300"></textarea>
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base resize-none"></textarea>
             </div>
           </div>
         </div>
@@ -268,20 +466,20 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
         <!-- Türkçe: Araç Bilgileri bölümü. -->
         <!-- English: Car Information Section. -->
         <div class="animate-slide-in" style="animation-delay: 0.3s">
-          <div class="flex items-center mb-6">
-            <i class="fas fa-car text-blue-600 text-xl mr-3"></i>
-            <h2 class="text-2xl font-bold text-gray-800">Araç Bilgileri</h2>
+          <div class="flex items-center mb-4 sm:mb-6">
+            <i class="fas fa-car text-blue-600 text-lg sm:text-xl mr-2 sm:mr-3"></i>
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Araç Bilgileri</h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-car-side mr-2"></i>Marka *
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-car-side mr-1 sm:mr-2 text-xs sm:text-sm"></i>Marka *
               </label>
               <select
                 name="car_brand"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base">
                 <option value="">Marka seçin</option>
                 <option value="toyota">Toyota</option>
                 <option value="honda">Honda</option>
@@ -299,25 +497,25 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-car mr-2"></i>Model *
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-car mr-1 sm:mr-2 text-xs sm:text-sm"></i>Model *
               </label>
               <input
                 type="text"
                 name="car_model"
                 placeholder="Örn: Corolla, Civic, Focus"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base">
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-calendar mr-2"></i>Model Yılı *
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-calendar mr-1 sm:mr-2 text-xs sm:text-sm"></i>Model Yılı *
               </label>
               <select
                 name="car_year"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base">
                 <option value="">Yıl seçin</option>
                 <option value="2024">2024</option>
                 <option value="2023">2023</option>
@@ -334,25 +532,25 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-palette mr-2"></i>Renk
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-palette mr-1 sm:mr-2 text-xs sm:text-sm"></i>Renk
               </label>
               <input
                 type="text"
                 name="car_color"
                 placeholder="Araç rengi"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base">
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-id-card mr-2"></i>Plaka Numarası
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-id-card mr-1 sm:mr-2 text-xs sm:text-sm"></i>Plaka Numarası
               </label>
               <input
                 type="text"
                 name="license_plate"
                 placeholder="34 ABC 123"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base">
             </div>
           </div>
         </div>
@@ -362,44 +560,44 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
         <!-- Türkçe: Tercihler bölümü. -->
         <!-- English: Preferences Section. -->
         <div class="animate-slide-in" style="animation-delay: 0.4s">
-          <div class="flex items-center mb-6">
-            <i class="fas fa-sliders-h text-blue-600 text-xl mr-3"></i>
-            <h2 class="text-2xl font-bold text-gray-800">Tercihler</h2>
+          <div class="flex items-center mb-4 sm:mb-6">
+            <i class="fas fa-sliders-h text-blue-600 text-lg sm:text-xl mr-2 sm:mr-3"></i>
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Tercihler</h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3">Bildirim Tercihleri</label>
-              <div class="space-y-2">
-                <label class="flex items-center">
-                  <input type="checkbox" name="notifications[]" value="email" checked class="mr-2 text-blue-600 focus:ring-blue-500">
-                  <span class="text-sm text-gray-600">E-posta bildirimleri</span>
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-3">Bildirim Tercihleri</label>
+              <div class="space-y-2 sm:space-y-3">
+                <label class="flex items-center cursor-pointer py-1">
+                  <input type="checkbox" name="notifications[]" value="email" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2">
+                  <span class="text-xs sm:text-sm text-gray-600">E-posta bildirimleri</span>
                 </label>
-                <label class="flex items-center">
-                  <input type="checkbox" name="notifications[]" value="sms" class="mr-2 text-blue-600 focus:ring-blue-500">
-                  <span class="text-sm text-gray-600">SMS bildirimleri</span>
+                <label class="flex items-center cursor-pointer py-1">
+                  <input type="checkbox" name="notifications[]" value="sms" class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2">
+                  <span class="text-xs sm:text-sm text-gray-600">SMS bildirimleri</span>
                 </label>
-                <label class="flex items-center">
-                  <input type="checkbox" name="notifications[]" value="push" class="mr-2 text-blue-600 focus:ring-blue-500">
-                  <span class="text-sm text-gray-600">Push bildirimleri</span>
+                <label class="flex items-center cursor-pointer py-1">
+                  <input type="checkbox" name="notifications[]" value="push" class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2">
+                  <span class="text-xs sm:text-sm text-gray-600">Push bildirimleri</span>
                 </label>
               </div>
             </div>
 
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3">Hangi hizmetleri tercih edersiniz?</label>
-              <div class="space-y-2">
-                <label class="flex items-center">
-                  <input type="checkbox" name="services[]" value="exterior" checked class="mr-2 text-blue-600 focus:ring-blue-500">
-                  <span class="text-sm text-gray-600">Dış yıkama</span>
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-3">Hangi hizmetleri tercih edersiniz?</label>
+              <div class="space-y-2 sm:space-y-3">
+                <label class="flex items-center cursor-pointer py-1">
+                  <input type="checkbox" name="services[]" value="exterior" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2">
+                  <span class="text-xs sm:text-sm text-gray-600">Dış yıkama</span>
                 </label>
-                <label class="flex items-center">
-                  <input type="checkbox" name="services[]" value="interior" checked class="mr-2 text-blue-600 focus:ring-blue-500">
-                  <span class="text-sm text-gray-600">İç temizlik</span>
+                <label class="flex items-center cursor-pointer py-1">
+                  <input type="checkbox" name="services[]" value="interior" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2">
+                  <span class="text-xs sm:text-sm text-gray-600">İç temizlik</span>
                 </label>
-                <label class="flex items-center">
-                  <input type="checkbox" name="services[]" value="detailing" class="mr-2 text-blue-600 focus:ring-blue-500">
-                  <span class="text-sm text-gray-600">Tam detaylandırma</span>
+                <label class="flex items-center cursor-pointer py-1">
+                  <input type="checkbox" name="services[]" value="detailing" class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2">
+                  <span class="text-xs sm:text-sm text-gray-600">Tam detaylandırma</span>
                 </label>
               </div>
             </div>
@@ -411,20 +609,20 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
         <!-- Türkçe: Şartlar و Gönder bölümü. -->
         <!-- English: Terms and Submit Section. -->
         <div class="animate-slide-in" style="animation-delay: 0.5s">
-          <div class="section-divider my-6"></div>
+          <div class="section-divider my-4 sm:my-6"></div>
 
-          <div class="flex items-start mb-6">
-            <input type="checkbox" name="terms" required class="mt-1 mr-3 text-blue-600 focus:ring-blue-500">
-            <p class="text-sm text-gray-600">
-              <a href="#" class="text-blue-600 hover:underline">Kullanım Şartları</a> ve
-              <a href="#" class="text-blue-600 hover:underline">Gizlilik Politikası</a>'nı
+          <div class="flex items-start mb-4 sm:mb-6">
+            <input type="checkbox" name="terms" required class="mt-1 mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2 flex-shrink-0">
+            <p class="text-xs sm:text-sm text-gray-600">
+              <a href="#" class="text-blue-600 hover:underline font-medium">Kullanım Şartları</a> ve
+              <a href="#" class="text-blue-600 hover:underline font-medium">Gizlilik Politikası</a>'nı
               okudum ve kabul ediyorum. *
             </p>
           </div>
 
           <button
             type="submit"
-            class="w-full gradient-bg text-white py-4 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+            class="w-full gradient-bg text-white py-3 sm:py-4 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-sm sm:text-base">
             <i class="fas fa-user-plus mr-2"></i>Hesabımı Oluştur
           </button>
         </div>
@@ -434,39 +632,40 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
       <!-- Farsça: لینک ورود به سیستم. -->
       <!-- Türkçe: Giriş bağlantısı. -->
       <!-- English: Login Link. -->
-      <div class="text-center mt-8 animate-slide-in" style="animation-delay: 0.6s">
-        <p class="text-gray-600 mb-4">Zaten hesabınız var mı?</p>
+      <div class="text-center mt-6 sm:mt-8 animate-slide-in" style="animation-delay: 0.6s">
+        <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Zaten hesabınız var mı?</p>
         <a
           href="login.php"
-          class="inline-block gradient-bg text-white px-8 py-3 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+          class="inline-block gradient-bg text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-sm sm:text-base">
           <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
         </a>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Add this error/success message display section after your header -->
   <?php if ($registration_success): ?>
-    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-8 max-w-md mx-4 text-center animate-bounce">
-        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i class="fas fa-check text-white text-2xl"></i>
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full mx-4 text-center animate-bounce">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+          <i class="fas fa-check text-white text-xl sm:text-2xl"></i>
         </div>
-        <h2 class="text-2xl font-bold text-green-600 mb-4">Başarılı!</h2>
-        <p class="text-gray-700 mb-6"><?php echo htmlspecialchars($success_message); ?></p>
+        <h2 class="text-xl sm:text-2xl font-bold text-green-600 mb-3 sm:mb-4">Başarılı!</h2>
+        <p class="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6"><?php echo htmlspecialchars($success_message); ?></p>
 
-        <div class="mb-4">
-          <div class="text-sm text-gray-500 mb-2">Otomatik yönlendirme:</div>
-          <div class="text-lg font-bold text-blue-600" id="countdown">5</div>
+        <div class="mb-4 sm:mb-6">
+          <div class="text-xs sm:text-sm text-gray-500 mb-2">Otomatik yönlendirme:</div>
+          <div class="text-lg sm:text-xl font-bold text-blue-600" id="countdown">5</div>
         </div>
 
         <div class="space-y-2">
           <button onclick="redirectToDashboard()"
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
+            class="w-full bg-blue-600 text-white py-2.5 sm:py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base font-medium">
             <i class="fas fa-tachometer-alt mr-2"></i>Şimdi Panele Git
           </button>
           <button onclick="closeModal()"
-            class="w-full bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors">
+            class="w-full bg-gray-300 text-gray-700 py-2.5 sm:py-3 px-4 rounded-lg hover:bg-gray-400 transition-colors text-sm sm:text-base font-medium">
             Kapat
           </button>
         </div>
@@ -505,10 +704,15 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
 
   <!-- Add error message display following project patterns -->
   <?php if (!empty($error_message)): ?>
-    <div class="max-w-4xl mx-auto mb-4">
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
-        <strong class="font-bold">Hata!</strong>
-        <span class="block sm:inline"><?php echo $error_message; ?></span>
+    <div class="max-w-4xl mx-auto mb-4 px-4">
+      <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded shadow-md" role="alert">
+        <div class="flex items-start">
+          <i class="fas fa-exclamation-circle mr-3 mt-1 flex-shrink-0"></i>
+          <div>
+            <strong class="font-bold text-sm sm:text-base">Hata!</strong>
+            <span class="block sm:inline text-xs sm:text-sm mt-1 sm:mt-0 sm:ml-2"><?php echo htmlspecialchars($error_message); ?></span>
+          </div>
+        </div>
       </div>
     </div>
   <?php endif; ?>
@@ -549,6 +753,4 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
     });
   </script>
 
-</body>
-
-</html>
+<?php include '../includes/footer.php'; ?>

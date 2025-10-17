@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarWash - URL Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .url-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .url-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 5px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .url-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .warning {
+            background: #fefce8;
+            color: #a16207;
+            border: 1px solid #fef3c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 CarWash Project - Correct URLs</h1>
+        
+        <div class="status success">
+            ✅ Apache is running and your project is correctly located in htdocs!
+        </div>
+
+        <div class="url-section">
+            <h3>🏠 Main Pages</h3>
+            <a href="http://localhost/carwash_project/backend/index.php" target="_blank" class="url-link">
+                🏠 Main Homepage
+            </a>
+            <a href="http://localhost/carwash_project/frontend/index.html" target="_blank" class="url-link">
+                📱 Frontend Version
+            </a>
+        </div>
+
+        <div class="url-section">
+            <h3>🔐 Authentication Pages</h3>
+            <a href="http://localhost/carwash_project/backend/auth/login.php" target="_blank" class="url-link">
+                🔑 Login Page
+            </a>
+            <a href="http://localhost/carwash_project/backend/auth/Customer_Registration.php" target="_blank" class="url-link">
+                👤 Customer Registration
+            </a>
+            <a href="http://localhost/carwash_project/backend/auth/Car_Wash_Registration.php" target="_blank" class="url-link">
+                🏪 Car Wash Registration
+            </a>
+        </div>
+
+        <div class="url-section">
+            <h3>🎉 Welcome Page System</h3>
+            <a href="http://localhost/carwash_project/test_welcome.php" target="_blank" class="url-link">
+                🧪 Test Welcome System
+            </a>
+            <a href="http://localhost/carwash_project/backend/auth/welcome.php" target="_blank" class="url-link">
+                🎊 Welcome Page (Direct)
+            </a>
+        </div>
+
+        <div class="url-section">
+            <h3>🛠️ Test & Debug Pages</h3>
+            <a href="http://localhost/carwash_project/test_connection.php" target="_blank" class="url-link">
+                🔌 Database Connection Test
+            </a>
+            <a href="http://localhost/carwash_project/test_columns.php" target="_blank" class="url-link">
+                📊 Column Fix Test
+            </a>
+            <a href="http://localhost/carwash_project/test_registration.php" target="_blank" class="url-link">
+                📝 Registration Test
+            </a>
+        </div>
+
+        <div class="status warning">
+            ⚠️ If you get "Not Found" errors, make sure:
+            <ul>
+                <li>XAMPP Apache is running (✅ Confirmed)</li>
+                <li>You're using the correct URLs above</li>
+                <li>No typos in the URL path</li>
+                <li>Files exist in the right locations (✅ Confirmed)</li>
+            </ul>
+        </div>
+
+        <div class="url-section">
+            <h3>📁 Project Structure Check</h3>
+            <p><strong>Your project is located at:</strong> <code>C:\xampp\htdocs\carwash_project\</code></p>
+            <p><strong>Base URL:</strong> <code>http://localhost/carwash_project/</code></p>
+            <p><strong>All files confirmed present:</strong></p>
+            <ul>
+                <li>✅ backend/auth/login.php</li>
+                <li>✅ backend/auth/welcome.php</li>
+                <li>✅ backend/auth/Customer_Registration.php</li>
+                <li>✅ backend/auth/Car_Wash_Registration.php</li>
+                <li>✅ backend/index.php</li>
+                <li>✅ frontend/index.html</li>
+            </ul>
+        </div>
+
+        <div class="status success">
+            🎯 <strong>Recommended Starting Point:</strong> Try the "Main Homepage" link first, then explore other pages!
+        </div>
+    </div>
+</body>
+</html>

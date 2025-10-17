@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarWash - Registration Debug Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #dc2626;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .debug-box {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #fbbf24;
+        }
+        .test-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 10px;
+            margin: 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 1.1em;
+        }
+        .test-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .step {
+            background: #f0f9ff;
+            color: #1e40af;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .issue-found {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #ef4444;
+        }
+        .solution {
+            background: #dcfce7;
+            color: #166534;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐛 Form Submission Debug Guide</h1>
+        
+        <div class="issue-found">
+            <h3>❌ Issue Identified</h3>
+            <p><strong>Problem:</strong> Form refreshes without processing because the POST request isn't reaching the PHP processor correctly.</p>
+            <p><strong>Symptoms:</strong> Page reloads, no success/error messages, no data saved.</p>
+        </div>
+
+        <div class="debug-box">
+            <h3>🔍 Debug Steps</h3>
+            <p>Follow these steps to identify exactly what's happening:</p>
+            
+            <div class="step">
+                <strong>Step 1:</strong> Test the registration form with debug mode
+                <br>
+                <a href="http://localhost/carwash_project/backend/auth/Car_Wash_Registration.php" target="_blank" class="test-link">
+                    🧪 Test Registration Form (Debug Mode)
+                </a>
+                <br>
+                <small>The form now points to a debug version that will show exactly what's happening</small>
+            </div>
+
+            <div class="step">
+                <strong>Step 2:</strong> Fill out the form with any test data and click submit
+                <br>
+                <small>You'll see detailed information about what data was received and any validation errors</small>
+            </div>
+
+            <div class="step">
+                <strong>Step 3:</strong> Check browser developer tools
+                <br>
+                <small>Press F12 → Console tab to see if there are any JavaScript errors preventing submission</small>
+            </div>
+
+            <div class="step">
+                <strong>Step 4:</strong> Test with minimal data
+                <br>
+                <a href="http://localhost/carwash_project/backend/auth/debug_registration.php" target="_blank" class="test-link">
+                    📝 Test with Pre-filled Form
+                </a>
+                <br>
+                <small>This form has all required fields pre-filled to test if the issue is data validation</small>
+            </div>
+        </div>
+
+        <div class="solution">
+            <h3>🔧 Most Likely Solutions</h3>
+            <ul>
+                <li><strong>Missing Required Fields:</strong> If some required fields are empty, PHP redirects back to form</li>
+                <li><strong>JavaScript Errors:</strong> Check browser console for errors that prevent form submission</li>
+                <li><strong>Terms Checkbox:</strong> Make sure the terms checkbox is checked before submitting</li>
+                <li><strong>Validation Errors:</strong> Email format, password length, TC ID length, etc.</li>
+                <li><strong>File Upload Issues:</strong> Large files or incorrect file types might cause issues</li>
+            </ul>
+        </div>
+
+        <div style="background: #1e40af; color: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h3>📋 Required Fields Checklist</h3>
+            <p>Make sure ALL these fields are filled:</p>
+            <div style="columns: 2; column-gap: 30px;">
+                <ul style="list-style: none; padding: 0;">
+                    <li>✅ İşletme Adı</li>
+                    <li>✅ İşletme E-postası</li>
+                    <li>✅ İşletme Telefonu</li>
+                    <li>✅ Şifre (min 6 chars)</li>
+                    <li>✅ Vergi Numarası</li>
+                    <li>✅ Ruhsat Numarası</li>
+                    <li>✅ Sahip Adı Soyadı</li>
+                    <li>✅ TC Kimlik (11 digits)</li>
+                    <li>✅ Cep Telefonu</li>
+                    <li>✅ Şehir (dropdown)</li>
+                    <li>✅ İlçe</li>
+                    <li>✅ Adres Detayları</li>
+                    <li>✅ Terms Checkbox</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 10px;">
+            <h3 style="color: #1e40af;">🎯 Next Steps</h3>
+            <p style="font-size: 1.1em; color: #374151;">
+                1. Test the debug form above<br>
+                2. Report what you see in the debug output<br>
+                3. I'll fix any specific issues found
+            </p>
+            
+            <div style="margin-top: 20px;">
+                <a href="http://localhost/carwash_project/backend/auth/Car_Wash_Registration.php" target="_blank" 
+                   style="background: #dc2626; color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 1.2em;">
+                    🔍 Start Debugging Now!
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

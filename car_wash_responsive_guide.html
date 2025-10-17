@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Wash Dashboard - Responsive Design Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .device-frame {
+            border: 8px solid #333;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .screen {
+            background: white;
+            position: relative;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 667px;
+        }
+        .tablet-frame {
+            width: 768px;
+            height: 1024px;
+        }
+        .desktop-frame {
+            width: 1440px;
+            height: 900px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-700 min-h-screen p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-5xl font-bold text-white mb-4 text-center">
+            <i class="fas fa-mobile-alt mr-3"></i>
+            Car Wash Dashboard
+        </h1>
+        <h2 class="text-2xl text-gray-300 mb-12 text-center">Responsive Design Implementation Guide</h2>
+
+        <!-- Breakpoint Reference -->
+        <div class="bg-white rounded-xl shadow-2xl p-8 mb-12">
+            <h3 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-ruler-combined text-blue-600 mr-2"></i>
+                Responsive Breakpoints
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-lg">
+                    <div class="text-4xl mb-3">📱</div>
+                    <h4 class="text-xl font-bold mb-2">Mobile</h4>
+                    <p class="text-sm opacity-90 mb-3">< 768px</p>
+                    <ul class="text-xs space-y-1">
+                        <li>✓ Single column</li>
+                        <li>✓ Slide-out sidebar</li>
+                        <li>✓ Compact padding</li>
+                        <li>✓ Touch-optimized</li>
+                    </ul>
+                </div>
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-lg">
+                    <div class="text-4xl mb-3">📱</div>
+                    <h4 class="text-xl font-bold mb-2">Tablet</h4>
+                    <p class="text-sm opacity-90 mb-3">768px - 1023px</p>
+                    <ul class="text-xs space-y-1">
+                        <li>✓ 2-column grid</li>
+                        <li>✓ Wider sidebar</li>
+                        <li>✓ Medium padding</li>
+                        <li>✓ Hybrid layout</li>
+                    </ul>
+                </div>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-lg">
+                    <div class="text-4xl mb-3">💻</div>
+                    <h4 class="text-xl font-bold mb-2">Desktop</h4>
+                    <p class="text-sm opacity-90 mb-3">1024px - 1399px</p>
+                    <ul class="text-xs space-y-1">
+                        <li>✓ 4-column grid</li>
+                        <li>✓ Sticky sidebar</li>
+                        <li>✓ Full padding</li>
+                        <li>✓ Side-by-side</li>
+                    </ul>
+                </div>
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg">
+                    <div class="text-4xl mb-3">🖥️</div>
+                    <h4 class="text-xl font-bold mb-2">Large</h4>
+                    <p class="text-sm opacity-90 mb-3">≥ 1400px</p>
+                    <ul class="text-xs space-y-1">
+                        <li>✓ Max width 1400px</li>
+                        <li>✓ Optimized layout</li>
+                        <li>✓ Extra spacing</li>
+                        <li>✓ Best UX</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Layout -->
+        <div class="bg-white rounded-xl shadow-2xl p-8 mb-12">
+            <h3 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-mobile-alt text-red-600 mr-2"></i>
+                Mobile Layout (< 768px)
+            </h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold text-gray-700 mb-4">Layout Structure</h4>
+                    <div class="bg-gray-50 p-6 rounded-lg border-2 border-gray-200">
+                        <div class="space-y-3">
+                            <div class="bg-gray-800 text-white p-3 rounded flex items-center justify-between">
+                                <span class="text-sm font-semibold">Header</span>
+                                <span class="text-xs opacity-75">65px</span>
+                            </div>
+                            <div class="bg-purple-600 text-white p-3 rounded flex items-center justify-between">
+                                <i class="fas fa-bars"></i>
+                                <span class="text-sm font-semibold">Menu Button</span>
+                                <span class="text-xs opacity-75">Floating</span>
+                            </div>
+                            <div class="bg-gray-100 p-4 rounded border-2 border-dashed border-gray-300">
+                                <p class="text-sm font-semibold text-gray-700 mb-3">Main Content</p>
+                                <div class="space-y-2">
+                                    <div class="bg-blue-100 p-2 rounded text-xs text-center">Card 1</div>
+                                    <div class="bg-blue-100 p-2 rounded text-xs text-center">Card 2</div>
+                                    <div class="bg-blue-100 p-2 rounded text-xs text-center">Card 3</div>
+                                    <div class="bg-blue-100 p-2 rounded text-xs text-center">Card 4</div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 text-white p-3 rounded flex items-center justify-between">
+                                <span class="text-sm font-semibold">Footer</span>
+                                <span class="text-xs opacity-75">Auto</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xl font-bold text-gray-700 mb-4">Slide-out Sidebar</h4>
+                    <div class="bg-gray-50 p-6 rounded-lg border-2 border-gray-200">
+                        <div class="flex gap-3">
+                            <div class="w-2/5 bg-gradient-to-b from-purple-600 to-purple-800 text-white p-4 rounded-lg">
+                                <div class="text-center mb-4">
+                                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full mx-auto mb-2 flex items-center justify-center">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <p class="text-xs font-bold">CarWash</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded text-xs">
+                                        <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                                    </div>
+                                    <div class="p-2 text-xs opacity-75">
+                                        <i class="fas fa-calendar mr-1"></i> Reserves
+                                    </div>
+                                    <div class="p-2 text-xs opacity-75">
+                                        <i class="fas fa-car-wash mr-1"></i> Services
+                                    </div>
+                                    <div class="p-2 text-xs opacity-75">
+                                        <i class="fas fa-users mr-1"></i> Customers
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="w-3/5 bg-gray-200 rounded p-2 flex items-center justify-center text-gray-500 text-sm">
+                                Main Content
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-600 mt-3 italic">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Sidebar slides in from left, overlay darkens background
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded">
+                    <h5 class="font-bold text-red-800 mb-2">
+                        <i class="fas fa-check-circle mr-2"></i>Features
+                    </h5>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• Hamburger menu</li>
+                        <li>• Slide-out sidebar</li>
+                        <li>• Single column</li>
+                        <li>• Compact spacing</li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded">
+                    <h5 class="font-bold text-red-800 mb-2">
+                        <i class="fas fa-paint-brush mr-2"></i>Styling
+                    </h5>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• Padding: 0.75rem</li>
+                        <li>• Sidebar: 280px</li>
+                        <li>• Grid gap: 0.75rem</li>
+                        <li>• Font: Reduced</li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded">
+                    <h5 class="font-bold text-red-800 mb-2">
+                        <i class="fas fa-mobile-alt mr-2"></i>Behavior
+                    </h5>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        <li>• Touch-optimized</li>
+                        <li>• Auto-close menu</li>
+                        <li>• Prevent scroll</li>
+                        <li>• Overlay click</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tablet Layout -->
+        <div class="bg-white rounded-xl shadow-2xl p-8 mb-12">
+            <h3 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-tablet-alt text-orange-600 mr-2"></i>
+                Tablet Layout (768px - 1023px)
+            </h3>
+            
+            <div class="bg-gray-50 p-6 rounded-lg border-2 border-gray-200">
+                <div class="space-y-3">
+                    <div class="bg-gray-800 text-white p-3 rounded">Header</div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-blue-100 p-4 rounded text-center">Card 1</div>
+                        <div class="bg-blue-100 p-4 rounded text-center">Card 2</div>
+                        <div class="bg-blue-100 p-4 rounded text-center">Card 3</div>
+                        <div class="bg-blue-100 p-4 rounded text-center">Card 4</div>
+                    </div>
+                    <div class="bg-green-100 p-6 rounded text-center">Content Section (Full Width)</div>
+                    <div class="bg-gray-800 text-white p-3 rounded">Footer</div>
+                </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-orange-50 border-l-4 border-orange-600 p-4 rounded">
+                    <h5 class="font-bold text-orange-800 mb-2">Grid Layout</h5>
+                    <ul class="text-sm text-orange-700 space-y-1">
+                        <li>• Stats: 2 columns</li>
+                        <li>• Content: 1 column</li>
+                        <li>• Gap: 1rem</li>
+                    </ul>
+                </div>
+                <div class="bg-orange-50 border-l-4 border-orange-600 p-4 rounded">
+                    <h5 class="font-bold text-orange-800 mb-2">Sidebar</h5>
+                    <ul class="text-sm text-orange-700 space-y-1">
+                        <li>• Width: 320px</li>
+                        <li>• Still slide-out</li>
+                        <li>• Touch-friendly</li>
+                    </ul>
+                </div>
+                <div class="bg-orange-50 border-l-4 border-orange-600 p-4 rounded">
+                    <h5 class="font-bold text-orange-800 mb-2">Spacing</h5>
+                    <ul class="text-sm text-orange-700 space-y-1">
+                        <li>• Padding: 1.5rem</li>
+                        <li>• Medium margins</li>
+                        <li>• Balanced layout</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Layout -->
+        <div class="bg-white rounded-xl shadow-2xl p-8 mb-12">
+            <h3 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-desktop text-green-600 mr-2"></i>
+                Desktop Layout (≥ 1024px)
+            </h3>
+            
+            <div class="bg-gray-50 p-6 rounded-lg border-2 border-gray-200">
+                <div class="space-y-3">
+                    <div class="bg-gray-800 text-white p-3 rounded flex justify-between items-center">
+                        <span>Header</span>
+                        <span class="text-xs bg-green-600 px-2 py-1 rounded">Toggle: ON/OFF</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="w-1/5 bg-gradient-to-b from-purple-600 to-purple-800 text-white p-4 rounded-lg">
+                            <div class="text-center mb-3">
+                                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full mx-auto mb-2"></div>
+                                <p class="text-xs font-bold">CarWash</p>
+                            </div>
+                            <div class="space-y-1 text-xs">
+                                <div class="bg-white bg-opacity-20 p-2 rounded">Dashboard</div>
+                                <div class="p-2 opacity-75">Reservations</div>
+                                <div class="p-2 opacity-75">Services</div>
+                                <div class="p-2 opacity-75">Customers</div>
+                                <div class="p-2 opacity-75">Staff</div>
+                                <div class="p-2 opacity-75">Reports</div>
+                                <div class="p-2 opacity-75">Settings</div>
+                            </div>
+                        </div>
+                        <div class="w-4/5 space-y-3">
+                            <div class="grid grid-cols-4 gap-2">
+                                <div class="bg-blue-100 p-3 rounded text-center text-xs">Card 1</div>
+                                <div class="bg-blue-100 p-3 rounded text-center text-xs">Card 2</div>
+                                <div class="bg-blue-100 p-3 rounded text-center text-xs">Card 3</div>
+                                <div class="bg-blue-100 p-3 rounded text-center text-xs">Card 4</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-green-100 p-4 rounded text-center text-xs">Section 1</div>
+                                <div class="bg-green-100 p-4 rounded text-center text-xs">Section 2</div>
+                            </div>
+                            <div class="bg-yellow-100 p-4 rounded text-center text-xs">Tables & Content</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 text-white p-3 rounded">Footer</div>
+                </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-green-50 border-l-4 border-green-600 p-4 rounded">
+                    <h5 class="font-bold text-green-800 mb-2">Layout</h5>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• Sticky sidebar</li>
+                        <li>• Side-by-side</li>
+                        <li>• Always visible</li>
+                    </ul>
+                </div>
+                <div class="bg-green-50 border-l-4 border-green-600 p-4 rounded">
+                    <h5 class="font-bold text-green-800 mb-2">Grid</h5>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• Stats: 4 columns</li>
+                        <li>• Content: 2 columns</li>
+                        <li>• Gap: 1.5rem</li>
+                    </ul>
+                </div>
+                <div class="bg-green-50 border-l-4 border-green-600 p-4 rounded">
+                    <h5 class="font-bold text-green-800 mb-2">Features</h5>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• No menu button</li>
+                        <li>• Hover effects</li>
+                        <li>• Full toggle</li>
+                    </ul>
+                </div>
+                <div class="bg-green-50 border-l-4 border-green-600 p-4 rounded">
+                    <h5 class="font-bold text-green-800 mb-2">Spacing</h5>
+                    <ul class="text-sm text-green-700 space-y-1">
+                        <li>• Padding: 2rem</li>
+                        <li>• Sidebar: 280px</li>
+                        <li>• Optimal UX</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Guide -->
+        <div class="bg-white rounded-xl shadow-2xl p-8">
+            <h3 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-clipboard-check text-blue-600 mr-2"></i>
+                Testing Checklist
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <h4 class="text-xl font-bold text-red-600 mb-4">📱 Mobile (< 768px)</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Menu button appears and works</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Sidebar slides smoothly</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Overlay darkens background</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Cards stack vertically</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Tables scroll horizontally</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>No horizontal overflow</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xl font-bold text-orange-600 mb-4">📱 Tablet (768-1023px)</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Menu button visible</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Stats show 2 columns</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Sidebar wider (320px)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Medium padding applied</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Navigation smooth</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Proper spacing</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xl font-bold text-green-600 mb-4">💻 Desktop (≥ 1024px)</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Sidebar always visible</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>No menu button</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Stats show 4 columns</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Sticky sidebar works</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Toggle label visible</span>
+                        </li>
+                        <li class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span>Hover effects active</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-white mt-12 pb-8">
+            <p class="text-lg font-semibold mb-2">Car Wash Dashboard - Responsive Design Implementation</p>
+            <p class="text-sm opacity-75">Date: October 17, 2025 | Status: ✅ Production Ready</p>
+        </div>
+    </div>
+</body>
+</html>

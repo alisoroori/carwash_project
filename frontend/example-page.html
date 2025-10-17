@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Example Page - CarWash</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Ensure body has proper padding for fixed header */
+    body {
+      padding-top: 64px;
+    }
+    
+    @media (min-width: 1024px) {
+      body {
+        padding-top: 72px;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- Include Header -->
+<div id="header-placeholder"></div>
+
+<!-- Main Content -->
+<main class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
+        Welcome to CarWash
+      </h1>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Professional car wash services with convenient online booking. 
+        Experience the difference with our modern facilities and expert care.
+      </p>
+    </div>
+    
+    <!-- Features Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+      <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-car text-2xl text-blue-600"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Exterior Wash</h3>
+        <p class="text-gray-600">Complete exterior cleaning with premium soaps and protective coatings.</p>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-sparkles text-2xl text-purple-600"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Interior Detail</h3>
+        <p class="text-gray-600">Thorough interior cleaning including vacuum, upholstery, and dashboard care.</p>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-shield-alt text-2xl text-green-600"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Paint Protection</h3>
+        <p class="text-gray-600">Advanced waxing and paint protection to keep your car looking new.</p>
+      </div>
+    </div>
+    
+    <!-- Call to Action -->
+    <div class="text-center">
+      <a href="booking.html" 
+         class="inline-flex items-center bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg">
+        <i class="fas fa-calendar-alt mr-2"></i>
+        Book Your Service
+      </a>
+    </div>
+    
+  </div>
+</main>
+
+<!-- Include Footer -->
+<div id="footer-placeholder"></div>
+
+<!-- Include JavaScript for Header/Footer -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Load header
+  fetch('header.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('header-placeholder').innerHTML = data;
+    })
+    .catch(error => console.error('Error loading header:', error));
+  
+  // Load footer
+  fetch('footer.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('footer-placeholder').innerHTML = data;
+    })
+    .catch(error => console.error('Error loading footer:', error));
+});
+</script>
+
+</body>
+</html>

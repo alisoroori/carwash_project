@@ -54,11 +54,11 @@ try {
     // Prepare query based on available columns
     if ($has_role_column) {
         // Use role column if it exists
-        $stmt = $conn->prepare("SELECT id, name, email, password, role FROM users WHERE email = ? AND role = ?");
+        $stmt = $conn->prepare("SELECT id, full_name, email, password, role FROM users WHERE email = ? AND role = ?");
         $stmt->execute([$email, $user_type]);
     } else {
         // Fallback: query without role column for backward compatibility
-        $stmt = $conn->prepare("SELECT id, name, email, password FROM users WHERE email = ?");
+        $stmt = $conn->prepare("SELECT id, full_name, email, password FROM users WHERE email = ?");
         $stmt->execute([$email]);
     }
 
@@ -93,7 +93,7 @@ try {
 
     // Successful login - Set session variables following CarWash project patterns
     $_SESSION['user_id'] = $user['id'];
-    $_SESSION['user_name'] = $user['name'];
+    $_SESSION['user_name'] = $user['full_name'];
     $_SESSION['user_email'] = $user['email'];
     $_SESSION['role'] = $user_role;
     $_SESSION['login_time'] = time();

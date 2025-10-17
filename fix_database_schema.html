@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Schema Fix - CarWash Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #dc2626;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .problem-box {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ef4444;
+        }
+        .solution-box {
+            background: #dcfce7;
+            color: #166534;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #22c55e;
+        }
+        .fix-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 10px;
+            margin: 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 1.1em;
+        }
+        .fix-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .step {
+            background: #f0f9ff;
+            color: #1e40af;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Database Schema Fix Required</h1>
+        
+        <div class="problem-box">
+            <h3>❌ Problem Identified</h3>
+            <p><strong>Database Error:</strong> <code>Column not found: 1054 Unknown column 'business_name' in 'where clause'</code></p>
+            <p><strong>Root Cause:</strong> The PHP registration code expects different table/column names than what exists in the database:</p>
+            <ul>
+                <li>PHP expects table: <code>carwashes</code> → Database has: <code>carwash</code></li>
+                <li>PHP expects column: <code>business_name</code> → Database has: <code>name</code></li>
+                <li>PHP expects many columns that don't exist in the current schema</li>
+            </ul>
+        </div>
+
+        <div class="solution-box">
+            <h3>✅ Solution</h3>
+            <p>I've prepared an automatic fix that will:</p>
+            <ol>
+                <li>Add missing columns to the <code>users</code> table (<code>username</code>, <code>full_name</code>)</li>
+                <li>Add all missing columns to the <code>carwash</code> table (tax_number, license_number, owner_name, etc.)</li>
+                <li>Fix the PHP code to use correct table and column names</li>
+                <li>Maintain data integrity with proper foreign keys</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>🎯 Choose Your Fix Method:</h3>
+            
+            <h4>Option 1: Automatic Fix (Recommended)</h4>
+            <p>Click the button below to automatically apply all database schema fixes:</p>
+            <a href="http://localhost/carwash_project/backend/auth/apply_schema_fix.php" target="_blank" class="fix-link">
+                🔧 Apply Automatic Fix
+            </a>
+            
+            <h4>Option 2: Manual Fix</h4>
+            <p>If you prefer to see what changes will be made first:</p>
+            <a href="http://localhost/carwash_project/backend/auth/check_and_fix_schema.php" target="_blank" class="fix-link">
+                🔍 Analyze & Get SQL Commands
+            </a>
+        </div>
+
+        <div style="background: #fef3c7; color: #92400e; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h3>📋 What the Fix Does:</h3>
+            <h4>Users Table Updates:</h4>
+            <ul>
+                <li>Adds <code>username</code> column (VARCHAR(50), UNIQUE)</li>
+                <li>Adds <code>full_name</code> column (VARCHAR(100))</li>
+                <li>Ensures <code>password</code> column exists</li>
+            </ul>
+            
+            <h4>Carwash Table Updates:</h4>
+            <ul>
+                <li>Adds <code>user_id</code> with foreign key to users table</li>
+                <li>Adds business details: <code>tax_number</code>, <code>license_number</code></li>
+                <li>Adds owner info: <code>owner_name</code>, <code>owner_id</code>, <code>owner_phone</code>, <code>birth_date</code></li>
+                <li>Adds location: <code>city</code>, <code>district</code></li>
+                <li>Adds pricing: <code>exterior_price</code>, <code>interior_price</code>, <code>detailing_price</code></li>
+                <li>Adds business details: <code>opening_time</code>, <code>closing_time</code>, <code>capacity</code>, <code>description</code></li>
+                <li>Adds file uploads: <code>profile_image</code>, <code>logo_image</code></li>
+                <li>Updates status values to include 'pending' and 'suspended'</li>
+            </ul>
+        </div>
+
+        <div style="background: #1e40af; color: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h3>⚡ After the Fix:</h3>
+            <p>Once you apply the schema fix:</p>
+            <ol>
+                <li>The registration form will work properly</li>
+                <li>All form data will be saved to the database</li>
+                <li>Users will be redirected to the welcome page</li>
+                <li>The welcome system with 20-second countdown will work</li>
+                <li>Auto-redirect to the appropriate dashboard will function</li>
+            </ol>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 10px;">
+            <h3 style="color: #1e40af;">🚀 Ready to Fix?</h3>
+            <p style="font-size: 1.1em; color: #374151;">The automatic fix is safe and will not delete any existing data.</p>
+            
+            <div style="margin-top: 20px;">
+                <a href="http://localhost/carwash_project/backend/auth/apply_schema_fix.php" target="_blank" 
+                   style="background: #dc2626; color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 1.2em;">
+                    🔧 Fix Database Now!
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

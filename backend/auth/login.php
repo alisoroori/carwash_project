@@ -30,17 +30,19 @@ $success_message = $_SESSION['success_message'] ?? '';
 // Clear session messages after retrieving them
 if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
 if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
-?>
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CarWash - Giriş Yap</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="../../frontend/css/style.css">
+// Set header configuration
+$page_title = 'CarWash - Giriş Yap';
+$show_login = false; // Don't show login button on login page
+$home_url = '../index.php';
+$about_url = '../index.php#about';
+$contact_url = '../index.php#contact';
+
+// Include header
+include '../includes/header.php';
+?>
+
+  <!-- Additional CSS for login page -->
   <style>
     /* CarWash project custom styles - Fixed positioning and colors */
     .gradient-bg {
@@ -77,10 +79,19 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
       cursor: pointer;
       z-index: 10;
       padding: 8px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
     }
 
     .password-toggle:hover {
       color: #667eea;
+      background-color: rgba(102, 126, 234, 0.1);
+    }
+
+    .password-toggle:focus {
+      outline: none;
+      color: #667eea;
+      background-color: rgba(102, 126, 234, 0.1);
     }
 
     /* Fixed button colors */
@@ -96,25 +107,29 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
     }
 
     .btn-customer {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
+      transition: all 0.3s ease;
     }
 
     .btn-customer:hover {
-      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-      transform: translateY(-1px);
+      background: linear-gradient(135deg, #5a6fd8 0%, #6b5b95 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
     }
 
     .btn-carwash {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
+      transition: all 0.3s ease;
     }
 
     .btn-carwash:hover {
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
-      transform: translateY(-1px);
+      background: linear-gradient(135deg, #5a6fd8 0%, #6b5b95 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
     }
 
     /* Animation fixes */
@@ -142,38 +157,78 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
       background-size: 16px;
       padding-right: 40px;
     }
+
+    /* Responsive improvements */
+    @media (max-width: 640px) {
+      .login-container {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+      
+      .input-field, .select-field {
+        padding: 0.875rem 1rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      .password-toggle {
+        right: 10px;
+        padding: 6px;
+      }
+      
+      .btn-primary {
+        padding: 1rem;
+        font-size: 1rem;
+      }
+    }
+
+    /* Enhanced hover effects for better user experience */
+    .input-field:hover {
+      border-color: #d1d5db;
+    }
+
+    .select-field:hover {
+      border-color: #d1d5db;
+    }
+
+    /* Better focus states for accessibility */
+    .input-field:focus,
+    .select-field:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Remember Me checkbox styling */
+    input[type="checkbox"] {
+      width: 1.125rem;
+      height: 1.125rem;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    input[type="checkbox"]:focus {
+      outline: 2px solid #667eea;
+      outline-offset: 2px;
+    }
+
+    label[for="remember_me"] {
+      cursor: pointer;
+      user-select: none;
+    }
   </style>
-</head>
-
-<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-
-  <!-- Header following CarWash project structure -->
-  <header class="bg-white shadow-lg">
-    <div class="container mx-auto px-4 py-3">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-          <i class="fas fa-car text-2xl text-blue-600"></i>
-          <h1 class="text-xl font-bold text-blue-600">CarWash</h1>
-        </div>
-        <a href="../../frontend/homes.html" class="text-gray-600 hover:text-blue-600 transition-colors">
-          <i class="fas fa-home mr-2"></i>Ana Sayfa
-        </a>
-      </div>
-    </div>
-  </header>
 
   <!-- Main Login Container -->
-  <div class="flex items-center justify-center min-h-screen p-4 pt-20">
-    <div class="w-full max-w-md">
-      <div class="login-container rounded-2xl shadow-2xl p-8 animate-fade-in-up">
+  <div class="flex items-center justify-center min-h-screen p-4 pt-24">
+    <div class="w-full max-w-md mx-auto">
+      <div class="login-container rounded-2xl shadow-2xl p-6 sm:p-8 animate-fade-in-up">
 
         <!-- Login Header -->
-        <div class="text-center mb-8">
-          <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-sign-in-alt text-3xl text-white"></i>
+        <div class="text-center mb-6 sm:mb-8">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-sign-in-alt text-2xl sm:text-3xl text-white"></i>
           </div>
-          <h1 class="text-3xl font-bold text-gray-800 mb-2">Giriş Yap</h1>
-          <p class="text-gray-600">Hesabınıza giriş yaparak hizmetlerimizden yararlanın</p>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Giriş Yap</h1>
+          <p class="text-sm sm:text-base text-gray-600 px-2">Hesabınıza giriş yaparak hizmetlerimizden yararlanın</p>
         </div>
 
         <!-- Success Message Display -->
@@ -198,6 +253,19 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
 
         <!-- Login Form - File-based routing to process file -->
         <form action="login_process.php" method="POST" class="space-y-6">
+
+          <!-- User Type Selection - Moved to top -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+              <i class="fas fa-user-tag mr-2 text-blue-600"></i>Hesap Türü
+            </label>
+            <select name="user_type" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none">
+              <option value="">Hesap türünüzü seçin</option>
+              <option value="customer">Müşteri</option>
+              <option value="carwash">Araç Yıkama İşletmesi</option>
+              <option value="admin">Yönetici</option>
+            </select>
+          </div>
 
           <!-- Email Field -->
           <div>
@@ -224,7 +292,7 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
                 id="password"
                 placeholder="Şifrenizi girin"
                 required
-                class="input-field w-full px-4 py-3 rounded-lg focus:outline-none pr-12">
+                class="input-field w-full px-4 py-3 pr-12 rounded-lg focus:outline-none">
               <button
                 type="button"
                 onclick="togglePassword()"
@@ -234,26 +302,13 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
             </div>
           </div>
 
-          <!-- User Type Selection -->
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-user-tag mr-2 text-blue-600"></i>Hesap Türü
-            </label>
-            <select name="user_type" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none">
-              <option value="">Hesap türünüzü seçin</option>
-              <option value="customer">Müşteri</option>
-              <option value="carwash">Araç Yıkama İşletmesi</option>
-              <option value="admin">Yönetici</option>
-            </select>
-          </div>
-
           <!-- Remember Me -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <input type="checkbox" name="remember_me" id="remember_me" class="mr-2 text-blue-600 focus:ring-blue-500 rounded">
-              <label for="remember_me" class="text-sm text-gray-600">Beni hatırla</label>
+          <div class="flex items-center justify-between flex-wrap gap-2 sm:gap-0">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" name="remember_me" id="remember_me" class="text-blue-600 focus:ring-blue-500 rounded flex-shrink-0">
+              <label for="remember_me" class="text-sm text-gray-600 whitespace-nowrap">Beni Hatırla</label>
             </div>
-            <a href="forgot_password.php" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">
+            <a href="forget_password.php" class="text-sm text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap">
               Şifremi unuttum
             </a>
           </div>
@@ -267,17 +322,17 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
         </form>
 
         <!-- Registration Links -->
-        <div class="mt-8 text-center space-y-4">
-          <p class="text-gray-600">Hesabınız yok mu?</p>
+        <div class="mt-6 sm:mt-8 text-center space-y-4">
+          <p class="text-sm sm:text-base text-gray-600">Hesabınız yok mu?</p>
 
           <div class="space-y-3">
             <a href="Customer_Registration.php"
-              class="btn-customer block w-full py-3 px-4 rounded-lg transition-all duration-300 font-semibold">
+              class="btn-customer block w-full py-3 px-4 rounded-lg transition-all duration-300 font-semibold text-sm sm:text-base">
               <i class="fas fa-user-plus mr-2"></i>Müşteri Kaydı
             </a>
 
             <a href="Car_Wash_Registration.php"
-              class="btn-carwash block w-full py-3 px-4 rounded-lg transition-all duration-300 font-semibold">
+              class="btn-carwash block w-full py-3 px-4 rounded-lg transition-all duration-300 font-semibold text-sm sm:text-base">
               <i class="fas fa-store mr-2"></i>İşletme Kaydı
             </a>
           </div>
@@ -286,9 +341,8 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
     </div>
   </div>
 
-  <script src="../../frontend/js/main.js"></script>
   <script>
-    // Password toggle function - Fixed positioning
+    // Password toggle function - Fixed positioning and improved accessibility
     function togglePassword() {
       const passwordInput = document.getElementById('password');
       const toggleIcon = document.getElementById('passwordToggle');
@@ -297,14 +351,16 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
         passwordInput.type = 'text';
         toggleIcon.classList.remove('fa-eye');
         toggleIcon.classList.add('fa-eye-slash');
+        toggleIcon.setAttribute('aria-label', 'Şifreyi gizle');
       } else {
         passwordInput.type = 'password';
         toggleIcon.classList.remove('fa-eye-slash');
         toggleIcon.classList.add('fa-eye');
+        toggleIcon.setAttribute('aria-label', 'Şifreyi göster');
       }
     }
 
-    // Enhanced focus animations for input fields
+    // Enhanced focus animations for input fields with mobile optimization
     document.querySelectorAll('.input-field').forEach(input => {
       input.addEventListener('focus', function() {
         this.style.borderColor = '#667eea';
@@ -317,20 +373,72 @@ if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
         this.style.boxShadow = 'none';
         this.style.transform = 'translateY(0)';
       });
+
+      // Hover effects only for non-touch devices
+      if (!('ontouchstart' in window)) {
+        input.addEventListener('mouseenter', function() {
+          if (this !== document.activeElement) {
+            this.style.borderColor = '#d1d5db';
+          }
+        });
+
+        input.addEventListener('mouseleave', function() {
+          if (this !== document.activeElement) {
+            this.style.borderColor = '#e5e7eb';
+          }
+        });
+      }
     });
 
-    // Button hover effects
+    // Button hover effects with touch optimization
     document.querySelectorAll('.btn-primary, .btn-customer, .btn-carwash').forEach(button => {
-      button.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-2px)';
+      if (!('ontouchstart' in window)) {
+        button.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-2px)';
+        });
+
+        button.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+        });
+      }
+
+      // Touch feedback for mobile
+      button.addEventListener('touchstart', function() {
+        this.style.transform = 'translateY(-1px)';
       });
 
-      button.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
+      button.addEventListener('touchend', function() {
+        setTimeout(() => {
+          this.style.transform = 'translateY(0)';
+        }, 150);
       });
+    });
+
+    // Form validation enhancement
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const email = document.querySelector('input[name="email"]').value;
+      const password = document.querySelector('input[name="password"]').value;
+      const userType = document.querySelector('select[name="user_type"]').value;
+
+      if (!email || !password || !userType) {
+        e.preventDefault();
+        alert('Lütfen tüm alanları doldurun.');
+        return false;
+      }
+
+      // Add loading state to submit button
+      const submitButton = this.querySelector('button[type="submit"]');
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Giriş yapılıyor...';
+      submitButton.disabled = true;
+    });
+
+    // Auto-focus first empty field
+    window.addEventListener('load', function() {
+      const userType = document.querySelector('select[name="user_type"]');
+      if (userType.value === '') {
+        userType.focus();
+      }
     });
   </script>
 
-</body>
-
-</html>
+<?php include '../includes/footer.php'; ?>

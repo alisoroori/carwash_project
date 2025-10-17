@@ -6,12 +6,12 @@
  * Following project conventions for file-based routing and modular structure
  */
 
-// Database credentials - using port 3307 as specified
+// Database credentials - using standard XAMPP port 3306
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'carwash_db');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_PORT', '3307');
+define('DB_PORT', '3306');
 define('DB_CHARSET', 'utf8mb4');
 
 /**

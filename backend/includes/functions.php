@@ -197,8 +197,24 @@ function userRegister($data) {
     // English: Hash the password.
     $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
-    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, created_at) VALUES (?, ?, ?, ?, NOW())");
-    $result = $stmt->execute([$data['name'], $data['email'], $hashedPassword, $data['role']]);
+    // Generate unique username from email
+    $username = strtolower(explode('@', $data['email'])[0]);
+    $base_username = $username;
+    $counter = 1;
+    
+    // Check if username exists and modify if needed
+    while (true) {
+        $check_stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
+        $check_stmt->execute([$username]);
+        if (!$check_stmt->fetch()) {
+            break; // Username is available
+        }
+        $username = $base_username . $counter;
+        $counter++;
+    }
+
+    $stmt = $pdo->prepare("INSERT INTO users (username, full_name, email, password, role, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+    $result = $stmt->execute([$username, $data['name'], $data['email'], $hashedPassword, $data['role']]);
 
     if ($result) {
         return true;

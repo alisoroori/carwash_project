@@ -1,149 +1,195 @@
 <?php
-// Farsça: این فایل شامل کدهای HTML، CSS و PHP صفحه مدیریت ادمین است.
-// Türkçe: Bu dosya, yönetici panelinin HTML, CSS ve PHP kodlarını içermektedir.
-// English: This file contains the HTML, CSS, and PHP code for the admin panel.
+/**
+ * Admin Panel for CarWash Web Application
+ * Uses the universal dashboard header/footer system with admin context
+ */
 
-// Farsça: در اینجا می‌توانید کدهای PHP را اضافه کنید که قبل از رندر شدن HTML اجرا می‌شوند.
-// Türkçe: Buraya HTML oluşturulmadan önce çalışacak PHP kodlarını ekleyebilirsiniz.
-// English: You can add PHP code here that executes before the HTML is rendered.
+// Start session
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-// مثال: بررسی اینکه کاربر لاگین کرده است یا خیر
-// Example: Check if the user is logged in
-// Örnek: Kullanıcının giriş yapıp yapmadığını kontrol etme
-// session_start();
-// if (!isset($_SESSION['admin_logged_in'])) {
-//     header('Location: login.php');
-//     exit();
-// }
+// Check if user is logged in and has admin role
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../auth/login.php');
+    exit();
+}
 
-// مثال: دریافت داده‌ها از دیتابیس
-// Example: Fetching data from a database
-// Örnek: Veritabanından veri çekme
-// $total_carwashes = 24; // فرض کنید از دیتابیس می‌آید
-// $registered_users = 158; // فرض کنید از دیتابیس می‌آید
-// $today_bookings = 89; // فرض کنید از دیتابیس می‌آید
-// $monthly_revenue = '15,240'; // فرض کنید از دیتابیس می‌آید
+// Set page-specific variables for the dashboard header
+$dashboard_type = 'admin';  // Specify this is the admin dashboard
+$page_title = 'Yönetici Paneli - CarWash';
+$current_page = 'dashboard';
+
+// Include the universal dashboard header
+include '../includes/dashboard_header.php';
 ?>
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yönetici Paneli - Otopark Yönetim Sistemi</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* Reset and base styles */
-        /* Farsça: بازنشانی و استایل‌های پایه. */
-        /* Türkçe: Sıfırlama ve temel stiller. */
-        /* English: Reset and base styles. */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+
+<!-- Dashboard Specific Styles -->
+<style>
+    /* Admin Panel Specific Styles */
+    
+    /* Global Page Layout - Remove all gaps */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+        height: 100%;
+    }
+    
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden;
+        min-height: 100vh;
+    }
+    
+    /* Dashboard-specific overrides only - Universal fixes included via header */
+    
+        /* Ensure header is fixed to top with no gap */
+        .dashboard-header {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            z-index: 1000 !important;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
+        /* Dashboard Container - Full height, connected to header and footer seamlessly */
+        .dashboard-wrapper {
+            display: flex;
+            min-height: 100vh;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: 70px;
+            background: #f8fafc;
+            position: relative;
         }
-
-        /* Header Styles */
-        /* Farsça: استایل‌های سربرگ. */
-        /* Türkçe: Başlık Stilleri. */
-        /* English: Header Styles. */
-        .admin-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        
+        /* Mobile Menu Toggle Button */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+        
+        .mobile-menu-toggle i {
+            font-size: 1.5rem;
+        }
+        
+        .mobile-menu-toggle.active {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        /* Adjust FAB position on mobile to avoid footer overlap */
+        @media (max-width: 767px) {
+            .mobile-menu-toggle {
+                bottom: 80px;
+            }
+        }
+        
+        /* Mobile Overlay */
+        .mobile-overlay {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            z-index: 1000;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
+        
+        .mobile-overlay.active {
+            display: block;
+            opacity: 1;
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo i {
-            font-size: 1.8rem;
-            color: #ffd700;
-        }
-
-        .logo h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .admin-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* Admin Container */
-        /* Farsça: کانتینر ادمین. */
-        /* Türkçe: Yönetici Konteyneri. */
-        /* English: Admin Container. */
-        .admin-container {
-            display: flex;
-            margin-top: 80px;
-            min-height: calc(100vh - 80px);
-        }
-
+        
         /* Sidebar Styles */
         /* Farsça: استایل‌های نوار کناری. */
         /* Türkçe: Kenar Çubuğu Stilleri. */
         /* English: Sidebar Styles. */
         .sidebar {
-            width: 250px;
-            background: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            position: fixed;
+            width: 280px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+            position: relative;
             left: 0;
-            top: 80px;
-            bottom: 0;
             overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 30;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Mobile Sidebar - Slide from left */
+        .sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+        
+        .sidebar.mobile-visible {
+            transform: translateX(0);
+        }
+        
+        /* Smooth scrollbar for sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-menu {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .nav-menu ul {
             list-style: none;
             padding: 1rem 0;
+            margin: 0;
         }
 
         .nav-item {
             margin: 0;
+            width: 100%;
         }
 
         .nav-link {
@@ -151,40 +197,95 @@
             align-items: center;
             gap: 12px;
             padding: 15px 25px;
-            color: #666;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            border-radius: 0.75rem;
+            margin: 0.25rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: white;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
         }
 
         .nav-link:hover {
-            background: #f8f9fa;
-            color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(4px);
+        }
+        
+        .nav-link:hover::before {
+            transform: scaleY(1);
         }
 
         .nav-item.active .nav-link {
-            background: linear-gradient(135deg, #667eea20, #764ba220);
-            color: #667eea;
-            border-left-color: #667eea;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             font-weight: 500;
+        }
+        
+        .nav-item.active .nav-link::before {
+            transform: scaleY(1);
         }
 
         .nav-link i {
             font-size: 1.1rem;
             width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .nav-link span {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        /* Main Content */
-        /* Farsça: محتوای اصلی. */
-        /* Türkçe: Ana İçerik. */
-        /* English: Main Content. */
+        /* Main Content - Seamlessly connected and full height */
         .main-content {
             flex: 1;
-            margin-left: 250px;
             padding: 2rem;
-            background: #f5f7fa;
+            background: #f8fafc;
+            margin-bottom: 0 !important;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Remove footer top margin for seamless connection */
+        footer {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        
+        /* Ensure footer parent wrapper has no gap */
+        body > footer,
+        main + footer {
+            margin-top: 0 !important;
+        }
+        
+        /* Override Tailwind mt-16 class on footer */
+        footer.mt-16 {
+            margin-top: 0 !important;
+        }
+        
+        /* Override any Tailwind margin utilities */
+        .mt-16, .mt-12, .mt-8 {
+            margin-top: 0 !important;
+        }
+
+        /* Content Section */
         .content-section {
             display: none;
         }
@@ -202,17 +303,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .section-header h2 {
             color: #333;
             font-size: 1.8rem;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+        
+        .section-header h2 i {
+            font-size: 1.6rem;
         }
 
         .section-header p {
             color: #666;
             margin-top: 5px;
+            margin-bottom: 0;
+        }
+        
+        .section-header > div {
+            flex: 1;
         }
 
         .add-btn {
@@ -658,96 +773,507 @@
             transform: translateY(-2px);
         }
 
-        /* Responsive Design */
-        /* Farsça: طراحی واکنش‌گرا. */
-        /* Türkçe: Duyarlı Tasarım. */
-        /* English: Responsive Design. */
-        @media (max-width: 768px) {
+        /* Responsive Design - Mobile First Approach */
+        
+        /* Extra Small Devices (Phones, less than 576px) */
+        @media (max-width: 575px) {
+            .dashboard-wrapper {
+                flex-direction: column;
+                margin-top: 0;
+                padding-top: 60px;
+                min-height: 100vh;
+            }
+            
             .sidebar {
                 width: 100%;
-                position: static;
-                height: auto;
+                position: fixed;
+                height: 100vh;
+                border-radius: 0;
+                top: 0;
+                left: 0;
+                z-index: 1001;
+            }
+            
+            .sidebar.mobile-hidden {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-visible {
+                transform: translateX(0);
+            }
+            
+            .nav-menu ul {
+                padding: 0.5rem 0;
+            }
+            
+            .nav-link {
+                padding: 14px 20px;
+                font-size: 0.9rem;
+                margin: 0.2rem 0.75rem;
+                min-height: 48px;
+            }
+            
+            .nav-link i {
+                font-size: 1.1rem;
+                width: 22px;
+            }
+            
+            .nav-link span {
+                font-size: 0.95rem;
             }
             
             .main-content {
-                margin-left: 0;
-                padding: 1rem;
+                padding: 1rem 0.75rem;
+                min-height: calc(100vh - 60px);
             }
             
-            .admin-container {
-                flex-direction: column;
+            /* Ensure footer is fully responsive on mobile */
+            footer {
+                padding: 2rem 1rem !important;
             }
             
-            .header-content {
-                padding: 0 1rem;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .filters {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .table-container {
-                overflow-x: auto;
+            footer .container {
+                padding: 0 !important;
             }
             
             .section-header {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .logo h1 {
-                font-size: 1.2rem;
+                padding: 1.25rem;
             }
             
-            .admin-info span {
-                display: none;
+            .section-header > div {
+                width: 100%;
             }
             
-            .data-table {
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .section-header h2 i {
+                font-size: 1.4rem;
+            }
+            
+            .section-header p {
+                font-size: 0.85rem;
+            }
+            
+            .add-btn {
+                padding: 10px 18px;
+                font-size: 0.875rem;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1.25rem;
+            }
+            
+            .stat-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.25rem;
+            }
+            
+            .stat-info h3 {
+                font-size: 1.5rem;
+            }
+            
+            .stat-info p {
                 font-size: 0.8rem;
             }
             
+            .activity-section {
+                padding: 1.25rem;
+            }
+            
+            .activity-section h3 {
+                font-size: 1.1rem;
+            }
+            
+            .activity-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0.875rem;
+                gap: 0.5rem;
+            }
+            
+            .activity-item time {
+                font-size: 0.75rem;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            
+            .search-input {
+                max-width: 100%;
+            }
+            
+            .filter-select {
+                min-width: 100%;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .data-table {
+                font-size: 0.75rem;
+                min-width: 600px;
+            }
+            
             .data-table th, .data-table td {
-                padding: 10px 8px;
+                padding: 8px 6px;
+                white-space: nowrap;
+            }
+            
+            .status-badge, .type-badge {
+                padding: 4px 8px;
+                font-size: 0.7rem;
+            }
+            
+            .action-btn {
+                padding: 6px;
+                font-size: 0.8rem;
+            }
+            
+            .reports-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .report-card {
+                padding: 1.25rem;
+            }
+            
+            .report-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .settings-form {
+                padding: 1.25rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .modal-header {
+                padding: 1rem;
+            }
+            
+            .modal-header h3 {
+                font-size: 1.1rem;
+            }
+            
+            .modal-body {
+                padding: 1.25rem;
+            }
+        }
+        
+        /* Small Devices (Landscape Phones, 576px and up) */
+        @media (min-width: 576px) and (max-width: 767px) {
+            .dashboard-wrapper {
+                flex-direction: column;
+                margin-top: 0;
+                padding-top: 65px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                height: 100vh;
+                top: 0;
+                left: 0;
+                z-index: 1001;
+            }
+            
+            .sidebar.mobile-hidden {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-visible {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                padding: 1.25rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+            }
+            
+            .filters {
+                flex-wrap: wrap;
+            }
+            
+            .search-input {
+                flex: 1;
+                min-width: 200px;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .data-table {
+                font-size: 0.85rem;
+            }
+            
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Medium Devices (Tablets, 768px and up) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .dashboard-wrapper {
+                flex-direction: column;
+                margin-top: 0;
+                padding-top: 70px;
+                min-height: 100vh;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                height: 100vh;
+                top: 0;
+                left: 0;
+                z-index: 1001;
+                display: flex;
+            }
+            
+            .sidebar.mobile-hidden {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-visible {
+                transform: translateX(0);
+            }
+            
+            .nav-menu {
+                width: 100%;
+            }
+            
+            .nav-menu ul {
+                display: flex;
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .nav-item {
+                width: 100%;
+            }
+            
+            .nav-link {
+                padding: 14px 24px;
+                margin: 0.3rem 0.5rem;
+                font-size: 1rem;
+                min-height: 50px;
+            }
+            
+            .nav-link i {
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                padding: 1.5rem;
+                min-height: calc(100vh - 70px);
+            }
+            
+            /* Responsive footer on tablets */
+            footer {
+                padding: 2.5rem 1.5rem !important;
+            }
+            
+            .section-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .filters {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .reports-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Large Devices (Desktops, 1024px and up) */
+        @media (min-width: 1024px) {
+            .dashboard-wrapper {
+                flex-direction: row;
+            }
+            
+            .sidebar {
+                width: 280px;
+                position: relative;
+                transform: translateX(0) !important;
+            }
+            
+            .sidebar.mobile-hidden,
+            .sidebar.mobile-visible {
+                transform: translateX(0) !important;
+            }
+            
+            .mobile-menu-toggle {
+                display: none !important;
+            }
+            
+            .mobile-overlay {
+                display: none !important;
+            }
+            
+            .main-content {
+                padding: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            
+            .reports-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+        
+        /* Extra Large Devices (Large Desktops, 1200px and up) */
+        @media (min-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .main-content {
+                max-width: 1400px;
+            }
+        }
+        
+        /* Ultra Wide Screens (1600px and up) */
+        @media (min-width: 1600px) {
+            .dashboard-wrapper {
+                max-width: 1800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+        
+        /* Landscape Orientation for Mobile Devices */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .sidebar {
+                position: static;
+                height: auto;
+            }
+            
+            .nav-menu ul {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            
+            .nav-item {
+                flex: 0 0 auto;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 0;
+            }
+            
+            .section-header {
+                break-inside: avoid;
+            }
+            
+            .add-btn {
+                display: none;
+            }
+            
+            .action-btn {
+                display: none;
+            }
+        }
+        
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-link {
+                padding: 14px 20px;
+                min-height: 44px;
+            }
+            
+            .action-btn {
+                padding: 10px;
+                min-width: 44px;
+                min-height: 44px;
+            }
+            
+            .add-btn {
+                min-height: 44px;
+            }
+            
+            .stat-card {
+                cursor: default;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Admin Header -->
-    <!-- Farsça: این بخش سربرگ ادمین را شامل می‌شود. -->
-    <!-- Türkçe: Bu bölüm yönetici başlığını içerir. -->
-    <!-- English: This section includes the admin header. -->
-    <header class="admin-header">
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-car-wash"></i>
-                <h1>Otopark Yönetimi</h1>
-            </div>
-            <div class="admin-info">
-                <span>Hoş geldin, Admin</span>
-                <button class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Çıkış Yap
-                </button>
-            </div>
-        </div>
-    </header>
 
-    <div class="admin-container">
-        <!-- Sidebar Navigation -->
-        <!-- Farsça: نوار کناری ناوبری. -->
-        <!-- Türkçe: Kenar çubuğu navigasyonu. -->
-        <!-- English: Sidebar Navigation. -->
-        <aside class="sidebar">
+<!-- Mobile Menu Toggle Button -->
+<button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()">
+    <i class="fas fa-bars" id="menuIcon"></i>
+</button>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
+<!-- Dashboard Wrapper Container -->
+<div class="dashboard-wrapper">
+    <!-- Sidebar Navigation - Sticky Position -->
+    <!-- Farsça: نوار کناری ناوبری - موقعیت چسبنده. -->
+    <!-- Türkçe: Kenar çubuğu navigasyonu - Yapışkan Konum. -->
+    <!-- English: Sidebar Navigation - Sticky Position. -->
+    <aside class="sidebar" id="sidebar">
             <nav class="nav-menu">
                 <ul>
                     <li class="nav-item active">
@@ -758,7 +1284,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="#carwashes" class="nav-link" data-section="carwashes">
-                            <i class="fas fa-car-wash"></i>
+                            <i class="fas fa-parking"></i>
                             <span>Otopark Yönetimi</span>
                         </a>
                     </li>
@@ -788,13 +1314,13 @@
                     </li>
                 </ul>
             </nav>
-        </aside>
+    </aside>
 
-        <!-- Main Content -->
-        <!-- Farsça: محتوای اصلی. -->
-        <!-- Türkçe: Ana İçerik. -->
-        <!-- English: Main Content. -->
-        <main class="main-content">
+    <!-- Main Content -->
+    <!-- Farsça: محتوای اصلی. -->
+    <!-- Türkçe: Ana İçerik. -->
+    <!-- English: Main Content. -->
+    <main class="main-content">
             <!-- Dashboard Section -->
             <!-- Farsça: بخش داشبورد. -->
             <!-- Türkçe: Gösterge Paneli Bölümü. -->
@@ -880,7 +1406,13 @@
             <!-- English: Car Washes Management Section. -->
             <section id="carwashes" class="content-section">
                 <div class="section-header">
-                    <h2>Otopark Yönetimi</h2>
+                    <div>
+                        <h2>
+                            <i class="fas fa-parking" style="color: #667eea; margin-right: 12px;"></i>
+                            Otopark Yönetimi
+                        </h2>
+                        <p>Otopark işletmelerini yönetin</p>
+                    </div>
                     <button class="add-btn" id="addCarwashBtn">
                         <i class="fas fa-plus"></i>
                         Yeni Otopark Ekle
@@ -1201,11 +1733,11 @@
                     <button class="save-btn">Ayarları Kaydet</button>
                 </div>
             </section>
-        </main>
-    </div>
+    </main>
+</div>
 
-    <!-- Modals -->
-    <!-- Add Car Wash Modal -->
+<!-- Modals -->
+<!-- Add Car Wash Modal -->
     <!-- Farsça: مودال افزودن کارواش. -->
     <!-- Türkçe: Otopark Ekle Modalı. -->
     <!-- English: Add Car Wash Modal. -->
@@ -1248,6 +1780,71 @@
     </div>
 
     <script>
+        // Mobile Menu Toggle Functions
+        // Farsça: توابع تغییر منوی موبایل.
+        // Türkçe: Mobil Menü Geçiş Fonksiyonları.
+        // English: Mobile Menu Toggle Functions.
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            const menuIcon = document.getElementById('menuIcon');
+            const toggleBtn = document.getElementById('mobileMenuToggle');
+            
+            if (sidebar.classList.contains('mobile-visible')) {
+                closeMobileMenu();
+            } else {
+                sidebar.classList.remove('mobile-hidden');
+                sidebar.classList.add('mobile-visible');
+                overlay.classList.add('active');
+                menuIcon.classList.remove('fa-bars');
+                menuIcon.classList.add('fa-times');
+                toggleBtn.classList.add('active');
+            }
+        }
+        
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            const menuIcon = document.getElementById('menuIcon');
+            const toggleBtn = document.getElementById('mobileMenuToggle');
+            
+            sidebar.classList.remove('mobile-visible');
+            sidebar.classList.add('mobile-hidden');
+            overlay.classList.remove('active');
+            menuIcon.classList.remove('fa-times');
+            menuIcon.classList.add('fa-bars');
+            toggleBtn.classList.remove('active');
+        }
+        
+        // Show/hide mobile menu button based on screen size
+        function checkScreenSize() {
+            const toggleBtn = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            if (window.innerWidth < 1024) {
+                // Mobile/Tablet: Show FAB, hide sidebar by default
+                toggleBtn.style.display = 'flex';
+                toggleBtn.style.alignItems = 'center';
+                toggleBtn.style.justifyContent = 'center';
+                
+                // Only add mobile-hidden if not already visible
+                if (!sidebar.classList.contains('mobile-visible')) {
+                    sidebar.classList.add('mobile-hidden');
+                }
+            } else {
+                // Desktop: Hide FAB, always show sidebar
+                toggleBtn.style.display = 'none';
+                sidebar.classList.remove('mobile-hidden');
+                sidebar.classList.remove('mobile-visible');
+                overlay.classList.remove('active');
+            }
+        }
+        
+        // Run on load and resize
+        window.addEventListener('load', checkScreenSize);
+        window.addEventListener('resize', checkScreenSize);
+        
         // Navigation functionality
         // Farsça: عملکرد ناوبری.
         // Türkçe: Navigasyon işlevselliği.
@@ -1275,6 +1872,11 @@
                 // English: Show corresponding section.
                 const sectionId = this.getAttribute('data-section');
                 document.getElementById(sectionId).classList.add('active');
+                
+                // Close mobile menu after selection
+                if (window.innerWidth < 1024) {
+                    closeMobileMenu();
+                }
             });
         });
 
@@ -1326,5 +1928,10 @@
             console.log('Searching for:', this.value);
         });
     </script>
+
+<?php
+// Include the universal footer
+include '../includes/footer.php';
+?>
 </body>
 </html>
