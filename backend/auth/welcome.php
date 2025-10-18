@@ -18,8 +18,8 @@ unset($_SESSION['registration_success']);
 
 // Determine dashboard URL based on role
 $dashboard_url = match($user_role) {
-    'admin' => '../dashboard/admin_dashboard.php',
-    'carwash' => '../dashboard/Car_Wash_Dashboard.php',
+    'admin' => '../dashboard/admin_panel.php',
+    'carwash', 'car_wash' => '../dashboard/Car_Wash_Dashboard.php',
     'customer' => '../dashboard/Customer_Dashboard.php',
     default => '../dashboard/Customer_Dashboard.php'
 };

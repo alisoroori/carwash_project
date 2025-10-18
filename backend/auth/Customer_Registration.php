@@ -323,6 +323,28 @@ include '../includes/header.php';
   ::-webkit-scrollbar-thumb:hover {
     background: #764ba2;
   }
+
+  /* Footer override to ensure 4 columns display correctly */
+  footer .grid {
+    display: grid !important;
+  }
+
+  @media (min-width: 1024px) {
+    footer .grid.lg\:grid-cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    footer .grid.md\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+  }
+
+  /* Ensure footer sections don't have conflicting styles */
+  footer .lg\:col-span-1 {
+    grid-column: span 1 / span 1;
+  }
 </style>
 
 <!-- Registration Form -->

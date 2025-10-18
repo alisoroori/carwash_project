@@ -1276,36 +1276,103 @@ include '../includes/dashboard_header.php';
     <aside class="sidebar" id="sidebar">
             <nav class="nav-menu">
                 <ul>
+                    <!-- Dashboard -->
                     <li class="nav-item active">
                         <a href="#dashboard" class="nav-link" data-section="dashboard">
                             <i class="fas fa-tachometer-alt"></i>
-                            <span>Gösterge Paneli</span>
+                            <span>Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#carwashes" class="nav-link" data-section="carwashes">
-                            <i class="fas fa-parking"></i>
-                            <span>Otopark Yönetimi</span>
-                        </a>
-                    </li>
+                    
+                    <!-- User Management -->
                     <li class="nav-item">
                         <a href="#users" class="nav-link" data-section="users">
                             <i class="fas fa-users"></i>
                             <span>Kullanıcı Yönetimi</span>
                         </a>
                     </li>
+                    
+                    <!-- Order Management -->
                     <li class="nav-item">
-                        <a href="#bookings" class="nav-link" data-section="bookings">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Rezervasyonlar</span>
+                        <a href="#orders" class="nav-link" data-section="orders">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Sipariş Yönetimi</span>
                         </a>
                     </li>
+                    
+                    <!-- Payment Management -->
+                    <li class="nav-item">
+                        <a href="#payments" class="nav-link" data-section="payments">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Ödeme Yönetimi</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Car Wash Management -->
+                    <li class="nav-item">
+                        <a href="#carwashes" class="nav-link" data-section="carwashes">
+                            <i class="fas fa-car-wash"></i>
+                            <span>Otopark Yönetimi</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Service Management -->
+                    <li class="nav-item">
+                        <a href="#services" class="nav-link" data-section="services">
+                            <i class="fas fa-concierge-bell"></i>
+                            <span>Hizmet Yönetimi</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Support Center -->
+                    <li class="nav-item">
+                        <a href="#support" class="nav-link" data-section="support">
+                            <i class="fas fa-headset"></i>
+                            <span>Destek Merkezi</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Reviews & Ratings -->
+                    <li class="nav-item">
+                        <a href="#reviews" class="nav-link" data-section="reviews">
+                            <i class="fas fa-star"></i>
+                            <span>Yorumlar & Puanlar</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Reports -->
                     <li class="nav-item">
                         <a href="#reports" class="nav-link" data-section="reports">
                             <i class="fas fa-chart-bar"></i>
                             <span>Raporlar</span>
                         </a>
                     </li>
+                    
+                    <!-- Notifications -->
+                    <li class="nav-item">
+                        <a href="#notifications" class="nav-link" data-section="notifications">
+                            <i class="fas fa-bell"></i>
+                            <span>Bildirimler</span>
+                        </a>
+                    </li>
+                    
+                    <!-- CMS -->
+                    <li class="nav-item">
+                        <a href="#cms" class="nav-link" data-section="cms">
+                            <i class="fas fa-file-alt"></i>
+                            <span>İçerik Yönetimi</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Security & Logs -->
+                    <li class="nav-item">
+                        <a href="#security" class="nav-link" data-section="security">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Güvenlik & Loglar</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Settings -->
                     <li class="nav-item">
                         <a href="#settings" class="nav-link" data-section="settings">
                             <i class="fas fa-cog"></i>
@@ -1322,79 +1389,97 @@ include '../includes/dashboard_header.php';
     <!-- English: Main Content. -->
     <main class="main-content">
             <!-- Dashboard Section -->
-            <!-- Farsça: بخش داشبورد. -->
-            <!-- Türkçe: Gösterge Paneli Bölümü. -->
-            <!-- English: Dashboard Section. -->
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
-                    <h2>Gösterge Paneli</h2>
-                    <p>Sistem genel bakış ve istatistikler</p>
+                    <div>
+                        <h2><i class="fas fa-tachometer-alt" style="color: #667eea; margin-right: 12px;"></i>Dashboard</h2>
+                        <p>Sistem genel bakış ve istatistikler</p>
+                    </div>
                 </div>
                 
-                <!-- Stats Cards -->
-                <!-- Farsça: کارت‌های آمار. -->
-                <!-- Türkçe: İstatistik Kartları. -->
-                <!-- English: Stats Cards. -->
+                <!-- Key Stats Cards -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-car-wash"></i>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
+                            <i class="fas fa-shopping-cart" style="color: #667eea;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>156</h3>
+                            <p>Toplam Siparişler</p>
+                            <small class="text-green-600"><i class="fas fa-arrow-up"></i> +12% bu ay</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
+                            <i class="fas fa-spinner" style="color: #28a745;"></i>
                         </div>
                         <div class="stat-info">
                             <h3>24</h3>
-                            <p>Toplam Otopark</p>
+                            <p>Devam Eden Siparişler</p>
+                            <small class="text-blue-600"><i class="fas fa-clock"></i> Gerçek zamanlı</small>
                         </div>
                     </div>
+                    
                     <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-users"></i>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #dc354520, #c8233320);">
+                            <i class="fas fa-times-circle" style="color: #dc3545;"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>158</h3>
-                            <p>Kayıtlı Kullanıcı</p>
+                            <h3>8</h3>
+                            <p>İptal Edilen</p>
+                            <small class="text-red-600"><i class="fas fa-arrow-down"></i> -3% bu ay</small>
                         </div>
                     </div>
+                    
                     <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-calendar-check"></i>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #ff663320);">
+                            <i class="fas fa-lira-sign" style="color: #ffc107;"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>89</h3>
-                            <p>Bugünkü Rezervasyonlar</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>₺15,240</h3>
-                            <p>Aylık Gelir</p>
+                            <h3>₺45,680</h3>
+                            <p>Günlük Gelir</p>
+                            <small class="text-green-600"><i class="fas fa-arrow-up"></i> +25% dün</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
-                <!-- Farsça: فعالیت‌های اخیر. -->
-                <!-- Türkçe: Son Aktiviteler. -->
-                <!-- English: Recent Activity. -->
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="activity-section">
+                        <h3><i class="fas fa-chart-line mr-2"></i>Gelir Trendi (Son 7 Gün)</h3>
+                        <canvas id="revenueChart" style="max-height: 300px;"></canvas>
+                    </div>
+                    
+                    <div class="activity-section">
+                        <h3><i class="fas fa-users mr-2"></i>Aktif Kullanıcılar</h3>
+                        <canvas id="usersChart" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Notifications -->
                 <div class="activity-section">
-                    <h3>Son Aktiviteler</h3>
+                    <h3><i class="fas fa-bell mr-2"></i>Son Bildirimler</h3>
                     <div class="activity-list">
-                        <div class="activity-item">
-                            <i class="fas fa-plus-circle"></i>
-                            <span>Yeni otopark eklendi: "Merkez Otopark"</span>
+                        <div class="activity-item" style="border-left-color: #28a745;">
+                            <i class="fas fa-shopping-cart" style="color: #28a745;"></i>
+                            <span><strong>Yeni Sipariş:</strong> Ahmet Yılmaz - Tam Detaylandırma</span>
+                            <time>5 dakika önce</time>
+                        </div>
+                        <div class="activity-item" style="border-left-color: #dc3545;">
+                            <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                            <span><strong>Ödeme Hatası:</strong> Kart işlemi başarısız - Sipariş #1245</span>
+                            <time>15 dakika önce</time>
+                        </div>
+                        <div class="activity-item" style="border-left-color: #667eea;">
+                            <i class="fas fa-headset" style="color: #667eea;"></i>
+                            <span><strong>Destek Talebi:</strong> Elif Kara - Sipariş takibi sorunu</span>
+                            <time>1 saat önce</time>
+                        </div>
+                        <div class="activity-item" style="border-left-color: #ffc107;">
+                            <i class="fas fa-star" style="color: #ffc107;"></i>
+                            <span><strong>Yeni Yorum:</strong> 5 yıldız - "Harika hizmet!"</span>
                             <time>2 saat önce</time>
-                        </div>
-                        <div class="activity-item">
-                            <i class="fas fa-user-plus"></i>
-                            <span>Yeni kullanıcı kaydı: Ahmet Yılmaz</span>
-                            <time>4 saat önce</time>
-                        </div>
-                        <div class="activity-item">
-                            <i class="fas fa-edit"></i>
-                            <span>"Şehir Otopark" bilgileri güncellendi</span>
-                            <time>1 gün önce</time>
                         </div>
                     </div>
                 </div>
@@ -1510,6 +1595,443 @@ include '../includes/dashboard_header.php';
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <!-- Orders Management Section -->
+            <section id="orders" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fas fa-shopping-cart" style="color: #667eea; margin-right: 12px;"></i>Sipariş Yönetimi</h2>
+                        <p>Tüm siparişleri görüntüle ve yönet</p>
+                    </div>
+                    <button class="add-btn">
+                        <i class="fas fa-file-export"></i>
+                        Raporları Dışa Aktar
+                    </button>
+                </div>
+
+                <!-- Order Filters -->
+                <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <input type="text" id="orderSearch" placeholder="Sipariş No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    
+                    <select id="orderStatusFilter" class="filter-select">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="pending">Beklemede</option>
+                        <option value="in-progress">Devam Ediyor</option>
+                        <option value="completed">Tamamlandı</option>
+                        <option value="cancelled">İptal Edildi</option>
+                    </select>
+                    
+                    <select id="orderServiceFilter" class="filter-select">
+                        <option value="">Tüm Hizmetler</option>
+                        <option value="wash">Dış Yıkama</option>
+                        <option value="interior">İç Temizlik</option>
+                        <option value="detail">Tam Detaylandırma</option>
+                        <option value="wax">Cilalama</option>
+                    </select>
+                    
+                    <input type="date" id="orderDateFrom" class="filter-select" placeholder="Başlangıç Tarihi">
+                    <input type="date" id="orderDateTo" class="filter-select" placeholder="Bitiş Tarihi">
+                    
+                    <button class="add-btn" style="padding: 10px 20px;">
+                        <i class="fas fa-filter"></i> Filtrele
+                    </button>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Sipariş No</th>
+                                <th>Müşteri</th>
+                                <th>Otopark</th>
+                                <th>Hizmet</th>
+                                <th>Tutar</th>
+                                <th>Durum</th>
+                                <th>Tarih</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#ORD-1245</strong></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-user-circle" style="color: #667eea; font-size: 20px;"></i>
+                                        <div>
+                                            <div><strong>Ahmet Yılmaz</strong></div>
+                                            <small style="color: #64748b;">ahmet@email.com</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Merkez Otopark</td>
+                                <td><span class="type-badge" style="background: #28a74520; color: #28a745;">Tam Detaylandırma</span></td>
+                                <td><strong>₺350</strong></td>
+                                <td><span class="status-badge" style="background: #ffc10720; color: #ff8c00; border: 1px solid #ffc107;">Devam Ediyor</span></td>
+                                <td>17 Eki 2025, 14:30</td>
+                                <td>
+                                    <button class="action-btn view-btn" onclick="viewOrder('1245')" title="Detayları Görüntüle">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn" onclick="updateOrderStatus('1245')" title="Durum Güncelle">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;" onclick="printInvoice('1245')" title="Fatura Yazdır">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#ORD-1244</strong></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-user-circle" style="color: #667eea; font-size: 20px;"></i>
+                                        <div>
+                                            <div><strong>Elif Kara</strong></div>
+                                            <small style="color: #64748b;">elif@email.com</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Kadıköy Otopark</td>
+                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;">İç Temizlik</span></td>
+                                <td><strong>₺200</strong></td>
+                                <td><span class="status-badge active">Tamamlandı</span></td>
+                                <td>17 Eki 2025, 12:15</td>
+                                <td>
+                                    <button class="action-btn view-btn" onclick="viewOrder('1244')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn" onclick="updateOrderStatus('1244')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;" onclick="printInvoice('1244')">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#ORD-1243</strong></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-user-circle" style="color: #667eea; font-size: 20px;"></i>
+                                        <div>
+                                            <div><strong>Mehmet Demir</strong></div>
+                                            <small style="color: #64748b;">mehmet@email.com</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Beşiktaş Otopark</td>
+                                <td><span class="type-badge" style="background: #dc354520; color: #dc3545;">Dış Yıkama</span></td>
+                                <td><strong>₺150</strong></td>
+                                <td><span class="status-badge inactive">İptal Edildi</span></td>
+                                <td>16 Eki 2025, 18:45</td>
+                                <td>
+                                    <button class="action-btn view-btn" onclick="viewOrder('1243')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="deleteOrder('1243')" title="Sil">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;" onclick="printInvoice('1243')">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#ORD-1242</strong></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-user-circle" style="color: #667eea; font-size: 20px;"></i>
+                                        <div>
+                                            <div><strong>Zeynep Öztürk</strong></div>
+                                            <small style="color: #64748b;">zeynep@email.com</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Şişli Otopark</td>
+                                <td><span class="type-badge" style="background: #ffc10720; color: #ff8c00;">Cilalama</span></td>
+                                <td><strong>₺280</strong></td>
+                                <td><span class="status-badge pending">Beklemede</span></td>
+                                <td>17 Eki 2025, 16:00</td>
+                                <td>
+                                    <button class="action-btn view-btn" onclick="viewOrder('1242')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn" onclick="updateOrderStatus('1242')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;" onclick="printInvoice('1242')">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding: 16px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="color: #64748b;">
+                        <strong>156</strong> siparişten <strong>1-10</strong> arası gösteriliyor
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn" style="padding: 8px 12px;"><i class="fas fa-chevron-left"></i></button>
+                        <button class="action-btn" style="padding: 8px 16px; background: #667eea; color: white;">1</button>
+                        <button class="action-btn" style="padding: 8px 16px;">2</button>
+                        <button class="action-btn" style="padding: 8px 16px;">3</button>
+                        <button class="action-btn" style="padding: 8px 16px;">...</button>
+                        <button class="action-btn" style="padding: 8px 16px;">16</button>
+                        <button class="action-btn" style="padding: 8px 12px;"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Payment Management Section -->
+            <section id="payments" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fas fa-credit-card" style="color: #28a745; margin-right: 12px;"></i>Ödeme Yönetimi</h2>
+                        <p>Tüm ödeme işlemlerini görüntüle ve yönet</p>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="add-btn" style="background: #28a745;">
+                            <i class="fas fa-file-excel"></i>
+                            Excel İndir
+                        </button>
+                        <button class="add-btn" style="background: #dc3545;">
+                            <i class="fas fa-file-pdf"></i>
+                            PDF İndir
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Payment Stats Cards -->
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₺128,450</h3>
+                            <p>Başarılı Ödemeler</p>
+                            <small class="text-green-600">132 işlem</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #ff663320);">
+                            <i class="fas fa-clock" style="color: #ffc107;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₺12,300</h3>
+                            <p>Bekleyen Ödemeler</p>
+                            <small class="text-yellow-600">8 işlem</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #dc354520, #c8233320);">
+                            <i class="fas fa-times-circle" style="color: #dc3545;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₺4,820</h3>
+                            <p>Başarısız Ödemeler</p>
+                            <small class="text-red-600">12 işlem</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
+                            <i class="fas fa-wallet" style="color: #667eea;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₺8,540</h3>
+                            <p>Ödenmesi Gereken</p>
+                            <small class="text-blue-600">Otopark ödemeleri</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Filters -->
+                <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <input type="text" id="paymentSearch" placeholder="İşlem No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    
+                    <select id="paymentTypeFilter" class="filter-select">
+                        <option value="">Tüm Ödeme Tipleri</option>
+                        <option value="online">Online (Kart)</option>
+                        <option value="cash">Nakit</option>
+                        <option value="bank">Banka Transferi</option>
+                    </select>
+                    
+                    <select id="paymentStatusFilter" class="filter-select">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="success">Başarılı</option>
+                        <option value="pending">Beklemede</option>
+                        <option value="failed">Başarısız</option>
+                        <option value="refunded">İade Edildi</option>
+                    </select>
+                    
+                    <input type="date" id="paymentDateFrom" class="filter-select">
+                    <input type="date" id="paymentDateTo" class="filter-select">
+                    
+                    <button class="add-btn">
+                        <i class="fas fa-filter"></i> Filtrele
+                    </button>
+                </div>
+
+                <!-- Payments Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>İşlem No</th>
+                                <th>Sipariş</th>
+                                <th>Müşteri</th>
+                                <th>Tutar</th>
+                                <th>Ödeme Tipi</th>
+                                <th>Durum</th>
+                                <th>Tarih</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#PAY-8821</strong></td>
+                                <td><a href="#" style="color: #667eea;">#ORD-1245</a></td>
+                                <td>
+                                    <div>
+                                        <strong>Ahmet Yılmaz</strong><br>
+                                        <small style="color: #64748b;">ahmet@email.com</small>
+                                    </div>
+                                </td>
+                                <td><strong style="color: #28a745;">₺350</strong></td>
+                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;"><i class="fas fa-credit-card"></i> Online</span></td>
+                                <td><span class="status-badge active"><i class="fas fa-check"></i> Başarılı</span></td>
+                                <td>17 Eki 2025, 14:35</td>
+                                <td>
+                                    <button class="action-btn view-btn" title="Detayları Gör">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;" title="Fatura">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#PAY-8820</strong></td>
+                                <td><a href="#" style="color: #667eea;">#ORD-1244</a></td>
+                                <td>
+                                    <div>
+                                        <strong>Elif Kara</strong><br>
+                                        <small style="color: #64748b;">elif@email.com</small>
+                                    </div>
+                                </td>
+                                <td><strong style="color: #28a745;">₺200</strong></td>
+                                <td><span class="type-badge" style="background: #28a74520; color: #28a745;"><i class="fas fa-money-bill-wave"></i> Nakit</span></td>
+                                <td><span class="status-badge active"><i class="fas fa-check"></i> Başarılı</span></td>
+                                <td>17 Eki 2025, 12:20</td>
+                                <td>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#PAY-8819</strong></td>
+                                <td><a href="#" style="color: #667eea;">#ORD-1243</a></td>
+                                <td>
+                                    <div>
+                                        <strong>Mehmet Demir</strong><br>
+                                        <small style="color: #64748b;">mehmet@email.com</small>
+                                    </div>
+                                </td>
+                                <td><strong style="color: #dc3545;">₺150</strong></td>
+                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;"><i class="fas fa-credit-card"></i> Online</span></td>
+                                <td><span class="status-badge inactive"><i class="fas fa-times"></i> Başarısız</span></td>
+                                <td>16 Eki 2025, 18:50</td>
+                                <td>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn" title="Tekrar Dene">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#PAY-8818</strong></td>
+                                <td><a href="#" style="color: #667eea;">#ORD-1242</a></td>
+                                <td>
+                                    <div>
+                                        <strong>Zeynep Öztürk</strong><br>
+                                        <small style="color: #64748b;">zeynep@email.com</small>
+                                    </div>
+                                </td>
+                                <td><strong style="color: #ffc107;">₺280</strong></td>
+                                <td><span class="type-badge" style="background: #17a2b820; color: #17a2b8;"><i class="fas fa-university"></i> Banka</span></td>
+                                <td><span class="status-badge pending"><i class="fas fa-clock"></i> Beklemede</span></td>
+                                <td>17 Eki 2025, 16:05</td>
+                                <td>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn" title="Onayla">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Settlement Section -->
+                <div style="margin-top: 32px;">
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-hand-holding-usd mr-2"></i>Otopark Ödemeleri (Tasfiye)</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Otopark</th>
+                                    <th>Toplam Gelir</th>
+                                    <th>Komisyon (%15)</th>
+                                    <th>Ödenecek Tutar</th>
+                                    <th>Durum</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Merkez Otopark</strong></td>
+                                    <td>₺8,500</td>
+                                    <td>-₺1,275</td>
+                                    <td><strong style="color: #28a745;">₺7,225</strong></td>
+                                    <td><span class="status-badge pending">Ödeme Bekliyor</span></td>
+                                    <td>
+                                        <button class="add-btn" style="padding: 8px 16px; font-size: 14px;">
+                                            <i class="fas fa-money-check-alt"></i> Öde
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Kadıköy Otopark</strong></td>
+                                    <td>₺5,200</td>
+                                    <td>-₺780</td>
+                                    <td><strong style="color: #28a745;">₺4,420</strong></td>
+                                    <td><span class="status-badge active">Ödendi</span></td>
+                                    <td>
+                                        <button class="action-btn view-btn">
+                                            <i class="fas fa-receipt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
@@ -1927,6 +2449,107 @@ include '../includes/dashboard_header.php';
             // English: Implement search functionality.
             console.log('Searching for:', this.value);
         });
+    </script>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Dashboard Charts Initialization -->
+    <script>
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart');
+        if (revenueCtx) {
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                    datasets: [{
+                        label: 'Günlük Gelir (₺)',
+                        data: [35000, 42000, 38000, 45000, 52000, 48000, 45680],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₺' + context.parsed.y.toLocaleString('tr-TR');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₺' + (value/1000) + 'K';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Users Chart
+        const usersCtx = document.getElementById('usersChart');
+        if (usersCtx) {
+            new Chart(usersCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Müşteriler', 'Otopark Sahipleri', 'Sürücüler'],
+                    datasets: [{
+                        label: 'Kullanıcı Dağılımı',
+                        data: [158, 24, 45],
+                        backgroundColor: [
+                            '#667eea',
+                            '#28a745',
+                            '#ffc107'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     </script>
 
 <?php

@@ -11,9 +11,10 @@ if (isset($_SESSION['user_id'])) {
   // Redirect based on role following project dashboard structure
   switch ($_SESSION['role']) {
     case 'admin':
-      header('Location: ../dashboard/admin_dashboard.php');
+      header('Location: ../dashboard/admin_panel.php');
       break;
     case 'carwash':
+    case 'car_wash':
       header('Location: ../dashboard/Car_Wash_Dashboard.php');
       break;
     case 'customer':

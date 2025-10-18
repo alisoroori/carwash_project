@@ -112,13 +112,13 @@ $current_year = date('Y');
           </li>
           <li>
             <span class="text-gray-300 flex items-center">
-              <i class="fas fa-vacuum w-4 mr-2 text-green-400"></i>
+              <i class="fas fa-broom w-4 mr-2 text-green-400"></i>
               İç Temizlik
             </span>
           </li>
           <li>
             <span class="text-gray-300 flex items-center">
-              <i class="fas fa-car-side w-4 mr-2 text-purple-400"></i>
+              <i class="fas fa-star w-4 mr-2 text-purple-400"></i>
               Tam Detaylandırma
             </span>
           </li>

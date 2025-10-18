@@ -3,11 +3,11 @@ session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
 
-// Check admin access
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-    header('Location: ../../auth/login.php');
-    exit();
-}
+// Check admin access using auth_check functions
+requireRole('admin');
+
+// Get current user info
+$currentUser = getCurrentUser();
 ?>
 
 <!DOCTYPE html>
@@ -30,17 +30,29 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
         <div class="bg-white w-64 shadow-lg">
             <div class="p-4 border-b">
                 <h1 class="text-xl font-bold">CarWash Admin</h1>
+                <?php if ($currentUser): ?>
+                <p class="text-sm text-gray-600 mt-2">
+                    <i class="fas fa-user-shield mr-1"></i>
+                    <?php echo htmlspecialchars($currentUser['full_name'] ?? $currentUser['user_name'] ?? 'Admin'); ?>
+                </p>
+                <?php endif; ?>
             </div>
             <nav class="p-4">
-                <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50 active">
+                <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50 bg-blue-50 text-blue-600 font-medium mb-2">
                     <i class="fas fa-chart-line mr-2"></i> Genel Bakış
                 </a>
-                <a href="reports.php" class="block py-2 px-4 rounded hover:bg-blue-50">
+                <a href="reports.php" class="block py-2 px-4 rounded hover:bg-blue-50 mb-2">
                     <i class="fas fa-file-alt mr-2"></i> Raporlar
                 </a>
-                <a href="analytics.php" class="block py-2 px-4 rounded hover:bg-blue-50">
+                <a href="analytics.php" class="block py-2 px-4 rounded hover:bg-blue-50 mb-2">
                     <i class="fas fa-chart-bar mr-2"></i> Analizler
                 </a>
+                
+                <div class="border-t mt-4 pt-4">
+                    <a href="../../auth/logout.php" class="block py-2 px-4 rounded hover:bg-red-50 text-red-600">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap
+                    </a>
+                </div>
             </nav>
         </div>
 

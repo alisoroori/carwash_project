@@ -64,7 +64,7 @@ $logout_url = $base_url . '/backend/includes/logout.php';
 
 // Build role-specific dashboard URLs
 $customer_dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
-$admin_dashboard_url = $base_url . '/backend/dashboard/admin_dashboard.php';
+$admin_dashboard_url = $base_url . '/backend/dashboard/admin_panel.php';
 $carwash_dashboard_url = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
 
 // Set current dashboard URL based on role
