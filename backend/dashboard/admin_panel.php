@@ -1311,7 +1311,7 @@ include '../includes/dashboard_header.php';
                     <!-- Car Wash Management -->
                     <li class="nav-item">
                         <a href="#carwashes" class="nav-link" data-section="carwashes">
-                            <i class="fas fa-car-wash"></i>
+                            <i class="fas fa-warehouse"></i>
                             <span>Otopark Yönetimi</span>
                         </a>
                     </li>
@@ -1526,69 +1526,123 @@ include '../includes/dashboard_header.php';
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Otopark Adı</th>
-                                <th>Konum</th>
-                                <th>Kapasite</th>
-                                <th>Fiyat</th>
-                                <th>Durum</th>
-                                <th>İşlemler</th>
+                                <th><i class="fas fa-hashtag mr-1"></i>ID</th>
+                                <th><i class="fas fa-building mr-1"></i>Otopark Adı</th>
+                                <th><i class="fas fa-map-marker-alt mr-1"></i>Konum</th>
+                                <th><i class="fas fa-car mr-1"></i>Kapasite</th>
+                                <th><i class="fas fa-money-bill-wave mr-1"></i>Fiyat</th>
+                                <th><i class="fas fa-toggle-on mr-1"></i>Durum</th>
+                                <th><i class="fas fa-cogs mr-1"></i>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>001</td>
-                                <td>Merkez Otopark</td>
-                                <td>Taksim, İstanbul</td>
-                                <td>50</td>
-                                <td>₺25/saat</td>
-                                <td><span class="status-badge active">Aktif</span></td>
+                                <td><strong>#001</strong></td>
                                 <td>
-                                    <button class="action-btn edit-btn">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-building" style="color: #667eea; font-size: 20px;"></i>
+                                        <div>
+                                            <strong>Merkez Otopark</strong><br>
+                                            <small style="color: #64748b;">Premium Tesis</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <i class="fas fa-map-marker-alt" style="color: #dc3545; margin-right: 6px;"></i>
+                                    Taksim, İstanbul
+                                </td>
+                                <td>
+                                    <span style="display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-car" style="color: #28a745;"></i>
+                                        <strong>50</strong> araç
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong style="color: #667eea; font-size: 1.05rem;">₺25</strong>/saat
+                                </td>
+                                <td><span class="status-badge active"><i class="fas fa-check-circle"></i> Aktif</span></td>
+                                <td>
+                                    <button class="action-btn edit-btn" title="Düzenle">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="action-btn delete-btn">
+                                    <button class="action-btn delete-btn" title="Sil">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                    <button class="action-btn view-btn">
+                                    <button class="action-btn view-btn" title="Detay">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </td>
                             </tr>
                             <tr>
-                                <td>002</td>
-                                <td>Şehir Otopark</td>
-                                <td>Kadıköy, İstanbul</td>
-                                <td>75</td>
-                                <td>₺30/saat</td>
-                                <td><span class="status-badge active">Aktif</span></td>
+                                <td><strong>#002</strong></td>
                                 <td>
-                                    <button class="action-btn edit-btn">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-warehouse" style="color: #28a745; font-size: 20px;"></i>
+                                        <div>
+                                            <strong>Şehir Otopark</strong><br>
+                                            <small style="color: #64748b;">Standart Tesis</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <i class="fas fa-map-marker-alt" style="color: #dc3545; margin-right: 6px;"></i>
+                                    Kadıköy, İstanbul
+                                </td>
+                                <td>
+                                    <span style="display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-car" style="color: #28a745;"></i>
+                                        <strong>75</strong> araç
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong style="color: #667eea; font-size: 1.05rem;">₺30</strong>/saat
+                                </td>
+                                <td><span class="status-badge active"><i class="fas fa-check-circle"></i> Aktif</span></td>
+                                <td>
+                                    <button class="action-btn edit-btn" title="Düzenle">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="action-btn delete-btn">
+                                    <button class="action-btn delete-btn" title="Sil">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                    <button class="action-btn view-btn">
+                                    <button class="action-btn view-btn" title="Detay">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </td>
                             </tr>
                             <tr>
-                                <td>003</td>
-                                <td>AVM Otopark</td>
-                                <td>Beşiktaş, İstanbul</td>
-                                <td>120</td>
-                                <td>₺20/saat</td>
-                                <td><span class="status-badge maintenance">Bakımda</span></td>
+                                <td><strong>#003</strong></td>
                                 <td>
-                                    <button class="action-btn edit-btn">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-store" style="color: #ffc107; font-size: 20px;"></i>
+                                        <div>
+                                            <strong>AVM Otopark</strong><br>
+                                            <small style="color: #64748b;">Alışveriş Merkezi</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <i class="fas fa-map-marker-alt" style="color: #dc3545; margin-right: 6px;"></i>
+                                    Beşiktaş, İstanbul
+                                </td>
+                                <td>
+                                    <span style="display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-car" style="color: #28a745;"></i>
+                                        <strong>120</strong> araç
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong style="color: #667eea; font-size: 1.05rem;">₺20</strong>/saat
+                                </td>
+                                <td><span class="status-badge maintenance"><i class="fas fa-tools"></i> Bakımda</span></td>
+                                <td>
+                                    <button class="action-btn edit-btn" title="Düzenle">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="action-btn delete-btn">
+                                    <button class="action-btn delete-btn" title="Sil">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                    <button class="action-btn view-btn">
+                                    <button class="action-btn view-btn" title="Detay">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </td>
@@ -2146,56 +2200,583 @@ include '../includes/dashboard_header.php';
                 </div>
             </section>
 
-            <!-- Bookings Section -->
-            <!-- Farsça: بخش رزروها. -->
-            <!-- Türkçe: Rezervasyonlar Bölümü. -->
-            <!-- English: Bookings Section. -->
-            <section id="bookings" class="content-section">
+            <!-- Service Management Section -->
+            <section id="services" class="content-section">
                 <div class="section-header">
-                    <h2>Rezervasyonlar</h2>
+                    <div>
+                        <h2><i class="fas fa-concierge-bell" style="color: #17a2b8; margin-right: 12px;"></i>Hizmet Yönetimi</h2>
+                        <p>Tüm hizmetleri yönet, fiyatlandır ve düzenle</p>
+                    </div>
+                    <button class="add-btn" id="addServiceBtn">
+                        <i class="fas fa-plus"></i>
+                        Yeni Hizmet Ekle
+                    </button>
                 </div>
 
-                <div class="filters">
-                    <input type="date" id="bookingDate" class="search-input">
-                    <select id="bookingStatus" class="filter-select">
-                        <option value="">Tüm Rezervasyonlar</option>
-                        <option value="confirmed">Onaylandı</option>
-                        <option value="pending">Beklemede</option>
-                        <option value="cancelled">İptal Edildi</option>
+                <!-- Service Filters -->
+                <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <input type="text" id="serviceSearch" placeholder="Hizmet Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    
+                    <select id="serviceCategoryFilter" class="filter-select">
+                        <option value="">Tüm Kategoriler</option>
+                        <option value="wash">Yıkama</option>
+                        <option value="detail">Detaylı Bakım</option>
+                        <option value="polish">Cilalama & Koruma</option>
+                        <option value="interior">İç Temizlik</option>
                     </select>
+                    
+                    <select id="serviceStatusFilter" class="filter-select">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="active">Aktif</option>
+                        <option value="inactive">Pasif</option>
+                    </select>
+                    
+                    <button class="add-btn">
+                        <i class="fas fa-filter"></i> Filtrele
+                    </button>
                 </div>
 
+                <!-- Services Table -->
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Rezervasyon ID</th>
-                                <th>Kullanıcı</th>
-                                <th>Otopark</th>
-                                <th>Tarih</th>
-                                <th>Saat</th>
+                                <th>ID</th>
+                                <th>Hizmet Adı</th>
+                                <th>Kategori</th>
+                                <th>Temel Fiyat</th>
                                 <th>Süre</th>
-                                <th>Tutar</th>
+                                <th>Araç Tipleri</th>
                                 <th>Durum</th>
+                                <th>Sıralama</th>
                                 <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>R001</td>
-                                <td>Ahmet Yılmaz</td>
-                                <td>Merkez Otopark</td>
-                                <td>2024-01-25</td>
-                                <td>14:30</td>
-                                <td>3 saat</td>
-                                <td>₺75</td>
-                                <td><span class="status-badge active">Onaylandı</span></td>
+                                <td><strong>#001</strong></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-car" style="color: #667eea; font-size: 20px;"></i>
+                                        <div>
+                                            <strong>Dış Yıkama</strong><br>
+                                            <small style="color: #64748b;">Basit dış temizlik</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;">Yıkama</span></td>
+                                <td><strong>₺150</strong></td>
+                                <td>30 dk</td>
+                                <td>
+                                    <small>Sedan: ₺150<br>SUV: ₺180<br>Kamyonet: ₺200</small>
+                                </td>
+                                <td><span class="status-badge active">Aktif</span></td>
+                                <td>1</td>
+                                <td>
+                                    <button class="action-btn edit-btn" onclick="editService(1)" title="Düzenle">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn view-btn" onclick="toggleServiceStatus(1)" title="Aktif/Pasif">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="deleteService(1)" title="Sil">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#002</strong></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-broom" style="color: #28a745; font-size: 20px;"></i>
+                                        <div>
+                                            <strong>İç Temizlik</strong><br>
+                                            <small style="color: #64748b;">Detaylı iç temizlik</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="type-badge" style="background: #28a74520; color: #28a745;">İç Temizlik</span></td>
+                                <td><strong>₺200</strong></td>
+                                <td>45 dk</td>
+                                <td>
+                                    <small>Sedan: ₺200<br>SUV: ₺250<br>Kamyonet: ₺300</small>
+                                </td>
+                                <td><span class="status-badge active">Aktif</span></td>
+                                <td>2</td>
+                                <td>
+                                    <button class="action-btn edit-btn" onclick="editService(2)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn view-btn" onclick="toggleServiceStatus(2)">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="deleteService(2)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#003</strong></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-star" style="color: #ffc107; font-size: 20px;"></i>
+                                        <div>
+                                            <strong>Tam Detaylandırma</strong><br>
+                                            <small style="color: #64748b;">Komple bakım paketi</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="type-badge" style="background: #ffc10720; color: #ff8c00;">Detaylı Bakım</span></td>
+                                <td><strong>₺350</strong></td>
+                                <td>90 dk</td>
+                                <td>
+                                    <small>Sedan: ₺350<br>SUV: ₺450<br>Kamyonet: ₺550</small>
+                                </td>
+                                <td><span class="status-badge active">Aktif</span></td>
+                                <td>3</td>
+                                <td>
+                                    <button class="action-btn edit-btn" onclick="editService(3)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn view-btn" onclick="toggleServiceStatus(3)">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="deleteService(3)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#004</strong></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-shield-alt" style="color: #dc3545; font-size: 20px;"></i>
+                                        <div>
+                                            <strong>Seramik Kaplama</strong><br>
+                                            <small style="color: #64748b;">Uzun ömürlü koruma</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="type-badge" style="background: #dc354520; color: #dc3545;">Cilalama & Koruma</span></td>
+                                <td><strong>₺850</strong></td>
+                                <td>180 dk</td>
+                                <td>
+                                    <small>Sedan: ₺850<br>SUV: ₺1.050<br>Kamyonet: ₺1.250</small>
+                                </td>
+                                <td><span class="status-badge inactive">Pasif</span></td>
+                                <td>4</td>
+                                <td>
+                                    <button class="action-btn edit-btn" onclick="editService(4)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn view-btn" onclick="toggleServiceStatus(4)">
+                                        <i class="fas fa-toggle-off"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="deleteService(4)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Support Center Section -->
+            <section id="support" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fas fa-headset" style="color: #fd7e14; margin-right: 12px;"></i>Destek Merkezi</h2>
+                        <p>Müşteri destek taleplerini yönet ve yanıtla</p>
+                    </div>
+                    <button class="add-btn" id="addTicketBtn" style="background: linear-gradient(135deg, #fd7e14, #dc3545);">
+                        <i class="fas fa-plus"></i>
+                        Yeni Talep Oluştur
+                    </button>
+                </div>
+
+                <!-- Support Stats -->
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #dc354520, #fd7e1420);">
+                            <i class="fas fa-exclamation-circle" style="color: #dc3545;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>8</h3>
+                            <p>Yeni Talepler</p>
+                            <small class="text-red-600">Yanıt gerekli</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #fd7e1420);">
+                            <i class="fas fa-clock" style="color: #ffc107;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>15</h3>
+                            <p>Devam Eden</p>
+                            <small class="text-yellow-600">İşlemde</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>142</h3>
+                            <p>Çözümlendi</p>
+                            <small class="text-green-600">Bu ay</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
+                            <i class="fas fa-user-clock" style="color: #667eea;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>2.5 saat</h3>
+                            <p>Ort. Yanıt Süresi</p>
+                            <small class="text-blue-600">Son 7 gün</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Filters -->
+                <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <input type="text" id="ticketSearch" placeholder="Talep No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    
+                    <select id="ticketStatusFilter" class="filter-select">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="new">Yeni</option>
+                        <option value="open">Açık</option>
+                        <option value="in_progress">Devam Ediyor</option>
+                        <option value="waiting_on_user">Kullanıcı Bekleniyor</option>
+                        <option value="resolved">Çözüldü</option>
+                        <option value="closed">Kapalı</option>
+                    </select>
+                    
+                    <select id="ticketPriorityFilter" class="filter-select">
+                        <option value="">Tüm Öncelikler</option>
+                        <option value="urgent">Acil</option>
+                        <option value="high">Yüksek</option>
+                        <option value="medium">Orta</option>
+                        <option value="low">Düşük</option>
+                    </select>
+                    
+                    <select id="ticketCategoryFilter" class="filter-select">
+                        <option value="">Tüm Kategoriler</option>
+                        <option value="technical">Teknik</option>
+                        <option value="billing">Fatura</option>
+                        <option value="service">Hizmet</option>
+                        <option value="complaint">Şikayet</option>
+                    </select>
+                    
+                    <button class="add-btn">
+                        <i class="fas fa-filter"></i> Filtrele
+                    </button>
+                </div>
+
+                <!-- Tickets Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Talep No</th>
+                                <th>Müşteri</th>
+                                <th>Konu</th>
+                                <th>Kategori</th>
+                                <th>Öncelik</th>
+                                <th>Durum</th>
+                                <th>Atanan</th>
+                                <th>Oluşturma</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#TKT-1023</strong></td>
+                                <td>
+                                    <div>
+                                        <strong>Elif Kara</strong><br>
+                                        <small style="color: #64748b;">elif@email.com</small>
+                                    </div>
+                                </td>
+                                <td>Ödeme alınamadı hatası</td>
+                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;">Teknik</span></td>
+                                <td><span class="status-badge" style="background: #dc354520; color: #dc3545; border: 1px solid #dc3545;">Acil</span></td>
+                                <td><span class="status-badge" style="background: #ffc10720; color: #ff8c00; border: 1px solid #ffc107;">Açık</span></td>
+                                <td>Ahmet Y.</td>
+                                <td>18 Eki 2025, 10:30</td>
+                                <td>
+                                    <button class="action-btn view-btn" title="Detay">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn" title="Yanıtla">
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;" title="Çöz">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#TKT-1022</strong></td>
+                                <td>
+                                    <div>
+                                        <strong>Mehmet Demir</strong><br>
+                                        <small style="color: #64748b;">mehmet@email.com</small>
+                                    </div>
+                                </td>
+                                <td>Hizmet kalitesi şikayeti</td>
+                                <td><span class="type-badge" style="background: #dc354520; color: #dc3545;">Şikayet</span></td>
+                                <td><span class="status-badge" style="background: #ffc10720; color: #ff8c00;">Yüksek</span></td>
+                                <td><span class="status-badge" style="background: #667eea20; color: #667eea;">Devam Ediyor</span></td>
+                                <td>Ayşe K.</td>
+                                <td>18 Eki 2025, 09:15</td>
                                 <td>
                                     <button class="action-btn view-btn">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="action-btn delete-btn">
+                                    <button class="action-btn edit-btn">
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#TKT-1021</strong></td>
+                                <td>
+                                    <div>
+                                        <strong>Zeynep Öztürk</strong><br>
+                                        <small style="color: #64748b;">zeynep@email.com</small>
+                                    </div>
+                                </td>
+                                <td>Randevu değişikliği talebi</td>
+                                <td><span class="type-badge" style="background: #28a74520; color: #28a745;">Hizmet</span></td>
+                                <td><span class="status-badge" style="background: #6c757d20; color: #6c757d;">Orta</span></td>
+                                <td><span class="status-badge active">Çözüldü</span></td>
+                                <td>Mehmet A.</td>
+                                <td>17 Eki 2025, 16:45</td>
+                                <td>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #dc354520; color: #dc3545;" title="Kapat">
+                                        <i class="fas fa-times-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reviews & Ratings Section -->
+            <section id="reviews" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fas fa-star" style="color: #ffc107; margin-right: 12px;"></i>Yorumlar & Puanlar</h2>
+                        <p>Müşteri yorumlarını yönet ve denetle</p>
+                    </div>
+                    <button class="add-btn" style="background: linear-gradient(135deg, #ffc107, #ff9800);">
+                        <i class="fas fa-file-export"></i>
+                        Raporları Dışa Aktar
+                    </button>
+                </div>
+
+                <!-- Review Stats -->
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #ff980020);">
+                            <i class="fas fa-star" style="color: #ffc107;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>4.8</h3>
+                            <p>Ortalama Puan</p>
+                            <small class="text-yellow-600">248 değerlendirme</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>186</h3>
+                            <p>Onaylanmış</p>
+                            <small class="text-green-600">Görüntüleniyor</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #fd7e1420);">
+                            <i class="fas fa-clock" style="color: #ffc107;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>12</h3>
+                            <p>Beklemede</p>
+                            <small class="text-orange-600">Moderasyon gerekli</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #dc354520, #c8233320);">
+                            <i class="fas fa-flag" style="color: #dc3545;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>5</h3>
+                            <p>Raporlanan</p>
+                            <small class="text-red-600">İnceleme gerekli</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Filters -->
+                <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <input type="text" id="reviewSearch" placeholder="Müşteri, Sipariş Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    
+                    <select id="reviewStatusFilter" class="filter-select">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="pending">Beklemede</option>
+                        <option value="approved">Onaylandı</option>
+                        <option value="rejected">Reddedildi</option>
+                        <option value="flagged">Raporlandı</option>
+                    </select>
+                    
+                    <select id="reviewRatingFilter" class="filter-select">
+                        <option value="">Tüm Puanlar</option>
+                        <option value="5">5 Yıldız</option>
+                        <option value="4">4 Yıldız</option>
+                        <option value="3">3 Yıldız</option>
+                        <option value="2">2 Yıldız</option>
+                        <option value="1">1 Yıldız</option>
+                    </select>
+                    
+                    <input type="date" id="reviewDateFrom" class="filter-select">
+                    
+                    <button class="add-btn">
+                        <i class="fas fa-filter"></i> Filtrele
+                    </button>
+                </div>
+
+                <!-- Reviews Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Müşteri</th>
+                                <th>Sipariş</th>
+                                <th>Puan</th>
+                                <th>Yorum</th>
+                                <th>Durum</th>
+                                <th>Tarih</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#REV-245</strong></td>
+                                <td>
+                                    <div>
+                                        <strong>Ahmet Yılmaz</strong><br>
+                                        <small style="color: #64748b;">Merkez Otopark</small>
+                                    </div>
+                                </td>
+                                <td><a href="#" style="color: #667eea;">#ORD-1245</a></td>
+                                <td>
+                                    <div style="color: #ffc107;">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <strong style="color: #333; margin-left: 5px;">5.0</strong>
+                                    </div>
+                                </td>
+                                <td style="max-width: 300px;">
+                                    <small>"Harika hizmet! Çok memnun kaldım. Kesinlikle tavsiye ederim."</small>
+                                </td>
+                                <td><span class="status-badge" style="background: #ffc10720; color: #ff8c00; border: 1px solid #ffc107;">Beklemede</span></td>
+                                <td>18 Eki 2025</td>
+                                <td>
+                                    <button class="action-btn view-btn" title="Detay">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;" title="Onayla">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" title="Reddet">
                                         <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#REV-244</strong></td>
+                                <td>
+                                    <div>
+                                        <strong>Elif Kara</strong><br>
+                                        <small style="color: #64748b;">Kadıköy Otopark</small>
+                                    </div>
+                                </td>
+                                <td><a href="#" style="color: #667eea;">#ORD-1244</a></td>
+                                <td>
+                                    <div style="color: #ffc107;">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <strong style="color: #333; margin-left: 5px;">4.0</strong>
+                                    </div>
+                                </td>
+                                <td style="max-width: 300px;">
+                                    <small>"İyi hizmet ama biraz pahalı buldum."</small>
+                                </td>
+                                <td><span class="status-badge active">Onaylandı</span></td>
+                                <td>17 Eki 2025</td>
+                                <td>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn" title="Yanıtla">
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#REV-243</strong></td>
+                                <td>
+                                    <div>
+                                        <strong>Mehmet Demir</strong><br>
+                                        <small style="color: #64748b;">Beşiktaş Otopark</small>
+                                    </div>
+                                </td>
+                                <td><a href="#" style="color: #667eea;">#ORD-1243</a></td>
+                                <td>
+                                    <div style="color: #ffc107;">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <strong style="color: #333; margin-left: 5px;">2.0</strong>
+                                    </div>
+                                </td>
+                                <td style="max-width: 300px;">
+                                    <small>"Randevuya geç kaldılar ve işlem hatalıydı. Memnun kalmadım."</small>
+                                </td>
+                                <td><span class="status-badge inactive">Reddedildi</span></td>
+                                <td>16 Eki 2025</td>
+                                <td>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #dc354520; color: #dc3545;" title="Raporla">
+                                        <i class="fas fa-flag"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -2231,28 +2812,1388 @@ include '../includes/dashboard_header.php';
                 </div>
             </section>
 
+            <!-- Notifications Section -->
+            <!-- Farsça: بخش اعلان‌ها. -->
+            <!-- Türkçe: Bildirimler Bölümü. -->
+            <!-- English: Notifications Section. -->
+            <section id="notifications" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fas fa-bell" style="color: #667eea; margin-right: 12px;"></i>Bildirim Yönetimi</h2>
+                        <p>Kullanıcılara bildirim gönder ve geçmiş bildirimleri yönet</p>
+                    </div>
+                    <button class="add-btn" id="sendNotificationBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        Yeni Bildirim Gönder
+                    </button>
+                </div>
+
+                <!-- Notification Stats -->
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
+                            <i class="fas fa-paper-plane" style="color: #667eea;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>42</h3>
+                            <p>Bugün Gönderilen</p>
+                            <small class="text-blue-600">Son 24 saat</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #fd7e1420);">
+                            <i class="fas fa-clock" style="color: #ffc107;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>8</h3>
+                            <p>Bekleyen</p>
+                            <small class="text-orange-600">Zamanlanmış</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #dc354520, #c8233320);">
+                            <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>3</h3>
+                            <p>Başarısız</p>
+                            <small class="text-red-600">Tekrar denenecek</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
+                            <i class="fas fa-users" style="color: #28a745;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>1,248</h3>
+                            <p>Toplam Kullanıcı</p>
+                            <small class="text-green-600">Aktif alıcılar</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Filters -->
+                <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <input type="text" id="notificationSearch" placeholder="Konu, Mesaj Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    
+                    <select id="notificationTypeFilter" class="filter-select">
+                        <option value="">Tüm Tipler</option>
+                        <option value="email">Email</option>
+                        <option value="sms">SMS</option>
+                        <option value="push">Push Notification</option>
+                        <option value="in_app">In-App</option>
+                    </select>
+                    
+                    <select id="notificationStatusFilter" class="filter-select">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="sent">Gönderildi</option>
+                        <option value="pending">Bekliyor</option>
+                        <option value="failed">Başarısız</option>
+                        <option value="scheduled">Zamanlanmış</option>
+                    </select>
+                    
+                    <input type="date" id="notificationDateFrom" class="filter-select">
+                    
+                    <button class="add-btn">
+                        <i class="fas fa-filter"></i> Filtrele
+                    </button>
+                </div>
+
+                <!-- Notifications Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Konu</th>
+                                <th>Mesaj</th>
+                                <th>Tip</th>
+                                <th>Hedef</th>
+                                <th>Durum</th>
+                                <th>Gönderim Zamanı</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#NOT-523</strong></td>
+                                <td>Özel İndirim Kampanyası</td>
+                                <td style="max-width: 300px;">
+                                    <small>Tüm hizmetlerde %20 indirim! Bugün...</small>
+                                </td>
+                                <td>
+                                    <span class="type-badge" style="background: #667eea20; color: #667eea;">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </span>
+                                </td>
+                                <td>Tüm Kullanıcılar (1,248)</td>
+                                <td><span class="status-badge active">Gönderildi</span></td>
+                                <td>18 Eki 2025, 14:30</td>
+                                <td>
+                                    <button class="action-btn view-btn" title="Detay">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn" title="Tekrar Gönder">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#NOT-522</strong></td>
+                                <td>Randevu Hatırlatması</td>
+                                <td style="max-width: 300px;">
+                                    <small>Yarınki randevunuzu unutmayın...</small>
+                                </td>
+                                <td>
+                                    <span class="type-badge" style="background: #28a74520; color: #28a745;">
+                                        <i class="fas fa-sms"></i> SMS
+                                    </span>
+                                </td>
+                                <td>Premium Kullanıcılar (324)</td>
+                                <td><span class="status-badge active">Gönderildi</span></td>
+                                <td>18 Eki 2025, 10:00</td>
+                                <td>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#NOT-521</strong></td>
+                                <td>Sistem Bakım Bildirimi</td>
+                                <td style="max-width: 300px;">
+                                    <small>Yarın 02:00 - 04:00 arası sistem...</small>
+                                </td>
+                                <td>
+                                    <span class="type-badge" style="background: #ffc10720; color: #ff8c00;">
+                                        <i class="fas fa-bell"></i> Push
+                                    </span>
+                                </td>
+                                <td>Tüm Kullanıcılar (1,248)</td>
+                                <td><span class="status-badge" style="background: #ffc10720; color: #ff8c00;">Zamanlanmış</span></td>
+                                <td>19 Eki 2025, 01:00</td>
+                                <td>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" title="İptal Et">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- CMS Section -->
+            <!-- Farsça: بخش مدیریت محتوا. -->
+            <!-- Türkçe: İçerik Yönetimi Bölümü. -->
+            <!-- English: CMS Section. -->
+            <section id="cms" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fas fa-file-alt" style="color: #764ba2; margin-right: 12px;"></i>İçerik Yönetimi (CMS)</h2>
+                        <p>Web sitesi sayfalarını ve içeriklerini yönet</p>
+                    </div>
+                    <button class="add-btn" style="background: linear-gradient(135deg, #764ba2, #667eea);">
+                        <i class="fas fa-plus"></i>
+                        Yeni Sayfa Ekle
+                    </button>
+                </div>
+
+                <!-- CMS Stats -->
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #764ba220, #667eea20);">
+                            <i class="fas fa-file-alt" style="color: #764ba2;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>12</h3>
+                            <p>Toplam Sayfa</p>
+                            <small class="text-purple-600">Yayında</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #fd7e1420);">
+                            <i class="fas fa-edit" style="color: #ffc107;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>3</h3>
+                            <p>Taslak</p>
+                            <small class="text-orange-600">Beklemede</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
+                            <i class="fas fa-images" style="color: #667eea;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>248</h3>
+                            <p>Medya Dosyası</p>
+                            <small class="text-blue-600">Kütüphane</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
+                            <i class="fas fa-chart-line" style="color: #28a745;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>8,542</h3>
+                            <p>Toplam Görüntüleme</p>
+                            <small class="text-green-600">Bu ay</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CMS Filters -->
+                <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <input type="text" id="cmsSearch" placeholder="Sayfa Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    
+                    <select id="cmsStatusFilter" class="filter-select">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="published">Yayında</option>
+                        <option value="draft">Taslak</option>
+                        <option value="scheduled">Zamanlanmış</option>
+                    </select>
+                    
+                    <select id="cmsTypeFilter" class="filter-select">
+                        <option value="">Tüm Tipler</option>
+                        <option value="page">Sayfa</option>
+                        <option value="post">Blog Yazısı</option>
+                        <option value="faq">SSS</option>
+                    </select>
+                    
+                    <button class="add-btn">
+                        <i class="fas fa-filter"></i> Filtrele
+                    </button>
+                </div>
+
+                <!-- CMS Pages Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Sayfa Başlığı</th>
+                                <th>URL</th>
+                                <th>Tip</th>
+                                <th>Durum</th>
+                                <th>Son Güncelleme</th>
+                                <th>Görüntülenme</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#1</strong></td>
+                                <td>
+                                    <div>
+                                        <strong>Hakkımızda</strong><br>
+                                        <small style="color: #64748b;">Şirket bilgileri ve tarihçe</small>
+                                    </div>
+                                </td>
+                                <td><code>/hakkimizda</code></td>
+                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;">Sayfa</span></td>
+                                <td><span class="status-badge active">Yayında</span></td>
+                                <td>17 Eki 2025</td>
+                                <td>2,348</td>
+                                <td>
+                                    <button class="action-btn edit-btn" title="Düzenle">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn view-btn" title="Önizle">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" title="Sil">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#2</strong></td>
+                                <td>
+                                    <div>
+                                        <strong>İletişim</strong><br>
+                                        <small style="color: #64748b;">İletişim formu ve bilgiler</small>
+                                    </div>
+                                </td>
+                                <td><code>/iletisim</code></td>
+                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;">Sayfa</span></td>
+                                <td><span class="status-badge active">Yayında</span></td>
+                                <td>16 Eki 2025</td>
+                                <td>1,892</td>
+                                <td>
+                                    <button class="action-btn edit-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#3</strong></td>
+                                <td>
+                                    <div>
+                                        <strong>Gizlilik Politikası</strong><br>
+                                        <small style="color: #64748b;">KVKK ve gizlilik kuralları</small>
+                                    </div>
+                                </td>
+                                <td><code>/gizlilik-politikasi</code></td>
+                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;">Sayfa</span></td>
+                                <td><span class="status-badge" style="background: #ffc10720; color: #ff8c00;">Taslak</span></td>
+                                <td>15 Eki 2025</td>
+                                <td>-</td>
+                                <td>
+                                    <button class="action-btn edit-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn" style="background: #28a74520; color: #28a745;" title="Yayınla">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Media Library Section -->
+                <div style="margin-top: 32px;">
+                    <h3 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-images"></i>
+                        Medya Kütüphanesi
+                        <button class="add-btn" style="margin-left: auto; padding: 8px 16px; font-size: 0.875rem;">
+                            <i class="fas fa-upload"></i> Dosya Yükle
+                        </button>
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="border: 2px dashed #e9ecef; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-image" style="font-size: 3rem; color: #667eea; margin-bottom: 8px;"></i>
+                            <p style="font-size: 0.875rem; color: #64748b;">image1.jpg</p>
+                            <small style="color: #94a3b8;">248 KB</small>
+                        </div>
+                        <div style="border: 2px dashed #e9ecef; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-file-pdf" style="font-size: 3rem; color: #dc3545; margin-bottom: 8px;"></i>
+                            <p style="font-size: 0.875rem; color: #64748b;">katalog.pdf</p>
+                            <small style="color: #94a3b8;">1.2 MB</small>
+                        </div>
+                        <div style="border: 2px dashed #e9ecef; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-image" style="font-size: 3rem; color: #667eea; margin-bottom: 8px;"></i>
+                            <p style="font-size: 0.875rem; color: #64748b;">banner.png</p>
+                            <small style="color: #94a3b8;">512 KB</small>
+                        </div>
+                        <div style="border: 2px dashed #e9ecef; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-plus-circle" style="font-size: 3rem; color: #28a745; margin-bottom: 8px;"></i>
+                            <p style="font-size: 0.875rem; color: #64748b;">Yeni Yükle</p>
+                            <small style="color: #94a3b8;">Dosya Ekle</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security & Logs Section -->
+            <!-- Farsça: بخش امنیت و لاگ‌ها. -->
+            <!-- Türkçe: Güvenlik & Loglar Bölümü. -->
+            <!-- English: Security & Logs Section. -->
+            <section id="security" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fas fa-shield-alt" style="color: #28a745; margin-right: 12px;"></i>Güvenlik & Sistem Logları</h2>
+                        <p>Sistem güvenliğini izle ve denetim kayıtlarını incele</p>
+                    </div>
+                    <button class="add-btn" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                        <i class="fas fa-download"></i>
+                        Log Dışa Aktar
+                    </button>
+                </div>
+
+                <!-- Security Stats -->
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #dc354520, #c8233320);">
+                            <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>5</h3>
+                            <p>Başarısız Giriş</p>
+                            <small class="text-red-600">Son 24 saat</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
+                            <i class="fas fa-users" style="color: #667eea;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>48</h3>
+                            <p>Aktif Oturum</p>
+                            <small class="text-blue-600">Şu an online</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
+                            <i class="fas fa-clipboard-list" style="color: #28a745;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>1,248</h3>
+                            <p>Denetim Kaydı</p>
+                            <small class="text-green-600">Bugün</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #fd7e1420);">
+                            <i class="fas fa-database" style="color: #ffc107;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>2 saat önce</h3>
+                            <p>Son Yedekleme</p>
+                            <small class="text-orange-600">Otomatik</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tabs -->
+                <div style="margin-bottom: 24px;">
+                    <div style="display: flex; gap: 8px; border-bottom: 2px solid #e9ecef; padding-bottom: 8px;">
+                        <button class="tab-btn active" data-tab="audit-logs" style="padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500;">
+                            Denetim Logları
+                        </button>
+                        <button class="tab-btn" data-tab="login-logs" style="padding: 12px 24px; background: white; color: #333; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500;">
+                            Giriş Logları
+                        </button>
+                        <button class="tab-btn" data-tab="active-sessions" style="padding: 12px 24px; background: white; color: #333; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500;">
+                            Aktif Oturumlar
+                        </button>
+                        <button class="tab-btn" data-tab="backups" style="padding: 12px 24px; background: white; color: #333; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500;">
+                            Yedeklemeler
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Audit Logs Tab -->
+                <div id="audit-logs" class="tab-content active">
+                    <!-- Audit Log Filters -->
+                    <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <input type="text" id="auditSearch" placeholder="Kullanıcı, Aksiyon Ara..." class="search-input" style="grid-column: 1 / -1;">
+                        
+                        <select id="auditActionFilter" class="filter-select">
+                            <option value="">Tüm Aksiyonlar</option>
+                            <option value="create">Oluşturma</option>
+                            <option value="update">Güncelleme</option>
+                            <option value="delete">Silme</option>
+                            <option value="login">Giriş</option>
+                            <option value="logout">Çıkış</option>
+                        </select>
+                        
+                        <select id="auditEntityFilter" class="filter-select">
+                            <option value="">Tüm Varlıklar</option>
+                            <option value="user">Kullanıcı</option>
+                            <option value="order">Sipariş</option>
+                            <option value="payment">Ödeme</option>
+                            <option value="service">Hizmet</option>
+                        </select>
+                        
+                        <input type="date" id="auditDateFrom" class="filter-select">
+                        
+                        <button class="add-btn">
+                            <i class="fas fa-filter"></i> Filtrele
+                        </button>
+                    </div>
+
+                    <!-- Audit Logs Table -->
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Kullanıcı</th>
+                                    <th>Aksiyon</th>
+                                    <th>Varlık</th>
+                                    <th>Açıklama</th>
+                                    <th>IP Adresi</th>
+                                    <th>Zaman</th>
+                                    <th>Detay</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>#AL-8542</strong></td>
+                                    <td>Admin Kullanıcı</td>
+                                    <td>
+                                        <span class="type-badge" style="background: #28a74520; color: #28a745;">
+                                            <i class="fas fa-plus"></i> CREATE
+                                        </span>
+                                    </td>
+                                    <td>User #245</td>
+                                    <td>Yeni kullanıcı oluşturuldu</td>
+                                    <td><code>192.168.1.100</code></td>
+                                    <td>18 Eki 2025, 14:32</td>
+                                    <td>
+                                        <button class="action-btn view-btn">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#AL-8541</strong></td>
+                                    <td>Admin Kullanıcı</td>
+                                    <td>
+                                        <span class="type-badge" style="background: #667eea20; color: #667eea;">
+                                            <i class="fas fa-edit"></i> UPDATE
+                                        </span>
+                                    </td>
+                                    <td>Service #12</td>
+                                    <td>Hizmet fiyatı güncellendi</td>
+                                    <td><code>192.168.1.100</code></td>
+                                    <td>18 Eki 2025, 13:15</td>
+                                    <td>
+                                        <button class="action-btn view-btn">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#AL-8540</strong></td>
+                                    <td>Support User</td>
+                                    <td>
+                                        <span class="type-badge" style="background: #dc354520; color: #dc3545;">
+                                            <i class="fas fa-trash"></i> DELETE
+                                        </span>
+                                    </td>
+                                    <td>Review #432</td>
+                                    <td>Yorum silindi</td>
+                                    <td><code>192.168.1.105</code></td>
+                                    <td>18 Eki 2025, 11:48</td>
+                                    <td>
+                                        <button class="action-btn view-btn">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Login Logs Tab -->
+                <div id="login-logs" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Kullanıcı</th>
+                                    <th>Durum</th>
+                                    <th>IP Adresi</th>
+                                    <th>Tarayıcı</th>
+                                    <th>Konum</th>
+                                    <th>Zaman</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>#LG-4523</strong></td>
+                                    <td>admin@otoparkdemotime.com</td>
+                                    <td><span class="status-badge active">Başarılı</span></td>
+                                    <td><code>192.168.1.100</code></td>
+                                    <td>Chrome 119.0</td>
+                                    <td>İstanbul, Türkiye</td>
+                                    <td>18 Eki 2025, 09:30</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#LG-4522</strong></td>
+                                    <td>support@otoparkdemotime.com</td>
+                                    <td><span class="status-badge active">Başarılı</span></td>
+                                    <td><code>192.168.1.105</code></td>
+                                    <td>Firefox 118.0</td>
+                                    <td>Ankara, Türkiye</td>
+                                    <td>18 Eki 2025, 08:15</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#LG-4521</strong></td>
+                                    <td>unknown@example.com</td>
+                                    <td><span class="status-badge inactive">Başarısız</span></td>
+                                    <td><code>185.45.67.89</code></td>
+                                    <td>Chrome 119.0</td>
+                                    <td>Bilinmeyen</td>
+                                    <td>18 Eki 2025, 03:42</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Active Sessions Tab -->
+                <div id="active-sessions" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Kullanıcı</th>
+                                    <th>IP Adresi</th>
+                                    <th>Tarayıcı</th>
+                                    <th>Son Aktivite</th>
+                                    <th>Oturum Süresi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Admin Kullanıcı</td>
+                                    <td><code>192.168.1.100</code></td>
+                                    <td>Chrome 119.0</td>
+                                    <td>2 dakika önce</td>
+                                    <td>5 saat 12 dk</td>
+                                    <td>
+                                        <button class="action-btn delete-btn" title="Oturumu Sonlandır">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Support User</td>
+                                    <td><code>192.168.1.105</code></td>
+                                    <td>Firefox 118.0</td>
+                                    <td>15 dakika önce</td>
+                                    <td>3 saat 45 dk</td>
+                                    <td>
+                                        <button class="action-btn delete-btn">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Backups Tab -->
+                <div id="backups" class="tab-content" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div>
+                            <h4 style="margin: 0 0 8px 0;">Veritabanı Yedekleme</h4>
+                            <p style="margin: 0; color: #64748b;">Son yedekleme: 18 Ekim 2025, 12:00</p>
+                        </div>
+                        <button class="add-btn" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                            <i class="fas fa-plus"></i>
+                            Yeni Yedek Al
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Yedek ID</th>
+                                    <th>Dosya Adı</th>
+                                    <th>Boyut</th>
+                                    <th>Tip</th>
+                                    <th>Oluşturulma</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>#BK-245</strong></td>
+                                    <td>backup_2025_10_18_12_00.sql</td>
+                                    <td>24.5 MB</td>
+                                    <td><span class="type-badge" style="background: #28a74520; color: #28a745;">Otomatik</span></td>
+                                    <td>18 Eki 2025, 12:00</td>
+                                    <td>
+                                        <button class="action-btn view-btn" title="İndir">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="action-btn edit-btn" title="Geri Yükle">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                        <button class="action-btn delete-btn" title="Sil">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#BK-244</strong></td>
+                                    <td>backup_2025_10_17_12_00.sql</td>
+                                    <td>23.8 MB</td>
+                                    <td><span class="type-badge" style="background: #28a74520; color: #28a745;">Otomatik</span></td>
+                                    <td>17 Eki 2025, 12:00</td>
+                                    <td>
+                                        <button class="action-btn view-btn">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="action-btn edit-btn">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                        <button class="action-btn delete-btn">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#BK-243</strong></td>
+                                    <td>backup_2025_10_16_manual.sql</td>
+                                    <td>22.9 MB</td>
+                                    <td><span class="type-badge" style="background: #667eea20; color: #667eea;">Manuel</span></td>
+                                    <td>16 Eki 2025, 16:30</td>
+                                    <td>
+                                        <button class="action-btn view-btn">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="action-btn edit-btn">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                        <button class="action-btn delete-btn">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
             <!-- Settings Section -->
             <!-- Farsça: بخش تنظیمات. -->
             <!-- Türkçe: Ayarlar Bölümü. -->
             <!-- English: Settings Section. -->
             <section id="settings" class="content-section">
                 <div class="section-header">
-                    <h2>Sistem Ayarları</h2>
+                    <div>
+                        <h2><i class="fas fa-cog" style="color: #667eea; margin-right: 12px;"></i>Sistem Ayarları</h2>
+                        <p>Tüm sistem ayarlarını yapılandır ve yönet</p>
+                    </div>
+                    <button class="add-btn" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                        <i class="fas fa-save"></i>
+                        Tüm Ayarları Kaydet
+                    </button>
                 </div>
-                <div class="settings-form">
+
+                <!-- Settings Tabs -->
+                <div style="margin-bottom: 24px;">
+                    <div style="display: flex; gap: 8px; border-bottom: 2px solid #e9ecef; padding-bottom: 8px; flex-wrap: wrap;">
+                        <button class="settings-tab-btn active" data-settings-tab="general" style="padding: 12px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-globe"></i> Genel
+                        </button>
+                        <button class="settings-tab-btn" data-settings-tab="payment" style="padding: 12px 20px; background: white; color: #333; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-credit-card"></i> Ödeme
+                        </button>
+                        <button class="settings-tab-btn" data-settings-tab="notifications" style="padding: 12px 20px; background: white; color: #333; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-bell"></i> Bildirimler
+                        </button>
+                        <button class="settings-tab-btn" data-settings-tab="rbac" style="padding: 12px 20px; background: white; color: #333; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-user-shield"></i> RBAC
+                        </button>
+                        <button class="settings-tab-btn" data-settings-tab="security" style="padding: 12px 20px; background: white; color: #333; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-shield-alt"></i> Güvenlik
+                        </button>
+                        <button class="settings-tab-btn" data-settings-tab="backup" style="padding: 12px 20px; background: white; color: #333; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-database"></i> Yedekleme
+                        </button>
+                        <button class="settings-tab-btn" data-settings-tab="email" style="padding: 12px 20px; background: white; color: #333; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-envelope"></i> Email
+                        </button>
+                    </div>
+                </div>
+
+                <!-- General Settings Tab -->
+                <div id="general" class="settings-tab-content active" style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-globe"></i> Genel Ayarlar
+                    </h3>
                     <div class="form-group">
-                        <label>Site Adı</label>
-                        <input type="text" value="Otopark Yönetim Sistemi">
+                        <label>Site Adı *</label>
+                        <input type="text" value="CarWash Yönetim Sistemi" placeholder="Site adını girin">
+                        <small style="color: #64748b;">Web sitesinde görünecek isim</small>
                     </div>
                     <div class="form-group">
-                        <label>Admin Email</label>
-                        <input type="email" value="admin@otoparkdemotime.com">
+                        <label>Admin Email *</label>
+                        <input type="email" value="admin@otoparkdemotime.com" placeholder="admin@example.com">
+                        <small style="color: #64748b;">Sistem bildirimleri bu adrese gönderilecek</small>
                     </div>
                     <div class="form-group">
-                        <label>Varsayılan Saat Ücreti (₺)</label>
-                        <input type="number" value="25">
+                        <label>Saat Dilimi</label>
+                        <select>
+                            <option value="Europe/Istanbul" selected>Europe/Istanbul (GMT+3)</option>
+                            <option value="UTC">UTC (GMT+0)</option>
+                            <option value="Europe/London">Europe/London (GMT+0)</option>
+                        </select>
                     </div>
-                    <button class="save-btn">Ayarları Kaydet</button>
+                    <div class="form-group">
+                        <label>Dil</label>
+                        <select>
+                            <option value="tr" selected>Türkçe</option>
+                            <option value="en">English</option>
+                            <option value="fa">فارسی</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Para Birimi</label>
+                        <select>
+                            <option value="TRY" selected>₺ Türk Lirası (TRY)</option>
+                            <option value="USD">$ US Dollar (USD)</option>
+                            <option value="EUR">€ Euro (EUR)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>Bakım Modu</span>
+                        </label>
+                        <small style="color: #64748b;">Aktif olduğunda site ziyaretçilere kapalı olacak</small>
+                    </div>
+                    <button class="save-btn" style="margin-top: 1rem;">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+
+                <!-- Payment Settings Tab -->
+                <div id="payment" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-credit-card"></i> Ödeme Ayarları
+                    </h3>
+                    <div class="form-group">
+                        <label>Komisyon Oranı (%)</label>
+                        <input type="number" value="15" min="0" max="100" step="0.1">
+                        <small style="color: #64748b;">Platform komisyon yüzdesi</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum Ödeme Tutarı (₺)</label>
+                        <input type="number" value="50" min="0">
+                        <small style="color: #64748b;">Tasfiye için minimum tutar</small>
+                    </div>
+                    
+                    <h4 style="margin: 2rem 0 1rem 0; color: #333;">Ödeme Ağ Geçitleri</h4>
+                    
+                    <!-- Stripe -->
+                    <div style="border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                            <i class="fab fa-stripe" style="font-size: 2rem; color: #635bff;"></i>
+                            <div style="flex: 1;">
+                                <h5 style="margin: 0;">Stripe</h5>
+                                <small style="color: #64748b;">Kredi kartı ödemeleri</small>
+                            </div>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                                <input type="checkbox" checked style="width: auto; margin: 0;">
+                                <span>Aktif</span>
+                            </label>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label>Publishable Key</label>
+                            <input type="text" placeholder="pk_live_...">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Secret Key</label>
+                            <input type="password" placeholder="sk_live_...">
+                        </div>
+                    </div>
+
+                    <!-- PayPal -->
+                    <div style="border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                            <i class="fab fa-paypal" style="font-size: 2rem; color: #00457c;"></i>
+                            <div style="flex: 1;">
+                                <h5 style="margin: 0;">PayPal</h5>
+                                <small style="color: #64748b;">PayPal ödemeleri</small>
+                            </div>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                                <input type="checkbox" style="width: auto; margin: 0;">
+                                <span>Aktif</span>
+                            </label>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label>Client ID</label>
+                            <input type="text" placeholder="AXxxx...">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Secret Key</label>
+                            <input type="password" placeholder="ECxxx...">
+                        </div>
+                    </div>
+
+                    <!-- iyzico -->
+                    <div style="border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                            <i class="fas fa-credit-card" style="font-size: 2rem; color: #ff6600;"></i>
+                            <div style="flex: 1;">
+                                <h5 style="margin: 0;">iyzico</h5>
+                                <small style="color: #64748b;">Türkiye kredi kartı ödemeleri</small>
+                            </div>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                                <input type="checkbox" checked style="width: auto; margin: 0;">
+                                <span>Aktif</span>
+                            </label>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label>API Key</label>
+                            <input type="text" placeholder="sandbox-xxx...">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Secret Key</label>
+                            <input type="password" placeholder="sandbox-xxx...">
+                        </div>
+                    </div>
+
+                    <button class="save-btn" style="margin-top: 1.5rem;">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+
+                <!-- Notifications Settings Tab -->
+                <div id="notificationstab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-bell"></i> Bildirim Ayarları
+                    </h3>
+                    
+                    <!-- Email Notifications -->
+                    <h4 style="margin: 1.5rem 0 1rem 0;">Email Bildirimleri (SMTP)</h4>
+                    <div class="form-group">
+                        <label>SMTP Host</label>
+                        <input type="text" value="smtp.gmail.com" placeholder="smtp.example.com">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>SMTP Port</label>
+                            <input type="number" value="587">
+                        </div>
+                        <div class="form-group">
+                            <label>Encryption</label>
+                            <select>
+                                <option value="tls" selected>TLS</option>
+                                <option value="ssl">SSL</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>SMTP Username</label>
+                        <input type="text" value="no-reply@otoparkdemotime.com">
+                    </div>
+                    <div class="form-group">
+                        <label>SMTP Password</label>
+                        <input type="password" placeholder="••••••••">
+                    </div>
+                    
+                    <!-- SMS Notifications -->
+                    <h4 style="margin: 2rem 0 1rem 0;">SMS Bildirimleri (Twilio)</h4>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>SMS Bildirimlerini Aktif Et</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Twilio Account SID</label>
+                        <input type="text" placeholder="ACxxxxxxxxxx">
+                    </div>
+                    <div class="form-group">
+                        <label>Twilio Auth Token</label>
+                        <input type="password" placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Gönderen Numara</label>
+                        <input type="tel" value="+905551234567">
+                    </div>
+                    
+                    <!-- Push Notifications -->
+                    <h4 style="margin: 2rem 0 1rem 0;">Push Notifications (Firebase)</h4>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" style="width: auto; margin: 0;">
+                            <span>Push Notification'ları Aktif Et</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Firebase Server Key</label>
+                        <input type="password" placeholder="••••••••">
+                    </div>
+                    
+                    <button class="save-btn" style="margin-top: 1rem;">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+
+                <!-- RBAC Settings Tab -->
+                <div id="rbac" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-user-shield"></i> Rol ve İzin Yönetimi (RBAC)
+                    </h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <!-- Roles List -->
+                        <div>
+                            <h4 style="margin-bottom: 1rem;">Sistem Rolleri</h4>
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <div style="border: 2px solid #667eea; border-radius: 8px; padding: 1rem; background: #667eea10;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h5 style="margin: 0; color: #667eea;">SuperAdmin</h5>
+                                            <small style="color: #64748b;">Seviye: 100 - Tam Yetki</small>
+                                        </div>
+                                        <button class="action-btn edit-btn">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div style="border: 2px solid #28a745; border-radius: 8px; padding: 1rem; background: #28a74510;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h5 style="margin: 0; color: #28a745;">Admin</h5>
+                                            <small style="color: #64748b;">Seviye: 80 - Yönetici</small>
+                                        </div>
+                                        <button class="action-btn edit-btn">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div style="border: 2px solid #ffc107; border-radius: 8px; padding: 1rem; background: #ffc10710;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h5 style="margin: 0; color: #ff8c00;">Manager</h5>
+                                            <small style="color: #64748b;">Seviye: 60 - Müdür</small>
+                                        </div>
+                                        <button class="action-btn edit-btn">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div style="border: 2px solid #dc3545; border-radius: 8px; padding: 1rem; background: #dc354510;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h5 style="margin: 0; color: #dc3545;">Support</h5>
+                                            <small style="color: #64748b;">Seviye: 40 - Destek</small>
+                                        </div>
+                                        <button class="action-btn edit-btn">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div style="border: 2px solid #6c757d; border-radius: 8px; padding: 1rem; background: #6c757d10;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h5 style="margin: 0; color: #6c757d;">Auditor</h5>
+                                            <small style="color: #64748b;">Seviye: 20 - Denetçi</small>
+                                        </div>
+                                        <button class="action-btn edit-btn">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Permissions -->
+                        <div>
+                            <h4 style="margin-bottom: 1rem;">İzin Kategorileri</h4>
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                                    <h5 style="margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-users" style="color: #667eea;"></i>
+                                        Kullanıcı İzinleri
+                                    </h5>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem;">
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">users.view</span>
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">users.create</span>
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">users.edit</span>
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">users.delete</span>
+                                    </div>
+                                </div>
+                                
+                                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                                    <h5 style="margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-shopping-cart" style="color: #28a745;"></i>
+                                        Sipariş İzinleri
+                                    </h5>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem;">
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">orders.view</span>
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">orders.edit</span>
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">orders.cancel</span>
+                                    </div>
+                                </div>
+                                
+                                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                                    <h5 style="margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-credit-card" style="color: #ffc107;"></i>
+                                        Ödeme İzinleri
+                                    </h5>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem;">
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">payments.view</span>
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">payments.process</span>
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">payments.refund</span>
+                                    </div>
+                                </div>
+                                
+                                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                                    <h5 style="margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-cog" style="color: #dc3545;"></i>
+                                        Sistem İzinleri
+                                    </h5>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem;">
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">settings.view</span>
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">settings.edit</span>
+                                        <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">logs.view</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="add-btn" style="margin-top: 1.5rem;">
+                        <i class="fas fa-plus"></i> Yeni Rol Ekle
+                    </button>
+                </div>
+
+                <!-- Security Settings Tab -->
+                <div id="securitytab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-shield-alt"></i> Güvenlik Ayarları
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>İki Faktörlü Kimlik Doğrulama (2FA) Zorunlu</span>
+                        </label>
+                        <small style="color: #64748b;">Tüm admin kullanıcıları için 2FA zorunlu olacak</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Oturum Zaman Aşımı (dakika)</label>
+                        <input type="number" value="60" min="5" max="1440">
+                        <small style="color: #64748b;">İşlem yapılmadığında otomatik çıkış süresi</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Maksimum Başarısız Giriş Denemesi</label>
+                        <input type="number" value="5" min="3" max="10">
+                        <small style="color: #64748b;">Bu sayıda başarısız girişten sonra hesap kilitlenecek</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Hesap Kilitleme Süresi (dakika)</label>
+                        <input type="number" value="30" min="5" max="1440">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Minimum Şifre Uzunluğu</label>
+                        <input type="number" value="8" min="6" max="20">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>Şifre Karmaşıklık Kuralları</span>
+                        </label>
+                        <small style="color: #64748b;">Büyük/küçük harf, rakam ve özel karakter gerektirir</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Şifre Değiştirme Periyodu (gün)</label>
+                        <input type="number" value="90" min="0" max="365">
+                        <small style="color: #64748b;">0 girerek devre dışı bırakabilirsiniz</small>
+                    </div>
+                    
+                    <h4 style="margin: 2rem 0 1rem 0;">IP Beyaz Listesi</h4>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" style="width: auto; margin: 0;">
+                            <span>IP Kısıtlaması Aktif</span>
+                        </label>
+                        <small style="color: #64748b;">Sadece belirlenen IP adreslerinden erişime izin ver</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>İzin Verilen IP Adresleri (her satırda bir IP)</label>
+                        <textarea rows="5" placeholder="192.168.1.1&#10;192.168.1.2&#10;10.0.0.1"></textarea>
+                    </div>
+                    
+                    <button class="save-btn" style="margin-top: 1rem;">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+
+                <!-- Backup Settings Tab -->
+                <div id="backuptab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-database"></i> Yedekleme Ayarları
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>Otomatik Yedekleme Aktif</span>
+                        </label>
+                        <small style="color: #64748b;">Belirlenen zamanlarda otomatik yedek alınacak</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Yedekleme Sıklığı</label>
+                        <select>
+                            <option value="hourly">Saatlik</option>
+                            <option value="daily" selected>Günlük</option>
+                            <option value="weekly">Haftalık</option>
+                            <option value="monthly">Aylık</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Yedekleme Saati</label>
+                        <input type="time" value="02:00">
+                        <small style="color: #64748b;">Yedekleme işleminin yapılacağı saat</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Yedek Saklama Süresi (gün)</label>
+                        <input type="number" value="30" min="1" max="365">
+                        <small style="color: #64748b;">Bu süreden eski yedekler otomatik silinecek</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Maksimum Yedek Sayısı</label>
+                        <input type="number" value="10" min="1" max="100">
+                    </div>
+                    
+                    <h4 style="margin: 2rem 0 1rem 0;">Yedek Depolama</h4>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>Yerel Sunucuda Sakla</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Yerel Yedek Klasörü</label>
+                        <input type="text" value="/var/backups/carwash">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" style="width: auto; margin: 0;">
+                            <span>Uzak Sunucuya Yükle (FTP/SFTP)</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>FTP Host</label>
+                        <input type="text" placeholder="ftp.example.com">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>FTP Username</label>
+                            <input type="text" placeholder="username">
+                        </div>
+                        <div class="form-group">
+                            <label>FTP Password</label>
+                            <input type="password" placeholder="••••••••">
+                        </div>
+                    </div>
+                    
+                    <button class="save-btn" style="margin-top: 1rem;">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+
+                <!-- Email Templates Tab -->
+                <div id="emailtab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-envelope"></i> Email Şablonları
+                    </h3>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <!-- Welcome Email -->
+                        <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div>
+                                    <h5 style="margin: 0;">Hoş Geldin Emaili</h5>
+                                    <small style="color: #64748b;">Yeni kullanıcı kaydında gönderilen email</small>
+                                </div>
+                                <button class="action-btn edit-btn">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </button>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0.5rem;">
+                                <label>Konu</label>
+                                <input type="text" value="CarWash'a Hoş Geldiniz!">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Gövde</label>
+                                <textarea rows="3" readonly>Merhaba {{user_name}}, CarWash ailesine hoş geldiniz!</textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Confirmation -->
+                        <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div>
+                                    <h5 style="margin: 0;">Sipariş Onayı</h5>
+                                    <small style="color: #64748b;">Sipariş oluşturulduğunda gönderilen email</small>
+                                </div>
+                                <button class="action-btn edit-btn">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </button>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0.5rem;">
+                                <label>Konu</label>
+                                <input type="text" value="Siparişiniz Alındı - #{{order_id}}">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Gövde</label>
+                                <textarea rows="3" readonly>Siparişiniz başarıyla alındı. Sipariş No: {{order_id}}</textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Password Reset -->
+                        <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div>
+                                    <h5 style="margin: 0;">Şifre Sıfırlama</h5>
+                                    <small style="color: #64748b;">Şifre sıfırlama talebi için email</small>
+                                </div>
+                                <button class="action-btn edit-btn">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </button>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0.5rem;">
+                                <label>Konu</label>
+                                <input type="text" value="Şifre Sıfırlama Talebi">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Gövde</label>
+                                <textarea rows="3" readonly>Şifrenizi sıfırlamak için aşağıdaki linke tıklayın: {{reset_link}}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: #667eea10; border-radius: 8px; border-left: 4px solid #667eea;">
+                        <p style="margin: 0; color: #333;"><strong>Kullanılabilir Değişkenler:</strong></p>
+                        <code style="display: block; margin-top: 0.5rem; font-size: 0.875rem;">
+                            {{user_name}}, {{user_email}}, {{order_id}}, {{service_name}}, {{price}}, {{date}}, {{time}}, {{reset_link}}
+                        </code>
+                    </div>
                 </div>
             </section>
     </main>
@@ -2296,6 +4237,285 @@ include '../includes/dashboard_header.php';
                         </select>
                     </div>
                     <button type="submit" class="submit-btn">Otopark Ekle</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!-- Add Service Modal -->
+    <!-- Farsça: مودال افزودن خدمات. -->
+    <!-- Türkçe: Hizmet Ekle Modalı. -->
+    <!-- English: Add Service Modal. -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-concierge-bell mr-2"></i>Yeni Hizmet Ekle</h3>
+                <span class="close" id="closeServiceModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="serviceForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-tag mr-1"></i>Hizmet Adı *</label>
+                        <input type="text" id="serviceName" name="service_name" placeholder="Örn: Dış Yıkama" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left mr-1"></i>Açıklama</label>
+                        <textarea id="serviceDescription" name="description" rows="3" placeholder="Hizmet açıklaması..."></textarea>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label><i class="fas fa-layer-group mr-1"></i>Kategori *</label>
+                            <select id="serviceCategory" name="category" required>
+                                <option value="">Kategori Seçin</option>
+                                <option value="wash">Yıkama</option>
+                                <option value="detail">Detaylı Bakım</option>
+                                <option value="polish">Cilalama & Koruma</option>
+                                <option value="interior">İç Temizlik</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-clock mr-1"></i>Süre (dakika) *</label>
+                            <input type="number" id="serviceDuration" name="duration" min="1" placeholder="30" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-car mr-1"></i>Araç Tipi Fiyatlandırması *</label>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
+                                <div>
+                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;">Sedan (₺) *</label>
+                                    <input type="number" id="priceSedan" name="price_sedan" min="0" step="0.01" placeholder="150" required style="margin-top: 0.25rem;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;">SUV (₺) *</label>
+                                    <input type="number" id="priceSUV" name="price_suv" min="0" step="0.01" placeholder="180" required style="margin-top: 0.25rem;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;">Kamyonet (₺) *</label>
+                                    <input type="number" id="priceTruck" name="price_truck" min="0" step="0.01" placeholder="200" required style="margin-top: 0.25rem;">
+                                </div>
+                            </div>
+                            <small style="color: #666; font-size: 0.8rem;">
+                                <i class="fas fa-info-circle"></i> Her araç tipi için farklı fiyat belirleyebilirsiniz
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
+                            <input type="number" id="serviceOrder" name="sort_order" min="1" placeholder="1" value="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-toggle-on mr-1"></i>Durum *</label>
+                            <select id="serviceStatus" name="status" required>
+                                <option value="active">Aktif</option>
+                                <option value="inactive">Pasif</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-icons mr-1"></i>İkon (Font Awesome sınıfı)</label>
+                        <input type="text" id="serviceIcon" name="icon" placeholder="fas fa-car" value="fas fa-car">
+                        <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+                            <i class="fas fa-lightbulb"></i> Örnek: fas fa-car, fas fa-broom, fas fa-star, fas fa-shield-alt
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-save mr-2"></i>Hizmeti Kaydet
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!-- Add Ticket Modal -->
+    <!-- Farsça: مودال افزودن تیکت. -->
+    <!-- Türkçe: Destek Talebi Ekle Modalı. -->
+    <!-- English: Add Ticket Modal. -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #fd7e14, #dc3545);">
+                <h3><i class="fas fa-ticket-alt mr-2"></i>Yeni Destek Talebi Oluştur</h3>
+                <span class="close" id="closeTicketModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="ticketForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-user mr-1"></i>Müşteri Seçin *</label>
+                        <select id="ticketCustomer" name="customer_id" required>
+                            <option value="">Müşteri Seçin</option>
+                            <option value="1">Ahmet Yılmaz - ahmet@email.com</option>
+                            <option value="2">Elif Kara - elif@email.com</option>
+                            <option value="3">Mehmet Demir - mehmet@email.com</option>
+                            <option value="4">Zeynep Öztürk - zeynep@email.com</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-heading mr-1"></i>Konu *</label>
+                        <input type="text" id="ticketSubject" name="subject" placeholder="Talep konusu..." required>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label><i class="fas fa-tag mr-1"></i>Kategori *</label>
+                            <select id="ticketCategory" name="category" required>
+                                <option value="">Kategori Seçin</option>
+                                <option value="technical">Teknik Destek</option>
+                                <option value="billing">Ödeme & Fatura</option>
+                                <option value="service">Hizmet Soruları</option>
+                                <option value="complaint">Şikayet</option>
+                                <option value="other">Diğer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-exclamation-circle mr-1"></i>Öncelik *</label>
+                            <select id="ticketPriority" name="priority" required>
+                                <option value="">Öncelik Seçin</option>
+                                <option value="low">Düşük</option>
+                                <option value="medium" selected>Orta</option>
+                                <option value="high">Yüksek</option>
+                                <option value="urgent">Acil</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left mr-1"></i>Mesaj *</label>
+                        <textarea id="ticketMessage" name="message" rows="5" placeholder="Talep detaylarını yazın..." required></textarea>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tag mr-1"></i>Atanan Kişi</label>
+                            <select id="ticketAssignedTo" name="assigned_to">
+                                <option value="">Atama Yapılmadı</option>
+                                <option value="1">Destek Ekibi - Ahmet</option>
+                                <option value="2">Destek Ekibi - Ayşe</option>
+                                <option value="3">Destek Ekibi - Mehmet</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-flag mr-1"></i>Durum</label>
+                            <select id="ticketStatus" name="status">
+                                <option value="new" selected>Yeni</option>
+                                <option value="open">Açık</option>
+                                <option value="in_progress">Devam Ediyor</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-paperclip mr-1"></i>Dosya Ekle (Opsiyonel)</label>
+                        <input type="file" id="ticketAttachment" name="attachment" accept="image/*,.pdf,.doc,.docx" style="padding: 8px;">
+                        <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+                            <i class="fas fa-info-circle"></i> Maksimum dosya boyutu: 5MB
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #fd7e14, #dc3545);">
+                        <i class="fas fa-paper-plane mr-2"></i>Talebi Oluştur
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!-- Add User Modal -->
+    <!-- Farsça: مودال افزودن کاربر. -->
+    <!-- Türkçe: Kullanıcı Ekle Modalı. -->
+    <!-- English: Add User Modal. -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Yeni Kullanıcı Ekle</h3>
+                <span class="close" id="closeUserModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="form-group">
+                        <label>Kullanıcı Adı *</label>
+                        <input type="text" name="username" id="userName" required placeholder="kullanici_adi">
+                        <small style="color: #64748b;">Benzersiz kullanıcı adı</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email Adresi *</label>
+                        <input type="email" name="email" id="userEmail" required placeholder="ornek@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Şifre *</label>
+                        <input type="password" name="password" id="userPassword" required placeholder="Güçlü şifre">
+                        <small style="color: #64748b;">En az 8 karakter, büyük/küçük harf ve rakam içermeli</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Şifre Tekrar *</label>
+                        <input type="password" name="password_confirm" id="userPasswordConfirm" required placeholder="Şifreyi tekrar girin">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tam Adı *</label>
+                        <input type="text" name="full_name" id="userFullName" required placeholder="Ad Soyad">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Telefon</label>
+                        <input type="tel" name="phone" id="userPhone" placeholder="+90 555 123 4567">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rol *</label>
+                        <select name="role_id" id="userRole" required>
+                            <option value="">Rol Seçin</option>
+                            <option value="1">SuperAdmin - Tam Yetki</option>
+                            <option value="2">Admin - Yönetici</option>
+                            <option value="3">Manager - Müdür</option>
+                            <option value="4">Support - Destek</option>
+                            <option value="5">Auditor - Denetçi</option>
+                        </select>
+                        <small style="color: #64748b;">Kullanıcının erişim seviyesini belirler</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Durum</label>
+                        <select name="status" id="userStatus">
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Pasif</option>
+                            <option value="suspended">Askıya Alınmış</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="require_2fa" id="userRequire2FA" style="width: auto; margin: 0;">
+                            <span>İki Faktörlü Kimlik Doğrulama Zorunlu</span>
+                        </label>
+                        <small style="color: #64748b;">Kullanıcı ilk girişte 2FA kurulumu yapacak</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="email_verified" id="userEmailVerified" checked style="width: auto; margin: 0;">
+                            <span>Email Doğrulanmış Olarak İşaretle</span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-user-plus"></i>
+                        Kullanıcı Oluştur
+                    </button>
                 </form>
             </div>
         </div>
@@ -2438,6 +4658,361 @@ include '../includes/dashboard_header.php';
             carwashModal.style.display = 'none';
         });
 
+        // User Modal Functions
+        // Farsça: توابع مودال کاربر.
+        // Türkçe: Kullanıcı Modal Fonksiyonları.
+        // English: User Modal Functions.
+        const userModal = document.getElementById('userModal');
+        const addUserBtn = document.getElementById('addUserBtn');
+        const closeUserModal = document.getElementById('closeUserModal');
+
+        if (addUserBtn) {
+            addUserBtn.addEventListener('click', () => {
+                userModal.style.display = 'block';
+            });
+        }
+
+        if (closeUserModal) {
+            closeUserModal.addEventListener('click', () => {
+                userModal.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target === userModal) {
+                userModal.style.display = 'none';
+            }
+        });
+
+        // Service Modal Functions
+        // Farsça: توابع مودال خدمات.
+        // Türkçe: Hizmet Modal Fonksiyonları.
+        // English: Service Modal Functions.
+        const serviceModal = document.getElementById('serviceModal');
+        const addServiceBtn = document.getElementById('addServiceBtn');
+        const closeServiceModal = document.getElementById('closeServiceModal');
+
+        if (addServiceBtn) {
+            addServiceBtn.addEventListener('click', () => {
+                serviceModal.style.display = 'block';
+            });
+        }
+
+        if (closeServiceModal) {
+            closeServiceModal.addEventListener('click', () => {
+                serviceModal.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target === serviceModal) {
+                serviceModal.style.display = 'none';
+            }
+        });
+
+        // Ticket Modal Functions
+        // Farsça: توابع مودال تیکت.
+        // Türkçe: Destek Talebi Modal Fonksiyonları.
+        // English: Ticket Modal Functions.
+        const ticketModal = document.getElementById('ticketModal');
+        const addTicketBtn = document.getElementById('addTicketBtn');
+        const closeTicketModal = document.getElementById('closeTicketModal');
+
+        if (addTicketBtn) {
+            addTicketBtn.addEventListener('click', () => {
+                ticketModal.style.display = 'block';
+            });
+        }
+
+        if (closeTicketModal) {
+            closeTicketModal.addEventListener('click', () => {
+                ticketModal.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target === ticketModal) {
+                ticketModal.style.display = 'none';
+            }
+        });
+
+        // Ticket Form Submission with Validation
+        // Farsça: ارسال فرم تیکت با اعتبارسنجی.
+        // Türkçe: Doğrulama ile Destek Talebi Formu Gönderimi.
+        // English: Ticket Form Submission with Validation.
+        document.getElementById('ticketForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const formData = new FormData(this);
+            const customerId = formData.get('customer_id');
+            const subject = formData.get('subject');
+            const category = formData.get('category');
+            const priority = formData.get('priority');
+            const message = formData.get('message');
+            
+            // Validation
+            if (!customerId) {
+                alert('❌ Lütfen bir müşteri seçin!');
+                return;
+            }
+            
+            if (!subject || subject.length < 5) {
+                alert('❌ Konu en az 5 karakter olmalıdır!');
+                return;
+            }
+            
+            if (!category) {
+                alert('❌ Lütfen bir kategori seçin!');
+                return;
+            }
+            
+            if (!priority) {
+                alert('❌ Lütfen bir öncelik seviyesi seçin!');
+                return;
+            }
+            
+            if (!message || message.length < 10) {
+                alert('❌ Mesaj en az 10 karakter olmalıdır!');
+                return;
+            }
+            
+            // Prepare data for backend
+            const ticketData = {
+                customer_id: customerId,
+                subject: subject,
+                category: category,
+                priority: priority,
+                message: message,
+                assigned_to: formData.get('assigned_to') || null,
+                status: formData.get('status') || 'new',
+                attachment: formData.get('attachment')
+            };
+            
+            // TODO: Send to backend API
+            // fetch('/backend/api/admin/tickets/create', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(ticketData)
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         alert('✅ Destek talebi başarıyla oluşturuldu!');
+            //         ticketModal.style.display = 'none';
+            //         this.reset();
+            //         // Reload tickets table
+            //         location.reload();
+            //     } else {
+            //         alert('❌ Hata: ' + data.message);
+            //     }
+            // })
+            // .catch(error => {
+            //     alert('❌ Bir hata oluştu: ' + error.message);
+            // });
+            
+            // For now, just show success message
+            console.log('Creating ticket:', ticketData);
+            alert('✅ Destek talebi başarıyla oluşturuldu!\n\n' +
+                  'Konu: ' + subject + '\n' +
+                  'Kategori: ' + category + '\n' +
+                  'Öncelik: ' + priority);
+            ticketModal.style.display = 'none';
+            this.reset();
+        });
+
+        // Service Form Submission with Validation
+        // Farsça: ارسال فرم خدمات با اعتبارسنجی.
+        // Türkçe: Doğrulama ile Hizmet Formu Gönderimi.
+        // English: Service Form Submission with Validation.
+        document.getElementById('serviceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const formData = new FormData(this);
+            const serviceName = formData.get('service_name');
+            const category = formData.get('category');
+            const duration = formData.get('duration');
+            const priceSedan = formData.get('price_sedan');
+            const priceSUV = formData.get('price_suv');
+            const priceTruck = formData.get('price_truck');
+            const status = formData.get('status');
+            
+            // Validation
+            if (!serviceName || serviceName.length < 3) {
+                alert('❌ Hizmet adı en az 3 karakter olmalıdır!');
+                return;
+            }
+            
+            if (!category) {
+                alert('❌ Lütfen bir kategori seçin!');
+                return;
+            }
+            
+            if (!duration || duration < 1) {
+                alert('❌ Hizmet süresi en az 1 dakika olmalıdır!');
+                return;
+            }
+            
+            if (!priceSedan || priceSedan <= 0) {
+                alert('❌ Sedan fiyatı geçerli bir değer olmalıdır!');
+                return;
+            }
+            
+            if (!priceSUV || priceSUV <= 0) {
+                alert('❌ SUV fiyatı geçerli bir değer olmalıdır!');
+                return;
+            }
+            
+            if (!priceTruck || priceTruck <= 0) {
+                alert('❌ Kamyonet fiyatı geçerli bir değer olmalıdır!');
+                return;
+            }
+            
+            // Prepare data for backend
+            const serviceData = {
+                name: serviceName,
+                description: formData.get('description'),
+                category: category,
+                duration: parseInt(duration),
+                pricing: {
+                    sedan: parseFloat(priceSedan),
+                    suv: parseFloat(priceSUV),
+                    truck: parseFloat(priceTruck)
+                },
+                sort_order: formData.get('sort_order') || 1,
+                status: status,
+                icon: formData.get('icon') || 'fas fa-car'
+            };
+            
+            // TODO: Send to backend API
+            // fetch('/backend/api/admin/services/create', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(serviceData)
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         alert('✅ Hizmet başarıyla oluşturuldu!');
+            //         serviceModal.style.display = 'none';
+            //         this.reset();
+            //         // Reload services table
+            //         location.reload();
+            //     } else {
+            //         alert('❌ Hata: ' + data.message);
+            //     }
+            // })
+            // .catch(error => {
+            //     alert('❌ Bir hata oluştu: ' + error.message);
+            // });
+            
+            // For now, just show success message
+            console.log('Creating service:', serviceData);
+            alert('✅ Hizmet başarıyla oluşturuldu!\n\n' +
+                  'Hizmet: ' + serviceName + '\n' +
+                  'Kategori: ' + category + '\n' +
+                  'Süre: ' + duration + ' dk\n' +
+                  'Sedan: ₺' + priceSedan + '\n' +
+                  'SUV: ₺' + priceSUV + '\n' +
+                  'Kamyonet: ₺' + priceTruck);
+            serviceModal.style.display = 'none';
+            this.reset();
+        });
+
+        // User Form Submission with Validation
+        // Farsça: ارسال فرم کاربر با اعتبارسنجی.
+        // Türkçe: Doğrulama ile Kullanıcı Formu Gönderimi.
+        // English: User Form Submission with Validation.
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const formData = new FormData(this);
+            const password = formData.get('password');
+            const passwordConfirm = formData.get('password_confirm');
+            const email = formData.get('email');
+            const username = formData.get('username');
+            const roleId = formData.get('role_id');
+            
+            // Validation
+            if (!username || username.length < 3) {
+                alert('Kullanıcı adı en az 3 karakter olmalıdır!');
+                return;
+            }
+            
+            if (!email || !email.includes('@')) {
+                alert('Geçerli bir email adresi girin!');
+                return;
+            }
+            
+            if (!password || password.length < 8) {
+                alert('Şifre en az 8 karakter olmalıdır!');
+                return;
+            }
+            
+            if (password !== passwordConfirm) {
+                alert('Şifreler eşleşmiyor!');
+                return;
+            }
+            
+            if (!roleId) {
+                alert('Lütfen bir rol seçin!');
+                return;
+            }
+            
+            // Password strength check
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            
+            if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
+                alert('Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir!');
+                return;
+            }
+            
+            // Prepare data for backend
+            const userData = {
+                username: formData.get('username'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                full_name: formData.get('full_name'),
+                phone: formData.get('phone'),
+                role_id: formData.get('role_id'),
+                status: formData.get('status'),
+                require_2fa: formData.get('require_2fa') ? 1 : 0,
+                email_verified: formData.get('email_verified') ? 1 : 0
+            };
+            
+            // TODO: Send to backend API
+            // fetch('/backend/api/admin/users/create', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(userData)
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         alert('Kullanıcı başarıyla oluşturuldu!');
+            //         userModal.style.display = 'none';
+            //         this.reset();
+            //         // Reload user table
+            //         location.reload();
+            //     } else {
+            //         alert('Hata: ' + data.message);
+            //     }
+            // })
+            // .catch(error => {
+            //     alert('Bir hata oluştu: ' + error.message);
+            // });
+            
+            // For now, just show success message
+            console.log('Creating user:', userData);
+            alert('Kullanıcı başarıyla oluşturuldu!');
+            userModal.style.display = 'none';
+            this.reset();
+        });
+
         // Search and filter functionality (basic implementation)
         // Farsça: عملکرد جستجو و فیلتر (پیاده‌سازی پایه).
         // Türkçe: Arama ve filtreleme işlevselliği (temel uygulama).
@@ -2448,6 +5023,146 @@ include '../includes/dashboard_header.php';
             // Türkçe: Arama işlevselliğini uygulayın.
             // English: Implement search functionality.
             console.log('Searching for:', this.value);
+        });
+
+        // Service Management Functions
+        // Farsça: توابع مدیریت خدمات.
+        // Türkçe: Hizmet Yönetimi Fonksiyonları.
+        // English: Service Management Functions.
+        
+        function editService(serviceId) {
+            // TODO: Load service data and populate modal
+            console.log('Editing service:', serviceId);
+            alert('🔧 Hizmet düzenleme özelliği yakında eklenecek!\n\nService ID: ' + serviceId);
+            
+            // Future implementation:
+            // fetch('/backend/api/admin/services/' + serviceId)
+            // .then(response => response.json())
+            // .then(data => {
+            //     // Populate form with service data
+            //     document.getElementById('serviceName').value = data.name;
+            //     document.getElementById('serviceDescription').value = data.description;
+            //     // ... populate other fields
+            //     serviceModal.style.display = 'block';
+            // });
+        }
+        
+        function toggleServiceStatus(serviceId) {
+            if (confirm('Bu hizmetin durumunu değiştirmek istediğinizden emin misiniz?')) {
+                // TODO: Send to backend API
+                console.log('Toggling service status:', serviceId);
+                alert('✅ Hizmet durumu değiştirildi!\n\nService ID: ' + serviceId);
+                
+                // Future implementation:
+                // fetch('/backend/api/admin/services/' + serviceId + '/toggle-status', {
+                //     method: 'POST'
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //     if (data.success) {
+                //         alert('Durum değiştirildi!');
+                //         location.reload();
+                //     }
+                // });
+            }
+        }
+        
+        function deleteService(serviceId) {
+            if (confirm('⚠️ Bu hizmeti silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!')) {
+                // TODO: Send to backend API
+                console.log('Deleting service:', serviceId);
+                alert('🗑️ Hizmet silindi!\n\nService ID: ' + serviceId);
+                
+                // Future implementation:
+                // fetch('/backend/api/admin/services/' + serviceId, {
+                //     method: 'DELETE'
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //     if (data.success) {
+                //         alert('Hizmet silindi!');
+                //         location.reload();
+                //     } else {
+                //         alert('Hata: ' + data.message);
+                //     }
+                // });
+            }
+        }
+
+        // Security Tabs Functionality
+        // Farsça: عملکرد تب‌های امنیتی.
+        // Türkçe: Güvenlik Sekmeleri İşlevselliği.
+        // English: Security Tabs Functionality.
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.style.background = 'white';
+                    b.style.color = '#333';
+                });
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Activate clicked tab
+                this.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                this.style.color = 'white';
+                
+                // Show corresponding content
+                const content = document.getElementById(tabId);
+                if (content) {
+                    content.style.display = 'block';
+                }
+            });
+        });
+
+        // Settings Tabs Functionality
+        // Farsça: عملکرد تب‌های تنظیمات.
+        // Türkçe: Ayarlar Sekmeleri İşlevselliği.
+        // English: Settings Tabs Functionality.
+        document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-settings-tab');
+                
+                // Remove active class from all settings tabs
+                document.querySelectorAll('.settings-tab-btn').forEach(b => {
+                    b.style.background = 'white';
+                    b.style.color = '#333';
+                    b.classList.remove('active');
+                });
+                
+                // Hide all settings tab contents
+                document.querySelectorAll('.settings-tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Activate clicked tab
+                this.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                this.style.color = 'white';
+                this.classList.add('active');
+                
+                // Show corresponding content
+                // Handle special cases where tab name differs from content id
+                let contentId = tabId;
+                if (tabId === 'notifications') {
+                    contentId = 'notificationstab';
+                } else if (tabId === 'security') {
+                    contentId = 'securitytab';
+                } else if (tabId === 'backup') {
+                    contentId = 'backuptab';
+                } else if (tabId === 'email') {
+                    contentId = 'emailtab';
+                }
+                
+                const content = document.getElementById(contentId);
+                if (content) {
+                    content.style.display = 'block';
+                }
+            });
         });
     </script>
 
