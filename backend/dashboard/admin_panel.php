@@ -366,6 +366,10 @@ include '../includes/dashboard_header.php';
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
             display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-content: normal;
+            justify-content: center;
             align-items: center;
             gap: 1rem;
             transition: transform 0.2s;
@@ -378,6 +382,8 @@ include '../includes/dashboard_header.php';
         .stat-icon {
             width: 60px;
             height: 60px;
+            min-width: 60px;
+            min-height: 60px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea20, #764ba220);
             display: flex;
@@ -385,6 +391,7 @@ include '../includes/dashboard_header.php';
             justify-content: center;
             color: #667eea;
             font-size: 1.5rem;
+            flex-shrink: 0;
         }
 
         .stat-info h3 {
@@ -714,16 +721,21 @@ include '../includes/dashboard_header.php';
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+            padding: 20px 0;
         }
 
         .modal-content {
             background: white;
-            margin: 5% auto;
+            margin: 2% auto;
             padding: 0;
             border-radius: 10px;
             width: 90%;
             max-width: 500px;
+            max-height: 90vh;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-header {
@@ -734,6 +746,7 @@ include '../includes/dashboard_header.php';
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .modal-header h3 {
@@ -755,6 +768,8 @@ include '../includes/dashboard_header.php';
 
         .modal-body {
             padding: 2rem;
+            overflow-y: auto;
+            flex: 1;
         }
 
         .submit-btn {
@@ -878,6 +893,8 @@ include '../includes/dashboard_header.php';
             .stat-icon {
                 width: 50px;
                 height: 50px;
+                min-width: 50px;
+                min-height: 50px;
                 font-size: 1.25rem;
             }
             
@@ -969,9 +986,14 @@ include '../includes/dashboard_header.php';
                 margin-bottom: 1rem;
             }
             
+            .modal {
+                padding: 10px 0;
+            }
+            
             .modal-content {
                 width: 95%;
-                margin: 10% auto;
+                margin: 5% auto;
+                max-height: 85vh;
             }
             
             .modal-header {
@@ -1255,6 +1277,237 @@ include '../includes/dashboard_header.php';
                 cursor: default;
             }
         }
+        
+        /* Payment Management Responsive Styles */
+        /* Farsça: استایل‌های ریسپانسیو مدیریت پرداخت. */
+        /* Türkçe: Ödeme Yönetimi Duyarlı Stilleri. */
+        /* English: Payment Management Responsive Styles. */
+        
+        /* Mobile Payment Stats - Stack vertically */
+        @media (max-width: 767px) {
+            #payments .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem;
+            }
+            
+            #payments .stat-card {
+                padding: 1.5rem;
+            }
+            
+            #payments .stat-icon {
+                width: 50px;
+                height: 50px;
+                min-width: 50px;
+                min-height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            #payments .stat-info h3 {
+                font-size: 1.5rem;
+            }
+            
+            #payments .stat-info p {
+                font-size: 0.85rem;
+            }
+            
+            #payments .stat-info small {
+                font-size: 0.75rem;
+                display: block;
+                margin-top: 4px;
+            }
+            
+            /* Payment Filters - Stack on mobile */
+            #payments .filters {
+                grid-template-columns: 1fr !important;
+                gap: 12px;
+                padding: 1rem;
+            }
+            
+            #payments .search-input,
+            #payments .filter-select {
+                width: 100%;
+                grid-column: 1 !important;
+            }
+            
+            /* Payment Table - Make scrollable */
+            #payments .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            #payments .data-table {
+                min-width: 800px;
+                font-size: 0.85rem;
+            }
+            
+            #payments .data-table th,
+            #payments .data-table td {
+                padding: 10px 8px;
+                white-space: nowrap;
+            }
+            
+            #payments .data-table td div {
+                min-width: 120px;
+            }
+            
+            /* Settlement Section Mobile */
+            #payments h3 {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            
+            #payments h3 i {
+                font-size: 1rem;
+                margin-right: 8px;
+            }
+            
+            /* Section Header Actions - Stack on mobile */
+            #payments .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+            
+            #payments .section-header > div {
+                width: 100%;
+            }
+            
+            #payments .section-header > div:last-child {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            #payments .section-header .add-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Tablet Payment Responsive */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #payments .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 1.5rem;
+            }
+            
+            #payments .filters {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px;
+            }
+            
+            #payments .search-input {
+                grid-column: 1 / -1 !important;
+            }
+            
+            #payments .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            #payments .data-table {
+                min-width: 900px;
+            }
+            
+            #payments .section-header {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            #payments .section-header > div:last-child {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            #payments h3 {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Desktop Fine-tuning for Payment Section */
+        @media (min-width: 1024px) {
+            #payments .stats-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 1.5rem;
+            }
+            
+            #payments .filters {
+                grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+            }
+        }
+        
+        /* Override default stats-grid behavior for payment section */
+        #payments .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 24px;
+        }
+        
+        /* Ensure all 4 cards are visible on medium screens */
+        @media (min-width: 768px) and (max-width: 991px) {
+            #payments .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
+        /* Ensure all 4 cards fit on larger tablets and small desktops */
+        @media (min-width: 992px) and (max-width: 1199px) {
+            #payments .stats-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 1rem;
+            }
+            
+            #payments .stat-card {
+                padding: 1.5rem;
+            }
+            
+            #payments .stat-info h3 {
+                font-size: 1.6rem;
+            }
+            
+            #payments .stat-info p {
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Optimal spacing for large screens */
+        @media (min-width: 1200px) {
+            #payments .stats-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 2rem;
+            }
+        }
+        
+        /* Utility classes for payment section */
+        .text-green-600 {
+            color: #059669;
+            font-size: 0.8rem;
+        }
+        
+        .text-yellow-600 {
+            color: #d97706;
+            font-size: 0.8rem;
+        }
+        
+        .text-red-600 {
+            color: #dc2626;
+            font-size: 0.8rem;
+        }
+        
+        .text-blue-600 {
+            color: #2563eb;
+            font-size: 0.8rem;
+        }
+        
+        /* Pending badge styling */
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
     </style>
 </head>
 <body>
@@ -1401,7 +1654,7 @@ include '../includes/dashboard_header.php';
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
-                            <i class="fas fa-shopping-cart" style="color: #667eea;"></i>
+                            <i class="fas fa-clipboard-list" style="color: #667eea;"></i>
                         </div>
                         <div class="stat-info">
                             <h3>156</h3>
@@ -1412,7 +1665,7 @@ include '../includes/dashboard_header.php';
                     
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
-                            <i class="fas fa-spinner" style="color: #28a745;"></i>
+                            <i class="fas fa-hourglass-half" style="color: #28a745;"></i>
                         </div>
                         <div class="stat-info">
                             <h3>24</h3>
@@ -2791,23 +3044,748 @@ include '../includes/dashboard_header.php';
             <!-- English: Reports Section. -->
             <section id="reports" class="content-section">
                 <div class="section-header">
-                    <h2>Raporlar</h2>
+                    <div>
+                        <h2><i class="fas fa-chart-line" style="color: #667eea; margin-right: 12px;"></i>Raporlar ve Analizler</h2>
+                        <p>Detaylı iş analizleri ve raporları oluştur</p>
+                    </div>
                 </div>
-                <div class="reports-grid">
-                    <div class="report-card">
-                        <h3>Günlük Rapor</h3>
-                        <p>Bugünkü rezervasyonlar ve gelir</p>
-                        <button class="report-btn">PDF İndir</button>
+
+                <!-- Report Stats Overview -->
+                <div class="stats-grid" style="margin-bottom: 32px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
+                            <i class="fas fa-file-alt" style="color: #667eea;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>248</h3>
+                            <p>Toplam Rapor</p>
+                            <small style="color: #28a745;"><i class="fas fa-arrow-up"></i> Bu ay 42 rapor</small>
+                        </div>
                     </div>
-                    <div class="report-card">
-                        <h3>Aylık Rapor</h3>
-                        <p>Bu ayın detaylı analizi</p>
-                        <button class="report-btn">PDF İndir</button>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
+                            <i class="fas fa-download" style="color: #28a745;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>1,234</h3>
+                            <p>İndirilen Raporlar</p>
+                            <small style="color: #666;"><i class="fas fa-calendar"></i> Son 30 gün</small>
+                        </div>
                     </div>
-                    <div class="report-card">
-                        <h3>Kullanıcı Raporu</h3>
-                        <p>Kullanıcı istatistikleri</p>
-                        <button class="report-btn">PDF İndir</button>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #ff663320);">
+                            <i class="fas fa-clock" style="color: #ffc107;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>15</h3>
+                            <p>Zamanlanmış Raporlar</p>
+                            <small style="color: #666;"><i class="fas fa-bell"></i> Otomatik</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #17a2b820, #00bcd420);">
+                            <i class="fas fa-chart-bar" style="color: #17a2b8;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>8</h3>
+                            <p>Rapor Türleri</p>
+                            <small style="color: #666;"><i class="fas fa-layer-group"></i> Kullanılabilir</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Categories Tabs -->
+                <div style="margin-bottom: 24px;">
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; background: white; padding: 16px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                        <button class="report-tab-btn active" onclick="showReportCategory('financial')" style="padding: 10px 20px; border: 2px solid #667eea; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-money-bill-wave"></i> Finansal
+                        </button>
+                        <button class="report-tab-btn" onclick="showReportCategory('operational')" style="padding: 10px 20px; border: 2px solid #e9ecef; background: white; color: #666; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-cogs"></i> Operasyonel
+                        </button>
+                        <button class="report-tab-btn" onclick="showReportCategory('customer')" style="padding: 10px 20px; border: 2px solid #e9ecef; background: white; color: #666; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-users"></i> Müşteri
+                        </button>
+                        <button class="report-tab-btn" onclick="showReportCategory('performance')" style="padding: 10px 20px; border: 2px solid #e9ecef; background: white; color: #666; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                            <i class="fas fa-chart-pie"></i> Performans
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Financial Reports Tab -->
+                <div id="financial-reports" class="report-category active">
+                    <h3 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-money-bill-wave" style="color: #28a745;"></i>
+                        Finansal Raporlar
+                    </h3>
+                    
+                    <div class="reports-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+                        <!-- Revenue Report -->
+                        <div class="report-card" style="border-left: 4px solid #28a745;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #28a74520, #20c99720); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-chart-line" style="color: #28a745; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Gelir Raporu</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Toplam gelir, ödemeler ve kar marjı analizi</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam Gelir</small>
+                                        <strong style="color: #28a745; font-size: 1.1rem;">₺245,890</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Net Kar</small>
+                                        <strong style="color: #667eea; font-size: 1.1rem;">₺198,340</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">İşlemler</small>
+                                        <strong style="color: #333;">1,234</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Ort. Sipariş</small>
+                                        <strong style="color: #333;">₺199</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19">
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('revenue', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('revenue', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('revenue', 'csv')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #17a2b8, #00bcd4);">
+                                    <i class="fas fa-file-csv"></i> CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Payment Analysis Report -->
+                        <div class="report-card" style="border-left: 4px solid #667eea;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea20, #764ba220); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-credit-card" style="color: #667eea; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Ödeme Analizi</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Ödeme yöntemleri, başarı oranları ve iade analizi</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Başarılı</small>
+                                        <strong style="color: #28a745; font-size: 1.1rem;">%94.5</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Başarısız</small>
+                                        <strong style="color: #dc3545; font-size: 1.1rem;">%5.5</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Kredi Kartı</small>
+                                        <strong style="color: #333;">%68</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Nakit</small>
+                                        <strong style="color: #333;">%32</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                                    <option>Son 7 Gün</option>
+                                    <option>Son 30 Gün</option>
+                                    <option>Son 3 Ay</option>
+                                    <option>Bu Yıl</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('payment', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('payment', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('payment', 'csv')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #17a2b8, #00bcd4);">
+                                    <i class="fas fa-file-csv"></i> CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tax Report -->
+                        <div class="report-card" style="border-left: 4px solid #ffc107;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #ffc10720, #ff663320); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-receipt" style="color: #ffc107; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Vergi Raporu</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">KDV, gelir vergisi ve mali beyanlar</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam KDV</small>
+                                        <strong style="color: #ffc107; font-size: 1.1rem;">₺44,260</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Gelir Vergisi</small>
+                                        <strong style="color: #fd7e14; font-size: 1.1rem;">₺36,870</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Faturalar</small>
+                                        <strong style="color: #333;">1,156</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Beyanlar</small>
+                                        <strong style="color: #333;">12</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                                    <option>Q3 2025</option>
+                                    <option>Q2 2025</option>
+                                    <option>Q1 2025</option>
+                                    <option>2024</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('tax', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('tax', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Commission Report -->
+                        <div class="report-card" style="border-left: 4px solid #17a2b8;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #17a2b820, #00bcd420); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-hand-holding-usd" style="color: #17a2b8; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Komisyon Raporu</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Otopark komisyonları ve ödemeler</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam Komisyon</small>
+                                        <strong style="color: #17a2b8; font-size: 1.1rem;">₺36,883</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Ödenen</small>
+                                        <strong style="color: #28a745; font-size: 1.1rem;">₺28,343</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Bekleyen</small>
+                                        <strong style="color: #ffc107;">₺8,540</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Otopark Sayısı</small>
+                                        <strong style="color: #333;">24</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <input type="month" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10">
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('commission', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('commission', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Operational Reports Tab -->
+                <div id="operational-reports" class="report-category" style="display: none;">
+                    <h3 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-cogs" style="color: #667eea;"></i>
+                        Operasyonel Raporlar
+                    </h3>
+                    
+                    <div class="reports-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+                        <!-- Order Report -->
+                        <div class="report-card" style="border-left: 4px solid #667eea;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea20, #764ba220); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-clipboard-list" style="color: #667eea; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Sipariş Raporu</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Tamamlanan, iptal edilen ve bekleyen siparişler</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam Sipariş</small>
+                                        <strong style="color: #667eea; font-size: 1.1rem;">1,456</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Tamamlanan</small>
+                                        <strong style="color: #28a745; font-size: 1.1rem;">1,368</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">İptal Edilen</small>
+                                        <strong style="color: #dc3545;">64</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Devam Eden</small>
+                                        <strong style="color: #ffc107;">24</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19">
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('orders', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('orders', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Service Performance Report -->
+                        <div class="report-card" style="border-left: 4px solid #28a745;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #28a74520, #20c99720); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-tools" style="color: #28a745; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Hizmet Performansı</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">En çok tercih edilen hizmetler ve süre analizi</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Aktif Hizmetler</small>
+                                        <strong style="color: #28a745; font-size: 1.1rem;">34</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam Kullanım</small>
+                                        <strong style="color: #667eea; font-size: 1.1rem;">2,876</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Ort. Süre</small>
+                                        <strong style="color: #333;">45 dk</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Memnuniyet</small>
+                                        <strong style="color: #ffc107;">4.7★</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                                    <option>Bu Ay</option>
+                                    <option>Son 3 Ay</option>
+                                    <option>Bu Yıl</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('services', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('services', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Carwash Performance Report -->
+                        <div class="report-card" style="border-left: 4px solid #fd7e14;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #fd7e1420, #dc354520); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-car" style="color: #fd7e14; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Otopark Performansı</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Otopark bazlı performans ve gelir analizi</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam Otopark</small>
+                                        <strong style="color: #fd7e14; font-size: 1.1rem;">24</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Aktif</small>
+                                        <strong style="color: #28a745; font-size: 1.1rem;">22</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">En Yüksek Gelir</small>
+                                        <strong style="color: #333;">₺45K</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Kapasite</small>
+                                        <strong style="color: #333;">%78</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                                    <option>Tüm Otoparklar</option>
+                                    <option>En İyi 10</option>
+                                    <option>En Düşük 10</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('carwash', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('carwash', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Reports Tab -->
+                <div id="customer-reports" class="report-category" style="display: none;">
+                    <h3 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-users" style="color: #17a2b8;"></i>
+                        Müşteri Raporları
+                    </h3>
+                    
+                    <div class="reports-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+                        <!-- Customer Analytics Report -->
+                        <div class="report-card" style="border-left: 4px solid #17a2b8;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #17a2b820, #00bcd420); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-user-chart" style="color: #17a2b8; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Müşteri Analizi</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Müşteri davranışları, sadakat ve segmentasyon</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam Müşteri</small>
+                                        <strong style="color: #17a2b8; font-size: 1.1rem;">3,456</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Aktif</small>
+                                        <strong style="color: #28a745; font-size: 1.1rem;">2,134</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Yeni (30 gün)</small>
+                                        <strong style="color: #333;">287</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Sadakat Oranı</small>
+                                        <strong style="color: #ffc107;">%68</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                                    <option>Tüm Müşteriler</option>
+                                    <option>Premium</option>
+                                    <option>Standart</option>
+                                    <option>Yeni</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('customers', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('customers', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Reviews Report -->
+                        <div class="report-card" style="border-left: 4px solid #ffc107;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #ffc10720, #ff663320); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-star" style="color: #ffc107; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Değerlendirme Raporu</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Müşteri memnuniyeti ve geri bildirim analizi</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Ort. Puan</small>
+                                        <strong style="color: #ffc107; font-size: 1.1rem;">4.6★</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam Yorum</small>
+                                        <strong style="color: #667eea; font-size: 1.1rem;">1,876</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Olumlu</small>
+                                        <strong style="color: #28a745;">%87</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Olumsuz</small>
+                                        <strong style="color: #dc3545;">%13</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19">
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('reviews', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('reviews', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Reports Tab -->
+                <div id="performance-reports" class="report-category" style="display: none;">
+                    <h3 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-chart-pie" style="color: #fd7e14;"></i>
+                        Performans Raporları
+                    </h3>
+                    
+                    <div class="reports-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+                        <!-- Comprehensive Analytics Report -->
+                        <div class="report-card" style="border-left: 4px solid #667eea;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea20, #764ba220); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-chart-area" style="color: #667eea; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Kapsamlı Analiz</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Tüm metriklerin detaylı performans raporu</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Büyüme Oranı</small>
+                                        <strong style="color: #28a745; font-size: 1.1rem;">+24%</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">ROI</small>
+                                        <strong style="color: #667eea; font-size: 1.1rem;">%156</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Maliyet/Gelir</small>
+                                        <strong style="color: #333;">%34</strong>
+                                    </div>
+                                    <div>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Verimlilik</small>
+                                        <strong style="color: #28a745;">%91</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                                    <option>Son 12 Ay</option>
+                                    <option>Bu Yıl</option>
+                                    <option>Geçen Yıl</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('analytics', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('analytics', 'excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #28a745, #20c997);">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Executive Summary -->
+                        <div class="report-card" style="border-left: 4px solid #dc3545;">
+                            <div style="display: flex; align-items: start; gap: 16px; margin-bottom: 16px;">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #dc354520, #c8233320); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-briefcase" style="color: #dc3545; font-size: 1.3rem;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Yönetici Özeti</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Üst yönetim için özet performans raporu</p>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                                    <div style="padding: 8px; background: white; border-radius: 6px;">
+                                        <small style="color: #666; display: block;">📊 Toplam Gelir</small>
+                                        <strong style="color: #28a745;">₺245,890 (+18%)</strong>
+                                    </div>
+                                    <div style="padding: 8px; background: white; border-radius: 6px;">
+                                        <small style="color: #666; display: block;">👥 Yeni Müşteriler</small>
+                                        <strong style="color: #17a2b8;">287 (+24%)</strong>
+                                    </div>
+                                    <div style="padding: 8px; background: white; border-radius: 6px;">
+                                        <small style="color: #666; display: block;">⭐ Müşteri Memnuniyeti</small>
+                                        <strong style="color: #ffc107;">4.6/5.0</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                                    <option>Bu Çeyrek</option>
+                                    <option>Geçen Çeyrek</option>
+                                    <option>Yıllık</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button class="report-btn" onclick="downloadReport('executive', 'pdf')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px;">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="report-btn" onclick="downloadReport('executive', 'pptx')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #fd7e14, #dc3545);">
+                                    <i class="fas fa-file-powerpoint"></i> PPT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scheduled Reports Section -->
+                <div style="margin-top: 32px; background: white; padding: 24px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <h3 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fas fa-calendar-alt" style="color: #667eea; margin-right: 10px;"></i>Zamanlanmış Raporlar</span>
+                        <button class="add-btn" style="padding: 8px 16px; font-size: 0.9rem;">
+                            <i class="fas fa-plus"></i> Yeni Zamanlama
+                        </button>
+                    </h3>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Rapor Adı</th>
+                                    <th>Periyot</th>
+                                    <th>Format</th>
+                                    <th>Son Çalışma</th>
+                                    <th>Durum</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Haftalık Gelir Raporu</strong></td>
+                                    <td>Her Pazartesi 09:00</td>
+                                    <td><span class="type-badge" style="background: #dc354520; color: #dc3545;"><i class="fas fa-file-pdf"></i> PDF</span></td>
+                                    <td>18 Eki 2025, 09:05</td>
+                                    <td><span class="status-badge active"><i class="fas fa-check"></i> Aktif</span></td>
+                                    <td>
+                                        <button class="action-btn edit-btn" title="Düzenle">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn view-btn" title="Çalıştır">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button class="action-btn delete-btn" title="Sil">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Aylık Performans Özeti</strong></td>
+                                    <td>Her ayın 1'i, 08:00</td>
+                                    <td><span class="type-badge" style="background: #28a74520; color: #28a745;"><i class="fas fa-file-excel"></i> Excel</span></td>
+                                    <td>01 Eki 2025, 08:12</td>
+                                    <td><span class="status-badge active"><i class="fas fa-check"></i> Aktif</span></td>
+                                    <td>
+                                        <button class="action-btn edit-btn">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn view-btn">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button class="action-btn delete-btn">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Günlük Sipariş Raporu</strong></td>
+                                    <td>Her gün 23:00</td>
+                                    <td><span class="type-badge" style="background: #17a2b820; color: #17a2b8;"><i class="fas fa-file-csv"></i> CSV</span></td>
+                                    <td>18 Eki 2025, 23:03</td>
+                                    <td><span class="status-badge active"><i class="fas fa-check"></i> Aktif</span></td>
+                                    <td>
+                                        <button class="action-btn edit-btn">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn view-btn">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button class="action-btn delete-btn">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -3002,7 +3980,7 @@ include '../includes/dashboard_header.php';
                         <h2><i class="fas fa-file-alt" style="color: #764ba2; margin-right: 12px;"></i>İçerik Yönetimi (CMS)</h2>
                         <p>Web sitesi sayfalarını ve içeriklerini yönet</p>
                     </div>
-                    <button class="add-btn" style="background: linear-gradient(135deg, #764ba2, #667eea);">
+                    <button class="add-btn" id="addCmsPageBtn" style="background: linear-gradient(135deg, #764ba2, #667eea);">
                         <i class="fas fa-plus"></i>
                         Yeni Sayfa Ekle
                     </button>
@@ -4436,7 +5414,7 @@ include '../includes/dashboard_header.php';
     <!-- Türkçe: Kullanıcı Ekle Modalı. -->
     <!-- English: Add User Modal. -->
     <div id="userModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
                 <h3>Yeni Kullanıcı Ekle</h3>
                 <span class="close" id="closeUserModal">&times;</span>
@@ -4516,6 +5494,231 @@ include '../includes/dashboard_header.php';
                         <i class="fas fa-user-plus"></i>
                         Kullanıcı Oluştur
                     </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!-- Add CMS Page Modal -->
+    <!-- Farsça: مودال افزودن صفحه CMS. -->
+    <!-- Türkçe: CMS Sayfası Ekle Modalı. -->
+    <!-- English: Add CMS Page Modal. -->
+    <div id="cmsPageModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #764ba2, #667eea);">
+                <h3><i class="fas fa-file-alt mr-2"></i>Yeni Sayfa Oluştur</h3>
+                <span class="close" id="closeCmsPageModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="cmsPageForm">
+                    <!-- Page Basic Information -->
+                    <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #764ba2;">
+                        <h4 style="margin: 0 0 16px 0; color: #764ba2; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-info-circle"></i>
+                            Sayfa Bilgileri
+                        </h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group">
+                                <label><i class="fas fa-heading mr-1"></i>Sayfa Başlığı *</label>
+                                <input type="text" name="page_title" id="pageTitle" required placeholder="Örn: Hakkımızda">
+                                <small style="color: #64748b;">Sayfa başlığı (meta title)</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><i class="fas fa-link mr-1"></i>URL Slug *</label>
+                                <input type="text" name="page_slug" id="pageSlug" required placeholder="Örn: hakkimizda">
+                                <small style="color: #64748b;">URL dostu metin (otomatik oluşturulur)</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-align-left mr-1"></i>Kısa Açıklama</label>
+                            <textarea name="page_description" id="pageDescription" rows="2" placeholder="Sayfa meta açıklaması (SEO için önemli)"></textarea>
+                            <small style="color: #64748b;">150-160 karakter önerilir</small>
+                        </div>
+                    </div>
+
+                    <!-- Page Content -->
+                    <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #667eea;">
+                        <h4 style="margin: 0 0 16px 0; color: #667eea; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file-code"></i>
+                            Sayfa İçeriği
+                        </h4>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-paragraph mr-1"></i>Ana İçerik *</label>
+                            <textarea name="page_content" id="pageContent" rows="10" required placeholder="Sayfa içeriğini buraya yazın... HTML etiketleri kullanabilirsiniz."></textarea>
+                            <small style="color: #64748b;">
+                                <i class="fas fa-lightbulb"></i> 
+                                HTML etiketleri desteklenir: &lt;h1&gt;, &lt;p&gt;, &lt;div&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;a&gt;, &lt;img&gt;
+                            </small>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group">
+                                <label><i class="fas fa-image mr-1"></i>Öne Çıkan Görsel (URL)</label>
+                                <input type="url" name="featured_image" id="featuredImage" placeholder="https://example.com/image.jpg">
+                                <small style="color: #64748b;">Sayfa görseli URL'si</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><i class="fas fa-palette mr-1"></i>Arka Plan Rengi</label>
+                                <input type="color" name="background_color" id="backgroundColor" value="#ffffff" style="height: 45px; padding: 4px;">
+                                <small style="color: #64748b;">Sayfa arka plan rengi</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Page Settings -->
+                    <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #28a745;">
+                        <h4 style="margin: 0 0 16px 0; color: #28a745; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-cog"></i>
+                            Sayfa Ayarları
+                        </h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                            <div class="form-group">
+                                <label><i class="fas fa-list-alt mr-1"></i>Kategori *</label>
+                                <select name="page_category" id="pageCategory" required>
+                                    <option value="">Kategori Seçin</option>
+                                    <option value="about">Hakkımızda</option>
+                                    <option value="services">Hizmetler</option>
+                                    <option value="contact">İletişim</option>
+                                    <option value="help">Yardım & SSS</option>
+                                    <option value="legal">Yasal</option>
+                                    <option value="blog">Blog</option>
+                                    <option value="other">Diğer</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><i class="fas fa-flag mr-1"></i>Durum *</label>
+                                <select name="page_status" id="pageStatus" required>
+                                    <option value="draft">Taslak</option>
+                                    <option value="published" selected>Yayında</option>
+                                    <option value="archived">Arşivlendi</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><i class="fas fa-language mr-1"></i>Dil *</label>
+                                <select name="page_language" id="pageLanguage" required>
+                                    <option value="tr" selected>Türkçe</option>
+                                    <option value="en">English</option>
+                                    <option value="ar">العربية</option>
+                                    <option value="fa">فارسی</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                            <div class="form-group">
+                                <label><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
+                                <input type="number" name="page_order" id="pageOrder" value="0" min="0" placeholder="0">
+                                <small style="color: #64748b;">Sayfa sıralama numarası (0 = en üstte)</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><i class="fas fa-user-tie mr-1"></i>Yazar</label>
+                                <select name="page_author" id="pageAuthor">
+                                    <option value="1" selected>Admin</option>
+                                    <option value="2">Editor</option>
+                                    <option value="3">Content Manager</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Settings -->
+                    <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #ffc107;">
+                        <h4 style="margin: 0 0 16px 0; color: #ffc107; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-search"></i>
+                            SEO Ayarları
+                        </h4>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-tag mr-1"></i>Meta Anahtar Kelimeler</label>
+                            <input type="text" name="meta_keywords" id="metaKeywords" placeholder="otopark, araç yıkama, temizlik, bakım">
+                            <small style="color: #64748b;">Virgülle ayrılmış anahtar kelimeler</small>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group">
+                                <label><i class="fas fa-robot mr-1"></i>Robots Meta Tag</label>
+                                <select name="robots_meta" id="robotsMeta">
+                                    <option value="index,follow" selected>Index, Follow (Önerilen)</option>
+                                    <option value="noindex,follow">No Index, Follow</option>
+                                    <option value="index,nofollow">Index, No Follow</option>
+                                    <option value="noindex,nofollow">No Index, No Follow</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label><i class="fas fa-share-alt mr-1"></i>Open Graph Görseli</label>
+                                <input type="url" name="og_image" id="ogImage" placeholder="https://example.com/og-image.jpg">
+                                <small style="color: #64748b;">Sosyal medya paylaşım görseli</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Settings -->
+                    <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #17a2b8;">
+                        <h4 style="margin: 0 0 16px 0; color: #17a2b8; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-sliders-h"></i>
+                            Gelişmiş Ayarlar
+                        </h4>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-code mr-1"></i>Özel CSS</label>
+                            <textarea name="custom_css" id="customCss" rows="4" placeholder=".my-class { color: blue; }"></textarea>
+                            <small style="color: #64748b;">Bu sayfa için özel CSS kodları</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-file-code mr-1"></i>Özel JavaScript</label>
+                            <textarea name="custom_js" id="customJs" rows="4" placeholder="console.log('Page loaded');"></textarea>
+                            <small style="color: #64748b;">Bu sayfa için özel JavaScript kodları</small>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px;">
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" name="show_in_menu" id="showInMenu" checked style="margin-right: 8px;">
+                                    <i class="fas fa-bars mr-1"></i>
+                                    Menüde Göster
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" name="show_in_footer" id="showInFooter" style="margin-right: 8px;">
+                                    <i class="fas fa-shoe-prints mr-1"></i>
+                                    Footer'da Göster
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" name="require_auth" id="requireAuth" style="margin-right: 8px;">
+                                    <i class="fas fa-lock mr-1"></i>
+                                    Giriş Gerekli
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" class="report-btn" onclick="document.getElementById('cmsPageModal').style.display='none'" style="background: #6c757d; padding: 12px 24px;">
+                            <i class="fas fa-times"></i>
+                            İptal
+                        </button>
+                        <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #764ba2, #667eea); display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-save"></i>
+                            Sayfayı Kaydet
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -4683,6 +5886,175 @@ include '../includes/dashboard_header.php';
                 userModal.style.display = 'none';
             }
         });
+
+        // CMS Page Modal Functions
+        // Farsça: توابع مودال صفحه CMS.
+        // Türkçe: CMS Sayfası Modal Fonksiyonları.
+        // English: CMS Page Modal Functions.
+        const cmsPageModal = document.getElementById('cmsPageModal');
+        const addCmsPageBtn = document.getElementById('addCmsPageBtn');
+        const closeCmsPageModal = document.getElementById('closeCmsPageModal');
+
+        if (addCmsPageBtn) {
+            addCmsPageBtn.addEventListener('click', () => {
+                cmsPageModal.style.display = 'block';
+            });
+        }
+
+        if (closeCmsPageModal) {
+            closeCmsPageModal.addEventListener('click', () => {
+                cmsPageModal.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target === cmsPageModal) {
+                cmsPageModal.style.display = 'none';
+            }
+        });
+
+        // Auto-generate URL slug from page title (Turkish character support)
+        // Farsça: تولید خودکار URL از عنوان صفحه (پشتیبانی از کاراکترهای ترکی).
+        // Türkçe: Sayfa başlığından otomatik URL slug üretimi (Türkçe karakter desteği).
+        // English: Auto-generate URL slug from page title (Turkish character support).
+        const pageTitleInput = document.getElementById('pageTitle');
+        const pageSlugInput = document.getElementById('pageSlug');
+
+        if (pageTitleInput && pageSlugInput) {
+            pageTitleInput.addEventListener('input', function() {
+                let slug = this.value
+                    .toLowerCase()
+                    // Turkish character replacements
+                    .replace(/ğ/g, 'g')
+                    .replace(/ü/g, 'u')
+                    .replace(/ş/g, 's')
+                    .replace(/ı/g, 'i')
+                    .replace(/ö/g, 'o')
+                    .replace(/ç/g, 'c')
+                    // Replace spaces and special characters with hyphens
+                    .replace(/[^a-z0-9]+/g, '-')
+                    // Remove leading and trailing hyphens
+                    .replace(/^-|-$/g, '');
+                
+                pageSlugInput.value = slug;
+            });
+        }
+
+        // CMS Page Form Validation and Submission
+        // Farsça: اعتبارسنجی و ارسال فرم صفحه CMS.
+        // Türkçe: CMS Sayfası Form Doğrulama ve Gönderimi.
+        // English: CMS Page Form Validation and Submission.
+        const cmsPageForm = document.getElementById('cmsPageForm');
+
+        if (cmsPageForm) {
+            cmsPageForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Get form values
+                const title = document.getElementById('pageTitle').value.trim();
+                const slug = document.getElementById('pageSlug').value.trim();
+                const content = document.getElementById('pageContent').value.trim();
+                const category = document.getElementById('pageCategory').value;
+                const status = document.getElementById('pageStatus').value;
+
+                // Validation
+                if (title.length < 3) {
+                    alert('❌ Hata!\n\nSayfa başlığı en az 3 karakter olmalıdır.');
+                    return;
+                }
+
+                if (title.length > 200) {
+                    alert('❌ Hata!\n\nSayfa başlığı maksimum 200 karakter olabilir.');
+                    return;
+                }
+
+                if (!slug.match(/^[a-z0-9-]+$/)) {
+                    alert('❌ Hata!\n\nURL slug sadece küçük harf, rakam ve tire (-) içerebilir.');
+                    return;
+                }
+
+                if (slug.length < 3) {
+                    alert('❌ Hata!\n\nURL slug en az 3 karakter olmalıdır.');
+                    return;
+                }
+
+                if (content.length < 50) {
+                    alert('❌ Hata!\n\nSayfa içeriği en az 50 karakter olmalıdır.');
+                    return;
+                }
+
+                if (!category) {
+                    alert('❌ Hata!\n\nLütfen bir kategori seçin.');
+                    return;
+                }
+
+                // Get optional fields
+                const description = document.getElementById('pageDescription').value;
+                const language = document.getElementById('pageLanguage').value;
+
+                // Success message (TODO: Replace with actual backend API call)
+                alert('✅ Başarılı!\n\n' +
+                      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+                      '📄 Sayfa Başlığı: ' + title + '\n' +
+                      '🔗 URL Slug: ' + slug + '\n' +
+                      '📁 Kategori: ' + getCategoryName(category) + '\n' +
+                      '👁️ Durum: ' + getStatusName(status) + '\n' +
+                      '🌐 Dil: ' + language.toUpperCase() + '\n' +
+                      '📝 İçerik Uzunluğu: ' + content.length + ' karakter\n' +
+                      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+                      'Sayfa başarıyla oluşturuldu!');
+
+                // TODO: Backend Integration
+                // const formData = new FormData(this);
+                // fetch('/backend/api/cms/create_page.php', {
+                //     method: 'POST',
+                //     body: formData
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //     if (data.success) {
+                //         alert('✅ Sayfa başarıyla oluşturuldu!');
+                //         cmsPageModal.style.display = 'none';
+                //         this.reset();
+                //         // Refresh the page list
+                //         location.reload();
+                //     } else {
+                //         alert('❌ Hata: ' + data.message);
+                //     }
+                // })
+                // .catch(error => {
+                //     alert('❌ Bir hata oluştu: ' + error.message);
+                // });
+
+                // Close modal and reset form
+                cmsPageModal.style.display = 'none';
+                this.reset();
+            });
+        }
+
+        // Helper function to get category name
+        function getCategoryName(value) {
+            const categories = {
+                'about': 'Hakkımızda',
+                'services': 'Hizmetler',
+                'contact': 'İletişim',
+                'help': 'Yardım & SSS',
+                'legal': 'Yasal',
+                'blog': 'Blog',
+                'other': 'Diğer'
+            };
+            return categories[value] || value;
+        }
+
+        // Helper function to get status name
+        function getStatusName(value) {
+            const statuses = {
+                'draft': 'Taslak',
+                'published': 'Yayında',
+                'archived': 'Arşivlendi'
+            };
+            return statuses[value] || value;
+        }
 
         // Service Modal Functions
         // Farsça: توابع مودال خدمات.
@@ -5164,6 +6536,161 @@ include '../includes/dashboard_header.php';
                 }
             });
         });
+
+        // Report Category Tabs Functionality
+        // Farsça: عملکرد تب‌های دسته‌بندی گزارش.
+        // Türkçe: Rapor Kategorisi Sekmeleri İşlevselliği.
+        // English: Report Category Tabs Functionality.
+        function showReportCategory(category) {
+            // Hide all report categories
+            document.querySelectorAll('.report-category').forEach(cat => {
+                cat.style.display = 'none';
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.report-tab-btn').forEach(btn => {
+                btn.style.background = 'white';
+                btn.style.color = '#666';
+                btn.style.border = '2px solid #e9ecef';
+                btn.classList.remove('active');
+            });
+            
+            // Show selected category
+            const selectedCategory = document.getElementById(category + '-reports');
+            if (selectedCategory) {
+                selectedCategory.style.display = 'block';
+            }
+            
+            // Activate clicked button
+            event.target.closest('button').style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            event.target.closest('button').style.color = 'white';
+            event.target.closest('button').style.border = '2px solid #667eea';
+            event.target.closest('button').classList.add('active');
+        }
+
+        // Report Download Functionality
+        // Farsça: عملکرد دانلود گزارش.
+        // Türkçe: Rapor İndirme İşlevselliği.
+        // English: Report Download Functionality.
+        function downloadReport(reportType, format) {
+            // Show loading notification
+            const loadingMsg = `📊 ${reportType.toUpperCase()} raporu ${format.toUpperCase()} formatında hazırlanıyor...`;
+            console.log(loadingMsg);
+            
+            // TODO: Replace with actual backend API call
+            // Example API call structure:
+            /*
+            fetch(`/backend/api/admin/reports/download`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    report_type: reportType,
+                    format: format,
+                    date_from: document.querySelector(`#${reportType}DateFrom`)?.value,
+                    date_to: document.querySelector(`#${reportType}DateTo`)?.value
+                })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${reportType}_report_${new Date().toISOString().split('T')[0]}.${format}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                alert('✅ Rapor başarıyla indirildi!');
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                alert('❌ Rapor indirme hatası: ' + error.message);
+            });
+            */
+            
+            // Temporary simulation for demonstration
+            const reportNames = {
+                'revenue': 'Gelir Raporu',
+                'payment': 'Ödeme Analizi',
+                'tax': 'Vergi Raporu',
+                'commission': 'Komisyon Raporu',
+                'orders': 'Sipariş Raporu',
+                'services': 'Hizmet Performansı',
+                'carwash': 'Otopark Performansı',
+                'customers': 'Müşteri Analizi',
+                'reviews': 'Değerlendirme Raporu',
+                'analytics': 'Kapsamlı Analiz',
+                'executive': 'Yönetici Özeti'
+            };
+            
+            const formatIcons = {
+                'pdf': '📄',
+                'excel': '📊',
+                'csv': '📋',
+                'pptx': '📽️'
+            };
+            
+            // Simulate download delay
+            setTimeout(() => {
+                alert(`${formatIcons[format]} ${reportNames[reportType]} - ${format.toUpperCase()} formatında başarıyla indirildi!\n\n` +
+                      `📅 Tarih: ${new Date().toLocaleDateString('tr-TR')}\n` +
+                      `⏰ Saat: ${new Date().toLocaleTimeString('tr-TR')}\n\n` +
+                      `💡 Not: Gerçek uygulamada bu dosya otomatik olarak indirilecektir.`);
+                
+                console.log(`Downloaded: ${reportNames[reportType]} as ${format.toUpperCase()}`);
+            }, 500);
+        }
+
+        // Add CSS for report category styling
+        const reportCategoryStyle = document.createElement('style');
+        reportCategoryStyle.textContent = `
+            .report-category {
+                animation: fadeIn 0.3s ease;
+            }
+            
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .report-tab-btn {
+                transition: all 0.3s ease;
+            }
+            
+            .report-tab-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }
+            
+            .report-card {
+                transition: all 0.3s ease;
+            }
+            
+            .report-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            }
+            
+            .report-btn {
+                transition: all 0.2s ease;
+            }
+            
+            .report-btn:hover {
+                transform: scale(1.02);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }
+        `;
+        document.head.appendChild(reportCategoryStyle);
     </script>
 
     <!-- Chart.js Library -->
