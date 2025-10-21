@@ -1,123 +1,177 @@
 <?php
-// 🧩 جلوگیری از هر نوع خروجی پیش از شروع سشن
-ob_start();
+/**
+ * Application Configuration File
+ * Central configuration for database, paths, and application settings
+ * 
+ * @package CarWash
+ */
 
-// ✅ شروع سشن فقط اگر هنوز شروع نشده
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+// Prevent direct access
+if (!defined('APP_INIT')) {
+    define('APP_INIT', true);
 }
 
-// ✅ تنظیمات فقط وقتی که هنوز هیچ هِدری ارسال نشده
-if (!headers_sent()) {
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.use_strict_mode', 1);
+// =============================================================================
+// DATABASE CONFIGURATION
+// =============================================================================
+
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'carwash');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_CHARSET', 'utf8mb4');
+
+// =============================================================================
+// APPLICATION PATHS
+// =============================================================================
+
+// Root directory (adjust if project is in subdirectory)
+define('ROOT_PATH', dirname(dirname(__DIR__)));
+
+// Backend paths
+define('BACKEND_PATH', ROOT_PATH . '/backend');
+define('CLASSES_PATH', BACKEND_PATH . '/classes');
+define('MODELS_PATH', BACKEND_PATH . '/models');
+define('INCLUDES_PATH', BACKEND_PATH . '/includes');
+define('AUTH_PATH', BACKEND_PATH . '/auth');
+define('API_PATH', BACKEND_PATH . '/api');
+define('DASHBOARD_PATH', BACKEND_PATH . '/dashboard');
+
+// Frontend paths
+define('FRONTEND_PATH', ROOT_PATH . '/frontend');
+define('CSS_PATH', FRONTEND_PATH . '/css');
+define('JS_PATH', FRONTEND_PATH . '/js');
+
+// Upload paths
+define('UPLOAD_PATH', ROOT_PATH . '/uploads');
+define('PROFILE_UPLOAD_PATH', AUTH_PATH . '/uploads/profiles');
+define('SERVICE_UPLOAD_PATH', UPLOAD_PATH . '/services');
+
+// Vendor path
+define('VENDOR_PATH', ROOT_PATH . '/vendor');
+
+// =============================================================================
+// APPLICATION URLS
+// =============================================================================
+
+// Base URL (change this for production)
+define('BASE_URL', 'http://localhost/carwash_project');
+
+// Backend URLs
+define('BACKEND_URL', BASE_URL . '/backend');
+define('AUTH_URL', BACKEND_URL . '/auth');
+define('API_URL', BACKEND_URL . '/api');
+define('DASHBOARD_URL', BACKEND_URL . '/dashboard');
+
+// Frontend URLs
+define('FRONTEND_URL', BASE_URL . '/frontend');
+define('CSS_URL', FRONTEND_URL . '/css');
+define('JS_URL', FRONTEND_URL . '/js');
+
+// Upload URLs
+define('UPLOAD_URL', BASE_URL . '/uploads');
+define('PROFILE_UPLOAD_URL', AUTH_URL . '/uploads/profiles');
+define('SERVICE_UPLOAD_URL', UPLOAD_URL . '/services');
+
+// =============================================================================
+// APPLICATION SETTINGS
+// =============================================================================
+
+// Environment (development | production)
+define('APP_ENV', 'development');
+
+// Debug mode
+define('DEBUG_MODE', APP_ENV === 'development');
+
+// Timezone
+date_default_timezone_set('Asia/Tehran');
+
+// Error reporting
+if (DEBUG_MODE) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    ini_set('error_log', ROOT_PATH . '/logs/error.log');
+}
+
+// =============================================================================
+// SESSION CONFIGURATION
+// =============================================================================
+
+define('SESSION_LIFETIME', 7200); // 2 hours in seconds
+define('SESSION_NAME', 'carwash_session');
+
+// =============================================================================
+// UPLOAD SETTINGS
+// =============================================================================
+
+define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB in bytes
+define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+define('ALLOWED_IMAGE_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+
+// =============================================================================
+// PAGINATION
+// =============================================================================
+
+define('ITEMS_PER_PAGE', 10);
+
+// =============================================================================
+// PAYMENT GATEWAY (iyzico)
+// =============================================================================
+
+define('IYZICO_API_KEY', 'sandbox-your-api-key'); // Change in production
+define('IYZICO_SECRET_KEY', 'sandbox-your-secret-key'); // Change in production
+define('IYZICO_BASE_URL', 'https://sandbox-api.iyzipay.com'); // Change in production
+
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+/**
+ * Get full path from relative path
+ */
+function app_path($path = '') {
+    return ROOT_PATH . ($path ? '/' . ltrim($path, '/') : '');
 }
 
 /**
- * 🌐 Configuration Class
+ * Get full URL from relative path
  */
-class Config
-{
-    private static $config = [];
-    private static $initialized = false;
-
-    public static function init()
-    {
-        if (self::$initialized) return;
-        self::$initialized = true;
-
-        $envPath = __DIR__ . '/../../.env';
-
-        // 📦 اگر فایل .env نیست، از مقادیر پیش‌فرض استفاده می‌شود
-        if (!file_exists($envPath)) {
-            self::setDefaults();
-            return;
-        }
-
-        // 🔍 خواندن فایل .env
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === '' || $line[0] === '#') continue;
-
-            [$key, $value] = array_pad(explode('=', $line, 2), 2, '');
-            $key = trim($key);
-            $value = trim($value, " \t\n\r\0\x0B\"'");
-
-            if ($key !== '') {
-                self::$config[$key] = $value;
-            }
-        }
-
-        self::setDefaults();
-
-        // ⚙️ تنظیمات PHP
-        if (!headers_sent()) {
-            ini_set('display_errors', self::get('APP_DEBUG', false) ? '1' : '0');
-            ini_set('session.cookie_httponly', self::get('SESSION_HTTP_ONLY', true) ? '1' : '0');
-            ini_set('session.cookie_secure', self::get('SESSION_SECURE', false) ? '1' : '0');
-            ini_set('session.gc_maxlifetime', self::get('SESSION_LIFETIME', 7200));
-        }
-    }
-
-    private static function setDefaults()
-    {
-        $defaults = [
-            'DB_HOST' => 'localhost',
-            'DB_NAME' => 'carwash_db',
-            'DB_PORT' => '3307',
-            'DB_USER' => 'root',
-            'DB_PASS' => '',
-            'APP_ENV' => 'development',
-            'APP_URL' => 'http://localhost/carwash_project',
-            'APP_NAME' => 'CarWash Management System',
-            'APP_DEBUG' => 'true',
-            'SESSION_LIFETIME' => '7200',
-            'SESSION_HTTP_ONLY' => 'true',
-            'SESSION_SECURE' => 'false'
-        ];
-
-        foreach ($defaults as $key => $value) {
-            if (!isset(self::$config[$key])) {
-                self::$config[$key] = $value;
-            }
-        }
-    }
-
-    public static function get($key, $default = null)
-    {
-        if (!self::$initialized) self::init();
-        return self::$config[$key] ?? $default;
-    }
-
-    public static function isDevelopment()
-    {
-        return strtolower(self::get('APP_ENV')) === 'development';
-    }
-
-    public static function isProduction()
-    {
-        return strtolower(self::get('APP_ENV')) === 'production';
-    }
+function app_url($path = '') {
+    return BASE_URL . ($path ? '/' . ltrim($path, '/') : '');
 }
 
-// 🟢 مقداردهی اولیه
-Config::init();
-
-// 🛡️ ثابت‌های امنیتی
-define('RATE_LIMIT_REQUESTS', 60);
-define('RATE_LIMIT_PERIOD', 60);
-define('PASSWORD_MIN_LENGTH', 8);
-define('ALLOWED_FILE_TYPES', ['jpg', 'jpeg', 'png', 'pdf']);
-define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
-
-// 🔒 فعال‌سازی تنظیمات خاص فقط در محیط production
-if (Config::isProduction() && !headers_sent()) {
-    ini_set('session.cookie_httponly', '1');
-    ini_set('session.cookie_secure', '1');
-    ini_set('session.use_strict_mode', '1');
+/**
+ * Check if running in CLI mode
+ */
+function is_cli() {
+    return php_sapi_name() === 'cli';
 }
 
-// ✅ پایان خروجی بافر (مطمئن می‌شیم قبل از redirect یا header بسته شده)
-ob_end_clean();
+/**
+ * Check if request is AJAX
+ */
+function is_ajax() {
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+}
+
+/**
+ * Get current URL
+ */
+function current_url() {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    return $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+}
+
+/**
+ * Redirect to URL
+ */
+function redirect($url, $statusCode = 302) {
+    header('Location: ' . $url, true, $statusCode);
+    exit;
+}
