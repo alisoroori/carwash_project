@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v4
+        with:
+          php-version: '8.1'
+          extensions: mbstring, pdo, pdo_mysql, xml, curl
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Node dependencies (if present)
+        run: |
+          if [ -f package.json ]; then npm ci; else echo "no package.json, skip npm"; fi
+
+      - name: Run PHPUnit (if configured)
+        run: |
+          if [ -f phpunit.xml ] || [ -f phpunit.xml.dist ]; then
+            vendor/bin/phpunit --configuration phpunit.xml --colors=always
+          else
+            echo "phpunit config not found, skipping"
+          fi
+
+      - name: Run PHPStan (if installed)
+        run: |
+          if [ -x vendor/bin/phpstan ]; then
+            vendor/bin/phpstan analyse --memory-limit=1G
+          else
+            echo "phpstan not installed, skipping"
+          fi
+
+      - name: Run frontend lint (if package.json has lint)
+        run: |
+          if [ -f package.json ]; then
+            npm run lint || echo "lint script failed or not defined; continuing"
+          else
+            echo "no package.json, skipping frontend lint"
+          fi
