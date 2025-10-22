@@ -1,242 +1,134 @@
-<?php
-/**
- * Authentication Class (PSR-4 Autoloaded)
- * User authentication and authorization logic
- * 
- * @package App\Classes
- * @namespace App\Classes
- */
+﻿<?php
+declare(strict_types=1);
 
 namespace App\Classes;
 
-use App\Classes\Database;
-use App\Classes\Session;
-
 class Auth {
+  private $conn;
     
-    /**
-     * Database instance
-     */
-    private $db;
-    
-    /**
-     * Constructor
-     */
-    public function __construct() {
-        $this->db = Database::getInstance();
-        Session::start();
+    public function __construct($conn) {
+        $this->conn = $conn;
     }
-    
-    /**
-     * Register new user
-     * 
-     * @param array $data User registration data
-     * @return array ['success' => bool, 'message' => string, 'user_id' => int]
-     */
-    public function register($data) {
-        try {
-            // Validate required fields
-            $required = ['name', 'email', 'password'];
-            foreach ($required as $field) {
-                if (empty($data[$field])) {
-                    return [
-                        'success' => false,
-                        'message' => ucfirst($field) . ' الزامی است'
-                    ];
-                }
-            }
-            
-            // Check if email already exists
-            if ($this->db->exists('users', ['email' => $data['email']])) {
-                return [
-                    'success' => false,
-                    'message' => 'این ایمیل قبلاً ثبت شده است'
-                ];
-            }
-            
-            // Hash password
-            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
-            
-            // Prepare user data
-            $userData = [
-                'name' => htmlspecialchars(trim($data['name']), ENT_QUOTES, 'UTF-8'),
-                'email' => filter_var(trim($data['email']), FILTER_SANITIZE_EMAIL),
-                'phone' => !empty($data['phone']) ? htmlspecialchars(trim($data['phone']), ENT_QUOTES, 'UTF-8') : null,
-                'password' => $hashedPassword,
-                'role' => $data['role'] ?? 'customer',
-                'status' => 'active',
-                'created_at' => date('Y-m-d H:i:s')
-            ];
-            
-            // Insert user
-            $userId = $this->db->insert('users', $userData);
-            
-            return [
-                'success' => true,
-                'message' => 'ثبت‌نام با موفقیت انجام شد! اکنون می‌توانید وارد شوید.',
-                'user_id' => $userId
-            ];
-            
-        } catch (\Exception $e) {
-            error_log("Registration Error: " . $e->getMessage());
-            return [
-                'success' => false,
-                'message' => 'ثبت‌نام ناموفق بود. لطفاً بعداً تلاش کنید.'
-            ];
-        }
-    }
-    
-    /**
-     * Login user
-     * 
-     * @param string $email User email
-     * @param string $password User password
-     * @return array ['success' => bool, 'message' => string, 'user' => array]
-     */
+
     public function login($email, $password) {
-        try {
-            // Validate inputs
-            if (empty($email) || empty($password)) {
-                return [
-                    'success' => false,
-                    'message' => 'ایمیل و رمز عبور الزامی است'
-                ];
-            }
-            
-            // Fetch user by email
-            $user = $this->db->fetchOne(
-                "SELECT * FROM users WHERE email = :email AND status = 'active'",
-                ['email' => $email]
-            );
-            
-            // Check if user exists
-            if (!$user) {
-                return [
-                    'success' => false,
-                    'message' => 'ایمیل یا رمز عبور نادرست است'
-                ];
-            }
-            
-            // Verify password
-            if (!password_verify($password, $user['password'])) {
-                return [
-                    'success' => false,
-                    'message' => 'ایمیل یا رمز عبور نادرست است'
-                ];
-            }
-            
-            // Set session data
-            Session::set('user_id', $user['id']);
-            Session::set('name', $user['name']);
-            Session::set('email', $user['email']);
-            Session::set('role', $user['role']);
-            Session::regenerate();
-            
-            // Update last login timestamp
-            $this->db->update(
-                'users',
-                ['last_login' => date('Y-m-d H:i:s')],
-                ['id' => $user['id']]
-            );
-            
-            return [
-                'success' => true,
-                'message' => 'ورود موفقیت‌آمیز',
-                'user' => [
-                    'id' => $user['id'],
-                    'name' => $user['name'],
-                    'email' => $user['email'],
-                    'role' => $user['role']
-                ]
-            ];
-            
-        } catch (\Exception $e) {
-            error_log("Login Error: " . $e->getMessage());
-            return [
-                'success' => false,
-                'message' => 'ورود ناموفق بود. لطفاً بعداً تلاش کنید.'
-            ];
+        // Sanitize inputs
+        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+        
+        // Prepare statement
+        $stmt = $this->conn->prepare("SELECT id, full_name, email, password, role FROM users WHERE email = ?");
+        if (!$stmt) {
+            throw new Exception('Database error');
         }
+
+        $stmt->bind_param('s', $email);
+        if (!$stmt->execute()) {
+            throw new Exception('Database error during execution');
+        }
+
+        $result = $stmt->get_result();
+        if ($result->num_rows === 0) {
+            throw new Exception('Invalid email or password');
+        }
+
+        $user = $result->fetch_assoc();
+        
+        // Verify password
+        if (!password_verify($password, $user['password'])) {
+            throw new Exception('Invalid email or password');
+        }
+
+        // Start session if not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Set session variables
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_role'] = $user['role'];
+        $_SESSION['user_name'] = $user['full_name'];
+
+        // Remove sensitive data before returning
+        unset($user['password']);
+        
+        return [
+            'user' => $user,
+            'token' => $this->generateToken($user['id'])
+        ];
     }
-    
-    /**
-     * Logout user
-     */
+
+    private function generateToken($userId) {
+        $token = bin2hex(random_bytes(32));
+        
+        // Store token in database
+        $stmt = $this->conn->prepare("INSERT INTO user_tokens (user_id, token, created_at) VALUES (?, ?, NOW())");
+        $stmt->bind_param('is', $userId, $token);
+        $stmt->execute();
+        
+        return $token;
+    }
+
+    public function register($data) {
+        // Validate required fields
+        $required = ['name', 'email', 'password', 'role'];
+        foreach ($required as $field) {
+            if (!isset($data[$field]) || empty($data[$field])) {
+                throw new Exception("$field is required");
+            }
+        }
+
+        // Validate email
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new Exception('Invalid email format');
+        }
+
+        // Check if email already exists
+        $stmt = $this->conn->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->bind_param('s', $data['email']);
+        $stmt->execute();
+        if ($stmt->get_result()->num_rows > 0) {
+            throw new Exception('Email already registered');
+        }
+
+        // Hash password
+        $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+
+        // Insert new user
+        $stmt = $this->conn->prepare("INSERT INTO users (username, full_name, email, password, role) VALUES (?, ?, ?, ?, ?)");
+        
+        // Generate unique username if not provided
+        $username = $data['username'] ?? strtolower(explode('@', $data['email'])[0]);
+        $base_username = $username;
+        $counter = 1;
+        
+        // Check if username exists and modify if needed
+        while (true) {
+            $check_stmt = $this->conn->prepare("SELECT id FROM users WHERE username = ?");
+            $check_stmt->bind_param('s', $username);
+            $check_stmt->execute();
+            if (!$check_stmt->get_result()->fetch_assoc()) {
+                break; // Username is available
+            }
+            $username = $base_username . $counter;
+            $counter++;
+        }
+        
+        $stmt->bind_param('sssss', $username, $data['name'], $data['email'], $hashedPassword, $data['role']);
+        
+        if (!$stmt->execute()) {
+            throw new Exception('Failed to create user');
+        }
+
+        return [
+            'id' => $stmt->insert_id,
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role' => $data['role']
+        ];
+    }
+
     public function logout() {
-        Session::destroy();
-    }
-    
-    /**
-     * Check if user is authenticated
-     * 
-     * @return bool
-     */
-    public function isAuthenticated() {
-        return Session::isLoggedIn();
-    }
-    
-    /**
-     * Check if user has specific role
-     * 
-     * @param string|array $roles Role(s) to check
-     * @return bool
-     */
-    public function hasRole($roles) {
-        if (!$this->isAuthenticated()) {
-            return false;
-        }
-        
-        $userRole = Session::getUserRole();
-        
-        if (is_array($roles)) {
-            return in_array($userRole, $roles);
-        }
-        
-        return $userRole === $roles;
-    }
-    
-    /**
-     * Require authentication (redirect if not logged in)
-     * 
-     * @param string $redirectUrl Redirect URL
-     */
-    public function requireAuth($redirectUrl = '/carwash_project/backend/auth/login.php') {
-        if (!$this->isAuthenticated()) {
-            header("Location: {$redirectUrl}");
-            exit;
-        }
-    }
-    
-    /**
-     * Require specific role (redirect if unauthorized)
-     * 
-     * @param string|array $roles Required role(s)
-     * @param string $redirectUrl Redirect URL
-     */
-    public function requireRole($roles, $redirectUrl = '/carwash_project/frontend/index.php') {
-        if (!$this->hasRole($roles)) {
-            Session::setFlash('error', 'شما دسترسی به این صفحه را ندارید');
-            header("Location: {$redirectUrl}");
-            exit;
-        }
-    }
-    
-    /**
-     * Get current user data
-     * 
-     * @return array|null
-     */
-    public function getCurrentUser() {
-        if (!$this->isAuthenticated()) {
-            return null;
-        }
-        
-        $userId = Session::getUserId();
-        
-        return $this->db->fetchOne(
-            "SELECT id, name, email, phone, role, status, created_at FROM users WHERE id = :id",
-            ['id' => $userId]
-        );
+        session_start();
+        session_destroy();
+        return true;
     }
 }
-?>

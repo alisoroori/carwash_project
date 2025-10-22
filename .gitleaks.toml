@@ -1,0 +1,49 @@
+
+## ۸. فایل پیکربندی Gitleaks
+**نام فایل:** .gitleaks.toml  
+**مسیر کامل:** c:\xampp\htdocs\carwash_project\.gitleaks.toml  
+**توضیح:** این فایل را برای تنظیم اسکنر Gitleaks ایجاد کنید تا قوانین اختصاصی پروژه شما را دنبال کند.
+
+```toml
+title = "CarWash Gitleaks Configuration"
+
+[allowlist]
+description = "global allowlist"
+paths = [
+    '''.gitleaks.toml''',
+    '''SECURITY.md''',
+    '''.env.example''',
+]
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)((api[_-]?key|apikey|api[_-]?token|x[_-]?api[_-]?key)[_-]?)[=:]["']?[A-Za-z0-9]{20,}["']?'''
+tags = ["key", "API", "generic"]
+severity = "CRITICAL"
+
+[[rules]]
+id = "password"
+description = "Password in code"
+regex = '''(?i)(password|passwd|pwd)[=:]["'][^"']{4,}["']'''
+tags = ["password"]
+severity = "CRITICAL"
+[rules.allowlist]
+description = "exclude password validation patterns"
+regexes = [
+    '''(?i)(password|passwd|pwd)[=:]"'''',
+]
+
+[[rules]]
+id = "database-connection-string"
+description = "Database Connection String"
+regex = '''(?i)(jdbc:mysql|mysql:\/\/|mongodb:\/\/|postgres:\/\/).+'''
+tags = ["database", "connection"]
+severity = "HIGH"
+
+[[rules]]
+id = "hardcoded-jwt-secret"
+description = "Hardcoded JWT Secret"
+regex = '''(?i)(jwt[_-]?secret|jwt[_-]?key|secret[_-]?key)[=:]["'][^"']{8,}["']'''
+tags = ["jwt", "secret"]
+severity = "CRITICAL"

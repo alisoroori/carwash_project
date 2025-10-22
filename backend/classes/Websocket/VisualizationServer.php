@@ -1,15 +1,7 @@
-<?php
+﻿<?php
 declare(strict_types=1);
 
 namespace App\Classes\Websocket;
-
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-use Ratchet\MessageComponentInterface;
-use Ratchet\ConnectionInterface;
-use Ratchet\Server\IoServer;
-use Ratchet\Http\HttpServer;
-use Ratchet\WebSocket\WsServer;
 
 class VisualizationServer implements MessageComponentInterface
 {
@@ -71,3 +63,4 @@ class VisualizationServer implements MessageComponentInterface
         return ['labels' => [], 'values' => []];
     }
 }
+

@@ -1,9 +1,7 @@
-<?php
+﻿<?php
 declare(strict_types=1);
 
 namespace App\Classes;
-
-use Exception;
 
 class PaymentGateway
 {
@@ -68,3 +66,4 @@ class PaymentGateway
         ];
     }
 }
+

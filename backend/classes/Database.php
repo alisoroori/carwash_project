@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Database Connection Class (PSR-4 Autoloaded)
  * Modernized PDO wrapper with prepared statements
@@ -12,8 +13,8 @@ namespace App\Classes;
 use PDO;
 use PDOException;
 
-class Database {
-
+class Database
+{
     /**
      * Singleton instance
      * @var Database|null
@@ -29,8 +30,35 @@ class Database {
     /**
      * Private constructor to prevent direct instantiation
      */
-    private function __construct() {
-        $this->connect();
+    private function __construct()
+    {
+        // بارگیری تنظیمات محیطی
+        Config::load();
+
+        $host = Config::get('DB_HOST', '127.0.0.1');
+        $db   = Config::get('DB_DATABASE', 'carwash');
+        $user = Config::get('DB_USERNAME', 'root');
+        $pass = Config::get('DB_PASSWORD', '');
+        $charset = 'utf8mb4';
+
+        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+        $options = [
+            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            \PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+
+        try {
+            $this->connection = new \PDO($dsn, $user, $pass, $options);
+            // ensure proper charset
+            $this->connection->exec("SET NAMES {$charset} COLLATE {$charset}_unicode_ci");
+        } catch (\PDOException $e) {
+            if (Config::isDebug()) {
+                throw new \PDOException($e->getMessage(), (int)$e->getCode());
+            } else {
+                die("اتصال به پایگاه داده با خطا مواجه شد. لطفا با پشتیبانی تماس بگیرید.");
+            }
+        }
     }
 
     /**

@@ -1,15 +1,7 @@
-<?php
+﻿<?php
 declare(strict_types=1);
 
 namespace App\Classes\Websocket;
-
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-use Ratchet\Server\IoServer;
-use Ratchet\Http\HttpServer;
-use Ratchet\WebSocket\WsServer;
-use Ratchet\MessageComponentInterface;
-use Ratchet\ConnectionInterface;
 
 class NotificationServer implements MessageComponentInterface
 {
@@ -104,3 +96,4 @@ $server = IoServer::factory(
 );
 
 $server->run();
+

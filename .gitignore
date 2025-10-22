@@ -1,56 +1,30 @@
-# Environment files
+# Environment & secrets
 .env
-.env.*
+.env.local
+.env.*.local
 !.env.example
+.env.backup
 
-# Uploaded files
-/uploads/*
-!/uploads/.gitkeep
+# Credentials & API keys
+*.pem
+*.key
+*.cert
+*.p12
+*apikey*
+*secret*
+*password*
+auth_token.txt
 
-# Logs
-/logs/*
-!/logs/.gitkeep
+# Build artifacts
+/dist/
+/vendor/
+composer.lock
 
-# Cache
-/cache/*
-!/cache/.gitkeep
-
-# IDE files
-.vscode/
-.idea/
-*.sublime-*
+# Local development
+.env.development.local
+.env.test.local
+node_modules/
 
 # OS files
 .DS_Store
 Thumbs.db
-
-# Node
-node_modules/
-
-# PHP/Composer
-/vendor/
-composer.phar
-
-# Env and secrets
-.env
-.env.local
-.env.*.local
-
-# Build / dist
-/dist/
-build/
-public/build/
-
-# Uploads, logs
-/uploads/
-logs/
-*.log
-
-# IDEs
-.vscode/
-.idea/
-
-# Misc
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*

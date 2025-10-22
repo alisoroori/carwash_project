@@ -1,4 +1,8 @@
 <?php
+declare(strict_types=1);
+
+namespace App\Classes;
+
 // Notification Manager Class
 class NotificationManager
 {
@@ -57,6 +61,6 @@ class NotificationManager
 
         $stmt->bind_param('i', $userId);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc()['count'];
+        return (int) $stmt->get_result()->fetch_assoc()['count'];
     }
 }
