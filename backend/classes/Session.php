@@ -4,10 +4,9 @@ declare(strict_types=1);
 namespace App\Classes;
 
 /**
- * Secure Session Manager
- * Provides secure session handling with protection against session fixation
+ * Secure Session Management
  */
-class Session 
+class Session
 {
     /**
      * Start secure session
@@ -15,7 +14,7 @@ class Session
      * @param array $options Session options
      * @return bool True if session started
      */
-    public static function start(array $options = []): bool 
+    public static function start(array $options = []): bool
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             return true;
@@ -27,7 +26,7 @@ class Session
             'cookie_secure' => isset($_SERVER['HTTPS']), // Require HTTPS
             'use_strict_mode' => true,     // Reject uninitialized session ID
             'cookie_samesite' => 'Lax',    // CSRF protection
-            'gc_maxlifetime' => 1800       // 30 minutes lifetime
+            'gc_maxlifetime' => defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 1800 // 30 minutes lifetime
         ];
         
         $sessionOptions = array_merge($defaultOptions, $options);
@@ -41,7 +40,7 @@ class Session
      * @param bool $deleteOldSession Whether to delete old session data
      * @return bool True on success
      */
-    public static function regenerate(bool $deleteOldSession = true): bool 
+    public static function regenerate(bool $deleteOldSession = true): bool
     {
         return session_regenerate_id($deleteOldSession);
     }
@@ -52,7 +51,7 @@ class Session
      * @param string $key Session key
      * @param mixed $value Session value
      */
-    public static function set(string $key, $value): void 
+    public static function set(string $key, $value): void
     {
         $_SESSION[$key] = $value;
     }
@@ -64,7 +63,7 @@ class Session
      * @param mixed $default Default value if key not found
      * @return mixed Session value or default
      */
-    public static function get(string $key, $default = null) 
+    public static function get(string $key, $default = null)
     {
         return $_SESSION[$key] ?? $default;
     }
@@ -75,7 +74,7 @@ class Session
      * @param string $key Session key
      * @return bool True if key exists
      */
-    public static function has(string $key): bool 
+    public static function has(string $key): bool
     {
         return isset($_SESSION[$key]);
     }
@@ -85,7 +84,7 @@ class Session
      * 
      * @param string $key Session key
      */
-    public static function remove(string $key): void 
+    public static function remove(string $key): void
     {
         if (isset($_SESSION[$key])) {
             unset($_SESSION[$key]);
@@ -97,7 +96,7 @@ class Session
      * 
      * @return bool True on success
      */
-    public static function destroy(): bool 
+    public static function destroy(): bool
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             // Clear session array
@@ -125,7 +124,7 @@ class Session
      * @param string $key Flash key
      * @param mixed $value Flash value
      */
-    public static function setFlash(string $key, $value): void 
+    public static function setFlash(string $key, $value): void
     {
         self::start();
         $_SESSION['_flash'][$key] = $value;
@@ -138,7 +137,7 @@ class Session
      * @param mixed $default Default value if key not found
      * @return mixed Flash value or default
      */
-    public static function getFlash(string $key, $default = null) 
+    public static function getFlash(string $key, $default = null)
     {
         self::start();
         $value = $_SESSION['_flash'][$key] ?? $default;
@@ -148,18 +147,6 @@ class Session
         }
         
         return $value;
-    }
-    
-    /**
-     * Check if flash key exists
-     * 
-     * @param string $key Flash key
-     * @return bool True if key exists
-     */
-    public static function hasFlash(string $key): bool 
-    {
-        self::start();
-        return isset($_SESSION['_flash'][$key]);
     }
     
     /**

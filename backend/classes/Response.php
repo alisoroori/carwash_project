@@ -5,15 +5,14 @@ namespace App\Classes;
 
 /**
  * API Response Handler
- * Standardizes JSON API responses with proper headers and status codes
  */
 class Response
 {
     /**
-     * Send a success response
+     * Send success response
      * 
      * @param string $message Success message
-     * @param array $data Response data
+     * @param array $data Additional data
      * @param int $statusCode HTTP status code
      */
     public static function success(string $message, array $data = [], int $statusCode = 200): void
@@ -26,7 +25,7 @@ class Response
     }
     
     /**
-     * Send an error response
+     * Send error response
      * 
      * @param string $message Error message
      * @param int $statusCode HTTP status code
@@ -47,7 +46,7 @@ class Response
     }
     
     /**
-     * Send a validation error response
+     * Send validation error response
      * 
      * @param array $errors Validation errors
      * @param string $message Error message
@@ -58,7 +57,7 @@ class Response
     }
     
     /**
-     * Send a not found response
+     * Send not found response
      * 
      * @param string $message Error message
      */
@@ -68,7 +67,7 @@ class Response
     }
     
     /**
-     * Send an unauthorized response
+     * Send unauthorized response
      * 
      * @param string $message Error message
      */
@@ -78,7 +77,7 @@ class Response
     }
     
     /**
-     * Send a forbidden response
+     * Send forbidden response
      * 
      * @param string $message Error message
      */
@@ -88,12 +87,12 @@ class Response
     }
     
     /**
-     * Send a JSON response
+     * Send JSON response
      * 
      * @param mixed $data Response data
      * @param int $statusCode HTTP status code
      */
-    public static function send($data, int $statusCode = 200): void
+    private static function send($data, int $statusCode = 200): void
     {
         // Set security headers
         header('X-Content-Type-Options: nosniff');
@@ -104,24 +103,8 @@ class Response
         // Set status code
         http_response_code($statusCode);
         
-        // Encode and output JSON
-        $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
-        
-        if (defined('JSON_THROW_ON_ERROR')) {
-            $flags |= JSON_THROW_ON_ERROR;
-        }
-        
-        try {
-            echo json_encode($data, $flags);
-        } catch (\Exception $e) {
-            // Fallback for encoding errors
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'خطا در سرویس‌دهی. لطفا دوباره تلاش کنید'
-            ]);
-        }
-        
+        // Output JSON
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
         exit;
     }
 }

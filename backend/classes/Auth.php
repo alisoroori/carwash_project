@@ -4,27 +4,29 @@ declare(strict_types=1);
 namespace App\Classes;
 
 /**
- * Authentication Manager
- * Handles secure user authentication, registration, and access control
+ * Authentication and Authorization Manager
  */
-class Auth 
+class Auth
 {
     private $db;
     private $validator;
     
-    public function __construct() 
+    /**
+     * Constructor
+     */
+    public function __construct()
     {
         $this->db = Database::getInstance();
         $this->validator = new Validator();
     }
     
     /**
-     * Register a new user with secure password hashing
+     * Register a new user
      * 
-     * @param array $userData User data (name, email, password, role)
-     * @return array Response with success/error status
+     * @param array $userData User data
+     * @return array Response with status and messages
      */
-    public function register(array $userData): array 
+    public function register(array $userData): array
     {
         // Validate required fields
         $this->validator
@@ -34,7 +36,7 @@ class Auth
             ->minLength($userData['password'] ?? null, 8, 'رمز عبور')
             ->required($userData['name'] ?? null, 'نام')
             ->required($userData['role'] ?? null, 'نقش');
-            
+        
         if ($this->validator->fails()) {
             return [
                 'success' => false,
@@ -56,31 +58,26 @@ class Auth
         if ($existingUser) {
             return [
                 'success' => false,
-                'errors' => ['email' => 'این ایمیل قبلا ثبت شده است']
+                'errors' => ['email' => 'این ایمیل قبلاً ثبت شده است']
             ];
         }
         
-        // Hash password with modern algorithm and strong options
-        $passwordHash = password_hash(
-            $userData['password'], 
-            PASSWORD_DEFAULT,
-            ['cost' => 12]
-        );
+        // Hash password
+        $passwordHash = password_hash($userData['password'], PASSWORD_DEFAULT);
         
-        // Insert user with secure prepared statement
+        // Insert user
         $userId = $this->db->insert('users', [
             'name' => $name,
             'email' => $email,
             'password' => $passwordHash,
             'role' => $role,
-            'created_at' => date('Y-m-d H:i:s'),
-            'status' => 'active'
+            'created_at' => date('Y-m-d H:i:s')
         ]);
         
         if (!$userId) {
             return [
                 'success' => false,
-                'errors' => ['general' => 'خطا در ثبت نام. لطفا دوباره تلاش کنید']
+                'errors' => ['general' => 'خطا در ثبت نام. لطفاً دوباره تلاش کنید']
             ];
         }
         
@@ -92,20 +89,20 @@ class Auth
     }
     
     /**
-     * Secure login with brute force protection
+     * Login a user
      * 
      * @param string $email User email
      * @param string $password User password
-     * @return array Response with success/error status
+     * @return array Response with status and messages
      */
-    public function login(string $email, string $password): array 
+    public function login(string $email, string $password): array
     {
         // Validate inputs
         $this->validator
             ->required($email, 'ایمیل')
             ->email($email, 'ایمیل')
             ->required($password, 'رمز عبور');
-            
+        
         if ($this->validator->fails()) {
             return [
                 'success' => false,
@@ -113,62 +110,31 @@ class Auth
             ];
         }
         
+        // Sanitize email
         $email = Validator::sanitizeEmail($email);
         
-        // Get user by email with secure query
+        // Get user by email
         $user = $this->db->fetchOne(
-            "SELECT id, name, email, password, role, status, login_attempts, 
-                    last_login_attempt FROM users WHERE email = :email",
+            "SELECT id, name, email, password, role FROM users WHERE email = :email",
             ['email' => $email]
         );
         
-        // Check for brute force attempts
-        if ($user && $user['login_attempts'] >= 5) {
-            $timeElapsed = time() - strtotime($user['last_login_attempt']);
-            
-            if ($timeElapsed < 900) { // 15 minutes lockout
-                return [
-                    'success' => false,
-                    'errors' => ['general' => 'حساب کاربری شما موقتاً قفل شده است. لطفاً 15 دقیقه دیگر تلاش کنید']
-                ];
-            }
-            
-            // Reset attempts after lockout period
-            $this->db->update('users', 
-                ['login_attempts' => 0], 
-                ['id' => $user['id']]
-            );
-        }
-        
-        // Verify user exists and is active
-        if (!$user || $user['status'] !== 'active') {
+        if (!$user) {
             return [
                 'success' => false,
                 'errors' => ['general' => 'ایمیل یا رمز عبور اشتباه است']
             ];
         }
         
-        // Verify password with timing attack safe comparison
+        // Verify password
         if (!password_verify($password, $user['password'])) {
-            // Increment failed login attempts
-            $this->db->update('users', [
-                'login_attempts' => $user['login_attempts'] + 1,
-                'last_login_attempt' => date('Y-m-d H:i:s')
-            ], ['id' => $user['id']]);
-            
             return [
                 'success' => false,
                 'errors' => ['general' => 'ایمیل یا رمز عبور اشتباه است']
             ];
         }
         
-        // Reset login attempts on successful login
-        $this->db->update('users', [
-            'login_attempts' => 0,
-            'last_login' => date('Y-m-d H:i:s')
-        ], ['id' => $user['id']]);
-        
-        // Create session data
+        // Set up session
         Session::start();
         Session::set('user_id', $user['id']);
         Session::set('user_name', $user['name']);
@@ -193,30 +159,28 @@ class Auth
     }
     
     /**
-     * Secure logout
+     * Logout the current user
      */
-    public function logout(): void 
+    public function logout(): void
     {
-        Session::start();
         Session::destroy();
     }
     
     /**
      * Check if user is authenticated
      * 
-     * @return bool True if user is authenticated
+     * @return bool True if authenticated
      */
-    public function isAuthenticated(): bool 
+    public function isAuthenticated(): bool
     {
         Session::start();
         
-        // Basic authentication check
         if (!Session::has('logged_in') || !Session::get('logged_in')) {
             return false;
         }
         
-        // Session timeout (default: 30 minutes)
-        $timeout = 1800; // 30 minutes
+        // Session timeout check
+        $timeout = defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 1800; // 30 minutes
         $loginTime = Session::get('login_time', 0);
         
         if (time() - $loginTime > $timeout) {
@@ -224,9 +188,27 @@ class Auth
             return false;
         }
         
-        // Refresh login time
+        // Update login time to extend session
         Session::set('login_time', time());
         return true;
+    }
+    
+    /**
+     * Check if user has specific role
+     * 
+     * @param string|array $roles Role(s) to check
+     * @return bool True if has role
+     */
+    public function hasRole($roles): bool
+    {
+        if (!$this->isAuthenticated()) {
+            return false;
+        }
+        
+        $userRole = Session::get('user_role');
+        $requiredRoles = is_array($roles) ? $roles : [$roles];
+        
+        return in_array($userRole, $requiredRoles);
     }
     
     /**
@@ -234,7 +216,7 @@ class Auth
      * 
      * @param string $redirectUrl URL to redirect if not authenticated
      */
-    public function requireAuth(string $redirectUrl = '/carwash_project/backend/auth/login.php'): void 
+    public function requireAuth(string $redirectUrl = '/carwash_project/backend/auth/login.php'): void
     {
         if (!$this->isAuthenticated()) {
             header("Location: $redirectUrl");
@@ -246,81 +228,34 @@ class Auth
      * Require specific role or redirect
      * 
      * @param string|array $roles Required role(s)
-     * @param string $redirectUrl URL to redirect if role doesn't match
+     * @param string $redirectUrl URL to redirect if not authorized
      */
-    public function requireRole($roles, string $redirectUrl = '/carwash_project/backend/auth/login.php'): void 
+    public function requireRole($roles, string $redirectUrl = '/carwash_project/backend/auth/login.php'): void
     {
         $this->requireAuth($redirectUrl);
         
-        $userRole = Session::get('user_role');
-        $allowedRoles = is_array($roles) ? $roles : [$roles];
-        
-        if (!in_array($userRole, $allowedRoles)) {
+        if (!$this->hasRole($roles)) {
             header("Location: $redirectUrl");
             exit;
         }
     }
     
     /**
-     * Update password with secure hashing
+     * Get current user data
      * 
-     * @param int $userId User ID
-     * @param string $currentPassword Current password
-     * @param string $newPassword New password
-     * @return array Response with success/error status
+     * @return array|null User data or null if not logged in
      */
-    public function updatePassword(int $userId, string $currentPassword, string $newPassword): array 
+    public function getCurrentUser(): ?array
     {
-        // Validate inputs
-        $this->validator
-            ->required($currentPassword, 'رمز عبور فعلی')
-            ->required($newPassword, 'رمز عبور جدید')
-            ->minLength($newPassword, 8, 'رمز عبور جدید');
-            
-        if ($this->validator->fails()) {
-            return [
-                'success' => false,
-                'errors' => $this->validator->getErrors()
-            ];
+        if (!$this->isAuthenticated()) {
+            return null;
         }
         
-        // Get current password hash
-        $user = $this->db->fetchOne(
-            "SELECT password FROM users WHERE id = :id",
+        $userId = Session::get('user_id');
+        
+        return $this->db->fetchOne(
+            "SELECT id, name, email, role, created_at FROM users WHERE id = :id",
             ['id' => $userId]
         );
-        
-        if (!$user) {
-            return [
-                'success' => false,
-                'errors' => ['general' => 'کاربر یافت نشد']
-            ];
-        }
-        
-        // Verify current password
-        if (!password_verify($currentPassword, $user['password'])) {
-            return [
-                'success' => false,
-                'errors' => ['current_password' => 'رمز عبور فعلی اشتباه است']
-            ];
-        }
-        
-        // Hash new password
-        $passwordHash = password_hash(
-            $newPassword, 
-            PASSWORD_DEFAULT,
-            ['cost' => 12]
-        );
-        
-        // Update password
-        $this->db->update('users', 
-            ['password' => $passwordHash], 
-            ['id' => $userId]
-        );
-        
-        return [
-            'success' => true,
-            'message' => 'رمز عبور با موفقیت تغییر یافت'
-        ];
     }
 }

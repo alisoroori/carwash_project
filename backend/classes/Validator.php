@@ -4,21 +4,20 @@ declare(strict_types=1);
 namespace App\Classes;
 
 /**
- * Input Validator and Sanitizer
- * Provides methods for validating and sanitizing user inputs
+ * Input validation and sanitization
  */
-class Validator 
+class Validator
 {
     private $errors = [];
     
     /**
-     * Check if a field is required
+     * Validate required field
      * 
-     * @param mixed $value Field value
+     * @param mixed $value Value to check
      * @param string $fieldName Field name for error message
-     * @return $this Validator instance
+     * @return $this For method chaining
      */
-    public function required($value, string $fieldName): self 
+    public function required($value, string $fieldName): self
     {
         if (empty($value) && $value !== '0' && $value !== 0) {
             $this->errors[$fieldName][] = "$fieldName الزامی است";
@@ -28,13 +27,13 @@ class Validator
     }
     
     /**
-     * Check if a value is a valid email
+     * Validate email format
      * 
-     * @param mixed $value Field value
+     * @param mixed $value Value to check
      * @param string $fieldName Field name for error message
-     * @return $this Validator instance
+     * @return $this For method chaining
      */
-    public function email($value, string $fieldName): self 
+    public function email($value, string $fieldName): self
     {
         if (!empty($value) && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
             $this->errors[$fieldName][] = "$fieldName باید یک ایمیل معتبر باشد";
@@ -44,14 +43,14 @@ class Validator
     }
     
     /**
-     * Check if a value has minimum length
+     * Validate minimum length
      * 
-     * @param mixed $value Field value
+     * @param mixed $value Value to check
      * @param int $length Minimum length
      * @param string $fieldName Field name for error message
-     * @return $this Validator instance
+     * @return $this For method chaining
      */
-    public function minLength($value, int $length, string $fieldName): self 
+    public function minLength($value, int $length, string $fieldName): self
     {
         if (!empty($value) && mb_strlen($value) < $length) {
             $this->errors[$fieldName][] = "$fieldName باید حداقل $length کاراکتر باشد";
@@ -61,14 +60,14 @@ class Validator
     }
     
     /**
-     * Check if a value has maximum length
+     * Validate maximum length
      * 
-     * @param mixed $value Field value
+     * @param mixed $value Value to check
      * @param int $length Maximum length
      * @param string $fieldName Field name for error message
-     * @return $this Validator instance
+     * @return $this For method chaining
      */
-    public function maxLength($value, int $length, string $fieldName): self 
+    public function maxLength($value, int $length, string $fieldName): self
     {
         if (!empty($value) && mb_strlen($value) > $length) {
             $this->errors[$fieldName][] = "$fieldName باید حداکثر $length کاراکتر باشد";
@@ -78,13 +77,13 @@ class Validator
     }
     
     /**
-     * Check if a value is numeric
+     * Check if value is numeric
      * 
-     * @param mixed $value Field value
+     * @param mixed $value Value to check
      * @param string $fieldName Field name for error message
-     * @return $this Validator instance
+     * @return $this For method chaining
      */
-    public function numeric($value, string $fieldName): self 
+    public function numeric($value, string $fieldName): self
     {
         if (!empty($value) && !is_numeric($value)) {
             $this->errors[$fieldName][] = "$fieldName باید عددی باشد";
@@ -94,32 +93,15 @@ class Validator
     }
     
     /**
-     * Check if a value is in a list of options
+     * Check if value matches a regex pattern
      * 
-     * @param mixed $value Field value
-     * @param array $options Valid options
-     * @param string $fieldName Field name for error message
-     * @return $this Validator instance
-     */
-    public function inList($value, array $options, string $fieldName): self 
-    {
-        if (!empty($value) && !in_array($value, $options, true)) {
-            $this->errors[$fieldName][] = "$fieldName باید یکی از مقادیر معتبر باشد";
-        }
-        
-        return $this;
-    }
-    
-    /**
-     * Check if a value matches a regex pattern
-     * 
-     * @param mixed $value Field value
+     * @param mixed $value Value to check
      * @param string $pattern Regex pattern
      * @param string $fieldName Field name for error message
-     * @param string $message Custom error message
-     * @return $this Validator instance
+     * @param string|null $message Custom error message
+     * @return $this For method chaining
      */
-    public function pattern($value, string $pattern, string $fieldName, string $message = null): self 
+    public function pattern($value, string $pattern, string $fieldName, ?string $message = null): self
     {
         if (!empty($value) && !preg_match($pattern, $value)) {
             $this->errors[$fieldName][] = $message ?? "$fieldName با الگوی مورد نظر مطابقت ندارد";
@@ -129,24 +111,11 @@ class Validator
     }
     
     /**
-     * Add a custom error message
-     * 
-     * @param string $fieldName Field name
-     * @param string $message Error message
-     * @return $this Validator instance
-     */
-    public function addError(string $fieldName, string $message): self 
-    {
-        $this->errors[$fieldName][] = $message;
-        return $this;
-    }
-    
-    /**
      * Check if validation fails
      * 
      * @return bool True if validation fails
      */
-    public function fails(): bool 
+    public function fails(): bool
     {
         return !empty($this->errors);
     }
@@ -156,84 +125,78 @@ class Validator
      * 
      * @return bool True if validation passes
      */
-    public function passes(): bool 
+    public function passes(): bool
     {
         return empty($this->errors);
     }
     
     /**
-     * Get all validation errors
+     * Get validation errors
      * 
      * @return array Validation errors
      */
-    public function getErrors(): array 
+    public function getErrors(): array
     {
         $flatErrors = [];
         
         foreach ($this->errors as $field => $messages) {
-            $flatErrors[$field] = $messages[0];
+            $flatErrors[$field] = $messages[0]; // Return first error message for each field
         }
         
         return $flatErrors;
     }
     
     /**
-     * Sanitize email
+     * Static method to sanitize email
      * 
      * @param string $email Email to sanitize
      * @return string Sanitized email
      */
-    public static function sanitizeEmail(string $email): string 
+    public static function sanitizeEmail(string $email): string
     {
         return filter_var(trim($email), FILTER_SANITIZE_EMAIL);
     }
     
     /**
-     * Sanitize string
+     * Static method to sanitize string
      * 
      * @param string $string String to sanitize
      * @return string Sanitized string
      */
-    public static function sanitizeString(string $string): string 
+    public static function sanitizeString(string $string): string
     {
-        $string = trim($string);
-        $string = strip_tags($string);
-        return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars(trim($string), ENT_QUOTES, 'UTF-8');
     }
     
     /**
-     * Sanitize integer
+     * Static method to sanitize integer
      * 
      * @param mixed $value Value to sanitize
      * @return int Sanitized integer
      */
-    public static function sanitizeInt($value): int 
+    public static function sanitizeInt($value): int
     {
         return (int) filter_var($value, FILTER_SANITIZE_NUMBER_INT);
     }
     
     /**
-     * Sanitize float
+     * Static method to sanitize float
      * 
      * @param mixed $value Value to sanitize
      * @return float Sanitized float
      */
-    public static function sanitizeFloat($value): float 
+    public static function sanitizeFloat($value): float
     {
-        return (float) filter_var(
-            $value, 
-            FILTER_SANITIZE_NUMBER_FLOAT, 
-            FILTER_FLAG_ALLOW_FRACTION
-        );
+        return (float) filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     }
     
     /**
-     * Safe output encoding for HTML
+     * Escape HTML output
      * 
-     * @param string $string String to encode
-     * @return string Encoded string
+     * @param string $string String to escape
+     * @return string Escaped string
      */
-    public static function escapeHtml(string $string): string 
+    public static function escapeHtml(string $string): string
     {
         return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
     }

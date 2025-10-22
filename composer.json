@@ -1,37 +1,16 @@
 {
     "name": "carwash/project",
-    "description": "CarWash Web Application - Modernized PHP Architecture",
-    "type": "project",
-    "keywords": ["carwash", "booking", "php", "mysql"],
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "CarWash Development Team",
-            "email": "dev@carwash.local"
-        }
-    ],
-    "require": {
-        "php": ">=7.4.0",
-        "ext-pdo": "*",
-        "ext-mysqli": "*",
-        "ext-json": "*",
-        "ext-session": "*",
-        "ext-mbstring": "*",
-        "iyzico/iyzipay-php": "^2.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^11.5"
-    },
+    "description": "Car Wash Management System",
     "autoload": {
         "psr-4": {
-            "App\\": "backend/"
+            "App\\Classes\\": "backend/classes/",
+            "App\\Models\\": "backend/models/"
         }
     },
-    "config": {
-        "optimize-autoloader": true,
-        "preferred-install": "dist",
-        "sort-packages": true
+    "require": {
+        "php": ">=7.4"
     },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    "config": {
+        "optimize-autoloader": true
+    }
 }
