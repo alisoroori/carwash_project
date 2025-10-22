@@ -1,89 +1,127 @@
 <?php
-/**
- * JSON Response Class (PSR-4 Autoloaded)
- * Standardized API response handler
- * 
- * @package App\Classes
- * @namespace App\Classes
- */
+declare(strict_types=1);
 
 namespace App\Classes;
 
-class Response {
-    
+/**
+ * API Response Handler
+ * Standardizes JSON API responses with proper headers and status codes
+ */
+class Response
+{
     /**
-     * Send JSON success response
+     * Send a success response
+     * 
+     * @param string $message Success message
+     * @param array $data Response data
+     * @param int $statusCode HTTP status code
      */
-    public static function success($message, $data = null, $statusCode = 200) {
-        http_response_code($statusCode);
-        header('Content-Type: application/json; charset=utf-8');
-        
-        $response = [
+    public static function success(string $message, array $data = [], int $statusCode = 200): void
+    {
+        self::send([
             'success' => true,
-            'message' => $message
-        ];
-        
-        if ($data !== null) {
-            $response['data'] = $data;
-        }
-        
-        echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        exit;
+            'message' => $message,
+            'data' => $data
+        ], $statusCode);
     }
     
     /**
-     * Send JSON error response
+     * Send an error response
+     * 
+     * @param string $message Error message
+     * @param int $statusCode HTTP status code
+     * @param array $errors Additional error details
      */
-    public static function error($message, $statusCode = 400, $errors = null) {
-        http_response_code($statusCode);
-        header('Content-Type: application/json; charset=utf-8');
-        
+    public static function error(string $message, int $statusCode = 400, array $errors = []): void
+    {
         $response = [
             'success' => false,
             'message' => $message
         ];
         
-        if ($errors !== null) {
+        if (!empty($errors)) {
             $response['errors'] = $errors;
         }
         
-        echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        exit;
+        self::send($response, $statusCode);
     }
     
     /**
-     * Send 404 Not Found response
+     * Send a validation error response
+     * 
+     * @param array $errors Validation errors
+     * @param string $message Error message
      */
-    public static function notFound($message = 'منبع یافت نشد') {
-        self::error($message, 404);
-    }
-    
-    /**
-     * Send 401 Unauthorized response
-     */
-    public static function unauthorized($message = 'احراز هویت نشده') {
-        self::error($message, 401);
-    }
-    
-    /**
-     * Send 403 Forbidden response
-     */
-    public static function forbidden($message = 'دسترسی غیرمجاز') {
-        self::error($message, 403);
-    }
-    
-    /**
-     * Send 422 Validation Error response
-     */
-    public static function validationError($errors, $message = 'خطای اعتبارسنجی') {
+    public static function validationError(array $errors, string $message = 'اطلاعات وارد شده نامعتبر است'): void
+    {
         self::error($message, 422, $errors);
     }
     
     /**
-     * Send 500 Server Error response
+     * Send a not found response
+     * 
+     * @param string $message Error message
      */
-    public static function serverError($message = 'خطای سرور') {
-        self::error($message, 500);
+    public static function notFound(string $message = 'منبع مورد نظر یافت نشد'): void
+    {
+        self::error($message, 404);
+    }
+    
+    /**
+     * Send an unauthorized response
+     * 
+     * @param string $message Error message
+     */
+    public static function unauthorized(string $message = 'دسترسی غیرمجاز'): void
+    {
+        self::error($message, 401);
+    }
+    
+    /**
+     * Send a forbidden response
+     * 
+     * @param string $message Error message
+     */
+    public static function forbidden(string $message = 'دسترسی به این بخش مجاز نیست'): void
+    {
+        self::error($message, 403);
+    }
+    
+    /**
+     * Send a JSON response
+     * 
+     * @param mixed $data Response data
+     * @param int $statusCode HTTP status code
+     */
+    public static function send($data, int $statusCode = 200): void
+    {
+        // Set security headers
+        header('X-Content-Type-Options: nosniff');
+        header('X-Frame-Options: DENY');
+        header('X-XSS-Protection: 1; mode=block');
+        header('Content-Type: application/json; charset=utf-8');
+        
+        // Set status code
+        http_response_code($statusCode);
+        
+        // Encode and output JSON
+        $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+        
+        if (defined('JSON_THROW_ON_ERROR')) {
+            $flags |= JSON_THROW_ON_ERROR;
+        }
+        
+        try {
+            echo json_encode($data, $flags);
+        } catch (\Exception $e) {
+            // Fallback for encoding errors
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'خطا در سرویس‌دهی. لطفا دوباره تلاش کنید'
+            ]);
+        }
+        
+        exit;
     }
 }
-?>

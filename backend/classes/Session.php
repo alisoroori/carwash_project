@@ -1,171 +1,195 @@
 <?php
-/**
- * Session Management Class (PSR-4 Autoloaded)
- * Secure session handling wrapper
- * 
- * @package App\Classes
- * @namespace App\Classes
- */
+declare(strict_types=1);
 
 namespace App\Classes;
 
-class Session {
-    
+/**
+ * Secure Session Manager
+ * Provides secure session handling with protection against session fixation
+ */
+class Session 
+{
     /**
-     * Session started flag
+     * Start secure session
+     * 
+     * @param array $options Session options
+     * @return bool True if session started
      */
-    private static $started = false;
-    
-    /**
-     * Session configuration
-     */
-    private static $config = [
-        'cookie_lifetime' => 0,
-        'cookie_httponly' => true,
-        'cookie_secure' => false, // Set to true if using HTTPS
-        'use_strict_mode' => true,
-        'use_only_cookies' => true
-    ];
-    
-    /**
-     * Start session with security settings
-     */
-    public static function start() {
-        if (self::$started || session_status() === PHP_SESSION_ACTIVE) {
-            return;
+    public static function start(array $options = []): bool 
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            return true;
         }
         
-        // Apply security settings
-        ini_set('session.cookie_httponly', self::$config['cookie_httponly']);
-        ini_set('session.use_strict_mode', self::$config['use_strict_mode']);
-        ini_set('session.use_only_cookies', self::$config['use_only_cookies']);
+        // Secure session settings
+        $defaultOptions = [
+            'cookie_httponly' => true,     // Prevent JavaScript access to session cookie
+            'cookie_secure' => isset($_SERVER['HTTPS']), // Require HTTPS
+            'use_strict_mode' => true,     // Reject uninitialized session ID
+            'cookie_samesite' => 'Lax',    // CSRF protection
+            'gc_maxlifetime' => 1800       // 30 minutes lifetime
+        ];
         
-        session_start();
-        self::$started = true;
+        $sessionOptions = array_merge($defaultOptions, $options);
+        
+        return session_start($sessionOptions);
+    }
+    
+    /**
+     * Regenerate session ID to prevent session fixation
+     * 
+     * @param bool $deleteOldSession Whether to delete old session data
+     * @return bool True on success
+     */
+    public static function regenerate(bool $deleteOldSession = true): bool 
+    {
+        return session_regenerate_id($deleteOldSession);
     }
     
     /**
      * Set session value
+     * 
+     * @param string $key Session key
+     * @param mixed $value Session value
      */
-    public static function set($key, $value) {
-        self::start();
+    public static function set(string $key, $value): void 
+    {
         $_SESSION[$key] = $value;
     }
     
     /**
      * Get session value
+     * 
+     * @param string $key Session key
+     * @param mixed $default Default value if key not found
+     * @return mixed Session value or default
      */
-    public static function get($key, $default = null) {
-        self::start();
+    public static function get(string $key, $default = null) 
+    {
         return $_SESSION[$key] ?? $default;
     }
     
     /**
      * Check if session key exists
+     * 
+     * @param string $key Session key
+     * @return bool True if key exists
      */
-    public static function has($key) {
-        self::start();
+    public static function has(string $key): bool 
+    {
         return isset($_SESSION[$key]);
     }
     
     /**
-     * Remove session value
+     * Remove session key
+     * 
+     * @param string $key Session key
      */
-    public static function remove($key) {
-        self::start();
+    public static function remove(string $key): void 
+    {
         if (isset($_SESSION[$key])) {
             unset($_SESSION[$key]);
         }
     }
     
     /**
-     * Destroy entire session
+     * Destroy session
+     * 
+     * @return bool True on success
      */
-    public static function destroy() {
-        self::start();
-        
-        // Unset all session variables
-        $_SESSION = [];
-        
-        // Delete session cookie
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
+    public static function destroy(): bool 
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            // Clear session array
+            $_SESSION = [];
+            
+            // Clear session cookie
+            if (ini_get("session.use_cookies")) {
+                $params = session_get_cookie_params();
+                setcookie(session_name(), '', time() - 42000,
+                    $params["path"], $params["domain"],
+                    $params["secure"], $params["httponly"]
+                );
+            }
+            
+            // Destroy session
+            return session_destroy();
         }
         
-        // Destroy session
-        session_destroy();
-        self::$started = false;
+        return true;
     }
     
     /**
-     * Regenerate session ID (security)
+     * Set flash message (available only for one request)
+     * 
+     * @param string $key Flash key
+     * @param mixed $value Flash value
      */
-    public static function regenerate($deleteOldSession = true) {
+    public static function setFlash(string $key, $value): void 
+    {
         self::start();
-        session_regenerate_id($deleteOldSession);
+        $_SESSION['_flash'][$key] = $value;
     }
     
     /**
-     * Get user ID from session
+     * Get flash message and remove it
+     * 
+     * @param string $key Flash key
+     * @param mixed $default Default value if key not found
+     * @return mixed Flash value or default
      */
-    public static function getUserId() {
-        return self::get('user_id');
+    public static function getFlash(string $key, $default = null) 
+    {
+        self::start();
+        $value = $_SESSION['_flash'][$key] ?? $default;
+        
+        if (isset($_SESSION['_flash'][$key])) {
+            unset($_SESSION['_flash'][$key]);
+        }
+        
+        return $value;
     }
     
     /**
-     * Check if user is logged in
+     * Check if flash key exists
+     * 
+     * @param string $key Flash key
+     * @return bool True if key exists
      */
-    public static function isLoggedIn() {
-        return self::has('user_id') && self::get('user_id') > 0;
+    public static function hasFlash(string $key): bool 
+    {
+        self::start();
+        return isset($_SESSION['_flash'][$key]);
     }
     
     /**
-     * Get user role
+     * Generate CSRF token
+     * 
+     * @return string CSRF token
      */
-    public static function getUserRole() {
-        return self::get('role');
+    public static function generateCsrfToken(): string
+    {
+        self::start();
+        $token = bin2hex(random_bytes(32));
+        self::set('csrf_token', $token);
+        return $token;
     }
     
     /**
-     * Get user name
+     * Verify CSRF token
+     * 
+     * @param string $token Token to verify
+     * @return bool True if valid
      */
-    public static function getUserName() {
-        return self::get('name');
-    }
-    
-    /**
-     * Set flash message
-     */
-    public static function setFlash($type, $message) {
-        self::set('flash_message', [
-            'type' => $type,
-            'message' => $message
-        ]);
-    }
-    
-    /**
-     * Get and clear flash message
-     */
-    public static function getFlash() {
-        $flash = self::get('flash_message');
-        self::remove('flash_message');
-        return $flash;
-    }
-    
-    /**
-     * Check if flash message exists
-     */
-    public static function hasFlash() {
-        return self::has('flash_message');
+    public static function verifyCsrfToken(string $token): bool
+    {
+        self::start();
+        $storedToken = self::get('csrf_token');
+        
+        if (empty($storedToken)) {
+            return false;
+        }
+        
+        return hash_equals($storedToken, $token);
     }
 }
-?>

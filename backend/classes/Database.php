@@ -1,279 +1,256 @@
 <?php
 declare(strict_types=1);
-/**
- * Database Connection Class (PSR-4 Autoloaded)
- * Modernized PDO wrapper with prepared statements
- *
- * @package App\Classes
- * @namespace App\Classes
- */
 
 namespace App\Classes;
 
-use PDO;
-use PDOException;
-
-class Database
+/**
+ * Secure Database Access Layer
+ * Provides PDO-based database access with prepared statements
+ */
+class Database 
 {
-    /**
-     * Singleton instance
-     * @var Database|null
-     */
     private static $instance = null;
-
+    private $pdo;
+    
     /**
-     * PDO connection
-     * @var PDO|null
+     * Private constructor to enforce singleton pattern
      */
-    private $connection = null;
-
-    /**
-     * Private constructor to prevent direct instantiation
-     */
-    private function __construct()
+    private function __construct() 
     {
-        // بارگیری تنظیمات محیطی
-        Config::load();
-
-        $host = Config::get('DB_HOST', '127.0.0.1');
-        $db   = Config::get('DB_DATABASE', 'carwash');
-        $user = Config::get('DB_USERNAME', 'root');
-        $pass = Config::get('DB_PASSWORD', '');
-        $charset = 'utf8mb4';
-
-        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-        $options = [
-            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-            \PDO::ATTR_EMULATE_PREPARES   => false,
-        ];
-
         try {
-            $this->connection = new \PDO($dsn, $user, $pass, $options);
-            // ensure proper charset
-            $this->connection->exec("SET NAMES {$charset} COLLATE {$charset}_unicode_ci");
+            // Load configuration
+            require_once __DIR__ . '/../includes/config.php';
+            
+            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+            $options = [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                \PDO::ATTR_EMULATE_PREPARES => false, // Use real prepared statements
+                \PDO::MYSQL_ATTR_FOUND_ROWS => true   // Return found rows instead of affected rows
+            ];
+            
+            $this->pdo = new \PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (\PDOException $e) {
-            if (Config::isDebug()) {
-                throw new \PDOException($e->getMessage(), (int)$e->getCode());
-            } else {
-                die("اتصال به پایگاه داده با خطا مواجه شد. لطفا با پشتیبانی تماس بگیرید.");
-            }
+            // Log error but don't expose details
+            error_log('Database connection failed: ' . $e->getMessage());
+            throw new \Exception('خطا در اتصال به پایگاه داده');
         }
     }
-
+    
     /**
-     * Get Database instance (Singleton)
-     * @return Database
+     * Prevent cloning singleton instance
      */
-    public static function getInstance(): Database {
+    private function __clone() {}
+    
+    /**
+     * Get singleton instance
+     * 
+     * @return Database Database instance
+     */
+    public static function getInstance(): Database 
+    {
         if (self::$instance === null) {
             self::$instance = new self();
         }
+        
         return self::$instance;
     }
-
+    
     /**
-     * Establish PDO connection using config constants if available
-     * @return void
-     * @throws PDOException
+     * Get PDO instance
+     * 
+     * @return \PDO PDO instance
      */
-    private function connect(): void {
-        // Prefer config constants if defined (from backend/includes/config.php)
-        $host = defined('DB_HOST') ? DB_HOST : '127.0.0.1';
-        $db   = defined('DB_NAME') ? DB_NAME : 'carwash';
-        $user = defined('DB_USER') ? DB_USER : 'root';
-        $pass = defined('DB_PASS') ? DB_PASS : '';
-        $charset = defined('DB_CHARSET') ? DB_CHARSET : 'utf8mb4';
-
-        $dsn = sprintf('mysql:host=%s;dbname=%s;charset=%s', $host, $db, $charset);
-
-        $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ];
-
-        try {
-            $this->connection = new PDO($dsn, $user, $pass, $options);
-            // ensure proper charset
-            $this->connection->exec("SET NAMES {$charset} COLLATE {$charset}_unicode_ci");
-        } catch (PDOException $e) {
-            error_log('Database Connection Error: ' . $e->getMessage());
-            throw new PDOException('اتصال به دیتابیس ناموفق بود. لطفاً تنظیمات را بررسی کنید.');
-        }
+    public function getPdo(): \PDO 
+    {
+        return $this->pdo;
     }
-
+    
     /**
-     * Get raw PDO connection
-     * @return PDO
+     * Execute a query with parameters
+     * 
+     * @param string $query SQL query
+     * @param array $params Query parameters
+     * @return \PDOStatement PDO statement
+     * @throws \Exception When query fails
      */
-    public function getConnection(): PDO {
-        return $this->connection;
-    }
-
-    /**
-     * Execute prepared statement
-     * @param string $sql
-     * @param array $params
-     * @return \PDOStatement
-     * @throws PDOException
-     */
-    public function query(string $sql, array $params = []) {
+    public function query(string $query, array $params = []): \PDOStatement 
+    {
         try {
-            $stmt = $this->connection->prepare($sql);
+            $stmt = $this->pdo->prepare($query);
             $stmt->execute($params);
             return $stmt;
-        } catch (PDOException $e) {
-            error_log('Query Error: ' . $e->getMessage() . ' | SQL: ' . $sql);
-            throw $e;
+        } catch (\PDOException $e) {
+            // Log error but don't expose details
+            error_log('Query failed: ' . $e->getMessage() . ' - Query: ' . $query);
+            throw new \Exception('خطا در اجرای درخواست از پایگاه داده');
         }
     }
-
+    
     /**
-     * Fetch single row
-     * @param string $sql
-     * @param array $params
-     * @return array|false
+     * Fetch a single row
+     * 
+     * @param string $query SQL query
+     * @param array $params Query parameters
+     * @return array|null Row data or null if not found
      */
-    public function fetchOne(string $sql, array $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->fetch();
+    public function fetchOne(string $query, array $params = []): ?array 
+    {
+        $stmt = $this->query($query, $params);
+        $result = $stmt->fetch();
+        
+        return $result !== false ? $result : null;
     }
-
+    
     /**
      * Fetch all rows
-     * @param string $sql
-     * @param array $params
-     * @return array
+     * 
+     * @param string $query SQL query
+     * @param array $params Query parameters
+     * @return array Rows data
      */
-    public function fetchAll(string $sql, array $params = []): array {
-        $stmt = $this->query($sql, $params);
+    public function fetchAll(string $query, array $params = []): array 
+    {
+        $stmt = $this->query($query, $params);
         return $stmt->fetchAll();
     }
-
-    /**
-     * Insert record and return last insert id
-     * @param string $table
-     * @param array $data
-     * @return int
-     */
-    public function insert(string $table, array $data): int {
-        $columns = implode(', ', array_keys($data));
-        $placeholders = ':' . implode(', :', array_keys($data));
-        $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
-        $this->query($sql, $data);
-        return (int) $this->connection->lastInsertId();
-    }
-
-    /**
-     * Update record
-     * @param string $table
-     * @param array $data
-     * @param array $where
-     * @return int affected rows
-     */
-    public function update(string $table, array $data, array $where): int {
-        $setParts = [];
-        foreach ($data as $col => $val) {
-            $setParts[] = "{$col} = :{$col}";
-        }
-        $setString = implode(', ', $setParts);
-
-        $whereParts = [];
-        foreach ($where as $col => $val) {
-            $whereParts[] = "{$col} = :where_{$col}";
-        }
-        $whereString = implode(' AND ', $whereParts);
-
-        $sql = "UPDATE {$table} SET {$setString} WHERE {$whereString}";
-
-        $params = $data;
-        foreach ($where as $col => $val) {
-            $params["where_{$col}"] = $val;
-        }
-
-        $stmt = $this->query($sql, $params);
-        return $stmt->rowCount();
-    }
-
-    /**
-     * Delete record
-     * @param string $table
-     * @param array $where
-     * @return int affected rows
-     */
-    public function delete(string $table, array $where): int {
-        $whereParts = [];
-        foreach ($where as $col => $val) {
-            $whereParts[] = "{$col} = :{$col}";
-        }
-        $whereString = implode(' AND ', $whereParts);
-
-        $sql = "DELETE FROM {$table} WHERE {$whereString}";
-        $stmt = $this->query($sql, $where);
-        return $stmt->rowCount();
-    }
-
-    /**
-     * Check existence
-     * @param string $table
-     * @param array $where
-     * @return bool
-     */
-    public function exists(string $table, array $where): bool {
-        $whereParts = [];
-        foreach ($where as $col => $val) {
-            $whereParts[] = "{$col} = :{$col}";
-        }
-        $whereString = implode(' AND ', $whereParts);
-
-        $sql = "SELECT COUNT(*) as cnt FROM {$table} WHERE {$whereString}";
-        $result = $this->fetchOne($sql, $where);
-        return !empty($result) && ((int)$result['cnt'] > 0);
-    }
-
+    
     /**
      * Count rows
-     * @param string $table
-     * @param array $where
-     * @return int
+     * 
+     * @param string $query SQL query
+     * @param array $params Query parameters
+     * @return int Number of rows
      */
-    public function count(string $table, array $where = []): int {
-        $sql = "SELECT COUNT(*) as cnt FROM {$table}";
-        $params = [];
-        if (!empty($where)) {
-            $parts = [];
-            foreach ($where as $col => $val) {
-                $parts[] = "{$col} = :{$col}";
-                $params[$col] = $val;
-            }
-            $sql .= " WHERE " . implode(' AND ', $parts);
+    public function count(string $query, array $params = []): int 
+    {
+        $stmt = $this->query($query, $params);
+        return $stmt->rowCount();
+    }
+    
+    /**
+     * Insert a row
+     * 
+     * @param string $table Table name
+     * @param array $data Column data (key => value)
+     * @return int|false Last insert ID or false on failure
+     */
+    public function insert(string $table, array $data) 
+    {
+        // Secure against SQL injection by sanitizing table name
+        $table = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
+        
+        $columns = array_keys($data);
+        $placeholders = array_map(function($column) {
+            return ":$column";
+        }, $columns);
+        
+        $columnsStr = implode(', ', $columns);
+        $placeholdersStr = implode(', ', $placeholders);
+        
+        $query = "INSERT INTO $table ($columnsStr) VALUES ($placeholdersStr)";
+        
+        try {
+            $this->query($query, $data);
+            return (int) $this->pdo->lastInsertId();
+        } catch (\Exception $e) {
+            return false;
         }
-        $result = $this->fetchOne($sql, $params);
-        return (int)($result['cnt'] ?? 0);
     }
-
+    
     /**
-     * Transaction helpers
+     * Update rows
+     * 
+     * @param string $table Table name
+     * @param array $data Column data to update (key => value)
+     * @param array $where Where conditions (key => value)
+     * @return bool Success status
      */
-    public function beginTransaction(): void {
-        $this->connection->beginTransaction();
+    public function update(string $table, array $data, array $where): bool 
+    {
+        // Secure against SQL injection by sanitizing table name
+        $table = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
+        
+        $set = [];
+        $params = [];
+        
+        foreach ($data as $column => $value) {
+            $set[] = "$column = :$column";
+            $params[$column] = $value;
+        }
+        
+        $whereConditions = [];
+        foreach ($where as $column => $value) {
+            $whereConditions[] = "$column = :where_$column";
+            $params["where_$column"] = $value;
+        }
+        
+        $setStr = implode(', ', $set);
+        $whereStr = implode(' AND ', $whereConditions);
+        
+        $query = "UPDATE $table SET $setStr WHERE $whereStr";
+        
+        try {
+            $this->query($query, $params);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
-
-    public function commit(): void {
-        $this->connection->commit();
-    }
-
-    public function rollback(): void {
-        $this->connection->rollBack();
-    }
-
+    
     /**
-     * Prevent cloning and unserialization
+     * Delete rows
+     * 
+     * @param string $table Table name
+     * @param array $where Where conditions (key => value)
+     * @return bool Success status
      */
-    private function __clone() {}
-    public function __wakeup() {
-        throw new \Exception("Cannot unserialize Database singleton");
+    public function delete(string $table, array $where): bool 
+    {
+        // Secure against SQL injection by sanitizing table name
+        $table = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
+        
+        $whereConditions = [];
+        $params = [];
+        
+        foreach ($where as $column => $value) {
+            $whereConditions[] = "$column = :$column";
+            $params[$column] = $value;
+        }
+        
+        $whereStr = implode(' AND ', $whereConditions);
+        
+        $query = "DELETE FROM $table WHERE $whereStr";
+        
+        try {
+            $this->query($query, $params);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Begin a transaction
+     */
+    public function beginTransaction(): void 
+    {
+        $this->pdo->beginTransaction();
+    }
+    
+    /**
+     * Commit a transaction
+     */
+    public function commit(): void 
+    {
+        $this->pdo->commit();
+    }
+    
+    /**
+     * Rollback a transaction
+     */
+    public function rollback(): void 
+    {
+        $this->pdo->rollBack();
     }
 }
-?>
