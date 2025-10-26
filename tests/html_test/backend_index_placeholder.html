@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Backend Index Placeholder</title>
+  <style>
+    body{font-family:Segoe UI, Roboto, Arial; padding:24px; background:#f8fafc;color:#0f172a}
+    .card{background:white;padding:18px;border-radius:8px;box-shadow:0 6px 18px rgba(2,6,23,.08)}
+    .url{font-family:monospace;background:#f1f5f9;padding:6px 8px;border-radius:6px;display:inline-block}
+    .hint{margin-top:12px;color:#475569}
+    .open-btn{display:inline-block;margin-top:12px;padding:8px 12px;background:#146cfa;color:#fff;border-radius:6px;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Page unavailable</h2>
+    <p>The requested backend page could not be reached from the navigator.</p>
+    <p>Requested URL: <span class="url" id="requestedUrl">(unknown)</span></p>
+    <p class="hint">This placeholder is shown so you can still view a friendly message while the real backend may be stopped or unreachable.</p>
+    <a id="openInNew" class="open-btn" target="_blank" rel="noopener">Open in new tab</a>
+  </div>
+  <script>
+    // If parent supplied a URL via hash or query, use it
+    try {
+      const parentUrl = window.location.hash ? decodeURIComponent(window.location.hash.slice(1)) : null;
+      if (parentUrl) {
+        document.getElementById('requestedUrl').textContent = parentUrl;
+        const open = document.getElementById('openInNew');
+        open.href = parentUrl;
+        open.textContent = 'Open ' + parentUrl + ' in new tab';
+      } else {
+        document.getElementById('requestedUrl').textContent = '(no URL)';
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  </script>
+</body>
+</html>

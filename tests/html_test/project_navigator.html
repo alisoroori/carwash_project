@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarWash Project Navigator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        .content {
+            padding: 1rem;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .category {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: #34495e;
+            border-radius: 4px;
+            font-weight: bold;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+        }
+
+        .file-link {
+            display: block;
+            padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+            color: #bdc3c7;
+            text-decoration: none;
+            margin: 0.2rem 0;
+            border-radius: 4px;
+            transition: all 0.3s;
+            position:relative;
+        }
+
+        .file-link:hover {
+            background: #2b8bd6; /* clearer hover color */
+            color: white;
+        }
+
+        /* selected (active) file */
+        .file-link.active {
+            background: #16a34a; /* green for selected */
+            color: #fff;
+        }
+
+        /* small file icon before file links */
+        .file-link::before {
+            content: "\25CF"; /* small dot */
+            display: inline-block;
+            width: 14px;
+            margin-left: -14px;
+            margin-right: 8px;
+            color: rgba(255,255,255,0.45);
+            font-size:10px;
+            vertical-align:middle;
+        }
+
+        /* folder caret icons */
+        .folder::before {
+            content: "▸";
+            display:inline-block;
+            width:18px;
+            margin-right:8px;
+            color: #cbd5e1;
+            transform-origin: center;
+            transition: transform 0.15s ease;
+        }
+        .folder.open::before { content: "▾"; }
+
+        iframe {
+            width: 100%;
+            height: calc(100vh - 2rem);
+            border: none;
+            border-radius: 4px;
+            background: white;
+        }
+
+        /* folder/tree styles */
+    .folder { cursor: pointer; padding: 0.4rem; color: #e6eef8; border-radius:4px }
+    .folder:hover { background: rgba(255,255,255,0.04); color: #fff }
+        .children { margin-left: 12px; display:none }
+        .folder.open > .children { display:block }
+        .small-btn { background: transparent; border: 1px solid rgba(255,255,255,0.06); color:#cbd5e1; padding:4px 8px; border-radius:6px; cursor:pointer }
+        .header-bar { display:flex; gap:12px; align-items:center; margin-bottom:12px }
+        .selected-url { flex:1; background:#fff; color:#111; padding:8px 10px; border-radius:6px; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+        .tree-panel { position:fixed; right:20px; top:80px; width:360px; max-height:70vh; overflow:auto; background:#fff; color:#111; border-radius:8px; box-shadow:0 10px 30px rgba(2,6,23,.2); padding:12px; display:none }
+        .tree-panel.open { display:block }
+        .explain { font-size:12px; color:#374151; margin-bottom:6px }
+        .register-btn { margin-top:12px; display:block; width:100%; padding:10px; border-radius:6px; border:none; background:#16a34a; color:white; cursor:pointer }
+        .modal { position:fixed; left:0; top:0; right:0; bottom:0; display:none; align-items:center; justify-content:center; background:rgba(2,6,23,0.5) }
+        .modal.open { display:flex }
+        .modal-card { background:#fff; padding:18px; border-radius:8px; width:420px; }
+
+        .search-box {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 4px;
+            background: #34495e;
+            color: white;
+        }
+
+        .search-box::placeholder {
+            color: #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="header-bar">
+                <input type="text" class="search-box" placeholder="Search files..." id="searchBox">
+                <button id="showTreeBtn" class="small-btn">Show Tree</button>
+            </div>
+
+            <!-- Backend Section (folders are collapsible) -->
+            <div class="category">Backend <button id="downloadTreeBtn" class="small-btn" title="Download tree JSON">Download Tree</button></div>
+
+            <div class="folder" data-path="backend">
+                backend
+                <div class="children">
+                    <div class="folder" data-path="backend/auth">auth
+                        <div class="children">
+                            <a href="backend/auth/login.php" class="file-link" target="content-frame">Auth - Login</a>
+                            <a href="backend/auth/register.php" class="file-link" target="content-frame">Auth - Register</a>
+                            <a href="backend/auth/reset_password.php" class="file-link" target="content-frame">Auth - Reset Password</a>
+                        </div>
+                    </div>
+
+                    <div class="folder" data-path="backend/api">api
+                        <div class="children">
+                            <a href="backend/api/bookings/create.php" class="file-link" target="content-frame">API - Create Booking</a>
+                            <a href="backend/api/bookings/list.php" class="file-link" target="content-frame">API - Bookings List</a>
+                            <a href="backend/api/services/manage.php" class="file-link" target="content-frame">API - Manage Services</a>
+                        </div>
+                    </div>
+
+                    <div class="folder" data-path="backend/dashboard">dashboard
+                        <div class="children">
+                            <a href="backend/dashboard/admin/index.php" class="file-link" target="content-frame">Admin Dashboard</a>
+                            <a href="backend/dashboard/carwash/index.php" class="file-link" target="content-frame">CarWash Dashboard</a>
+                            <a href="backend/dashboard/customer/index.php" class="file-link" target="content-frame">Customer Dashboard</a>
+                        </div>
+                    </div>
+
+                    <div class="folder" data-path="backend/includes">includes
+                        <div class="children">
+                            <a href="backend/includes/payment_gateway.php" class="file-link" target="content-frame">Payment Gateway</a>
+                            <a href="backend/includes/transaction_manager.php" class="file-link" target="content-frame">Transaction Manager</a>
+                            <a href="backend/includes/location_manager.php" class="file-link" target="content-frame">Location Manager</a>
+                            <a href="backend/includes/maps_config.php" class="file-link" target="content-frame">Maps Configuration</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Frontend Section -->
+            <div class="category">Frontend</div>
+            <div class="folder" data-path="frontend">
+                frontend
+                <div class="children">
+                    <a href="frontend/index.html" class="file-link" target="content-frame">Home Page</a>
+                    <a href="frontend/booking.html" class="file-link" target="content-frame">Booking Page</a>
+                    <a href="frontend/services.html" class="file-link" target="content-frame">Services Page</a>
+                </div>
+            </div>
+
+            <!-- JavaScript Section -->
+            <div class="category">JavaScript</div>
+            <div class="folder" data-path="frontend/js">
+                js
+                <div class="children">
+                    <a href="frontend/js/maps/service-areas.js" class="file-link" target="content-frame">Maps Service Areas</a>
+                    <a href="frontend/js/payment/checkout.js" class="file-link" target="content-frame">Payment Checkout</a>
+                </div>
+            </div>
+
+            <!-- Register New Page Button -->
+            <button id="registerPageBtn" class="register-btn">Register New Page</button>
+        </div>
+
+        <div class="content">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <div class="selected-url" id="selectedUrl">Selected: <span id="selectedHref"><em>none</em></span></div>
+                <button id="copyUrlBtn" class="small-btn">Copy</button>
+            </div>
+            <iframe name="content-frame" src="http://localhost/carwash_project/frontend/index.html" id="contentFrame"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Base prefix for links (serve as localhost)
+        const BASE_PREFIX = 'http://localhost/carwash_project/';
+
+        // Normalize all links to use localhost prefix and store original relative path in data-rel
+        function normalizeLinksToLocalhost() {
+            document.querySelectorAll('.file-link').forEach(a => {
+                const href = a.getAttribute('href');
+                // if it's already absolute http(s), keep it
+                if (/^https?:\/\//i.test(href)) {
+                    a.dataset.rel = href;
+                } else {
+                    // store the relative path and set the href to the localhost full URL
+                    a.dataset.rel = href;
+                    a.href = BASE_PREFIX + href.replace(/^\/*/, '');
+                }
+            });
+        }
+
+        // Utility: build tree structure from links (uses data-rel to keep relative paths)
+        function buildTreeFromLinks() {
+            const links = document.querySelectorAll('.file-link');
+            const tree = {};
+            links.forEach(a => {
+                const rel = a.dataset.rel || a.getAttribute('href') || '';
+                const path = rel.replace(/^\/*/, '');
+                const parts = path.split('/');
+                let node = tree;
+                parts.forEach((p, idx) => {
+                    if (!node[p]) node[p] = { __children: {}, __path: parts.slice(0, idx+1).join('/') };
+                    node = node[p].__children;
+                });
+            });
+            return tree;
+        }
+
+        // Toggle folder open/close
+        document.querySelectorAll('.folder').forEach(folder => {
+            folder.addEventListener('click', function(e) {
+                // if clicking on a link inside, ignore
+                if (e.target.tagName.toLowerCase() === 'a') return;
+                this.classList.toggle('open');
+            });
+        });
+
+        // call normalization right away so hrefs are absolute to localhost
+        normalizeLinksToLocalhost();
+
+        // Search functionality: filter folders and files
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const fileLinks = document.querySelectorAll('.file-link');
+            fileLinks.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                link.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+            // also hide empty folders using computed styles
+            document.querySelectorAll('.folder').forEach(f => {
+                const children = f.querySelectorAll('.children .file-link');
+                let anyVisible = false;
+                children.forEach(ch => {
+                    if (window.getComputedStyle(ch).display !== 'none') anyVisible = true;
+                });
+                if (anyVisible) f.style.display = '';
+                else {
+                    // keep top-level folders visible so structure isn't lost
+                    if (f.parentElement.classList.contains('sidebar')) f.style.display = '';
+                    else f.style.display = 'none';
+                }
+            });
+        });
+
+        // When clicking a file link, show its URL in the top bar and mark active
+        function bindFileLinkClicks() {
+            document.querySelectorAll('.file-link').forEach(link => {
+                // avoid double-binding
+                if (link._bound) return;
+                link.addEventListener('click', function(e) {
+                    document.querySelectorAll('.file-link.active').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                    const url = this.href || this.getAttribute('href');
+                    const selectedHref = document.getElementById('selectedHref');
+                    selectedHref.textContent = url;
+                });
+                link._bound = true;
+            });
+        }
+        bindFileLinkClicks();
+
+        // Copy URL button
+        document.getElementById('copyUrlBtn').addEventListener('click', function() {
+            const url = document.getElementById('selectedHref').textContent;
+            if (!url || url === 'none') return;
+            navigator.clipboard.writeText(url).then(() => {
+                this.textContent = 'Copied';
+                setTimeout(() => this.textContent = 'Copy', 1200);
+            });
+        });
+
+        // Show/hide tree panel
+        const treePanel = document.createElement('div');
+        treePanel.className = 'tree-panel';
+        treePanel.id = 'treePanel';
+        document.body.appendChild(treePanel);
+
+        function renderTreePanel() {
+            const tree = buildTreeFromLinks();
+            const container = document.getElementById('treePanel');
+            container.innerHTML = '<h3>Project Tree</h3><div class="explain">Edit explanation for each file, then download the tree.</div>';
+            const list = document.createElement('div');
+
+            // helper to walk
+            function walk(node, prefix) {
+                Object.keys(node).forEach(key => {
+                    const item = node[key];
+                    const fullPath = (prefix ? prefix + '/' : '') + key;
+                    const files = Object.keys(item.__children || {});
+                    if (files.length === 0) {
+                        // leaf - try to find matching link (by data-rel)
+                        const link = document.querySelector('.file-link[data-rel="' + fullPath + '"]') || document.querySelector('.file-link[href="' + BASE_PREFIX + fullPath + '"]');
+                        const row = document.createElement('div');
+                        row.style.marginBottom = '8px';
+                        const title = document.createElement('div');
+                        title.textContent = fullPath;
+                        title.style.fontWeight = '600';
+                        const desc = document.createElement('textarea');
+                        desc.placeholder = 'Explanation (optional)';
+                        desc.style.width = '100%';
+                        desc.style.marginTop = '6px';
+                        desc.dataset.path = fullPath;
+                        row.appendChild(title);
+                        row.appendChild(desc);
+                        list.appendChild(row);
+                    } else {
+                        // folder
+                        const title = document.createElement('div');
+                        title.textContent = fullPath + '/';
+                        title.style.fontWeight = '700';
+                        title.style.marginTop = '6px';
+                        list.appendChild(title);
+                        walk(item.__children, fullPath);
+                    }
+                });
+            }
+
+            walk(tree, '');
+                container.appendChild(list);
+
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download Tree JSON';
+            downloadBtn.className = 'small-btn';
+            downloadBtn.style.marginTop = '8px';
+            downloadBtn.addEventListener('click', () => {
+                const entries = [];
+                container.querySelectorAll('textarea').forEach(t => {
+                    entries.push({ path: t.dataset.path, explanation: t.value });
+                });
+                // Also include files without textarea (if any) - use data-rel (relative path)
+                const links = document.querySelectorAll('.file-link');
+                links.forEach(l => {
+                    const p = l.dataset.rel || l.getAttribute('href');
+                    if (!entries.find(e => e.path === p)) entries.push({ path: p, explanation: '' });
+                });
+                const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'project_tree.json';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            });
+            container.appendChild(downloadBtn);
+        }
+
+        document.getElementById('showTreeBtn').addEventListener('click', function() {
+            const panel = document.getElementById('treePanel');
+            if (panel.classList.contains('open')) { panel.classList.remove('open'); }
+            else { renderTreePanel(); panel.classList.add('open'); }
+        });
+
+        // Download quick button (same as in-panel)
+        document.getElementById('downloadTreeBtn').addEventListener('click', function() {
+            // build simple entries from links
+            const entries = [];
+            document.querySelectorAll('.file-link').forEach(l => entries.push({ path: l.getAttribute('href'), title: l.textContent }));
+            const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'project_tree_summary.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        });
+
+        // Register New Page modal
+        const modal = document.createElement('div'); modal.className = 'modal'; modal.id = 'registerModal';
+        modal.innerHTML = '<div class="modal-card"><h3>Register New Page</h3><div style="margin-top:8px"><label>URL path (relative)</label><input id="newPath" style="width:100%;padding:8px;margin-top:6px" placeholder="frontend/newpage.html"></div><div style="margin-top:8px"><label>Label</label><input id="newLabel" style="width:100%;padding:8px;margin-top:6px" placeholder="New Page"></div><div style="margin-top:12px;text-align:right"><button id="cancelReg" class="small-btn">Cancel</button> <button id="confirmReg" class="small-btn" style="background:#16a34a;color:#fff;border:none">Register</button></div></div>';
+        document.body.appendChild(modal);
+        document.getElementById('registerPageBtn').addEventListener('click', function() { modal.classList.add('open'); });
+        modal.querySelector('#cancelReg').addEventListener('click', function(){ modal.classList.remove('open'); });
+        modal.querySelector('#confirmReg').addEventListener('click', function(){
+            const path = document.getElementById('newPath').value.trim();
+            const label = document.getElementById('newLabel').value.trim() || path;
+            if (!path) return alert('Please provide path');
+            // append to frontend folder by default
+            const parent = document.querySelector('.folder[data-path="frontend"] .children') || document.querySelector('.sidebar');
+            const a = document.createElement('a');
+            a.className='file-link'; a.target='content-frame'; a.textContent = label;
+            // store relative path and set href to localhost prefix
+            a.dataset.rel = path.replace(/^\/*/, '');
+            a.href = BASE_PREFIX + a.dataset.rel;
+            parent.appendChild(a);
+            // bind click behavior for the new link (use the centralized binder)
+            bindFileLinkClicks();
+            modal.classList.remove('open');
+            document.getElementById('newPath').value=''; document.getElementById('newLabel').value='';
+        });
+
+    </script>
+</body>
+</html>

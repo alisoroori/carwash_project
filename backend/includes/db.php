@@ -140,3 +140,74 @@ if (isset($_GET['health_check'])) {
         ]);
     }
 }
+
+/**
+ * Legacy database connection file (for compatibility with old code)
+ * Uses modern Database class to avoid code duplication
+ */
+
+// Load autoloader if not already loaded
+$autoloaderPath = dirname(__DIR__, 2) . '/vendor/autoload.php';
+if (file_exists($autoloaderPath)) {
+    require_once $autoloaderPath;
+}
+
+// Load config.php if not already defined
+if (!defined('DB_HOST') && file_exists(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/config.php';
+}
+
+// Establish database connection using mysqli (for compatibility with old code)
+// Behind the scenes, uses modern Database class
+try {
+    if (class_exists('App\\Classes\\Database')) {
+        // Use modern Database class
+        $db = App\Classes\Database::getInstance();
+        $pdo = $db->getPdo();
+        
+        // Create a mysqli connection for compatibility with old code
+        $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if (!$conn) {
+            throw new Exception("Database connection error: " . mysqli_connect_error());
+        }
+        
+        // Set charset for mysqli connection
+        mysqli_set_charset($conn, 'utf8mb4');
+        
+        // Helper function for safe mysqli queries using PDO (for old code compatibility)
+        function mysqli_query_safe($conn, $query, $params = []) {
+            $db = App\Classes\Database::getInstance();
+            
+            try {
+                if (empty($params)) {
+                    // For queries without parameters
+                    return $db->query($query);
+                } else {
+                    // For parameterized queries
+                    $stmt = $db->prepare($query);
+                    $stmt->execute($params);
+                    return $stmt;
+                }
+            } catch (Exception $e) {
+                error_log('Query failed: ' . $e->getMessage() . ' - Query: ' . $query);
+                return false;
+            }
+        }
+        
+    } else {
+        // If Database class is not available, use direct mysqli connection
+        $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if (!$conn) {
+            throw new Exception("Database connection error: " . mysqli_connect_error());
+        }
+        
+        // Set charset for connection
+        mysqli_set_charset($conn, 'utf8mb4');
+    }
+} catch (Exception $e) {
+    // Log error
+    error_log('Database connection failed: ' . $e->getMessage());
+    die('Database connection error. Please contact the system administrator.');
+}

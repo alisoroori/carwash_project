@@ -1,1267 +1,1429 @@
 # Code Citations
 
 ## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
-
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
-## License: unknown
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
-## License: unknown
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
+## License: unknown
+https://github.com/hasan-py/CMS_with_PHP_Mysql/blob/7930cc4a6660f5c29f79ec8733a946b2c57e3b5a/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
-## License: unknown
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
+## License: unknown
+https://github.com/hasan-py/CMS_with_PHP_Mysql/blob/7930cc4a6660f5c29f79ec8733a946b2c57e3b5a/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div
 ```
 
-## License: unknown
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
+## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div
 ```
 
-## License: unknown
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div
 ```
 
-## License: unknown
 
-https://github.com/peterkamlongera/pretty-flower-hair/blob/3055e00c91f1c275530570518623f27b4fe5c4b5/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-
 ```
 
-## License: unknown
 
-https://github.com/mohamed-lifa7/QuickBuy/blob/26f98947e21ebbebb76117b6a19473ad1550fb58/seller/seller.html
+## License: unknown
+https://github.com/hasan-py/CMS_with_PHP_Mysql/blob/7930cc4a6660f5c29f79ec8733a946b2c57e3b5a/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-
 ```
 
-## License: unknown
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
+## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-
 ```
 
-## License: unknown
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
+## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                
 ```
 
-## License: unknown
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                
 ```
 
-## License: unknown
 
-https://github.com/peterkamlongera/pretty-flower-hair/blob/3055e00c91f1c275530570518623f27b4fe5c4b5/index.html
+## License: unknown
+https://github.com/hasan-py/CMS_with_PHP_Mysql/blob/7930cc4a6660f5c29f79ec8733a946b2c57e3b5a/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                
 ```
 
-## License: unknown
 
-https://github.com/mohamed-lifa7/QuickBuy/blob/26f98947e21ebbebb76117b6a19473ad1550fb58/seller/seller.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
-## License: unknown
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
+## License: unknown
+https://github.com/hasan-py/CMS_with_PHP_Mysql/blob/7930cc4a6660f5c29f79ec8733a946b2c57e3b5a/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
-## License: unknown
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
+## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="users.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
-## License: unknown
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel"
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div
 ```
 
-## License: unknown
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div
 ```
 
-## License: unknown
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div
 ```
 
-## License: unknown
 
-https://github.com/peterkamlongera/pretty-flower-hair/blob/3055e00c91f1c275530570518623f27b4fe5c4b5/index.html
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h4
 ```
 
-## License: unknown
 
-https://github.com/mohamed-lifa7/QuickBuy/blob/26f98947e21ebbebb76117b6a19473ad1550fb58/seller/seller.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h4
 ```
 
-## License: unknown
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h4
 ```
 
-## License: unknown
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4
 ```
 
-## License: unknown
 
-https://github.com/hardikm121/Movielanding/blob/1b2cc146bcc606cceafd1987b98bcb87d271b002/index.html
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4
 ```
 
-## License: unknown
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4
 ```
 
-## License: unknown
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="car
 ```
 
-## License: unknown
 
-https://github.com/peterkamlongera/pretty-flower-hair/blob/3055e00c91f1c275530570518623f27b4fe5c4b5/index.html
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="car
 ```
 
-## License: unknown
 
-https://github.com/mohamed-lifa7/QuickBuy/blob/26f98947e21ebbebb76117b6a19473ad1550fb58/seller/seller.html
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="car
 ```
 
-## License: unknown
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h
 ```
 
-## License: unknown
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h
 ```
 
-## License: unknown
 
-https://github.com/hardikm121/Movielanding/blob/1b2cc146bcc606cceafd1987b98bcb87d271b002/index.html
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h
 ```
 
-## License: unknown
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h4
 ```
 
-## License: unknown
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h4
 ```
 
-## License: unknown
 
-https://github.com/hardikm121/Movielanding/blob/1b2cc146bcc606cceafd1987b98bcb87d271b002/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h4
 ```
 
-## License: unknown
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4"
 ```
 
-## License: unknown
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
+## License: unknown
+https://github.com/ayashaJui/CSEKU_WPL_2020_tourville/blob/642ca3a4591819aabc3ef2d62a92ec928f31445e/admin/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4"
 ```
 
-## License: unknown
 
-https://github.com/peterkamlongera/pretty-flower-hair/blob/3055e00c91f1c275530570518623f27b4fe5c4b5/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4"
 ```
 
-## License: unknown
 
-https://github.com/mohamed-lifa7/QuickBuy/blob/26f98947e21ebbebb76117b6a19473ad1550fb58/seller/seller.html
+## License: unknown
+https://github.com/ayashaJui/CSEKU_WPL_2020_tourville/blob/642ca3a4591819aabc3ef2d62a92ec928f31445e/admin/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h4>
 ```
 
-## License: unknown
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h4>
 ```
 
-## License: unknown
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h4>
 ```
 
-## License: unknown
 
-https://github.com/peterkamlongera/pretty-flower-hair/blob/3055e00c91f1c275530570518623f27b4fe5c4b5/index.html
+## License: unknown
+https://github.com/jooy311/ohyes_coffee_shoppingmall/blob/27bb245a0b0fcf68f3ff0ce8b9b4004a2fb7e2f3/semi_coffee/WebContent/coffee/admin/home/home_work.jsp
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h4>
 ```
 
-## License: unknown
 
-https://github.com/mohamed-lifa7/QuickBuy/blob/26f98947e21ebbebb76117b6a19473ad1550fb58/seller/seller.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg
 ```
 
-## License: unknown
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg
 ```
 
-## License: unknown
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
+## License: unknown
+https://github.com/jooy311/ohyes_coffee_shoppingmall/blob/27bb245a0b0fcf68f3ff0ce8b9b4004a2fb7e2f3/semi_coffee/WebContent/coffee/admin/home/home_work.jsp
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg
 ```
 
-## License: unknown
 
-https://github.com/hardikm121/Movielanding/blob/1b2cc146bcc606cceafd1987b98bcb87d271b002/index.html
+## License: unknown
+https://github.com/ayashaJui/CSEKU_WPL_2020_tourville/blob/642ca3a4591819aabc3ef2d62a92ec928f31445e/admin/dashboard.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg
 ```
 
-## License: unknown
 
-https://github.com/mohamed-lifa7/QuickBuy/blob/26f98947e21ebbebb76117b6a19473ad1550fb58/seller/seller.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" i
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4
 ```
+
 
 ## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
+```
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4
+```
+
 
+## License: unknown
+https://github.com/jooy311/ohyes_coffee_shoppingmall/blob/27bb245a0b0fcf68f3ff0ce8b9b4004a2fb7e2f3/semi_coffee/WebContent/coffee/admin/home/home_work.jsp
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" i
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4
 ```
+
 
 ## License: unknown
+https://github.com/ayashaJui/CSEKU_WPL_2020_tourville/blob/642ca3a4591819aabc3ef2d62a92ec928f31445e/admin/dashboard.php
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
+```
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4
+```
+
 
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" i
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="car
 ```
+
 
 ## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
-https://github.com/hardikm121/Movielanding/blob/1b2cc146bcc606cceafd1987b98bcb87d271b002/index.html
+```
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="car
+```
+
 
+## License: unknown
+https://github.com/jooy311/ohyes_coffee_shoppingmall/blob/27bb245a0b0fcf68f3ff0ce8b9b4004a2fb7e2f3/semi_coffee/WebContent/coffee/admin/home/home_work.jsp
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" i
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="car
 ```
+
 
 ## License: unknown
+https://github.com/ayashaJui/CSEKU_WPL_2020_tourville/blob/642ca3a4591819aabc3ef2d62a92ec928f31445e/admin/dashboard.php
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
+```
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="car
+```
+
 
+## License: unknown
+https://github.com/ayashaJui/CSEKU_WPL_2020_tourville/blob/642ca3a4591819aabc3ef2d62a92ec928f31445e/admin/dashboard.php
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" i
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h4>
 ```
+
 
 ## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
+```
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h4>
+```
+
 
+## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" i
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h4>
 ```
+
 
 ## License: unknown
+https://github.com/jooy311/ohyes_coffee_shoppingmall/blob/27bb245a0b0fcf68f3ff0ce8b9b4004a2fb7e2f3/semi_coffee/WebContent/coffee/admin/home/home_work.jsp
 
-https://github.com/peterkamlongera/pretty-flower-hair/blob/3055e00c91f1c275530570518623f27b4fe5c4b5/index.html
+```
+div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="payments.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h4>
+```
+
 
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" i
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
+
 
 ## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
+```
+
 
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
+
 ## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
+```
+
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
 ```
 
+
 ## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+```
+
 
-https://github.com/peterkamlongera/pretty-flower-hair/blob/3055e00c91f1c275530570518623f27b4fe5c4b5/index.html
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
 ```
 
+
 ## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+```
 
-https://github.com/mohamed-lifa7/QuickBuy/blob/26f98947e21ebbebb76117b6a19473ad1550fb58/seller/seller.html
+
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-
 ```
 
+
 ## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-
+```
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
 
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-
 ```
+
 
 ## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-
+```
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
 
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb
 ```
+
 
 ## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb
+```
 
-https://github.com/hardikm121/Movielanding/blob/1b2cc146bcc606cceafd1987b98bcb87d271b002/index.html
 
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb
 ```
 
+
 ## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb
+```
+
 
-https://github.com/MDalamin5/Database-Management/blob/5b7e4d2d9783303bc8404aa5a91b9676255949ce/Bus%20Ticket/Frontend/index.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
+
 ## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
+```
+
 
-https://github.com/hardikm121/Movielanding/blob/1b2cc146bcc606cceafd1987b98bcb87d271b002/index.html
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
+
 ## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
+```
 
-https://github.com/Oluwa-nifemi/SandSesq/blob/1d81382f808e93ca53305cd8fc0f392a64593b06/index.php
+
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?
 ```
 
+
 ## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?
+```
 
-https://github.com/KestasVe/from-psd-to-html-project/blob/04061c60bfdaaa76347398af4f3b8870279c9aca/index.html
 
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?
 ```
 
-## License: unknown
 
-https://github.com/peterkamlongera/pretty-flower-hair/blob/3055e00c91f1c275530570518623f27b4fe5c4b5/index.html
+## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?
 ```
 
+
 ## License: unknown
+https://github.com/ahmadaminiswanto22/latihan/blob/231ff889ffa0adf65c993797886d637042340bd9/bukuTamu/index.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
+```
+
 
-https://github.com/mohamed-lifa7/QuickBuy/blob/26f98947e21ebbebb76117b6a19473ad1550fb58/seller/seller.html
+## License: unknown
+https://github.com/carthage-college/django-djskins/blob/37725c6e211222406e86f2229f7f931a2f1e91df/camina/base.html
 
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
 
+
 ## License: unknown
+https://github.com/ashupatidar123/ci_hmvc/blob/7ec90f2bdba77fa7ddcf6a6b92bcd131bdad4d65/hmvc_files/modules/webpanel/views/dashboard.php
+
+```
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
+```
 
-https://github.com/Cneuendo/Raider-Trader.com/blob/d3de78654f6d16ce0d1072e5e25c9c9014adef31/forms/member.html
 
+## License: GPL-3.0
+https://github.com/mdjalalsk/hotel-management-php/blob/40d6dfb670758778b33e5bce913859b250487870/admin/index.php
+
 ```
-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="bookings.php">View Details</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4><?= $
 ```
+

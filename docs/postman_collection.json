@@ -1,0 +1,72 @@
+{
+  "info": {
+    "name": "CarWash Project API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0",
+    "description": "Minimal collection for core endpoints (login, create booking, list bookings)."
+  },
+  "item": [
+    {
+      "name": "Login (form)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/x-www-form-urlencoded" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "email", "value": "hasan@carwash.com" },
+            { "key": "password", "value": "password123" }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost/carwash_project/backend/auth/login.php",
+          "protocol": "http",
+          "host": [ "localhost" ],
+          "path": [ "carwash_project", "backend", "auth", "login.php" ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Booking (API JSON)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"service_id\": 1, \"date\": \"2025-10-30\", \"time\": \"10:00\" }"
+        },
+        "url": {
+          "raw": "http://localhost/carwash_project/backend/api/bookings/create.php",
+          "protocol": "http",
+          "host": [ "localhost" ],
+          "path": [ "carwash_project", "backend", "api", "bookings", "create.php" ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Bookings (API)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "http://localhost/carwash_project/backend/api/bookings/list.php",
+          "protocol": "http",
+          "host": [ "localhost" ],
+          "path": [ "carwash_project", "backend", "api", "bookings", "list.php" ],
+          "query": []
+        }
+      },
+      "response": []
+    }
+  ]
+}

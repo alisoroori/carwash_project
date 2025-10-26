@@ -1,15 +1,23 @@
 <?php
-// filepath: c:\xampp\htdocs\carwash_project\backend\auth\login.php
-// Login Form - Following CarWash project conventions
+// Modern secure login page
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-if (session_status() == PHP_SESSION_NONE) {
-  session_start();
+use App\Classes\Session;
+use App\Classes\Validator;
+
+// Initialize session securely
+Session::start();
+
+// Generate CSRF token if not exists
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+$csrf_token = $_SESSION['csrf_token'];
 
 // Check if user is already logged in
 if (isset($_SESSION['user_id'])) {
   // Redirect based on role following project dashboard structure
-  switch ($_SESSION['role']) {
+  switch ($_SESSION['role'] ?? '') {
     case 'admin':
       header('Location: ../dashboard/admin_panel.php');
       break;
@@ -247,13 +255,15 @@ include '../includes/header.php';
           <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
             <div class="flex items-center">
               <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
-              <span><?php echo $error_message; ?></span>
+              <span><?php echo htmlspecialchars($error_message); ?></span>
             </div>
           </div>
         <?php endif; ?>
 
         <!-- Login Form - File-based routing to process file -->
         <form action="login_process.php" method="POST" class="space-y-6">
+          <!-- Added CSRF token for security -->
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
 
           <!-- User Type Selection - Moved to top -->
           <div>

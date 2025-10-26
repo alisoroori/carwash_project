@@ -1,70 +1,131 @@
-﻿<?php
+<?php
 declare(strict_types=1);
 
 namespace App\Classes;
 
+/**
+ * Configuration Management Class
+ */
 class Config
 {
-    private static $variables = [];
-    private static $isLoaded = false;
-    
-    // Load environment variables from .env
-    public static function load()
+    /**
+     * Get config value from environment
+     * 
+     * @param string $key Config key
+     * @param mixed $default Default value if key not found
+     * @return mixed Config value or default
+     */
+    public static function get(string $key, $default = null)
     {
-        if (self::$isLoaded) {
-            return;
-        }
-
-        $envPath = __DIR__ . '/../../.env';
-        $examplePath = __DIR__ . '/../../.env.example';
-        
-        if (!file_exists($envPath)) {
-            if (file_exists($examplePath)) {
-                die('خطا: فایل .env یافت نشد. لطفاً از .env.example یک کپی ایجاد کرده و مقادیر را تنظیم کنید.');
-            } else {
-                die('خطا: هیچ فایل .env یا .env.example یافت نشد.');
-            }
+        $value = getenv($key);
+        if ($value === false) {
+            return $default;
         }
         
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($lines as $line) {
-            if (strpos($line, '#') === 0) {
-                continue;
-            }
-            
-            list($name, $value) = explode('=', $line, 2) + ['', ''];
-            $name = trim($name);
-            $value = trim($value);
-            
-            if (!empty($name)) {
-                self::$variables[$name] = $value;
-            }
+        // Convert specific strings to their proper types
+        switch (strtolower($value)) {
+            case 'true':
+            case '(true)':
+                return true;
+            case 'false':
+            case '(false)':
+                return false;
+            case 'null':
+            case '(null)':
+                return null;
+            case 'empty':
+            case '(empty)':
+                return '';
         }
         
-        self::$isLoaded = true;
+        return $value;
     }
     
-    // Get environment variable with optional default
-    public static function get($key, $default = null)
+    /**
+     * Check if application is in production environment
+     * 
+     * @return bool
+     */
+    public static function isProduction(): bool
     {
-        if (!self::$isLoaded) {
-            self::load();
+        return strtolower(self::get('APP_ENV', 'production')) === 'production';
+    }
+    
+    /**
+     * Check if application is in development environment
+     * 
+     * @return bool
+     */
+    public static function isDevelopment(): bool
+    {
+        return strtolower(self::get('APP_ENV', 'production')) === 'development';
+    }
+    
+    /**
+     * Check if application is in testing environment
+     * 
+     * @return bool
+     */
+    public static function isTesting(): bool
+    {
+        return strtolower(self::get('APP_ENV', 'production')) === 'testing';
+    }
+    
+    /**
+     * Get debug status
+     * 
+     * @return bool
+     */
+    public static function isDebug(): bool
+    {
+        return (bool) self::get('APP_DEBUG', false);
+    }
+    
+    /**
+     * Load a specific configuration file
+     * 
+     * @param string $file Config file name
+     * @return array Config values
+     */
+    public static function load(string $file = null): array
+    {
+        static $configs = [];
+        
+        if ($file !== null && isset($configs[$file])) {
+            return $configs[$file];
         }
         
-        return isset(self::$variables[$key]) ? self::$variables[$key] : $default;
-    }
-    
-    // Check production environment
-    public static function isProduction()
-    {
-        return self::get('APP_ENV') === 'production';
-    }
-    
-    // Check debug mode
-    public static function isDebug()
-    {
-        return self::get('APP_DEBUG', 'false') === 'true';
+        if ($file === null) {
+            return $configs;
+        }
+        
+        $path = ROOT_PATH . '/backend/config/' . $file . '.php';
+        
+        if (file_exists($path)) {
+            $configs[$file] = require $path;
+            return $configs[$file];
+        }
+        
+        return [];
     }
 }
 
-} // end App\Classes namespace
+// Database configuration
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'carwash_db');
+define('DB_USER', 'root');
+define('DB_PASS', '');  // Default XAMPP has no password
+
+// Application settings
+define('APP_URL', 'http://localhost/carwash_project');
+define('APP_NAME', 'CarWash Management System');
+
+return [
+    'db_host' => DB_HOST,
+    'db_name' => DB_NAME,
+    'db_user' => DB_USER,
+    'db_pass' => DB_PASS,
+    
+    'app_url' => APP_URL,
+    'app_name' => APP_NAME,
+];

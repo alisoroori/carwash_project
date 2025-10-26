@@ -23,10 +23,12 @@ class Session
         // Secure session settings
         $defaultOptions = [
             'cookie_httponly' => true,     // Prevent JavaScript access to session cookie
-            'cookie_secure' => isset($_SERVER['HTTPS']), // Require HTTPS
+            'cookie_secure' => false,      // Allow HTTP for development
             'use_strict_mode' => true,     // Reject uninitialized session ID
             'cookie_samesite' => 'Lax',    // CSRF protection
-            'gc_maxlifetime' => defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 1800 // 30 minutes lifetime
+            'gc_maxlifetime' => defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 1800, // 30 minutes lifetime
+            'cookie_path' => '/',          // Allow cookie for entire domain
+            'cookie_domain' => '',         // Allow for localhost
         ];
         
         $sessionOptions = array_merge($defaultOptions, $options);

@@ -4,36 +4,52 @@ declare(strict_types=1);
 namespace App\Classes;
 
 /**
- * Database connection and query handler using PDO
+ * Database management class using PDO and Singleton pattern
+ * Prevents SQL Injection attacks using prepared statements
  */
 class Database
 {
+    /** @var Database|null Singleton instance */
     private static $instance = null;
+    
+    /** @var \PDO Database connection */
     private $pdo;
     
     /**
      * Private constructor to prevent direct instantiation
+     * Establishes database connection using environment variables or defaults
      */
     private function __construct()
     {
         try {
-            // Load configuration
-            if (!defined('DB_HOST')) {
-                require_once dirname(__DIR__) . '/includes/config.php';
+            // Use environment variables or default settings
+            $host = getenv('DB_HOST') ?: 'localhost';
+            $name = getenv('DB_NAME') ?: 'carwash_db';
+            $user = getenv('DB_USER') ?: 'root';
+            $pass = getenv('DB_PASS') ?: '';
+            
+            // If environment variables aren't defined, use defined constants
+            if (defined('DB_HOST')) {
+                $host = DB_HOST;
+                $name = DB_NAME;
+                $user = DB_USER;
+                $pass = DB_PASS;
             }
             
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+            $dsn = "mysql:host={$host};dbname={$name};charset=utf8mb4";
+            
+            // PDO settings for security and performance
             $options = [
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
                 \PDO::ATTR_EMULATE_PREPARES => false // Use real prepared statements
             ];
             
-            $this->pdo = new \PDO($dsn, DB_USER, DB_PASS, $options);
+            $this->pdo = new \PDO($dsn, $user, $pass, $options);
         } catch (\PDOException $e) {
-            // Log error but don't expose details
+            // Log error without exposing sensitive information
             error_log('Database connection failed: ' . $e->getMessage());
-            throw new \Exception('خطا در اتصال به پایگاه داده');
+            throw new \Exception('Database connection error');
         }
     }
     
@@ -43,9 +59,17 @@ class Database
     private function __clone() {}
     
     /**
-     * Get Database instance (Singleton pattern)
+     * Prevent unserialize of the instance
+     */
+    public function __wakeup()
+    {
+        throw new \Exception("Cannot unserialize singleton");
+    }
+    
+    /**
+     * Get class instance (Singleton pattern)
      * 
-     * @return Database
+     * @return Database Singleton instance
      */
     public static function getInstance(): Database
     {
@@ -57,9 +81,9 @@ class Database
     }
     
     /**
-     * Get PDO instance
+     * Get PDO object for direct access
      * 
-     * @return \PDO
+     * @return \PDO PDO object
      */
     public function getPdo(): \PDO
     {
@@ -67,11 +91,23 @@ class Database
     }
     
     /**
+     * Prepare an SQL statement
+     * 
+     * @param string $query SQL statement
+     * @return \PDOStatement Prepared PDOStatement object
+     */
+    public function prepare(string $query): \PDOStatement
+    {
+        return $this->pdo->prepare($query);
+    }
+    
+    /**
      * Execute a query with parameters
      * 
-     * @param string $query SQL query
-     * @param array $params Query parameters
-     * @return \PDOStatement
+     * @param string $query SQL statement
+     * @param array $params Optional parameters for binding
+     * @return \PDOStatement Query result
+     * @throws \Exception On error
      */
     public function query(string $query, array $params = []): \PDOStatement
     {
@@ -80,17 +116,18 @@ class Database
             $stmt->execute($params);
             return $stmt;
         } catch (\PDOException $e) {
+            // Log error with details for debugging
             error_log('Query failed: ' . $e->getMessage() . ' - Query: ' . $query);
-            throw new \Exception('خطا در اجرای درخواست از پایگاه داده');
+            throw new \Exception('Error executing database query');
         }
     }
     
     /**
-     * Fetch a single row
+     * Fetch a single record
      * 
-     * @param string $query SQL query
-     * @param array $params Query parameters
-     * @return array|null Row data or null if not found
+     * @param string $query SQL statement
+     * @param array $params Parameters for binding
+     * @return array|null Result as array or null if no result
      */
     public function fetchOne(string $query, array $params = []): ?array
     {
@@ -101,11 +138,11 @@ class Database
     }
     
     /**
-     * Fetch all rows
+     * Fetch all records
      * 
-     * @param string $query SQL query
-     * @param array $params Query parameters
-     * @return array Rows data
+     * @param string $query SQL statement
+     * @param array $params Parameters for binding
+     * @return array Array of results
      */
     public function fetchAll(string $query, array $params = []): array
     {
@@ -114,17 +151,17 @@ class Database
     }
     
     /**
-     * Insert a row
+     * Insert a new record
      * 
      * @param string $table Table name
-     * @param array $data Column data (key => value)
-     * @return int|false Last insert ID or false on failure
+     * @param array $data Record data (column_name => value)
+     * @return int|false Inserted record ID or false on error
      */
     public function insert(string $table, array $data)
     {
         $columns = array_keys($data);
-        $placeholders = array_map(function($column) {
-            return ":$column";
+        $placeholders = array_map(function($col) {
+            return ":$col";
         }, $columns);
         
         $columnsStr = implode(', ', $columns);
@@ -133,31 +170,35 @@ class Database
         $query = "INSERT INTO $table ($columnsStr) VALUES ($placeholdersStr)";
         
         try {
-            $this->query($query, $data);
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute($data);
             return (int) $this->pdo->lastInsertId();
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
+            error_log('Insert failed: ' . $e->getMessage() . ' - Query: ' . $query);
             return false;
         }
     }
     
     /**
-     * Update rows
+     * Update records
      * 
      * @param string $table Table name
-     * @param array $data Column data to update (key => value)
-     * @param array $where Where conditions (key => value)
-     * @return bool Success status
+     * @param array $data New data (column_name => value)
+     * @param array $where Update conditions (column_name => value)
+     * @return bool Operation result (success or failure)
      */
     public function update(string $table, array $data, array $where): bool
     {
         $set = [];
         $params = [];
         
+        // Build SET part of query
         foreach ($data as $column => $value) {
-            $set[] = "$column = :$column";
-            $params[$column] = $value;
+            $set[] = "$column = :set_$column";
+            $params["set_$column"] = $value;
         }
         
+        // Build WHERE part of query
         $whereConditions = [];
         foreach ($where as $column => $value) {
             $whereConditions[] = "$column = :where_$column";
@@ -170,25 +211,28 @@ class Database
         $query = "UPDATE $table SET $setStr WHERE $whereStr";
         
         try {
-            $this->query($query, $params);
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute($params);
             return true;
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
+            error_log('Update failed: ' . $e->getMessage() . ' - Query: ' . $query);
             return false;
         }
     }
     
     /**
-     * Delete rows
+     * Delete records
      * 
      * @param string $table Table name
-     * @param array $where Where conditions (key => value)
-     * @return bool Success status
+     * @param array $where Delete conditions (column_name => value)
+     * @return bool Operation result (success or failure)
      */
     public function delete(string $table, array $where): bool
     {
         $whereConditions = [];
         $params = [];
         
+        // Build WHERE part of query
         foreach ($where as $column => $value) {
             $whereConditions[] = "$column = :$column";
             $params[$column] = $value;
@@ -199,30 +243,54 @@ class Database
         $query = "DELETE FROM $table WHERE $whereStr";
         
         try {
-            $this->query($query, $params);
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute($params);
             return true;
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
+            error_log('Delete failed: ' . $e->getMessage() . ' - Query: ' . $query);
             return false;
         }
     }
     
     /**
-     * Count rows
+     * Count records
      * 
-     * @param string $query SQL query
-     * @param array $params Query parameters
-     * @return int Number of rows
+     * @param string $table Table name
+     * @param array $where Count conditions (optional)
+     * @return int Number of records
      */
-    public function count(string $query, array $params = []): int
+    public function count(string $table, array $where = []): int
     {
-        $stmt = $this->query($query, $params);
-        return $stmt->rowCount();
+        $query = "SELECT COUNT(*) AS count FROM $table";
+        $params = [];
+        
+        if (!empty($where)) {
+            $whereConditions = [];
+            
+            foreach ($where as $column => $value) {
+                $whereConditions[] = "$column = :$column";
+                $params[$column] = $value;
+            }
+            
+            $whereStr = implode(' AND ', $whereConditions);
+            $query .= " WHERE $whereStr";
+        }
+        
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute($params);
+            $result = $stmt->fetch();
+            return (int) $result['count'];
+        } catch (\PDOException $e) {
+            error_log('Count failed: ' . $e->getMessage() . ' - Query: ' . $query);
+            return 0;
+        }
     }
     
     /**
-     * Begin a transaction
+     * Begin transaction
      * 
-     * @return bool Success status
+     * @return bool Operation result
      */
     public function beginTransaction(): bool
     {
@@ -230,9 +298,9 @@ class Database
     }
     
     /**
-     * Commit a transaction
+     * Commit transaction
      * 
-     * @return bool Success status
+     * @return bool Operation result
      */
     public function commit(): bool
     {
@@ -240,9 +308,9 @@ class Database
     }
     
     /**
-     * Rollback a transaction
+     * Rollback transaction
      * 
-     * @return bool Success status
+     * @return bool Operation result
      */
     public function rollback(): bool
     {

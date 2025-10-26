@@ -2,6 +2,14 @@
 require_once '../../includes/db.php';
 require_once '../../includes/auth.php';
 
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use App\Classes\Auth;
+
+Auth::requireAuth();
+// Optionally enforce customer role:
+// Auth::requireRole('customer');
+
 // Verify customer authentication
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {

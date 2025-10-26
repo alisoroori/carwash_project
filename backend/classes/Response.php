@@ -5,6 +5,8 @@ namespace App\Classes;
 
 /**
  * API Response Handler
+ * 
+ * Provides standardized JSON responses for API endpoints
  */
 class Response
 {
@@ -13,36 +15,54 @@ class Response
      * 
      * @param string $message Success message
      * @param array $data Additional data
-     * @param int $statusCode HTTP status code
+     * @param int $code HTTP status code
      */
-    public static function success(string $message, array $data = [], int $statusCode = 200): void
+    public static function success(string $message = 'Success', array $data = [], int $code = 200): void
     {
-        self::send([
-            'success' => true,
-            'message' => $message,
-            'data' => $data
-        ], $statusCode);
+        self::send(true, $message, $data, $code);
     }
     
     /**
      * Send error response
      * 
      * @param string $message Error message
-     * @param int $statusCode HTTP status code
-     * @param array $errors Additional error details
+     * @param int $code HTTP status code
+     * @param array $errors Detailed errors
      */
-    public static function error(string $message, int $statusCode = 400, array $errors = []): void
+    public static function error(string $message = 'Error', int $code = 400, array $errors = []): void
     {
-        $response = [
-            'success' => false,
-            'message' => $message
-        ];
-        
-        if (!empty($errors)) {
-            $response['errors'] = $errors;
-        }
-        
-        self::send($response, $statusCode);
+        $data = empty($errors) ? [] : ['errors' => $errors];
+        self::send(false, $message, $data, $code);
+    }
+    
+    /**
+     * Send not found response
+     * 
+     * @param string $message Not found message
+     */
+    public static function notFound(string $message = 'Resource not found'): void
+    {
+        self::error($message, 404);
+    }
+    
+    /**
+     * Send unauthorized response
+     * 
+     * @param string $message Unauthorized message
+     */
+    public static function unauthorized(string $message = 'Authentication required'): void
+    {
+        self::error($message, 401);
+    }
+    
+    /**
+     * Send forbidden response
+     * 
+     * @param string $message Forbidden message
+     */
+    public static function forbidden(string $message = 'You do not have permission to access this resource'): void
+    {
+        self::error($message, 403);
     }
     
     /**
@@ -51,60 +71,40 @@ class Response
      * @param array $errors Validation errors
      * @param string $message Error message
      */
-    public static function validationError(array $errors, string $message = 'اطلاعات وارد شده نامعتبر است'): void
+    public static function validationError(array $errors, string $message = 'Validation failed'): void
     {
         self::error($message, 422, $errors);
     }
     
     /**
-     * Send not found response
+     * Send response
      * 
-     * @param string $message Error message
+     * @param bool $success Success status
+     * @param string $message Response message
+     * @param array $data Additional data
+     * @param int $code HTTP status code
      */
-    public static function notFound(string $message = 'منبع مورد نظر یافت نشد'): void
+    private static function send(bool $success, string $message, array $data, int $code): void
     {
-        self::error($message, 404);
-    }
-    
-    /**
-     * Send unauthorized response
-     * 
-     * @param string $message Error message
-     */
-    public static function unauthorized(string $message = 'دسترسی غیرمجاز'): void
-    {
-        self::error($message, 401);
-    }
-    
-    /**
-     * Send forbidden response
-     * 
-     * @param string $message Error message
-     */
-    public static function forbidden(string $message = 'دسترسی به این بخش مجاز نیست'): void
-    {
-        self::error($message, 403);
-    }
-    
-    /**
-     * Send JSON response
-     * 
-     * @param mixed $data Response data
-     * @param int $statusCode HTTP status code
-     */
-    private static function send($data, int $statusCode = 200): void
-    {
-        // Set security headers
-        header('X-Content-Type-Options: nosniff');
-        header('X-Frame-Options: DENY');
-        header('X-XSS-Protection: 1; mode=block');
+        // Set HTTP response code
+        http_response_code($code);
+        
+        // Set content type
         header('Content-Type: application/json; charset=utf-8');
         
-        // Set status code
-        http_response_code($statusCode);
+        // Build response
+        $response = [
+            'success' => $success,
+            'message' => $message
+        ];
         
-        // Output JSON
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        // Add data if provided
+        if (!empty($data)) {
+            $response = array_merge($response, $data);
+        }
+        
+        // Send JSON response
+        echo json_encode($response);
         exit;
     }
 }

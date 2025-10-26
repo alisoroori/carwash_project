@@ -1,6 +1,10 @@
 <?php
-require_once '../../includes/db.php';
-require_once '../../includes/auth.php';
+// Ensure autoloading and RBAC
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use App\Classes\Auth;
+
+Auth::requireRole('admin');
 
 // Verify admin authentication
 session_start();

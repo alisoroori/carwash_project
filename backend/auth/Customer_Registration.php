@@ -11,6 +11,12 @@ $show_login = false; // Don't show login button on registration page
 // Add this to the top of your Customer_Registration.php file
 session_start();
 
+// Generate CSRF token for form security
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf_token = $_SESSION['csrf_token'];
+
 // Handle success and error messages following project patterns
 $registration_success = $_SESSION['registration_success'] ?? false;
 $success_message = $_SESSION['success_message'] ?? '';
@@ -360,8 +366,11 @@ include '../includes/header.php';
         <p class="text-sm sm:text-base text-gray-600 px-4">Hesabınızı oluşturun ve araç yıkama hizmetlerimizden yararlanın</p>
       </div>
 
-    <!-- Fixed form action path -->
+    <!-- Fixed form action path and added CSRF token -->
     <form action="Customer_Registration_process.php" method="POST" class="space-y-8">
+        <!-- Add CSRF Token -->
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+        
         <!-- Personal Information Section -->
         <!-- Farsça: بخش اطلاعات شخصی. -->
         <!-- Türkçe: Kişisel Bilgiler bölümü. -->
@@ -419,6 +428,8 @@ include '../includes/header.php';
                   name="password"
                   id="password"
                   placeholder="Güçlü bir şifre belirleyin"
+                  pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
+                  title="Şifreniz en az 8 karakter uzunluğunda olmalı ve en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir"
                   required
                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
                 <button
@@ -428,6 +439,33 @@ include '../includes/header.php';
                   aria-label="Toggle password visibility">
                   <i class="fas fa-eye text-sm sm:text-base" id="passwordToggle"></i>
                 </button>
+              </div>
+              <!-- Password strength requirements display - MOVED BELOW the password field -->
+              <div class="mt-2 text-xs text-gray-600">
+                <p>Şifre en az aşağıdakileri içermelidir:</p>
+                <ul class="list-disc ml-4 mt-1">
+                  <li>8 karakter uzunluğunda</li>
+                  <li>Bir büyük harf</li>
+                  <li>Bir küçük harf</li>
+                  <li>Bir rakam</li>
+                  <li>Bir özel karakter</li>
+                </ul>
+              </div>
+            </div>
+            
+            <!-- Add password confirmation field -->
+            <div class="md:col-span-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-lock mr-1 sm:mr-2 text-xs sm:text-sm"></i>Şifre Tekrar *
+              </label>
+              <div class="relative">
+                <input
+                  type="password"
+                  name="password_confirm"
+                  id="password_confirm"
+                  placeholder="Şifrenizi tekrar girin"
+                  required
+                  class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
               </div>
             </div>
           </div>
@@ -771,6 +809,41 @@ include '../includes/header.php';
       input.addEventListener('blur', function() {
         this.style.transform = 'scale(1)';
         this.style.boxShadow = 'none';
+      });
+    });
+    
+    // Enhanced password validation
+    document.addEventListener('DOMContentLoaded', function() {
+      const passwordInput = document.getElementById('password');
+      const confirmInput = document.getElementById('password_confirm');
+      const form = document.querySelector('form');
+      
+      form.addEventListener('submit', function(e) {
+        // Check if passwords match
+        if(passwordInput.value !== confirmInput.value) {
+          e.preventDefault();
+          alert('Şifreler eşleşmiyor. Lütfen kontrol edin.');
+          return false;
+        }
+        
+        // Check password strength
+        const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+        if(!strongRegex.test(passwordInput.value)) {
+          e.preventDefault();
+          alert('Şifreniz gerekli güvenlik kriterlerini karşılamıyor.');
+          return false;
+        }
+        
+        return true;
+      });
+      
+      // Real-time password matching feedback
+      confirmInput.addEventListener('input', function() {
+        if(passwordInput.value === confirmInput.value) {
+          confirmInput.style.borderColor = 'green';
+        } else {
+          confirmInput.style.borderColor = '#e53e3e';
+        }
       });
     });
   </script>

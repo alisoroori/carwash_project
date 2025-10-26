@@ -1,4 +1,49 @@
-<form id="bookingForm" method="POST" action="/backend/api/booking/create.php">
-    <input type="hidden" name="csrf_token" value="<?php echo Security::getInstance()->generateCSRFToken(); ?>">
-    <!-- ...existing form fields... -->
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Form</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* minimal invalid input styling */
+    .invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.06); }
+  </style>
+</head>
+<body>
+  <!-- Booking form (modified to enable client validation & CSRF) -->
+  <form id="bookingForm" action="/carwash_project/backend/api/bookings/create.php" method="post" data-enable-validation="1">
+    <div class="form-row">
+      <label for="service">Service</label>
+      <select id="service" name="service_id" data-validate="required">
+        <!-- ...existing options... -->
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="date">Date</label>
+      <input id="date" type="date" name="date" data-validate="required">
+    </div>
+
+    <div class="form-row">
+      <label for="time">Time</label>
+      <input id="time" type="time" name="time" data-validate="required">
+    </div>
+
+    <div class="form-row">
+      <label for="notes">Notes</label>
+      <textarea id="notes" name="notes" data-validate="min:3"></textarea>
+    </div>
+
+    <!-- CSRF token hidden input will be populated by JS if not present -->
+    <!-- <input type="hidden" name="csrf_token" value=""> -->
+
+    <div style="margin-top:12px">
+      <button type="submit">Book Now</button>
+    </div>
+  </form>
+
+  <!-- include validator script (deferred) -->
+  <script src="/carwash_project/frontend/js/form-validation.js" defer></script>
+</body>
+</html>

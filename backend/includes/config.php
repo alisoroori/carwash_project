@@ -17,10 +17,10 @@ if (!defined('APP_INIT')) {
 // DATABASE CONFIGURATION
 // =============================================================================
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'carwash');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_HOST', env('DB_HOST', 'localhost'));
+define('DB_NAME', env('DB_NAME', 'carwash_db'));
+define('DB_USER', env('DB_USER', 'root'));
+define('DB_PASS', env('DB_PASS', ''));
 define('DB_CHARSET', 'utf8mb4');
 
 // =============================================================================
@@ -57,7 +57,7 @@ define('VENDOR_PATH', ROOT_PATH . '/vendor');
 // =============================================================================
 
 // Base URL (change this for production)
-define('BASE_URL', 'http://localhost/carwash_project');
+define('BASE_URL', env('APP_URL', 'http://localhost/carwash_project'));
 
 // Backend URLs
 define('BACKEND_URL', BASE_URL . '/backend');
@@ -86,7 +86,7 @@ define('APP_ENV', 'development');
 define('DEBUG_MODE', APP_ENV === 'development');
 
 // Timezone
-date_default_timezone_set('Asia/Tehran');
+date_default_timezone_set(env('APP_TIMEZONE', 'Asia/Tehran'));
 
 // Error reporting
 if (DEBUG_MODE) {
@@ -104,7 +104,7 @@ if (DEBUG_MODE) {
 // SESSION CONFIGURATION
 // =============================================================================
 
-define('SESSION_LIFETIME', 7200); // 2 hours in seconds
+define('SESSION_LIFETIME', (int)env('SESSION_LIFETIME', 7200)); // 2 hours in seconds
 define('SESSION_NAME', 'carwash_session');
 
 // =============================================================================
@@ -251,3 +251,52 @@ class Config
 }
 
 } // end App\Classes namespace
+
+namespace { 
+
+/**
+ * Configuration file - uses environment variables from .env
+ */
+
+use App\Classes\Config;
+
+// Helper function for backward compatibility
+function env($key, $default = null) {
+    return Config::get($key, $default);
+}
+
+// Database settings
+if (!defined('DB_HOST')) define('DB_HOST', env('DB_HOST', 'localhost'));
+if (!defined('DB_NAME')) define('DB_NAME', env('DB_NAME', 'carwash'));
+if (!defined('DB_USER')) define('DB_USER', env('DB_USER', 'root'));
+if (!defined('DB_PASS')) define('DB_PASS', env('DB_PASS', ''));
+
+// Application settings
+if (!defined('APP_NAME')) define('APP_NAME', env('APP_NAME', 'Car Wash Management System'));
+if (!defined('APP_URL')) define('APP_URL', env('APP_URL', 'http://localhost/carwash_project'));
+if (!defined('APP_DEBUG')) define('APP_DEBUG', env('APP_DEBUG', false));
+if (!defined('APP_TIMEZONE')) define('APP_TIMEZONE', env('APP_TIMEZONE', 'Asia/Tehran'));
+if (!defined('APP_ENV')) define('APP_ENV', env('APP_ENV', 'production'));
+
+// Security
+if (!defined('SESSION_LIFETIME')) define('SESSION_LIFETIME', (int)env('SESSION_LIFETIME', 1800)); // 30 minutes
+if (!defined('APP_KEY')) define('APP_KEY', env('APP_KEY', ''));
+
+// Directory settings
+if (!defined('ROOT_DIR')) define('ROOT_DIR', ROOT_PATH);
+if (!defined('UPLOAD_DIR')) define('UPLOAD_DIR', ROOT_DIR . '/' . env('UPLOAD_DIR', 'uploads'));
+if (!defined('PROFILE_UPLOAD_DIR')) define('PROFILE_UPLOAD_DIR', ROOT_DIR . '/' . env('PROFILE_UPLOAD_DIR', 'backend/auth/uploads/profiles'));
+
+// Set timezone
+date_default_timezone_set(APP_TIMEZONE);
+
+// Error reporting based on environment
+if (defined('APP_DEBUG') && APP_DEBUG) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
+
+} // end global namespace

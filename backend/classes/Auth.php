@@ -3,155 +3,244 @@ declare(strict_types=1);
 
 namespace App\Classes;
 
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use App\Classes\Session;
+use App\Classes\Response;
+use App\Classes\Logger;
+
 /**
- * Authentication and Authorization Manager
+ * Authentication and Authorization Class
+ * 
+ * Handles user authentication and role-based access control (RBAC)
  */
-class Auth
-{
-    private $db;
-    private $validator;
+class Auth {
+    /**
+     * Get the current authenticated user
+     * 
+     * @return array|null User data or null if not authenticated
+     */
+    public function getUser() {
+        Session::start();
+        
+        if (!isset($_SESSION['user_id'])) {
+            return null;
+        }
+        
+        $db = Database::getInstance();
+        return $db->fetchOne("SELECT * FROM users WHERE id = :id", [
+            'id' => $_SESSION['user_id']
+        ]);
+    }
     
     /**
-     * Constructor
+     * Check if a user is authenticated
+     * 
+     * @return bool True if authenticated, false otherwise
      */
-    public function __construct()
+    public static function isAuthenticated(): bool
     {
-        $this->db = Database::getInstance();
-        $this->validator = new Validator();
+        Session::start();
+        $user = method_exists(Session::class, 'get') ? Session::get('user') : ($_SESSION['user'] ?? null);
+        return !empty($user);
+    }
+    
+    /**
+     * Ensure session is started and user is logged in.
+     * If not authenticated, redirect to login page.
+     */
+    public static function requireAuth(): void
+    {
+        if (!self::isAuthenticated()) {
+            $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+            $uri = $_SERVER['REQUEST_URI'] ?? '';
+
+            if (stripos($accept, 'application/json') !== false || stripos($uri, '/api/') !== false) {
+                Response::unauthorized(); // sends 401 JSON and exits
+            }
+
+            header('Location: /carwash_project/backend/auth/login.php');
+            exit;
+        }
+    }
+    
+    /**
+     * Check if current user has the given role.
+     * Accepts string role or array of allowed roles.
+     */
+    public static function hasRole($role): bool
+    {
+        Session::start();
+        $user = method_exists(Session::class, 'get') ? Session::get('user') : ($_SESSION['user'] ?? null);
+        if (empty($user) || empty($user['role'])) {
+            return false;
+        }
+        $userRole = (string) $user['role'];
+        if (is_array($role)) {
+            return in_array($userRole, $role, true);
+        }
+        return $userRole === (string) $role;
+    }
+
+    /**
+     * Require a specific role (or roles).
+     * If missing, returns 403 for API calls or shows a 403 / redirects for pages.
+     */
+    public static function requireRole($role): void
+    {
+        // ensure authenticated
+        self::requireAuth();
+
+        if (!self::hasRole($role)) {
+            $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+            $uri = $_SERVER['REQUEST_URI'] ?? '';
+
+            if (stripos($accept, 'application/json') !== false || stripos($uri, '/api/') !== false) {
+                Response::error('Forbidden', 403); // sends JSON 403 and exits
+            }
+
+            // Page request: try redirect to project 403 page, otherwise send 403 header and simple message
+            $forbiddenPage = '/carwash_project/403.php';
+            if (file_exists(__DIR__ . '/../../403.php') || file_exists(__DIR__ . '/../../backend/403.php')) {
+                header('Location: ' . $forbiddenPage);
+            } else {
+                header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, 403);
+                echo '403 Forbidden - You do not have permission to access this page.';
+            }
+            exit;
+        }
     }
     
     /**
      * Register a new user
      * 
-     * @param array $userData User data
-     * @return array Response with status and messages
+     * @param array $data User data
+     * @return array Result of registration
      */
-    public function register(array $userData): array
-    {
-        // Validate required fields
-        $this->validator
-            ->required($userData['email'] ?? null, 'ایمیل')
-            ->email($userData['email'] ?? null, 'ایمیل')
-            ->required($userData['password'] ?? null, 'رمز عبور')
-            ->minLength($userData['password'] ?? null, 8, 'رمز عبور')
-            ->required($userData['name'] ?? null, 'نام')
-            ->required($userData['role'] ?? null, 'نقش');
+    public function register($data) {
+        $validator = new Validator();
         
-        if ($this->validator->fails()) {
+        // Validate input data
+        $validator
+            ->required($data['email'] ?? null, 'Email')
+            ->email($data['email'] ?? null, 'Email')
+            ->required($data['password'] ?? null, 'Password')
+            ->minLength($data['password'] ?? null, 8, 'Password')
+            ->required($data['full_name'] ?? null, 'Full Name');
+            
+        if ($validator->fails()) {
             return [
                 'success' => false,
-                'errors' => $this->validator->getErrors()
-            ];
-        }
-        
-        // Sanitize inputs
-        $email = Validator::sanitizeEmail($userData['email']);
-        $name = Validator::sanitizeString($userData['name']);
-        $role = Validator::sanitizeString($userData['role']);
-        
-        // Check if email already exists
-        $existingUser = $this->db->fetchOne(
-            "SELECT id FROM users WHERE email = :email",
-            ['email' => $email]
-        );
-        
-        if ($existingUser) {
-            return [
-                'success' => false,
-                'errors' => ['email' => 'این ایمیل قبلاً ثبت شده است']
+                'message' => 'Validation failed',
+                'errors' => $validator->getErrors()
             ];
         }
         
         // Hash password
-        $passwordHash = password_hash($userData['password'], PASSWORD_DEFAULT);
+        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         
-        // Insert user
-        $userId = $this->db->insert('users', [
-            'name' => $name,
-            'email' => $email,
-            'password' => $passwordHash,
-            'role' => $role,
-            'created_at' => date('Y-m-d H:i:s')
+        // Set default role if not provided
+        if (!isset($data['role'])) {
+            $data['role'] = 'customer';
+        }
+        
+        $db = Database::getInstance();
+        
+        // Check if email already exists
+        $existing = $db->fetchOne("SELECT id FROM users WHERE email = :email", [
+            'email' => $data['email']
         ]);
         
-        if (!$userId) {
+        if ($existing) {
             return [
                 'success' => false,
-                'errors' => ['general' => 'خطا در ثبت نام. لطفاً دوباره تلاش کنید']
+                'message' => 'Email already exists'
             ];
         }
         
+        // Insert user
+        $userId = $db->insert('users', $data);
+        
         return [
             'success' => true,
-            'message' => 'ثبت نام با موفقیت انجام شد',
+            'message' => 'Registration successful',
             'user_id' => $userId
         ];
     }
     
     /**
-     * Login a user
-     * 
+     * Login user
+     *
      * @param string $email User email
      * @param string $password User password
-     * @return array Response with status and messages
+     * @param bool $remember Remember login
+     * @return array Result array with success status and message
      */
-    public function login(string $email, string $password): array
-    {
-        // Validate inputs
-        $this->validator
-            ->required($email, 'ایمیل')
-            ->email($email, 'ایمیل')
-            ->required($password, 'رمز عبور');
-        
-        if ($this->validator->fails()) {
-            return [
-                'success' => false,
-                'errors' => $this->validator->getErrors()
-            ];
-        }
-        
-        // Sanitize email
+    public function login($email, $password, $remember = false) {
+        // Sanitize inputs
         $email = Validator::sanitizeEmail($email);
         
-        // Get user by email
-        $user = $this->db->fetchOne(
-            "SELECT id, name, email, password, role FROM users WHERE email = :email",
-            ['email' => $email]
-        );
+        // Get database instance
+        $db = Database::getInstance();
         
-        if (!$user) {
+        // Get user from database
+        $user = $db->fetchOne("SELECT * FROM users WHERE email = :email", [
+            'email' => $email
+        ]);
+        
+        // Debug: Log login attempt (remove in production)
+        error_log("Login attempt for: $email - User found: " . ($user ? 'Yes' : 'No'));
+        
+        // Check if user exists and password is valid
+        if (!$user || !password_verify($password, $user['password'])) {
             return [
-                'success' => false,
-                'errors' => ['general' => 'ایمیل یا رمز عبور اشتباه است']
+                'success' => false, 
+                'message' => 'Invalid email or password'
             ];
         }
         
-        // Verify password
-        if (!password_verify($password, $user['password'])) {
+        // Check if user is active
+        if (!$user['is_active']) {
             return [
                 'success' => false,
-                'errors' => ['general' => 'ایمیل یا رمز عبور اشتباه است']
+                'message' => 'Account is inactive'
             ];
         }
         
-        // Set up session
+        // Start session
         Session::start();
-        Session::set('user_id', $user['id']);
-        Session::set('user_name', $user['name']);
-        Session::set('user_email', $user['email']);
-        Session::set('user_role', $user['role']);
-        Session::set('logged_in', true);
-        Session::set('login_time', time());
         
         // Regenerate session ID to prevent session fixation
         Session::regenerate();
         
+        // Store user data in session
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_name'] = $user['full_name'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['role'] = $user['role'];
+        
+        // Handle remember me
+        if ($remember) {
+            $token = bin2hex(random_bytes(32));
+            $expires = date('Y-m-d H:i:s', time() + 30 * 86400); // 30 days
+            
+            $db->update('users', [
+                'remember_token' => $token,
+                'token_expires' => $expires
+            ], [
+                'id' => $user['id']
+            ]);
+            
+            // Set remember cookie
+            setcookie('remember_token', $token, time() + 30 * 86400, '/', '', false, true);
+        }
+        
         return [
             'success' => true,
-            'message' => 'ورود موفقیت‌آمیز',
+            'message' => 'Login successful',
             'user' => [
                 'id' => $user['id'],
-                'name' => $user['name'],
+                'name' => $user['full_name'],
                 'email' => $user['email'],
                 'role' => $user['role']
             ]
@@ -159,103 +248,130 @@ class Auth
     }
     
     /**
-     * Logout the current user
-     */
-    public function logout(): void
-    {
-        Session::destroy();
-    }
-    
-    /**
-     * Check if user is authenticated
+     * Log out the current user
      * 
-     * @return bool True if authenticated
+     * @return bool True on success
      */
-    public function isAuthenticated(): bool
-    {
+    public function logout() {
         Session::start();
         
-        if (!Session::has('logged_in') || !Session::get('logged_in')) {
-            return false;
+        // Clear remember me token if exists
+        if (isset($_SESSION['user_id'])) {
+            $this->clearRememberMeToken($_SESSION['user_id']);
         }
         
-        // Session timeout check
-        $timeout = defined('SESSION_LIFETIME') ? SESSION_LIFETIME : 1800; // 30 minutes
-        $loginTime = Session::get('login_time', 0);
+        // Clear session data
+        $_SESSION = [];
         
-        if (time() - $loginTime > $timeout) {
-            $this->logout();
-            return false;
+        // Clear session cookie
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
         }
         
-        // Update login time to extend session
-        Session::set('login_time', time());
+        // Destroy session
+        session_destroy();
+        
         return true;
     }
     
     /**
-     * Check if user has specific role
+     * Create and store remember me token
      * 
-     * @param string|array $roles Role(s) to check
-     * @return bool True if has role
+     * @param int $userId User ID
+     * @return bool Success
      */
-    public function hasRole($roles): bool
-    {
-        if (!$this->isAuthenticated()) {
+    private function setRememberMeToken($userId) {
+        $token = bin2hex(random_bytes(32));
+        $expires = date('Y-m-d H:i:s', time() + (86400 * 30)); // 30 days
+        
+        $db = Database::getInstance();
+        $db->update('users', [
+            'remember_token' => $token,
+            'token_expires' => $expires
+        ], [
+            'id' => $userId
+        ]);
+        
+        setcookie(
+            'remember_token',
+            $token,
+            time() + (86400 * 30),
+            '/',
+            '',
+            false,
+            true
+        );
+        
+        return true;
+    }
+    
+    /**
+     * Clear remember me token
+     * 
+     * @param int $userId User ID
+     * @return bool Success
+     */
+    private function clearRememberMeToken($userId) {
+        $db = Database::getInstance();
+        $db->update('users', [
+            'remember_token' => null,
+            'token_expires' => null
+        ], [
+            'id' => $userId
+        ]);
+        
+        setcookie('remember_token', '', time() - 3600, '/');
+        
+        return true;
+    }
+    
+    /**
+     * Check and authenticate using remember me token
+     * 
+     * @return bool True if authenticated
+     */
+    public function authenticateFromRememberToken() {
+        if (!isset($_COOKIE['remember_token'])) {
             return false;
         }
         
-        $userRole = Session::get('user_role');
-        $requiredRoles = is_array($roles) ? $roles : [$roles];
+        $token = $_COOKIE['remember_token'];
+        $db = Database::getInstance();
         
-        return in_array($userRole, $requiredRoles);
-    }
-    
-    /**
-     * Require authentication or redirect
-     * 
-     * @param string $redirectUrl URL to redirect if not authenticated
-     */
-    public function requireAuth(string $redirectUrl = '/carwash_project/backend/auth/login.php'): void
-    {
-        if (!$this->isAuthenticated()) {
-            header("Location: $redirectUrl");
-            exit;
-        }
-    }
-    
-    /**
-     * Require specific role or redirect
-     * 
-     * @param string|array $roles Required role(s)
-     * @param string $redirectUrl URL to redirect if not authorized
-     */
-    public function requireRole($roles, string $redirectUrl = '/carwash_project/backend/auth/login.php'): void
-    {
-        $this->requireAuth($redirectUrl);
+        $user = $db->fetchOne("
+            SELECT * FROM users 
+            WHERE remember_token = :token 
+            AND token_expires > NOW()
+        ", [
+            'token' => $token
+        ]);
         
-        if (!$this->hasRole($roles)) {
-            header("Location: $redirectUrl");
-            exit;
-        }
-    }
-    
-    /**
-     * Get current user data
-     * 
-     * @return array|null User data or null if not logged in
-     */
-    public function getCurrentUser(): ?array
-    {
-        if (!$this->isAuthenticated()) {
-            return null;
+        if (!$user) {
+            setcookie('remember_token', '', time() - 3600, '/');
+            return false;
         }
         
-        $userId = Session::get('user_id');
+        // Start session
+        Session::start();
         
-        return $this->db->fetchOne(
-            "SELECT id, name, email, role, created_at FROM users WHERE id = :id",
-            ['id' => $userId]
-        );
+        // Set session variables
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_name'] = $user['full_name'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['role'] = $user['role'];
+        
+        // Regenerate session ID
+        Session::regenerate();
+        
+        return true;
     }
 }

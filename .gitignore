@@ -1,30 +1,41 @@
-# Environment & secrets
+# Composer / vendor
+/vendor/
+composer.phar
+
+# Environment / secrets
 .env
 .env.local
 .env.*.local
-!.env.example
-.env.backup
 
-# Credentials & API keys
-*.pem
-*.key
-*.cert
-*.p12
-*apikey*
-*secret*
-*password*
-auth_token.txt
+# Uploads and generated user content
+/uploads/
+backend/auth/uploads/
+frontend/uploads/
 
-# Build artifacts
-/dist/
-/vendor/
-composer.lock
+# Logs
+/logs/
+backend/logs/
+*.log
 
-# Local development
-.env.development.local
-.env.test.local
-node_modules/
-
-# OS files
+# OS / editor / IDE
 .DS_Store
 Thumbs.db
+/.idea/
+/.vscode/
+*.swp
+
+# Node / build artifacts (if present)
+node_modules/
+dist/
+build/
+
+# PHPStorm / other caches
+/.phpunit.result.cache
+
+# Backup files
+*.bak
+*.old
+*.orig
+
+# Ignore local environment overrides
+.env.php

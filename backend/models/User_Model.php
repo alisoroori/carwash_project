@@ -6,7 +6,7 @@ namespace App\Models;
 use App\Classes\Database;
 
 /**
- * User Model
+ * مدل کاربران با پشتیبانی از رمزنگاری ایمن
  */
 class User_Model
 {
@@ -14,7 +14,7 @@ class User_Model
     protected $table = 'users';
     
     /**
-     * Constructor
+     * سازنده
      */
     public function __construct()
     {
@@ -22,10 +22,104 @@ class User_Model
     }
     
     /**
-     * Find user by ID
+     * هش‌کردن رمز عبور با استفاده از الگوریتم bcrypt
      * 
-     * @param int $id User ID
-     * @return array|null User data or null if not found
+     * @param string $password رمز عبور خام
+     * @return string رمز عبور هش‌شده
+     */
+    public function hashPassword(string $password): string
+    {
+        return password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
+    }
+    
+    /**
+     * تأیید رمز عبور
+     * 
+     * @param string $password رمز عبور خام
+     * @param string $hash رمز عبور هش‌شده
+     * @return bool نتیجه تأیید رمز عبور
+     */
+    public function verifyPassword(string $password, string $hash): bool
+    {
+        return password_verify($password, $hash);
+    }
+    
+    /**
+     * بررسی نیاز به هش مجدد رمز عبور
+     * 
+     * @param string $hash رمز عبور هش‌شده
+     * @return bool آیا نیاز به هش مجدد دارد
+     */
+    public function passwordNeedsRehash(string $hash): bool
+    {
+        return password_needs_rehash($hash, PASSWORD_DEFAULT, ['cost' => 12]);
+    }
+    
+    /**
+     * به‌روزرسانی رمز عبور کاربر
+     * 
+     * @param int $userId شناسه کاربر
+     * @param string $newHash رمز عبور هش‌شده جدید
+     * @return bool نتیجه به‌روزرسانی
+     */
+    public function updatePassword(int $userId, string $newHash): bool
+    {
+        return $this->db->update(
+            $this->table,
+            ['password' => $newHash],
+            ['id' => $userId]
+        );
+    }
+    
+    /**
+     * ثبت کاربر جدید
+     * 
+     * @param array $userData اطلاعات کاربر
+     * @return int|false شناسه کاربر جدید یا false در صورت خطا
+     */
+    public function register(array $userData)
+    {
+        if (isset($userData['password'])) {
+            $userData['password'] = $this->hashPassword($userData['password']);
+        }
+        
+        return $this->db->insert($this->table, $userData);
+    }
+    
+    /**
+     * احراز هویت کاربر
+     * 
+     * @param string $email ایمیل کاربر
+     * @param string $password رمز عبور
+     * @return array|false اطلاعات کاربر یا false در صورت عدم تطابق
+     */
+    public function authenticate(string $email, string $password)
+    {
+        $user = $this->findByEmail($email);
+        
+        if (!$user) {
+            return false;
+        }
+        
+        // تأیید رمز عبور
+        if (!$this->verifyPassword($password, $user['password'])) {
+            return false;
+        }
+        
+        // بررسی نیاز به هش مجدد رمز عبور
+        if ($this->passwordNeedsRehash($user['password'])) {
+            $newHash = $this->hashPassword($password);
+            $this->updatePassword($user['id'], $newHash);
+        }
+        
+        return $user;
+    }
+    
+    /**
+     * یافتن کاربر با شناسه
+     * 
+     * @param int $id شناسه کاربر
+     * @return array|null داده کاربر یا null اگر یافت نشد
      */
     public function findById(int $id): ?array
     {
@@ -36,10 +130,10 @@ class User_Model
     }
     
     /**
-     * Find user by email
+     * یافتن کاربر با ایمیل
      * 
-     * @param string $email User email
-     * @return array|null User data or null if not found
+     * @param string $email ایمیل کاربر
+     * @return array|null داده کاربر یا null اگر یافت نشد
      */
     public function findByEmail(string $email): ?array
     {
@@ -50,64 +144,12 @@ class User_Model
     }
     
     /**
-     * Create new user
+     * یافتن همه کاربران با فیلترهای اختیاری
      * 
-     * @param array $userData User data
-     * @return int|false User ID or false on failure
-     */
-    public function create(array $userData)
-    {
-        // Hash password if provided
-        if (isset($userData['password'])) {
-            $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
-        }
-        
-        // Add creation timestamp if not set
-        if (!isset($userData['created_at'])) {
-            $userData['created_at'] = date('Y-m-d H:i:s');
-        }
-        
-        return $this->db->insert($this->table, $userData);
-    }
-    
-    /**
-     * Update user
-     * 
-     * @param int $id User ID
-     * @param array $userData User data
-     * @return bool Success status
-     */
-    public function update(int $id, array $userData): bool
-    {
-        // Hash password if provided
-        if (isset($userData['password'])) {
-            $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
-        }
-        
-        // Add update timestamp
-        $userData['updated_at'] = date('Y-m-d H:i:s');
-        
-        return $this->db->update($this->table, $userData, ['id' => $id]);
-    }
-    
-    /**
-     * Delete user
-     * 
-     * @param int $id User ID
-     * @return bool Success status
-     */
-    public function delete(int $id): bool
-    {
-        return $this->db->delete($this->table, ['id' => $id]);
-    }
-    
-    /**
-     * Find all users with optional filters
-     * 
-     * @param array $conditions WHERE conditions
-     * @param string $orderBy Order by field
-     * @param string $direction Order direction
-     * @return array Users data
+     * @param array $conditions شرط‌های WHERE
+     * @param string $orderBy مرتب‌سازی بر اساس فیلد
+     * @param string $direction جهت مرتب‌سازی
+     * @return array داده‌های کاربران
      */
     public function findAll(array $conditions = [], string $orderBy = 'id', string $direction = 'ASC'): array
     {
