@@ -25,10 +25,10 @@ class ReviewSystemTest
         $this->testUserId = $this->conn->insert_id;
 
         // Create test carwash
-        $stmt = $this->conn->prepare("
-            INSERT INTO carwash (name, address) 
-            VALUES ('Test CarWash', 'Test Address')
-        ");
+            $stmt = $this->conn->prepare("
+                INSERT INTO carwash_profiles (business_name, address) 
+                VALUES ('Test CarWash', 'Test Address')
+            ");
         $stmt->execute();
         $this->testCarwashId = $this->conn->insert_id;
     }
@@ -56,6 +56,6 @@ class ReviewSystemTest
     {
         $this->conn->query("DELETE FROM reviews WHERE user_id = {$this->testUserId}");
         $this->conn->query("DELETE FROM users WHERE id = {$this->testUserId}");
-        $this->conn->query("DELETE FROM carwash WHERE id = {$this->testCarwashId}");
+    $this->conn->query("DELETE FROM carwash_profiles WHERE id = {$this->testCarwashId}");
     }
 }

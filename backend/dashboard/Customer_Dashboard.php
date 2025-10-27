@@ -4,15 +4,46 @@
  * Uses the universal header/footer system with dashboard context
  */
 
-// Start session
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+// Replace manual session_start with bootstrap and RBAC enforcement
+// Previously used an incorrect relative path which caused the fatal error.
+// Use the project's bootstrap if available, otherwise fallback to vendor/autoload.php at repo root.
+$bootstrapPath = __DIR__ . '/../includes/bootstrap.php';
+$vendorAutoloadFallback = __DIR__ . '/../../vendor/autoload.php';
+
+if (file_exists($bootstrapPath)) {
+	require_once $bootstrapPath;
+} elseif (file_exists($vendorAutoloadFallback)) {
+	// minimal fallback: load composer autoloader if bootstrap missing
+	require_once $vendorAutoloadFallback;
+} else {
+	// Log and show friendly message (do not leak paths/stack traces)
+	error_log('Bootstrap/autoload not found for Customer_Dashboard.php');
+	http_response_code(500);
+	echo 'Application initialization failed. Please contact the administrator.';
+	exit;
 }
 
-// Check if user is logged in and has customer role
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
-    header('Location: ../auth/login.php');
-    exit();
+use App\Classes\Session;
+use App\Classes\Auth;
+
+// Start session via Session wrapper if available, otherwise fallback
+if (class_exists(Session::class) && method_exists(Session::class, 'start')) {
+    Session::start();
+} else {
+    if (session_status() == PHP_SESSION_NONE) session_start();
+}
+
+// Require authenticated customer
+Auth::requireRole('customer');
+
+// Ensure server-side CSRF token exists
+if (empty($_SESSION['csrf_token'])) {
+    try {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    } catch (Exception $e) {
+        // fallback
+        $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
+    }
 }
 
 // Set page-specific variables for the dashboard header
@@ -647,11 +678,14 @@ include '../includes/dashboard_header.php';
           <!-- New Reservation Form -->
           <div id="newReservationForm" class="p-6 hidden">
             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
-            <form class="space-y-6" onsubmit="event.preventDefault(); submitNewReservation();">
+            <form class="space-y-6" action="Customer_Dashboard_process.php" method="post" enctype="multipart/form-data" data-enable-validation="1">
+              <input type="hidden" name="action" value="create_reservation">
+              <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
               <!-- Service Selection -->
               <div>
                 <label for="service" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
-                <select id="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <select id="service" name="service_type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
                   <option value="">Hizmet Seçiniz</option>
                   <option value="Dış Yıkama">Dış Yıkama</option>
                   <option value="Dış Yıkama + İç Temizlik">Dış Yıkama + İç Temizlik</option>
@@ -663,11 +697,11 @@ include '../includes/dashboard_header.php';
               <!-- Vehicle Selection -->
               <div>
                 <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
-                <select id="vehicle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <select id="vehicle" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   <option value="">Araç Seçiniz</option>
-                  <option value="Toyota Corolla - 34 ABC 123">Toyota Corolla - 34 ABC 123</option>
-                  <option value="Honda Civic - 34 XYZ 789">Honda Civic - 34 XYZ 789</option>
-                  <!-- Dynamically load user's vehicles here -->
+                  <!-- Options should carry the vehicle id value -->
+                  <option value="1">Toyota Corolla - 34 ABC 123</option>
+                  <option value="2">Honda Civic - 34 XYZ 789</option>
                 </select>
               </div>
 
@@ -675,29 +709,29 @@ include '../includes/dashboard_header.php';
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                 <div>
                   <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
-                  <input type="date" id="reservationDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <input type="date" id="reservationDate" name="reservation_date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
                 </div>
                 <div>
                   <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
-                  <input type="time" id="reservationTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <input type="time" id="reservationTime" name="reservation_time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
                 </div>
               </div>
 
-              <!-- Location -->
+              <!-- Location (carwash id) -->
               <div>
                 <label for="location" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
-                <select id="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <select id="location" name="carwash_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
                   <option value="">Konum Seçiniz</option>
-                  <option value="CarWash Merkez">CarWash Merkez</option>
-                  <option value="CarWash Premium">CarWash Premium</option>
-                  <option value="CarWash Express">CarWash Express</option>
+                  <option value="1">CarWash Merkez</option>
+                  <option value="2">CarWash Premium</option>
+                  <option value="3">CarWash Express</option>
                 </select>
               </div>
 
               <!-- Notes -->
               <div>
                 <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (İsteğe Bağlı)</label>
-                <textarea id="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                <textarea id="notes" name="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
               </div>
 
               <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
@@ -724,31 +758,39 @@ include '../includes/dashboard_header.php';
           <div class="xl:col-span-2">
             <div class="bg-white rounded-2xl shadow-lg p-6">
               <h3 class="text-xl font-bold mb-6">Kişisel Bilgiler</h3>
-              <form class="space-y-6">
+              <form class="space-y-6" action="Customer_Dashboard_process.php" method="post" enctype="multipart/form-data" data-enable-validation="1">
+                <input type="hidden" name="action" value="update_profile">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                   <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Ad</label>
-                    <input type="text" value="Ali" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    <input type="text" name="name" value="<?php echo htmlspecialchars($_SESSION['name'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
                   </div>
                   <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Soyad</label>
-                    <input type="text" value="Yılmaz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    <input type="text" name="surname" value="<?php echo htmlspecialchars($_SESSION['surname'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   </div>
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
-                  <input type="email" value="ali.yilmaz@email.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <input type="email" name="email" value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required|email">
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
-                  <input type="tel" value="0555 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <input type="tel" name="phone" value="<?php echo htmlspecialchars($_SESSION['phone'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
-                  <textarea rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">İstanbul, Kadıköy, Moda Mahallesi</textarea>
+                  <textarea name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"><?php echo htmlspecialchars($_SESSION['address'] ?? ''); ?></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">Profil Fotoğrafı (isteğe bağlı)</label>
+                  <input type="file" name="profile_photo" accept="image/*">
                 </div>
 
                 <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
@@ -1032,26 +1074,28 @@ include '../includes/dashboard_header.php';
   <div id="vehicleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
       <h3 class="text-xl font-bold mb-6">Yeni Araç Ekle</h3>
-      <form class="space-y-4">
+      <form id="vehicleForm" action="Customer_Dashboard_process.php" method="post" data-enable-validation="1">
+        <input type="hidden" name="action" value="update_vehicle">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">Marka</label>
-          <input type="text" placeholder="Toyota" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+          <input name="car_brand" type="text" placeholder="Toyota" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
         </div>
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">Model</label>
-          <input type="text" placeholder="Corolla" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+          <input name="car_model" type="text" placeholder="Corolla" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
         </div>
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">Plaka</label>
-          <input type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+          <input name="license_plate" type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
         </div>
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">Model Yılı</label>
-          <input type="number" placeholder="2020" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+          <input name="car_year" type="number" placeholder="2020" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
         </div>
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">Renk</label>
-          <input type="text" placeholder="Beyaz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+          <input name="car_color" type="text" placeholder="Beyaz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
         </div>
         <div class="flex space-x-3">
           <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>

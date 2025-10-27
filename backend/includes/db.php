@@ -6,13 +6,22 @@
  * Following project conventions for file-based routing and modular structure
  */
 
-// Database credentials - using standard XAMPP port 3306
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'carwash_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_PORT', '3306');
-define('DB_CHARSET', 'utf8mb4');
+// DB config constants (guarded to avoid "already defined" warnings)
+if (!defined('DB_HOST')) {
+    define('DB_HOST', '127.0.0.1');
+}
+if (!defined('DB_NAME')) {
+    define('DB_NAME', 'carwash');
+}
+if (!defined('DB_USER')) {
+    define('DB_USER', 'root');
+}
+if (!defined('DB_PASS')) {
+    define('DB_PASS', '');
+}
+if (!defined('DB_CHARSET')) {
+    define('DB_CHARSET', 'utf8mb4');
+}
 
 /**
  * Get database connection using PDO
@@ -42,7 +51,7 @@ function getDBConnection()
  */
 function verifyDatabaseTables()
 {
-    $requiredTables = ['users', 'carwashes', 'services', 'bookings', 'reviews', 'settings'];
+    $requiredTables = ['users', 'carwash_profiles', 'services', 'bookings', 'reviews', 'settings'];
     $conn = getDBConnection();
 
     foreach ($requiredTables as $table) {
@@ -67,7 +76,7 @@ function getDatabaseStats()
     $conn = getDBConnection();
     $stats = [];
 
-    $tables = ['users', 'carwashes', 'services', 'bookings', 'reviews', 'settings'];
+    $tables = ['users', 'carwash_profiles', 'services', 'bookings', 'reviews', 'settings'];
 
     foreach ($tables as $table) {
         // Use direct query to avoid SQL syntax issues
@@ -111,7 +120,7 @@ if (isset($_GET['health_check'])) {
 
         // Simple table check without verification
         $stats = [];
-        $tables = ['users', 'carwashes', 'services', 'bookings', 'reviews', 'settings'];
+    $tables = ['users', 'carwash_profiles', 'services', 'bookings', 'reviews', 'settings'];
 
         foreach ($tables as $table) {
             try {

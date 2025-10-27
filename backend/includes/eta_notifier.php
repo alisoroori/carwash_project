@@ -15,13 +15,13 @@ class ETANotifier
         $sql = "CREATE TABLE IF NOT EXISTS eta_notifications (
             id INT PRIMARY KEY AUTO_INCREMENT,
             booking_id INT NOT NULL,
-            customer_id INT NOT NULL,
+            user_id INT NOT NULL,
             eta_minutes INT NOT NULL,
             notification_type ENUM('email', 'sms', 'push') NOT NULL,
             status ENUM('pending', 'sent', 'failed') DEFAULT 'pending',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (booking_id) REFERENCES bookings(id),
-            FOREIGN KEY (customer_id) REFERENCES users(id)
+            FOREIGN KEY (user_id) REFERENCES users(id)
         )";
 
         $this->conn->query($sql);
@@ -34,15 +34,15 @@ class ETANotifier
         // Create notification
         $stmt = $this->conn->prepare("
             INSERT INTO eta_notifications 
-            (booking_id, customer_id, eta_minutes, notification_type)
+            (booking_id, user_id, eta_minutes, notification_type)
             VALUES (?, ?, ?, ?)
         ");
 
-        $notificationType = $this->getPreferredNotificationType($booking['customer_id']);
+        $notificationType = $this->getPreferredNotificationType($booking['user_id']);
         $stmt->bind_param(
             'iiis',
             $bookingId,
-            $booking['customer_id'],
+            $booking['user_id'],
             $etaMinutes,
             $notificationType
         );

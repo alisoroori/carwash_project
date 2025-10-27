@@ -19,9 +19,9 @@ try {
 
     // Verify booking belongs to user and is pending
     $stmt = $conn->prepare("
-        SELECT status 
-        FROM bookings 
-        WHERE id = ? AND customer_id = ? AND status = 'pending'
+           SELECT status 
+           FROM bookings 
+           WHERE id = ? AND user_id = ? AND status = 'pending'
     ");
     $stmt->bind_param("ii", $booking_id, $_SESSION['user_id']);
     $stmt->execute();

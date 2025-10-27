@@ -179,7 +179,7 @@ try {
         }
         
         echo "<h3>🏪 Business Name Check:</h3>";
-        $stmt = $conn->prepare("SELECT id FROM carwashes WHERE business_name = ?");
+    $stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE business_name = ?");
         $stmt->execute([$business_name]);
         
         if ($stmt->fetch()) {

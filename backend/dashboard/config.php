@@ -13,90 +13,43 @@ if (!defined('APP_INIT')) {
     define('APP_INIT', true);
 }
 
-// Prevent re-initialization when the file is included multiple times
-if (defined('CONFIG_INITIALIZED')) {
-    return;
-}
-define('CONFIG_INITIALIZED', true);
-
 // =============================================================================
-// DATABASE CONFIGURATION (guarded)
+// DATABASE CONFIGURATION
 // =============================================================================
 
-if (!defined('DB_HOST')) {
-    define('DB_HOST', env('DB_HOST', 'localhost'));
-}
-if (!defined('DB_NAME')) {
-    define('DB_NAME', env('DB_NAME', 'carwash_db'));
-}
-if (!defined('DB_USER')) {
-    define('DB_USER', env('DB_USER', 'root'));
-}
-if (!defined('DB_PASS')) {
-    define('DB_PASS', env('DB_PASS', ''));
-}
-if (!defined('DB_CHARSET')) {
-    define('DB_CHARSET', 'utf8mb4');
-}
+define('DB_HOST', env('DB_HOST', 'localhost'));
+define('DB_NAME', env('DB_NAME', 'carwash_db'));
+define('DB_USER', env('DB_USER', 'root'));
+define('DB_PASS', env('DB_PASS', ''));
+define('DB_CHARSET', 'utf8mb4');
 
 // =============================================================================
 // APPLICATION PATHS
 // =============================================================================
 
 // Root directory (adjust if project is in subdirectory)
-if (!defined('ROOT_PATH')) {
-    define('ROOT_PATH', dirname(dirname(__DIR__)));
-}
-
+define('ROOT_PATH', dirname(dirname(__DIR__)));
 // Backend paths
-if (!defined('BACKEND_PATH')) {
-    define('BACKEND_PATH', ROOT_PATH . '/backend');
-}
-if (!defined('CLASSES_PATH')) {
-    define('CLASSES_PATH', BACKEND_PATH . '/classes');
-}
-if (!defined('MODELS_PATH')) {
-    define('MODELS_PATH', BACKEND_PATH . '/models');
-}
-if (!defined('INCLUDES_PATH')) {
-    define('INCLUDES_PATH', BACKEND_PATH . '/includes');
-}
-if (!defined('AUTH_PATH')) {
-    define('AUTH_PATH', BACKEND_PATH . '/auth');
-}
-if (!defined('API_PATH')) {
-    define('API_PATH', BACKEND_PATH . '/api');
-}
-if (!defined('DASHBOARD_PATH')) {
-    define('DASHBOARD_PATH', BACKEND_PATH . '/dashboard');
-}
+define('BACKEND_PATH', ROOT_PATH . '/backend');
+define('CLASSES_PATH', BACKEND_PATH . '/classes');
+define('MODELS_PATH', BACKEND_PATH . '/models');
+define('INCLUDES_PATH', BACKEND_PATH . '/includes');
+define('AUTH_PATH', BACKEND_PATH . '/auth');
+define('API_PATH', BACKEND_PATH . '/api');
+define('DASHBOARD_PATH', BACKEND_PATH . '/dashboard');
 
 // Frontend paths
-if (!defined('FRONTEND_PATH')) {
-    define('FRONTEND_PATH', ROOT_PATH . '/frontend');
-}
-if (!defined('CSS_PATH')) {
-    define('CSS_PATH', FRONTEND_PATH . '/css');
-}
-if (!defined('JS_PATH')) {
-    define('JS_PATH', FRONTEND_PATH . '/js');
-}
+define('FRONTEND_PATH', ROOT_PATH . '/frontend');
+define('CSS_PATH', FRONTEND_PATH . '/css');
+define('JS_PATH', FRONTEND_PATH . '/js');
 
 // Upload paths
-if (!defined('UPLOAD_PATH')) {
-    define('UPLOAD_PATH', ROOT_PATH . '/uploads');
-}
-if (!defined('PROFILE_UPLOAD_PATH')) {
-    define('PROFILE_UPLOAD_PATH', AUTH_PATH . '/uploads/profiles');
-}
-if (!defined('SERVICE_UPLOAD_PATH')) {
-    define('SERVICE_UPLOAD_PATH', UPLOAD_PATH . '/services');
-}
+define('UPLOAD_PATH', ROOT_PATH . '/uploads');
+define('PROFILE_UPLOAD_PATH', AUTH_PATH . '/uploads/profiles');
+define('SERVICE_UPLOAD_PATH', UPLOAD_PATH . '/services');
 
 // Vendor path
-if (!defined('VENDOR_PATH')) {
-    define('VENDOR_PATH', ROOT_PATH . '/vendor');
-}
+define('VENDOR_PATH', ROOT_PATH . '/vendor');
 
 // =============================================================================
 // APPLICATION URLS
@@ -311,11 +264,6 @@ function env($key, $default = null) {
     return Config::get($key, $default);
 }
 
-// Prevent multiple evaluation and duplicate-define warnings
-if (!defined('CONFIG_INITIALIZED')) {
-    define('CONFIG_INITIALIZED', true);
-}
-
 // Protect against multiple defines when this file is included more than once
 if (!defined('ROOT_PATH')) {
     define('ROOT_PATH', realpath(__DIR__ . '/..'));
@@ -330,12 +278,12 @@ if (!defined('APP_ENV')) {
     define('APP_ENV', getenv('APP_ENV') ?: 'development');
 }
 
-// Database defaults (only if not set elsewhere) — ensure DB_NAME is carwash_db
+// Database defaults (only if not set elsewhere)
 if (!defined('DB_HOST')) {
     define('DB_HOST', '127.0.0.1');
 }
 if (!defined('DB_NAME')) {
-    define('DB_NAME', 'carwash_db');
+    define('DB_NAME', 'carwash');
 }
 if (!defined('DB_USER')) {
     define('DB_USER', 'root');
@@ -347,25 +295,25 @@ if (!defined('DB_CHARSET')) {
     define('DB_CHARSET', 'utf8mb4');
 }
 
-// Add admin/management URL for quick access to phpMyAdmin for this DB
+// Session / upload / other commonly redefined constants
+if (!defined('UPLOAD_DIR')) {
+    define('UPLOAD_DIR', ROOT_PATH . '/uploads');
+}
+if (!defined('PROFILE_UPLOAD_DIR')) {
+    define('PROFILE_UPLOAD_DIR', ROOT_PATH . '/backend/auth/uploads/profiles');
+}
+if (!defined('LOG_DIR')) {
+    define('LOG_DIR', ROOT_PATH . '/logs');
+}
+
+// Management URL for phpMyAdmin (points to the carwash_db database)
 if (!defined('DB_ADMIN_URL')) {
     define('DB_ADMIN_URL', 'http://localhost/phpmyadmin/index.php?route=/database/structure&db=carwash_db');
 }
 
-// Session / upload / other commonly redefined constants
-if (!defined('UPLOAD_DIR')) {
-	define('UPLOAD_DIR', ROOT_PATH . '/uploads');
-}
-if (!defined('PROFILE_UPLOAD_DIR')) {
-	define('PROFILE_UPLOAD_DIR', ROOT_PATH . '/backend/auth/uploads/profiles');
-}
-if (!defined('LOG_DIR')) {
-	define('LOG_DIR', ROOT_PATH . '/logs');
-}
-
 // Ensure error display is suppressed on non-dev environments
 if (defined('APP_ENV') && APP_ENV !== 'development') {
-	@ini_set('display_errors', '0');
+    @ini_set('display_errors', '0');
 }
 
 } // end global namespace

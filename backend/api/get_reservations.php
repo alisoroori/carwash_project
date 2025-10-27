@@ -15,12 +15,12 @@ try {
             b.service_type as service_name,
             b.booking_date as date,
             b.booking_time as time,
-            b.status,
-            b.price,
-            c.name as carwash_name
-        FROM bookings b
-        JOIN carwash c ON b.carwash_id = c.id
-        WHERE b.customer_id = ?
+                b.status,
+                b.price,
+                c.business_name as carwash_name
+            FROM bookings b
+            JOIN carwash_profiles c ON b.carwash_id = c.id
+            WHERE b.user_id = ?
         ORDER BY b.booking_date DESC, b.booking_time DESC
     ");
 

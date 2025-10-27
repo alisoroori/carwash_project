@@ -1,7 +1,7 @@
 <?php
 /**
  * Database Schema Fix for CarWash Registration
- * This script will add missing columns to the existing carwashes table
+ * This script will add missing columns to the existing carwash_profiles table
  */
 
 // Include database connection
@@ -13,7 +13,7 @@ echo "<p>Adding missing columns to match registration form...</p>";
 try {
     $conn = getDBConnection();
     
-    // List of columns to add to carwashes table
+    // List of columns to add to carwash_profiles table
     $columns_to_add = [
         "ADD COLUMN user_id INT(11) NULL",
         "ADD COLUMN tax_number VARCHAR(50) NULL",
@@ -33,11 +33,11 @@ try {
         "ADD COLUMN status VARCHAR(20) DEFAULT 'pending'"
     ];
     
-    echo "<h3>Adding columns to carwashes table:</h3>";
+    echo "<h3>Adding columns to carwash_profiles table:</h3>";
     
     foreach ($columns_to_add as $column) {
         try {
-            $sql = "ALTER TABLE carwashes " . $column;
+            $sql = "ALTER TABLE carwash_profiles " . $column;
             $conn->exec($sql);
             echo "<p style='color: green;'>✓ Added: " . htmlspecialchars($column) . "</p>";
         } catch (PDOException $e) {

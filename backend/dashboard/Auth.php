@@ -137,131 +137,81 @@ class Auth {
     
     /**
      * Check if current user has the given role.
-     * If session doesn't contain role, attempt to load it from DB and set it.
+     * Accepts string role or array of allowed roles.
      */
     public static function hasRole($role): bool
     {
-		// Ensure session started
-		if (method_exists(Session::class, 'start')) Session::start();
-
-		// Try session wrapper first
-		$user = [];
-		if (class_exists(Session::class) && method_exists(Session::class, 'get')) {
-			$user = Session::get('user') ?? [];
-		} else {
-			$user = $_SESSION['user'] ?? [];
-		}
-
-		// If role missing but user id exists, attempt to load role from DB
-		if (empty($user['role']) && !empty($user['id'])) {
-			$loadedRole = null;
-
-			// Prefer PSR-4 Database helper
-			if (class_exists(\App\Classes\Database::class)) {
-				try {
-					$db = \App\Classes\Database::getInstance();
-					$row = $db->fetchOne("SELECT role FROM users WHERE id = :id LIMIT 1", ['id' => $user['id']]);
-					$loadedRole = $row['role'] ?? null;
-				} catch (\Throwable $e) {
-					// ignore DB lookup failure
-				}
-			}
-
-			// Fallback to legacy PDO if available
-			if ($loadedRole === null && function_exists('getDBConnection')) {
-				try {
-					$pdo = getDBConnection();
-					$stmt = $pdo->prepare("SELECT role FROM users WHERE id = ? LIMIT 1");
-					$stmt->execute([$user['id']]);
-					$r = $stmt->fetch(\PDO::FETCH_ASSOC);
-					$loadedRole = $r['role'] ?? null;
-				} catch (\Throwable $e) {
-					// ignore
-				}
-			}
-
-			// If loaded, persist back to session
-			if (!empty($loadedRole)) {
-				if (class_exists(Session::class) && method_exists(Session::class, 'set')) {
-					Session::set('user', array_merge($user, ['role' => $loadedRole]));
-				} else {
-					$_SESSION['user']['role'] = $loadedRole;
-					$_SESSION['role'] = $loadedRole;
-				}
-				$user['role'] = $loadedRole;
-			} else {
-				// final fallback: default to 'customer' to avoid missing role errors
-				if (class_exists(Session::class) && method_exists(Session::class, 'set')) {
-					Session::set('user', array_merge($user, ['role' => 'customer']));
-				} else {
-					$_SESSION['user']['role'] = 'customer';
-					$_SESSION['role'] = 'customer';
-				}
-				$user['role'] = 'customer';
-			}
-		}
-
-		// Now perform role comparison
-		$userRole = $user['role'] ?? null;
-		if (empty($userRole)) return false;
-
-		if (is_array($role)) {
-			return in_array((string)$userRole, array_map('strval', $role), true);
-		}
-
-		return ((string)$userRole === (string)$role);
-	}
+        Session::start();
+        $user = method_exists(Session::class, 'get') ? Session::get('user') : ($_SESSION['user'] ?? null);
+        if (empty($user) || empty($user['role'])) {
+            return false;
+        }
+        $userRole = (string) $user['role'];
+        if (is_array($role)) {
+            return in_array($userRole, $role, true);
+        }
+        return $userRole === (string) $role;
+    }
 
     /**
      * Require a specific role (or roles).
-     * Uses hasRole which will attempt to populate missing role from DB.
+     * Prevents redirect loops similarly to requireAuth().
      */
     public static function requireRole($role): void
     {
     	// Ensure authenticated first (this will handle loop detection too)
     	self::requireAuth();
 	
-    	// Attempt to populate missing role info for current session user
-		$userId = null;
-		if (class_exists(\App\Classes\Session::class) && method_exists(\App\Classes\Session::class, 'get')) {
-			$u = \App\Classes\Session::get('user') ?? [];
-			$userId = $u['id'] ?? null;
-		} else {
-			$userId = $_SESSION['user']['id'] ?? $_SESSION['user_id'] ?? null;
-		}
-		if ($userId) {
-			self::populateRoleFromDb((int)$userId);
-		}
-
-		// If auth didn't exit but user not have role -> handle forbidden
-		if (!self::hasRole($role)) {
-			$uri = $_SERVER['REQUEST_URI'] ?? '/';
-			$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-			$isApi = stripos($accept, 'application/json') !== false || stripos($uri, '/api/') !== false;
-
-			// If we're on login page, do not redirect to avoid loop
-			if (stripos($uri, '/backend/auth/login.php') !== false || basename($_SERVER['PHP_SELF']) === 'login.php') {
-				if ($isApi && class_exists('\App\Classes\Response')) \App\Classes\Response::error('Forbidden', 403);
-				http_response_code(403);
-				echo '403 Forbidden - insufficient permissions.';
-				exit;
-			}
-
-			// For API calls return JSON 403
-			if ($isApi && class_exists('\App\Classes\Response')) {
-				\App\Classes\Response::error('Forbidden', 403);
-			}
-
-			// For normal pages: send 403 or redirect to a friendly page (avoid redirect loops)
-			$forbiddenPage = '/carwash_project/403.php';
-			if (file_exists(__DIR__ . '/../../403.php') || file_exists(__DIR__ . '/../../backend/403.php')) {
-				header('Location: ' . $forbiddenPage);
-			} else {
-				header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, 403);
-				echo '403 Forbidden - You do not have permission to access this page.';
-			}
-			exit;
-		}
+    	$user = self::getCurrentUserData();
+    	$userRole = $user['role'] ?? null;
+	
+    	// If no role information, treat as forbidden (but avoid redirect loops)
+    	if (empty($userRole)) {
+    		$uri = $_SERVER['REQUEST_URI'] ?? '/';
+    		$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+    		$isApi = stripos($accept, 'application/json') !== false || stripos($uri, '/api/') !== false;
+	
+    		// If we're on login page, do not redirect to avoid loop
+    		if (stripos($uri, '/backend/auth/login.php') !== false || basename($_SERVER['PHP_SELF']) === 'login.php') {
+    			if ($isApi && class_exists('\App\Classes\Response')) \App\Classes\Response::error('Forbidden', 403);
+    			http_response_code(403);
+    			echo '403 Forbidden - insufficient permissions.';
+    			exit;
+    		}
+	
+    		if ($isApi && class_exists('\App\Classes\Response')) \App\Classes\Response::error('Forbidden', 403);
+	
+    		$forbiddenPage = '/carwash_project/403.php';
+    		if (file_exists(__DIR__ . '/../../403.php') || file_exists(__DIR__ . '/../../backend/403.php')) {
+    			header('Location: ' . $forbiddenPage);
+    		} else {
+    			header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, 403);
+    			echo '403 Forbidden - You do not have permission to access this page.';
+    		}
+    		exit;
+    	}
+	
+    	// Check role match
+    	if (is_array($role)) {
+    		if (!in_array($userRole, $role, true)) {
+    			// forbidden handling same as above
+    			if (stripos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false && class_exists('\App\Classes\Response')) {
+    				\App\Classes\Response::error('Forbidden', 403);
+    			}
+    			header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, 403);
+    			echo '403 Forbidden - You do not have permission to access this page.';
+    			exit;
+    		}
+    	} else {
+    		if ((string)$userRole !== (string)$role) {
+    			if (stripos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false && class_exists('\App\Classes\Response')) {
+    				\App\Classes\Response::error('Forbidden', 403);
+    			}
+    			header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, 403);
+    			echo '403 Forbidden - You do not have permission to access this page.';
+    			exit;
+    		}
+    	}
     }
     
     /**
@@ -329,7 +279,7 @@ class Auth {
      * - Falls back to legacy plain-text check (and re-hashes safely)
      * - Starts session, regenerates id, stores minimal session user info
      */
-    public function login(string $email, string $password, bool $remember = false): array
+    public function login(string $email, string $password): array
     {
         // sanitize
         $email = strtolower(filter_var(trim($email), FILTER_SANITIZE_EMAIL));
@@ -411,13 +361,7 @@ class Auth {
                 'role' => $user['role'] ?? 'customer',
             ];
             if (method_exists(Session::class, 'set')) {
-                // keep legacy shape for compatibility
                 Session::set('user', $sessionUser);
-                // also set shortcut keys expected by older scripts
-                Session::set('role', $sessionUser['role']);
-                Session::set('user_id', $user['id']);
-                Session::set('email', $user['email']);
-                Session::set('name', $sessionUser['name']);
             } else {
                 $_SESSION['user'] = $sessionUser;
                 $_SESSION['user_id'] = $user['id'];
@@ -438,15 +382,6 @@ class Auth {
             $_SESSION['email'] = $user['email'];
             $_SESSION['name'] = $_SESSION['user']['name'];
             $_SESSION['role'] = $_SESSION['user']['role'];
-        }
-
-        // If remember me requested, create token
-        if ($remember) {
-            try {
-                $this->setRememberMeToken((int)$user['id']);
-            } catch (\Throwable $e) {
-                // non-fatal
-            }
         }
 
         return ['success' => true, 'message' => 'Login successful', 'user' => $_SESSION['user']];
@@ -579,67 +514,4 @@ class Auth {
         
         return true;
     }
-
-    // Ensure the session contains a role for the given user id; try PSR-4 Database then legacy PDO
-	private static function populateRoleFromDb($userId)
-	{
-		if (empty($userId)) {
-			return;
-		}
-
-		// ensure session started
-		if (class_exists(\App\Classes\Session::class) && method_exists(\App\Classes\Session::class, 'start')) {
-			\App\Classes\Session::start();
-		} else {
-			if (session_status() === PHP_SESSION_NONE) session_start();
-		}
-
-		// If role already present, nothing to do
-		$rolePresent = false;
-		if (class_exists(\App\Classes\Session::class) && method_exists(\App\Classes\Session::class, 'get')) {
-			$u = \App\Classes\Session::get('user') ?? [];
-			if (!empty($u['role'])) $rolePresent = true;
-		} else {
-			if (!empty($_SESSION['user']['role']) || !empty($_SESSION['role'])) $rolePresent = true;
-		}
-		if ($rolePresent) return;
-
-		$loadedRole = null;
-
-		// Try PSR-4 Database class
-		if (class_exists(\App\Classes\Database::class)) {
-			try {
-				$db = \App\Classes\Database::getInstance();
-				$row = $db->fetchOne("SELECT role FROM users WHERE id = :id LIMIT 1", ['id' => $userId]);
-				$loadedRole = $row['role'] ?? null;
-			} catch (\Throwable $e) {
-				// ignore DB lookup failure
-			}
-		}
-
-		// Fallback to legacy PDO connection if available
-		if ($loadedRole === null && function_exists('getDBConnection')) {
-			try {
-				$pdo = getDBConnection();
-				$stmt = $pdo->prepare("SELECT role FROM users WHERE id = ? LIMIT 1");
-				$stmt->execute([$userId]);
-				$r = $stmt->fetch(\PDO::FETCH_ASSOC);
-				$loadedRole = $r['role'] ?? null;
-			} catch (\Throwable $e) {
-				// ignore
-			}
-		}
-
-		// Persist role into session if found; otherwise leave unset (caller may default)
-		if (!empty($loadedRole)) {
-			if (class_exists(\App\Classes\Session::class) && method_exists(\App\Classes\Session::class, 'set')) {
-				$user = \App\Classes\Session::get('user') ?? [];
-				$user['role'] = $loadedRole;
-				\App\Classes\Session::set('user', $user);
-			} else {
-				$_SESSION['user']['role'] = $loadedRole;
-				$_SESSION['role'] = $loadedRole;
-			}
-		}
-	}
 }

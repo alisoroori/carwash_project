@@ -1,16 +1,24 @@
 <?php
-session_start();
-require_once '../../includes/db.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../includes/bootstrap.php';
 
-// Check if user is logged in and is a customer
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
+use App\Classes\Database;
+use App\Classes\Session;
+use App\Classes\Auth;
+
+Session::start();
+Auth::requireAuth();
+
+$userId = Session::get('user_id') ?? ($_SESSION['user_id'] ?? null);
+if (empty($userId) || !Auth::hasRole('customer')) {
     header('Location: ../../auth/login.php');
     exit();
 }
 
-// Get available carwashes
-$carwashes_query = "SELECT * FROM carwashes WHERE status = 'active'";
-$carwashes = $conn->query($carwashes_query);
+// Get available carwashes via PSR-4 Database
+$db = Database::getInstance();
+$carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, address, contact_phone, contact_phone AS phone, average_rating as rating, verified
+    FROM carwash_profiles WHERE 1");
 ?>
 
 <!DOCTYPE html>
@@ -44,17 +52,17 @@ $carwashes = $conn->query($carwashes_query);
             <div class="booking-step" id="step1">
                 <h2 class="text-xl font-semibold mb-4">1. Araç Yıkama Merkezi Seçin</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <?php while ($carwash = $carwashes->fetch_assoc()): ?>
+                    <?php foreach ($carwashes as $carwash): ?>
                         <div class="border rounded p-4 hover:border-blue-500 cursor-pointer carwash-option">
-                            <input type="radio" name="carwash_id" value="<?php echo $carwash['id']; ?>" class="hidden">
-                            <h3 class="font-semibold"><?php echo htmlspecialchars($carwash['business_name']); ?></h3>
-                            <p class="text-sm text-gray-600"><?php echo htmlspecialchars($carwash['address']); ?></p>
+                            <input type="radio" name="carwash_id" value="<?php echo htmlspecialchars($carwash['id']); ?>" class="hidden">
+                            <h3 class="font-semibold"><?php echo htmlspecialchars($carwash['business_name'] ?? $carwash['name'] ?? ''); ?></h3>
+                            <p class="text-sm text-gray-600"><?php echo htmlspecialchars($carwash['address'] ?? ''); ?></p>
                             <p class="text-sm text-gray-500">
                                 <i class="fas fa-star text-yellow-400"></i>
-                                <?php echo number_format($carwash['rating'], 1); ?>
+                                <?php echo isset($carwash['rating']) ? number_format($carwash['rating'], 1) : '-'; ?>
                             </p>
                         </div>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 </div>
             </div>
 

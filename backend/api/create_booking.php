@@ -36,7 +36,7 @@ try {
     // Create booking
     $stmt = $conn->prepare("
         INSERT INTO bookings (
-            customer_id,
+            user_id,
             service_type,
             vehicle_type,
             booking_date,
@@ -97,10 +97,10 @@ try {
 
     // Send carwash notifications
     $emailHelper->sendBookingNotificationToCarwash($booking_data);
-    // Get carwash phone from settings/database
-    $carwash_phone = getCarwashPhone(); // Implement this function
-    if (!empty($carwash_phone)) {
-        $smsHelper->sendBookingNotificationToCarwash($carwash_phone, $booking_data);
+    // Get carwash/profile phone from settings/database
+    $profile_phone = getProfilePhone(); // Implement this function
+    if (!empty($profile_phone)) {
+        $smsHelper->sendBookingNotificationToCarwash($profile_phone, $booking_data);
     }
 
     // Commit transaction
@@ -121,8 +121,8 @@ try {
     ]);
 }
 
-function getCarwashPhone()
+function getProfilePhone()
 {
-    // Implement getting carwash phone from settings or database
+    // Implement getting carwash/profile phone from settings or database
     return '905555555555'; // Example
 }

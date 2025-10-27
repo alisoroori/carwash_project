@@ -24,7 +24,7 @@ class PaymentGateway
 
         // Create payment request
         $request = [
-            'amount' => $booking['total_price'],
+            'amount' => $booking['total_amount'] ?? $booking['total_price'] ?? 0,
             'currency' => 'TRY',
             'booking_id' => $bookingId,
             'customer_email' => $booking['customer_email']
@@ -37,7 +37,7 @@ class PaymentGateway
     {
         // Support both mysqli and PDO connections
         if (method_exists($this->conn, 'prepare') && ($this->conn instanceof \mysqli)) {
-            $stmt = $this->conn->prepare("SELECT total_price, customer_email FROM bookings WHERE id = ?");
+            $stmt = $this->conn->prepare("SELECT total_amount, customer_email FROM bookings WHERE id = ?");
             $stmt->bind_param("i", $bookingId);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -45,7 +45,7 @@ class PaymentGateway
             $stmt->close();
         } else {
             // Assume PDO
-            $stmt = $this->conn->prepare("SELECT total_price, customer_email FROM bookings WHERE id = :id");
+            $stmt = $this->conn->prepare("SELECT total_amount, customer_email FROM bookings WHERE id = :id");
             $stmt->execute(['id' => $bookingId]);
             $booking = $stmt->fetch(\PDO::FETCH_ASSOC);
         }

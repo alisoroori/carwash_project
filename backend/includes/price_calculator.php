@@ -40,7 +40,7 @@ class DistancePriceCalculator
         return [
             'base_price' => $basePrice,
             'distance_surcharge' => $distancePrice,
-            'total_price' => $basePrice + $distancePrice
+            'total_amount' => $basePrice + $distancePrice
         ];
     }
 }

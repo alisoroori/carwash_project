@@ -1,30 +1,32 @@
 <?php
-session_start();
-require_once '../../includes/db.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../includes/bootstrap.php';
 
-// Check if user is logged in and is a customer
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
+use App\Classes\Database;
+use App\Classes\Session;
+use App\Classes\Auth;
+
+// Initialize session and require auth
+Session::start();
+Auth::requireAuth();
+
+// Ensure the user is a customer
+$userId = Session::get('user_id') ?? ($_SESSION['user_id'] ?? null);
+if (empty($userId) || !Auth::hasRole('customer')) {
     header('Location: ../../auth/login.php');
     exit();
 }
 
-// Get customer's bookings
-$stmt = $conn->prepare("
-    SELECT 
-        b.*,
-        c.business_name,
-        c.phone as carwash_phone,
-        s.service_name,
-        s.price
+// Get customer's bookings (use PSR-4 Database)
+$db = Database::getInstance();
+$stmt = $db->prepare("SELECT b.*, c.business_name as business_name, c.contact_phone as profile_phone, s.name as service_name, s.price as service_price
     FROM bookings b
-    JOIN carwashes c ON b.carwash_id = c.id
-    JOIN services s ON b.service_id = s.id
-    WHERE b.customer_id = ?
-    ORDER BY b.booking_date DESC, b.booking_time DESC
-");
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$bookings = $stmt->get_result();
+    LEFT JOIN carwash_profiles c ON b.carwash_id = c.id
+    LEFT JOIN services s ON b.service_id = s.id
+    WHERE b.user_id = :uid
+    ORDER BY b.booking_date DESC, b.booking_time DESC");
+$stmt->execute(['uid' => $userId]);
+$bookings = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -63,7 +65,7 @@ $bookings = $stmt->get_result();
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
 
-        <?php if ($bookings->num_rows === 0): ?>
+        <?php if (empty($bookings)): ?>
             <div class="bg-white rounded-lg shadow-md p-6 text-center">
                 <p class="text-gray-600">Henüz randevunuz bulunmamaktadır.</p>
                 <a href="new_booking.php" class="inline-block mt-4 text-blue-600 hover:text-blue-800">
@@ -72,7 +74,7 @@ $bookings = $stmt->get_result();
             </div>
         <?php else: ?>
             <div class="grid gap-6">
-                <?php while ($booking = $bookings->fetch_assoc()): ?>
+                <?php foreach ($bookings as $booking): ?>
                     <div class="bg-white rounded-lg shadow-md p-6">
                         <div class="flex justify-between items-start">
                             <div>
@@ -105,14 +107,16 @@ $bookings = $stmt->get_result();
 
                         <div class="mt-4">
                             <p class="text-sm text-gray-600">Ücret</p>
-                            <p class="font-medium"><?php echo number_format($booking['total_price'], 2); ?> TL</p>
+                            <p class="font-medium"><?php echo number_format((float)($booking['total_amount'] ?? $booking['total_price'] ?? 0), 2); ?> TL</p>
                         </div>
 
                         <div class="mt-6 flex justify-between items-center">
-                            <a href="tel:<?php echo $booking['carwash_phone']; ?>"
-                                class="text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-phone"></i> Ara
-                            </a>
+                            <?php if (!empty($booking['profile_phone'])): ?>
+                                <a href="tel:<?php echo htmlspecialchars($booking['profile_phone']); ?>"
+                                    class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-phone"></i> Ara
+                                </a>
+                            <?php endif; ?>
 
                             <?php if ($booking['status'] === 'pending'): ?>
                                 <button onclick="cancelBooking(<?php echo $booking['id']; ?>)"
@@ -122,7 +126,7 @@ $bookings = $stmt->get_result();
                             <?php endif; ?>
                         </div>
                     </div>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
     </div>

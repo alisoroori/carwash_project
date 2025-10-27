@@ -326,7 +326,7 @@ CREATE TABLE IF NOT EXISTS `backup_logs` (
 -- Default Roles
 INSERT INTO `roles` (`name`, `display_name`, `description`, `level`, `permissions`) VALUES
 ('superadmin', 'Super Administrator', 'Full system access with all permissions', 100, JSON_ARRAY('*')),
-('admin', 'Administrator', 'Full admin access except system-critical operations', 80, JSON_ARRAY('users.*', 'orders.*', 'payments.*', 'carwashes.*', 'services.*', 'support.*', 'reviews.*', 'reports.*', 'notifications.*', 'cms.*', 'settings.view', 'settings.edit')),
+('admin', 'Administrator', 'Full admin access except system-critical operations', 80, JSON_ARRAY('users.*', 'orders.*', 'payments.*', 'carwash_profiles.*', 'services.*', 'support.*', 'reviews.*', 'reports.*', 'notifications.*', 'cms.*', 'settings.view', 'settings.edit')),
 ('manager', 'Manager', 'Manage operations and view reports', 60, JSON_ARRAY('orders.*', 'payments.view', 'carwashes.view', 'services.*', 'support.*', 'reviews.moderate', 'reports.view')),
 ('support', 'Support Agent', 'Handle customer support and tickets', 40, JSON_ARRAY('users.view', 'orders.view', 'support.*', 'reviews.view', 'notifications.send')),
 ('auditor', 'Auditor', 'Read-only access to all sections for compliance', 20, JSON_ARRAY('*.view', 'audit_logs.view', 'reports.view'))
@@ -348,11 +348,11 @@ INSERT INTO `permissions` (`name`, `category`, `description`) VALUES
 ('payments.approve', 'payments', 'Approve pending payments'),
 ('payments.refund', 'payments', 'Process refunds'),
 ('payments.settle', 'payments', 'Settle car wash payments'),
-('carwashes.view', 'carwashes', 'View car washes'),
-('carwashes.create', 'carwashes', 'Add new car washes'),
-('carwashes.edit', 'carwashes', 'Edit car wash details'),
-('carwashes.delete', 'carwashes', 'Delete car washes'),
-('carwashes.approve', 'carwashes', 'Approve car wash registrations'),
+('carwash_profiles.view', 'carwash_profiles', 'View car washes'),
+('carwash_profiles.create', 'carwash_profiles', 'Add new car washes'),
+('carwash_profiles.edit', 'carwash_profiles', 'Edit car wash details'),
+('carwash_profiles.delete', 'carwash_profiles', 'Delete car washes'),
+('carwash_profiles.approve', 'carwash_profiles', 'Approve car wash registrations'),
 ('services.view', 'services', 'View services'),
 ('services.create', 'services', 'Create new services'),
 ('services.edit', 'services', 'Edit service details'),

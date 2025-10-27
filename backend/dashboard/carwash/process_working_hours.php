@@ -16,7 +16,7 @@ try {
     $conn->begin_transaction();
 
     // Get carwash ID
-    $stmt = $conn->prepare("SELECT id FROM carwashes WHERE owner_id = ?");
+    $stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE owner_id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
     $carwash = $stmt->get_result()->fetch_assoc();
@@ -87,7 +87,7 @@ try {
 
     // Update carwash working_hours field
     $stmt = $conn->prepare("
-        UPDATE carwashes 
+           UPDATE carwash_profiles 
         SET working_hours = ? 
         WHERE id = ?
     ");

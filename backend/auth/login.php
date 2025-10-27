@@ -453,3 +453,70 @@ include '../includes/header.php';
   </script>
 
 <?php include '../includes/footer.php'; ?>
+
+<?php
+// Login POST handling (replace existing POST handling block)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Ensure bootstrap/session/auth are available
+    require_once __DIR__ . '/../includes/bootstrap.php';
+
+    // Start session (bootstrap may already start it)
+    if (class_exists(Session::class) && method_exists(Session::class, 'start')) {
+        Session::start();
+    } else {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+    }
+
+    $email = isset($_POST['email']) ? trim((string)$_POST['email']) : '';
+    $password = isset($_POST['password']) ? (string)$_POST['password'] : '';
+    $returnTo = isset($_POST['return_to']) ? trim((string)$_POST['return_to']) : '/backend/dashboard/customer/index.php';
+
+    // Basic validation
+    if ($email === '' || $password === '') {
+        $_SESSION['error_message'] = 'Lütfen e-posta ve parola alanlarını doldurun.';
+        header('Location: login.php');
+        exit;
+    }
+
+    // Sanitize email and check format
+    $emailSanitized = filter_var($email, FILTER_SANITIZE_EMAIL);
+    if (!filter_var($emailSanitized, FILTER_VALIDATE_EMAIL)) {
+        // Detect common typos and offer a harmless hint
+        $suggestion = '';
+        $lower = strtolower($email);
+        $typos = [
+            '/\.cpm\b/' => '.com',
+            '/\.con\b/' => '.com',
+            '/@gmial\./' => '@gmail.',
+            '/@gmal\./' => '@gmail.',
+        ];
+        foreach ($typos as $pattern => $fix) {
+            if (preg_match($pattern, $lower)) {
+                $suggestion = ' (E-posta alanında küçük bir yazım hatası var: belki "' . htmlspecialchars(str_ireplace(array_keys($typos), array_values($typos), $email), ENT_QUOTES) . '" olmalı?)';
+                break;
+            }
+        }
+
+        $_SESSION['error_message'] = 'Lütfen geçerli bir e-posta adresi girin.' . $suggestion;
+        header('Location: login.php');
+        exit;
+    }
+
+    // Proceed to authenticate
+    $auth = new \App\Classes\Auth();
+    $result = $auth->login($emailSanitized, $password);
+
+    if (!empty($result['success'])) {
+        // Success: redirect to return_to if safe, otherwise to dashboard
+        // Basic safety: allow only internal paths
+        $allowedBase = '/carwash_project';
+        $returnTo = $returnTo && strpos($returnTo, $allowedBase) === 0 ? $returnTo : '/carwash_project/backend/dashboard/customer/index.php';
+        header('Location: ' . $returnTo);
+        exit;
+    }
+
+    // Authentication failed: generic message to avoid user enumeration
+    $_SESSION['error_message'] = $result['message'] ?? 'Invalid email or password';
+    header('Location: login.php');
+    exit;
+} 

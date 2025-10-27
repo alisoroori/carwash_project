@@ -20,8 +20,8 @@ try {
     $financialStats = $pdo->query("
         SELECT 
             COUNT(*) as total_bookings,
-            SUM(total_price) as total_revenue,
-            AVG(total_price) as avg_booking_value
+            SUM(total_amount) as total_revenue,
+            AVG(total_amount) as avg_booking_value
         FROM bookings 
         WHERE status = 'completed'
     ")->fetch();
@@ -37,10 +37,10 @@ try {
 
     // Get recent bookings
     $recentBookings = $pdo->query("
-        SELECT b.*, u.name as customer_name, c.name as carwash_name
+        SELECT b.*, u.name as customer_name, c.business_name as carwash_name
         FROM bookings b
         JOIN users u ON b.user_id = u.id
-        JOIN carwash c ON b.carwash_id = c.id
+        JOIN carwash_profiles c ON b.carwash_id = c.id
         ORDER BY b.created_at DESC
         LIMIT 10
     ")->fetchAll();
@@ -113,7 +113,7 @@ try {
                                 <td><?= htmlspecialchars($booking['carwash_name']) ?></td>
                                 <td><?= htmlspecialchars($booking['booking_date']) ?></td>
                                 <td><?= htmlspecialchars($booking['status']) ?></td>
-                                <td><?= number_format($booking['total_price'], 2) ?></td>
+                                <td><?= number_format($booking['total_amount'] ?? $booking['total_price'] ?? 0, 2) ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

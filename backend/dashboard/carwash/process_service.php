@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'carwash') {
 }
 
 // Get carwash ID
-$stmt = $conn->prepare("SELECT id FROM carwashes WHERE owner_id = ?");
+$stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE owner_id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $carwash = $stmt->get_result()->fetch_assoc();

@@ -125,7 +125,7 @@ try {
     }
     
     // Check if business name already exists
-    $stmt = $conn->prepare("SELECT id FROM carwashes WHERE name = ?");
+    $stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE business_name = ?");
     $stmt->execute([$business_name]);
     
     if ($stmt->fetch()) {
@@ -205,12 +205,12 @@ try {
         $user_id = $conn->lastInsertId();
         
         // Insert carwash business record
-        $carwash_sql = "INSERT INTO carwashes (
+        $carwash_sql = "INSERT INTO carwash_profiles (
             user_id,
             owner_id,
-            name,
+            business_name,
             email,
-            phone,
+            contact_phone,
             tax_number,
             license_number,
             owner_name,

@@ -13,7 +13,7 @@ if (!$carwash_id) {
 
 // Get carwash details
 $stmt = $conn->prepare("
-    SELECT * FROM carwash WHERE id = ?
+    SELECT * FROM carwash_profiles WHERE id = ?
 ");
 $stmt->bind_param('i', $carwash_id);
 $stmt->execute();
@@ -26,7 +26,7 @@ $carwash = $stmt->get_result()->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Wash Booking - <?= htmlspecialchars($carwash['name']) ?></title>
+    <title>Car Wash Booking - <?= htmlspecialchars($carwash['business_name'] ?? $carwash['name'] ?? '') ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="/carwash_project/frontend/css/style.css" rel="stylesheet">
@@ -37,7 +37,7 @@ $carwash = $stmt->get_result()->fetch_assoc();
     <div class="container mx-auto px-4 py-8">
         <div class="max-w-4xl mx-auto">
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <h1 class="text-2xl font-bold mb-6"><?= htmlspecialchars($carwash['name']) ?></h1>
+                <h1 class="text-2xl font-bold mb-6"><?= htmlspecialchars($carwash['business_name'] ?? $carwash['name'] ?? '') ?></h1>
 
                 <!-- Service Selection -->
                 <div id="serviceSelection" class="mb-8">

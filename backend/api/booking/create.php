@@ -64,7 +64,7 @@ try {
         $stmt = $conn->prepare("
             SELECT s.*, c.id as carwash_id 
             FROM services s
-            JOIN carwash c ON s.carwash_id = c.id
+            JOIN carwash_profiles c ON s.carwash_id = c.id
             WHERE s.id = ? AND s.status = 'active'
         ");
 
@@ -80,7 +80,7 @@ try {
             INSERT INTO bookings (
                 user_id, service_id, carwash_id,
                 booking_date, booking_time, status,
-                total_price, created_at
+                total_amount, created_at
             ) VALUES (?, ?, ?, ?, ?, 'pending', ?, NOW())
         ");
 
@@ -99,7 +99,7 @@ try {
         echo json_encode([
             'success' => true,
             'booking_id' => $booking_id,
-            'total_price' => $service['price']
+            'total_amount' => $service['price']
         ]);
     } catch (Exception $e) {
         if ($conn->inTransaction()) {

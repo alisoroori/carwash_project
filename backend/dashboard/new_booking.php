@@ -8,8 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
     exit();
 }
 
-// Get available carwashes
-$carwashes_query = "SELECT * FROM carwashes WHERE status = 'active'";
+$carwashes_query = "SELECT * FROM carwash_profiles WHERE status = 'active'";
 $carwashes = $conn->query($carwashes_query);
 ?>
 

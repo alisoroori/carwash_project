@@ -31,7 +31,7 @@ try {
     // Get carwash details for email notification
     $stmt = $conn->prepare("
         SELECT c.*, u.email, u.name as owner_name 
-        FROM carwashes c
+        FROM carwash_profiles c
         JOIN users u ON c.owner_id = u.id
         WHERE c.id = ? AND c.status = 'pending'
     ");
@@ -46,7 +46,7 @@ try {
     // Update carwash status
     $new_status = $action === 'approve' ? 'active' : 'rejected';
     $stmt = $conn->prepare("
-        UPDATE carwashes 
+        UPDATE carwash_profiles 
         SET status = ?,
             processed_at = NOW(),
             processed_by = ?

@@ -12,7 +12,7 @@ class Payment {
         $this->id = $data['id'] ?? null;
         $this->status = $data['status'] ?? 'pending';
         $this->amount = $data['amount'] ?? 0;
-        $this->customerId = $data['customer_id'] ?? null;
+    $this->customerId = $data['user_id'] ?? $data['customer_id'] ?? null;
         $this->bookingId = $data['booking_id'] ?? null;
         $this->createdAt = $data['created_at'] ?? date('Y-m-d H:i:s');
     }
@@ -50,7 +50,7 @@ class Payment {
             $stmt = $conn->prepare("UPDATE payments SET 
                 status = ?, 
                 amount = ?, 
-                customer_id = ?, 
+                user_id = ?, 
                 booking_id = ? 
                 WHERE id = ?");
                 
@@ -64,7 +64,7 @@ class Payment {
         } else {
             // Insert new payment
             $stmt = $conn->prepare("INSERT INTO payments 
-                (status, amount, customer_id, booking_id, created_at) 
+                (status, amount, user_id, booking_id, created_at) 
                 VALUES (?, ?, ?, ?, ?)");
                 
             return $stmt->execute([
