@@ -11,17 +11,17 @@ jobs:
     name: Run PHP customer dashboard harness
     runs-on: ubuntu-latest
     env:
-      DB_HOST: 127.0.0.1
-      DB_NAME: carwash_db
-      DB_USER: root
-      DB_PASS: ''
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASS: ${{ secrets.DB_PASS }}
 
     services:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-          MYSQL_DATABASE: carwash_db
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
         ports:
           - 3306:3306
         options: >-
@@ -52,14 +52,14 @@ jobs:
       - name: Wait for MySQL to be ready
         run: |
           for i in {1..30}; do
-            mysql -h127.0.0.1 -P3306 -uroot -prootpassword -e 'SELECT 1' && break || sleep 2
+            mysql -h${DB_HOST} -P3306 -u${DB_USER} -p"${DB_PASS}" -e 'SELECT 1' && break || sleep 2
           done
 
       - name: Import test schema
         run: |
           if [ -f database/carwash.sql ]; then
-            mysql -h127.0.0.1 -P3306 -uroot -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};" || true
-            mysql -h127.0.0.1 -P3306 -uroot ${DB_NAME} < database/carwash.sql
+            mysql -h${DB_HOST} -P3306 -u${DB_USER} -p"${DB_PASS}" -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};" || true
+            mysql -h${DB_HOST} -P3306 -u${DB_USER} -p"${DB_PASS}" ${DB_NAME} < database/carwash.sql
           else
             echo "database/carwash.sql not found; skipping import"
           fi
@@ -70,7 +70,8 @@ jobs:
             php backend/scripts/create_customer.php testcust@example.com "TestPass123!" || true
           else
             echo "create_customer.php not found; attempting SQL insert"
-            mysql -h127.0.0.1 -P3306 -uroot -prootpassword carwash -e "INSERT INTO users (email, password, name, role, created_at) VALUES ('testcust@example.com', '"$(php -r 'echo password_hash("TestPass123!", PASSWORD_DEFAULT);')"', 'Test Customer', 'customer', NOW())" || true
+            PW=$(php -r 'echo password_hash("TestPass123!", PASSWORD_DEFAULT);')
+            mysql -h${DB_HOST} -P3306 -u${DB_USER} -p"${DB_PASS}" ${DB_NAME} -e "INSERT INTO users (email, password, name, role, created_at) VALUES ('testcust@example.com', '${PW}', 'Test Customer', 'customer', NOW())" || true
           fi
 
       - name: Run harness and capture output

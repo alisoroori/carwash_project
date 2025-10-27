@@ -330,19 +330,46 @@ if (!defined('APP_ENV')) {
     define('APP_ENV', getenv('APP_ENV') ?: 'development');
 }
 
-// Database defaults (only if not set elsewhere) — ensure DB_NAME is carwash_db
+// Database defaults (read from environment/secrets when available)
+// Prefer explicit environment variables (secrets in CI) and fall back to .env / defaults
+$env_db_host = getenv('DB_HOST');
+$env_db_name = getenv('DB_NAME');
+$env_db_user = getenv('DB_USER');
+$env_db_pass = getenv('DB_PASS');
+
 if (!defined('DB_HOST')) {
-    define('DB_HOST', '127.0.0.1');
+    if ($env_db_host !== false && $env_db_host !== '') {
+        define('DB_HOST', $env_db_host);
+    } else {
+        define('DB_HOST', '127.0.0.1');
+    }
 }
+
 if (!defined('DB_NAME')) {
-    define('DB_NAME', 'carwash_db');
+    if ($env_db_name !== false && $env_db_name !== '') {
+        define('DB_NAME', $env_db_name);
+    } else {
+        define('DB_NAME', env('DB_NAME', 'carwash_db'));
+    }
 }
+
 if (!defined('DB_USER')) {
-    define('DB_USER', 'root');
+    if ($env_db_user !== false && $env_db_user !== '') {
+        define('DB_USER', $env_db_user);
+    } else {
+        define('DB_USER', env('DB_USER', 'root'));
+    }
 }
+
 if (!defined('DB_PASS')) {
-    define('DB_PASS', '');
+    if ($env_db_pass !== false) {
+        // allow empty string password
+        define('DB_PASS', $env_db_pass);
+    } else {
+        define('DB_PASS', env('DB_PASS', ''));
+    }
 }
+
 if (!defined('DB_CHARSET')) {
     define('DB_CHARSET', 'utf8mb4');
 }
