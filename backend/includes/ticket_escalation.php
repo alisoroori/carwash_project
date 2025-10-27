@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class TicketEscalationManager
 {
     private $conn;

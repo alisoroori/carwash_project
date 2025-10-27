@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Database Schema Fix Script
 require_once __DIR__ . '/../includes/db.php';
 

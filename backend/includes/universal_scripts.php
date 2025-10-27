@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Universal JavaScript for CarWash Project
  * Fixes: Mobile navigation, scrollbar issues, footer cleanup, responsiveness

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 class SecurityMiddleware {
     public static function handle() {

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class PriorityNotificationProcessor {
     private $conn;
     private $priorityLevels = [

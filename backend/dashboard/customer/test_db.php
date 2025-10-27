@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Test page to verify database connectivity for customer dashboards
 // Place in browser: /carwash_project/backend/dashboard/customer/test_db.php
 

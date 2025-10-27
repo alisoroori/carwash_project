@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Set page-specific variables
 $page_title = 'İletişim - CarWash';
 $current_page = 'contact';

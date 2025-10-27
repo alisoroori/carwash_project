@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class DynamicPricingManager
 {
     private $conn;

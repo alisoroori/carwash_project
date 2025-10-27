@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Service Image Upload Handler
  * 

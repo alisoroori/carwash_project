@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Bootstrap file for initializing autoloading and core functionality
  */

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Quick database schema checker
 require_once __DIR__ . '/../includes/db.php';
 

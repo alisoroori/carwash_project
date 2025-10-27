@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Farsça: این فایل شامل کدهای HTML صفحه فراموشی رمز عبور است.
 // Türkçe: Bu dosya, şifre sıfırlama sayfasının HTML kodlarını içermektedir.
 // English: This file contains the HTML code for the forgot password page.

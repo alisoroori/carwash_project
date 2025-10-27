@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class Auth {
   private $conn;
     

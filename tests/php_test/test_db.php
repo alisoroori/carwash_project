@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'backend/includes/carwash_db.php';
 require_once 'backend/includes/test_db.php';
 ?>

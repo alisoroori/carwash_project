@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 define('BASE_PATH', 'C:/xampp/htdocs/carwash_project');
 
 // Validate base path

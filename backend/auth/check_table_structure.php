@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Database table structure checker
 require_once __DIR__ . '/../includes/db.php';
 

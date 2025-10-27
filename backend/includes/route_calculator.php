@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class RouteCalculator
 {
     private $apiKey;

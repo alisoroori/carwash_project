@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Modern secure login page
 require_once __DIR__ . '/../../vendor/autoload.php';
 

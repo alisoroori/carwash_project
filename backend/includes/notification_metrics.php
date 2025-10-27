@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class NotificationMetricsManager
 {
     private $conn;

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Admin Panel for CarWash Web Application
  * Uses the universal dashboard header/footer system with admin context

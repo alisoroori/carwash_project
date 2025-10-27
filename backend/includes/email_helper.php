@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class EmailHelper
 {
     private $from_email;

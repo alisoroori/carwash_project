@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class ImageOptimizer
 {
     private $quality = 85;

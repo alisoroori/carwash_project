@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // export_logs_pdf.php
 session_start();
 require_once '../../includes/db.php';

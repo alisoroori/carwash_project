@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+﻿<?php declare(strict_types=1);
 /**
  * Application Configuration File
  * Central configuration for database, paths, and application settings

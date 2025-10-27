@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // CarWash - Main Page
 // Set page-specific variables for the index header
 $page_title = 'CarWash - En İyi Online Araç Yıkama Rezervasyon Platformu';

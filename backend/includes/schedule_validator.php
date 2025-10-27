@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class ScheduleValidator
 {
     private $conn;

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Simple autoload & core classes test (CLI)
 require_once __DIR__ . '/backend/includes/bootstrap.php';
 

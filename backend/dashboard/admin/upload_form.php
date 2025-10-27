@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Secure File Upload Form
  */

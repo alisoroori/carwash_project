@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../backend/includes/db.php';
 require_once '../backend/includes/review_notifier.php';
 

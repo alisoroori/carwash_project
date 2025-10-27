@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Profile Image Upload Handler
  * 

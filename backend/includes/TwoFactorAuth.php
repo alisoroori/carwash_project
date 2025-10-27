@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Two-Factor Authentication System
  * TOTP-based 2FA with backup codes

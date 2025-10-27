@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Simple PDF generator class
 class PDFGenerator
 {

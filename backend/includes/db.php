@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // filepath: c:\xampp\htdocs\carwash_project\backend\includes\db.php
 
 /**

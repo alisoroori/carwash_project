@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class NotificationQueue {
     private $conn;
     private $table = 'notification_queue';

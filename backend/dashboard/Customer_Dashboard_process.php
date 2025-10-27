@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Customer Dashboard Processing Script — improved security, CSRF, file upload handling
 
 require_once __DIR__ . '/../includes/bootstrap.php'; // autoload, logger, handlers

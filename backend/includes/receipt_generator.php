@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'db.php';
 // Ensure TCPDF is included and available
 if (!class_exists('TCPDF')) {

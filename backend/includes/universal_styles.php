@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Universal CSS Styles for CarWash Project
  * Fixes: Multiple scrollbars, responsiveness, mobile navigation

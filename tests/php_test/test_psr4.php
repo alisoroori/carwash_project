@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Test PSR-4 Classes
  */

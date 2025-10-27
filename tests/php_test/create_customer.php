@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // filepath: c:\xampp\htdocs\carwash_project\create_customer.php
 
 require_once __DIR__ . '/vendor/autoload.php';

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class ErrorAnalytics {
     private $conn;
     private $errorTypes = [
