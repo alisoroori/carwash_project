@@ -272,6 +272,39 @@ curl -i -H "Accept: application/json" -b cookies.txt -X POST \
   -d '{"service_id":1,"date":"2025-10-30","time":"10:00"}' \
   http://localhost/carwash_project/backend/api/bookings/create.php
 
+## CI: DB_PASS test modes
+
+The CI test job runs twice (matrix) to validate behavior when the database password is missing vs present.
+
+- Workflow file: [.github/workflows/ci.yml](.github/workflows/ci.yml)
+- Two matrix cases:
+  1. DB_PASS empty — CI prints: "DB_PASS is EMPTY (simulating missing password)"
+  2. DB_PASS set to `test1234` — CI prints: "DB_PASS is SET"
+
+What the workflow logs
+- A clear mode line indicating whether DB_PASS was empty or set.
+- A PHP one-liner that prints how PHP sees the variable: `PHP: getenv("DB_PASS") => <not set> | <empty> | <set>`.
+- PHPUnit is executed in both runs with `continue-on-error: true` so diagnostic output is retained even if tests fail.
+
+Why this helps
+- Confirms application behavior when DB credentials are missing vs present.
+- Useful to catch code paths that assume DB_PASS exists or handle secrets incorrectly.
+
+Local testing / overriding DB_PASS
+- Bash (Linux / macOS / Git Bash on Windows):
+  export DB_PASS=test1234
+  vendor/bin/phpunit --configuration phpunit.xml.dist
+
+- PowerShell (Windows):
+  $env:DB_PASS = 'test1234'; vendor\\bin\\phpunit --configuration phpunit.xml.dist
+
+- Inline for a single command:
+  DB_PASS=test1234 php -r 'var_dump(getenv("DB_PASS"));'
+
+Notes
+- The application reads DB_* values from [backend/includes/config.php](backend/includes/config.php) and standard environment variables. The PSR-4 DB wrapper is available as [`App\Classes\Database`](backend/classes/Database.php) which will pick up environment values when initializing connections.
+- See [.github/workflows/ci.yml](.github/workflows/ci.yml) for the exact workflow steps and logs produced during CI runs.
+
 13) Post-deployment & maintenance
 ---------------------------------
 - Monitor logs/ for exceptions and increased error rates.

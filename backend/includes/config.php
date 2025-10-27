@@ -336,6 +336,11 @@ $env_db_host = getenv('DB_HOST');
 $env_db_name = getenv('DB_NAME');
 $env_db_user = getenv('DB_USER');
 $env_db_pass = getenv('DB_PASS');
+// Support sentinel values from CI secrets to indicate an explicit empty password
+// e.g., set secret to 'empty' or 'no_password' to indicate an empty string
+if ($env_db_pass !== false && ($env_db_pass === 'empty' || $env_db_pass === 'no_password')) {
+    $env_db_pass = '';
+}
 
 if (!defined('DB_HOST')) {
     if ($env_db_host !== false && $env_db_host !== '') {

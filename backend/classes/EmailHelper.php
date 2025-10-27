@@ -1,141 +1,84 @@
-﻿<?php
+<?php
 declare(strict_types=1);
 
 namespace App\Classes;
 
 class EmailHelper
 {
-    private $from_email;
-    private $from_name;
+    private string $from_email;
+    private string $from_name;
 
     public function __construct()
     {
         $this->from_email = 'noreply@carwash.com';
-        $this->from_name = 'CarWash Rezervasyon';
+        $this->from_name  = 'CarWash Rezervasyon';
     }
 
-    public function sendBookingConfirmation($booking_data)
+    /**
+     * Send booking confirmation email.
+     *
+     * @param array $booking_data
+     * @return bool true on success, false on failure
+     */
+    public function sendBookingConfirmation(array $booking_data): bool
     {
         $subject = 'Rezervasyon Onayı - CarWash';
-
         $message = $this->getBookingEmailTemplate($booking_data);
-
         $headers = $this->getEmailHeaders();
 
-        return mail(
-            $booking_data['customer_email'],
-            $subject,
-            $message,
-            $headers
-        );
+        $to = (string)($booking_data['email'] ?? '');
+        if ($to === '') {
+            error_log('EmailHelper: missing recipient email in booking_data');
+            return false;
+        }
+
+        // Use @ to suppress PHP warning; log failure if mail returns false
+        $sent = @mail($to, $subject, $message, $headers);
+        if (!$sent) {
+            error_log('EmailHelper: mail() failed for recipient ' . $to);
+        }
+
+        return (bool)$sent;
     }
 
-    public function sendBookingNotificationToCarwash($booking_data)
+    /**
+     * Build a simple booking email template.
+     * Stubbed to avoid undefined method errors in editors.
+     *
+     * @param array $booking_data
+     * @return string
+     */
+    private function getBookingEmailTemplate(array $booking_data): string
     {
-        $subject = 'Yeni Rezervasyon Bildirimi - CarWash';
+        $customer = htmlspecialchars((string)($booking_data['customer_name'] ?? 'Müşteri'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $date     = htmlspecialchars((string)($booking_data['date'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $time     = htmlspecialchars((string)($booking_data['time'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-        $message = $this->getCarwashNotificationTemplate($booking_data);
+        $body  = "Merhaba {$customer},\r\n\r\n";
+        $body .= "Rezervasyonunuz onaylandı.\r\n";
+        if ($date !== '') {
+            $body .= "Tarih: {$date}\r\n";
+        }
+        if ($time !== '') {
+            $body .= "Saat: {$time}\r\n";
+        }
+        $body .= "\r\nTeşekkürler,\r\nCarWash";
 
-        $headers = $this->getEmailHeaders();
-
-        return mail(
-            $booking_data['carwash_email'],
-            $subject,
-            $message,
-            $headers
-        );
+        return $body;
     }
 
-    private function getEmailHeaders()
+    /**
+     * Return standard email headers for plain text UTF-8 emails.
+     *
+     * @return string
+     */
+    private function getEmailHeaders(): string
     {
-        $headers = array(
-            'MIME-Version: 1.0',
-            'Content-type: text/html; charset=UTF-8',
-            'From: ' . $this->from_name . ' <' . $this->from_email . '>',
-            'X-Mailer: PHP/' . phpversion()
-        );
-
-        return implode("\r\n", $headers);
-    }
-
-    private function getBookingEmailTemplate($data)
-    {
-        return '
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: #3B82F6; color: white; padding: 20px; text-align: center; }
-                .content { padding: 20px; background: #f8f9fa; }
-                .footer { text-align: center; padding: 20px; color: #666; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Rezervasyon Onayı</h1>
-                </div>
-                <div class="content">
-                    <p>Sayın ' . htmlspecialchars($data['customer_name']) . ',</p>
-                    <p>Rezervasyonunuz başarıyla oluşturuldu. Detaylar aşağıdadır:</p>
-                    <ul>
-                        <li>Rezervasyon No: #' . $data['booking_id'] . '</li>
-                        <li>Tarih: ' . $data['booking_date'] . '</li>
-                        <li>Saat: ' . $data['booking_time'] . '</li>
-                        <li>Hizmet: ' . $data['service_type'] . '</li>
-                        <li>Fiyat: ' . $data['price'] . ' TL</li>
-                    </ul>
-                    <p>Rezervasyonunuzu görüntülemek veya değişiklik yapmak için hesabınıza giriş yapabilirsiniz.</p>
-                </div>
-                <div class="footer">
-                    <p>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
-                </div>
-            </div>
-        </body>
-        </html>';
-    }
-
-    private function getCarwashNotificationTemplate($data)
-    {
-        return '
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: #3B82F6; color: white; padding: 20px; text-align: center; }
-                .content { padding: 20px; background: #f8f9fa; }
-                .footer { text-align: center; padding: 20px; color: #666; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Yeni Rezervasyon</h1>
-                </div>
-                <div class="content">
-                    <p>Yeni bir rezervasyon oluşturuldu:</p>
-                    <ul>
-                        <li>Rezervasyon No: #' . $data['booking_id'] . '</li>
-                        <li>Müşteri: ' . htmlspecialchars($data['customer_name']) . '</li>
-                        <li>Tarih: ' . $data['booking_date'] . '</li>
-                        <li>Saat: ' . $data['booking_time'] . '</li>
-                        <li>Hizmet: ' . $data['service_type'] . '</li>
-                        <li>Araç Tipi: ' . $data['vehicle_type'] . '</li>
-                    </ul>
-                    <p>Detayları görmek için yönetim panelinize giriş yapabilirsiniz.</p>
-                </div>
-                <div class="footer">
-                    <p>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
-                </div>
-            </div>
-        </body>
-        </html>';
+        $from = "{$this->from_name} <{$this->from_email}>";
+        $headers  = "From: {$from}\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        return $headers;
     }
 }
 

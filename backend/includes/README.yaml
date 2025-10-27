@@ -1,4 +1,4 @@
-name: CI
+name: CI — DB_PASS test modes
 
 on:
   push:
@@ -7,14 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  test-db-pass-modes:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Two runs:
-        # - empty string -> simulates missing password
-        # - test1234     -> sample password
-        db_pass: [ "", "test1234" ]
+        db_pass: [ "", "test1234" ] # first run: empty string, second run: sample password
     env:
       DB_HOST: 127.0.0.1
       DB_NAME: carwash_db
@@ -25,32 +22,32 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v4
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           coverage: none
 
-      - name: Report active DB_PASS mode
+      - name: Show active DB_PASS mode
         run: |
           echo "=== CI: DB_PASS MODE REPORT ==="
           if [ -z "${DB_PASS}" ]; then
-            echo "DB_PASS is EMPTY (simulating missing password)"
+            echo "MODE: DB_PASS is EMPTY (simulating missing password)"
           else
-            echo "DB_PASS is SET"
+            echo "MODE: DB_PASS is SET (value hidden in logs)"
           fi
           echo "Matrix raw value: '${{ matrix.db_pass }}'"
 
-      - name: PHP: getenv('DB_PASS') verification
+      - name: PHP: getenv('DB_PASS') status
         run: |
           php -r 'echo "PHP: getenv(\"DB_PASS\") => " . (getenv("DB_PASS")===false? "<not set>" : (strlen(getenv("DB_PASS"))===0? "<empty>" : "<set>")) . PHP_EOL;'
 
-      - name: Install dependencies
+      - name: Install PHP deps
         run: composer install --no-interaction --prefer-dist
 
       - name: Run phpunit (allowed to fail for diagnostics)
         continue-on-error: true
-        run: |
-          vendor/bin/phpunit --configuration phpunit.xml.dist || true
+        run: vendor/bin/phpunit --configuration phpunit.xml.dist || true
 
-      - name: CI final note
-        run: echo "Completed CI job for current DB_PASS mode. See logs above for details."
+      - name: CI note
+        run: |
+          echo "Completed CI job for DB_PASS mode. See logs above for which case ran."
