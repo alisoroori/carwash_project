@@ -1306,9 +1306,9 @@ include '../includes/dashboard_header.php';
             <div class="flex flex-wrap gap-2 mb-4">
               ${carWash.services.map(service => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${service}</span>`).join('')}
             </div>
-            <button onclick="selectCarWashForReservation('${carWash.name}')" class="mt-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
+            <a href="/carwash_project/frontend/booking.html?carwash_id=${carWash.id}&carwash_name=${encodeURIComponent(carWash.name)}" onclick="selectCarWashForReservation(${carWash.id}, '${carWash.name.replace(/'/g, "\\'")}')" class="mt-auto inline-block text-center gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
               <i class="fas fa-calendar-alt mr-2"></i>Rezervasyon Yap
-            </button>
+            </a>
           </div>
         `;
         carWashListDiv.innerHTML += carWashCard;
@@ -1323,13 +1323,27 @@ include '../includes/dashboard_header.php';
       }
     }
 
-    function selectCarWashForReservation(carWashName) {
-      // Set the selected car wash in the reservation form's location field
-      document.getElementById('location').value = carWashName;
-      // Switch to the reservations section and show the new reservation form
+    function selectCarWashForReservation(carWashId, carWashName) {
+      // If the booking page exists as a separate page, redirect immediately and pass the selected carwash id/name
+      try {
+        const params = new URLSearchParams();
+        params.set('carwash_id', String(carWashId));
+        if (carWashName) params.set('carwash_name', carWashName);
+
+  // Use absolute path for booking page to avoid broken redirects in different environments
+  const bookingPath = '/carwash_project/frontend/booking.html';
+        window.location.href = bookingPath + '?' + params.toString();
+        return;
+      } catch (e) {
+        // Fallback: if something fails, try to prefill the in-page reservation form (single-page dashboard)
+        console.warn('Redirect to booking page failed, falling back to in-page form prefill', e);
+      }
+
+      // Fallback behavior when staying on the dashboard: prefill the local form by name
+      const loc = document.getElementById('location');
+      if (loc) loc.value = carWashName || '';
       showSection('reservations');
       showNewReservationForm();
-      // Optionally, scroll to the new reservation form
       document.getElementById('newReservationForm').scrollIntoView({ behavior: 'smooth' });
     }
 
