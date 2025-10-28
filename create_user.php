@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Quick user creation page for admin
 require_once __DIR__ . '/vendor/autoload.php';
 

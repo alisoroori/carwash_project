@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class EscalationNotifier {
     private $conn;
     private $mailer;

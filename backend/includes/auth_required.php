@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 function requireLogin()
 {
     session_start();

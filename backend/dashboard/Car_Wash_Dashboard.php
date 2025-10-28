@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Car Wash Dashboard for CarWash Web Application
  * Uses the universal header/footer system with dashboard context

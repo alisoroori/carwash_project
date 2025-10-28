@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Universal Header Component for CarWash Website
  * Hybrid header that works for both website pages and customer dashboard

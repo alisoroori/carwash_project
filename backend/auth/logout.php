@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Farsça: این فایل برای خروج کاربر از سیستم استفاده می‌شود.
 // Türkçe: Bu dosya, kullanıcının sistemden çıkış yapması için kullanılır.
 // English: This file is used for logging out the user from the system.

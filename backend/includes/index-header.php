@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Index Page Header Component for CarWash Website
  * Specialized header designed specifically for the homepage

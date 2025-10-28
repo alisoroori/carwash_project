@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Ensure autoloading and RBAC
 require_once __DIR__ . '/../../../vendor/autoload.php';
 

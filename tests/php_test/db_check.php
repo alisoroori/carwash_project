@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // filepath: c:\xampp\htdocs\carwash_project\db_check.php
 
 require_once __DIR__ . '/vendor/autoload.php';

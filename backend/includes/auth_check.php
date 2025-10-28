@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Authentication Check File
  * This file checks if a user is logged in and has proper session

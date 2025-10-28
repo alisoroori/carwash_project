@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class NotificationPreferences
 {
     private $conn;

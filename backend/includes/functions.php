@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Farsça: این فایل شامل توابع کمکی و عمومی برای سیستم CarWash است.
  * Türkçe: Bu dosya, CarWash sisteminin yardımcı ve genel fonksiyonlarını içerir.

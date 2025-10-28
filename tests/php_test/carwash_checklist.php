@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ---------------- CONFIG ----------------
 define('BASE_PATH', 'C:/xampp2/htdocs/carwash_project');
 define('BASE_URL', 'http://localhost/carwash_project');

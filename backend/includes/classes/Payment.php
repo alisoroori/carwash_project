@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class Payment {
     private $id;

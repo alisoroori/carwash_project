@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Universal Footer Component for CarWash Website
  * Consistent footer that works across all pages

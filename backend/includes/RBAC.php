@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Role-Based Access Control (RBAC) System
  * Enterprise-level permission management

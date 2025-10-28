@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../includes/db.php';
 require_once '../../includes/auth.php';
 // Remove or update the following line if 'Auth.php' does not exist or is named differently

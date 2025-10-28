@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Database Schema Fix for CarWash Registration
  * This script will add missing columns to the existing carwash_profiles table

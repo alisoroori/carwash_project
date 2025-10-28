@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Test runner: create a session by logging in programmatically and include customer pages to detect runtime errors
 require_once __DIR__ . '/../../vendor/autoload.php';
 

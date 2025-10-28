@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../includes/db.php';
 require_once '../includes/payment_gateway.php';

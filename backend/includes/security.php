@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class Security {
     private static $instance = null;

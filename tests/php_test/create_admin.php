@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Admin Account Creator for CarWash System
  * Creates a secure admin account in the database

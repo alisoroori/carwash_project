@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class ZoneConflictResolver
 {
     private $conn;

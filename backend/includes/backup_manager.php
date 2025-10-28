@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class BackupManager
 {
     private $conn;

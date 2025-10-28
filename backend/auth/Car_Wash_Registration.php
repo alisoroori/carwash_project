@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Farsça: این فایل شامل کدهای HTML صفحه ثبت نام کارواش است.
 // Türkçe: Bu dosya, araç yıkama işletmesi kayıt sayfasının HTML kodlarını içermektedir.
 // English: This file contains the HTML code for the car wash business registration page.

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Constants for template codes and their descriptions
  */

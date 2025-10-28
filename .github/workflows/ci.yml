@@ -40,7 +40,7 @@ jobs:
           fi
           echo "Matrix raw value: '${{ matrix.db_pass }}'"
 
-      - name: PHP: getenv('DB_PASS') verification
+      - name: "PHP: getenv('DB_PASS') verification"
         run: |
           php -r 'echo "PHP: getenv(\"DB_PASS\") => " . (getenv("DB_PASS")===false? "<not set>" : (strlen(getenv("DB_PASS"))===0? "<empty>" : "<set>")) . PHP_EOL;'
 

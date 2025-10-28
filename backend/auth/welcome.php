@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // CarWash Welcome Page - Shown only once after successful registration
 session_start();
 

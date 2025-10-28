@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 use PHPUnit\Framework\TestCase;
 use App\Classes\Validator;
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class PaymentGateway {
     private $status;

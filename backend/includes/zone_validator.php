@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class ZoneValidator {
     private $conn;
     private $errors = [];

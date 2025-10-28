@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../backend/includes/db.php';
 require_once '../../backend/includes/auth_check.php';

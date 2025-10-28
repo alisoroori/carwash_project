@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Farsça: این فایل شامل کدهای HTML صفحه ثبت نام مشتری است.
 // Türkçe: Bu dosya, müşteri kayıt sayfasının HTML kodlarını içermektedir.
 // English: This file contains the HTML code for the customer registration page.

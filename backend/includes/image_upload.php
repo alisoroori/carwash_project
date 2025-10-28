@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 function uploadServiceImage($file)
 {
     $targetDir = "../../uploads/services/";

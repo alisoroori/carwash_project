@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once 'payment_config.php';
 require_once __DIR__ . '/../../vendor/iyzico/iyzipay-php/IyzipayBootstrap.php';
 require_once __DIR__ . '/../../vendor/iyzico/iyzipay-php/autoload.php';

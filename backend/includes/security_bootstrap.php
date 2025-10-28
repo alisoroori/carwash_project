@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Security Bootstrap for Legacy Files
  * 

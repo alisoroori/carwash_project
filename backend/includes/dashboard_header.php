@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Universal Dashboard Header Component for CarWash System
  * Multi-purpose header that works for ALL dashboard types:

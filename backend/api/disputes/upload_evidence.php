@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../includes/permissions.php';
 require_once '../../includes/auth_check.php';

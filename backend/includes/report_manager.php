@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class ReportManager
 {
     private $conn;

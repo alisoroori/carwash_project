@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 define('API_VERSION', 'v1');
 define('API_BASE_PATH', '/carwash_project/backend/api/' . API_VERSION);
 

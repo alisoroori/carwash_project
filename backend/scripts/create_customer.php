@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // CLI helper: create a customer user in the database.
 // Usage (PowerShell):
 // php .\backend\scripts\create_customer.php --email=customer@example.com --password=password123

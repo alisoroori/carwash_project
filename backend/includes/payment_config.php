@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // iyzico API Configuration
 define('IYZICO_API_KEY', 'your-api-key');
 define('IYZICO_SECRET_KEY', 'your-secret-key');

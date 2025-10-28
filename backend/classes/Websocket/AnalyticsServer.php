@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 namespace App\Classes\Websocket;
 
 class AnalyticsServer implements MessageComponentInterface {

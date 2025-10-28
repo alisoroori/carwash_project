@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // SMS Template Manager Class
 class SMSTemplateManager
 {

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // CLI helper: create an admin user in the database.
 // Usage (PowerShell):
 // php .\scripts\create_admin.php --email=admin@example.com --password=password123

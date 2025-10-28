@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Audit Logging System
  * Immutable audit trail for all admin actions
