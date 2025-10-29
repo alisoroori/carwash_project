@@ -56,6 +56,20 @@ try {
     }
     // --- End: ensure DB connection ---
 
+    // --- Ensure: user_vehicles table exists so frontend vehicle inserts don't fail ---
+    try {
+        if ($dbConn instanceof PDO) {
+            $dbConn->exec("CREATE TABLE IF NOT EXISTS user_vehicles (\n                id INT AUTO_INCREMENT PRIMARY KEY,\n                user_id INT NOT NULL,\n                brand VARCHAR(191) DEFAULT NULL,\n                model VARCHAR(191) DEFAULT NULL,\n                license_plate VARCHAR(64) DEFAULT NULL,\n                year SMALLINT DEFAULT NULL,\n                color VARCHAR(64) DEFAULT NULL,\n                image_path VARCHAR(255) DEFAULT NULL,\n                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,\n                updated_at DATETIME DEFAULT NULL,\n                INDEX (user_id)\n            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        }
+    } catch (Throwable $e) {
+        if (class_exists(\App\Classes\Logger::class) && method_exists(\App\Classes\Logger::class, 'exception')) {
+            \App\Classes\Logger::exception($e, ['action' => 'ensure_user_vehicles_table']);
+        } else {
+            error_log('ensure_user_vehicles_table error: ' . $e->getMessage());
+        }
+    }
+
+
     $action = $_POST['action'] ?? '';
 
     switch ($action) {
