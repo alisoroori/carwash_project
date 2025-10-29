@@ -52,7 +52,7 @@ $carwash = $stmt->get_result()->fetch_assoc();
                     <h2 class="text-lg font-semibold mb-4">Select Date & Time</h2>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Date</label>
+                            <label for="appointmentDate" class="block text-sm font-medium text-gray-700">Date</label>
                             <input type="date" id="appointmentDate" min="<?= date('Y-m-d') ?>"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>

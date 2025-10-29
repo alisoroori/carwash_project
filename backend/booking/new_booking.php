@@ -107,7 +107,7 @@ if (!$isPartial) include __DIR__ . '/../includes/dashboard_header.php';
     <input type="hidden" name="action" value="create_reservation">
 
     <div>
-      <label class="block text-sm font-bold mb-2">Şehir</label>
+      <label for="citySelect" class="block text-sm font-bold mb-2">Şehir</label>
       <select id="citySelect" name="city" class="w-full px-4 py-2 border rounded">
         <option value="">-- Şehir Seçiniz --</option>
         <?php foreach ($locations as $cityName => $dists): ?>
@@ -117,7 +117,7 @@ if (!$isPartial) include __DIR__ . '/../includes/dashboard_header.php';
     </div>
 
     <div>
-      <label class="block text-sm font-bold mb-2">Mahalle / İlçe</label>
+      <label for="districtSelect" class="block text-sm font-bold mb-2">Mahalle / İlçe</label>
       <select id="districtSelect" name="district" class="w-full px-4 py-2 border rounded">
         <option value="">-- Mahalle Seçiniz --</option>
         <?php if ($selectedCity && isset($locations[$selectedCity])): foreach ($locations[$selectedCity] as $d): ?>
@@ -127,7 +127,7 @@ if (!$isPartial) include __DIR__ . '/../includes/dashboard_header.php';
     </div>
 
     <div>
-      <label class="block text-sm font-bold mb-2">Konum (Oto Yıkama)</label>
+      <label for="carwashSelect" class="block text-sm font-bold mb-2">Konum (Oto Yıkama)</label>
       <select id="carwashSelect" name="carwash_id" class="w-full px-4 py-2 border rounded">
         <option value="">-- Konum Seçiniz --</option>
         <?php foreach ($carwashes as $cw): ?>
@@ -139,7 +139,7 @@ if (!$isPartial) include __DIR__ . '/../includes/dashboard_header.php';
     </div>
 
     <div>
-      <label class="block text-sm font-bold mb-2">Hizmet</label>
+      <label for="serviceSelect" class="block text-sm font-bold mb-2">Hizmet</label>
       <select id="serviceSelect" name="service_id" class="w-full px-4 py-2 border rounded">
         <option value="">-- Hizmet Seçiniz --</option>
         <?php foreach ($services as $s): ?>
@@ -150,12 +150,12 @@ if (!$isPartial) include __DIR__ . '/../includes/dashboard_header.php';
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div>
-      <label class="block text-sm font-bold mb-2">Tarih</label>
+    <div>
+    <label for="dateInput" class="block text-sm font-bold mb-2">Tarih</label>
   <input id="dateInput" name="date" type="date" class="w-full px-4 py-2 border rounded" min="<?php echo date('Y-m-d'); ?>">
-      </div>
-      <div>
-  <label class="block text-sm font-bold mb-2">Saat</label>
+    </div>
+    <div>
+  <label for="timeSelect" class="block text-sm font-bold mb-2">Saat</label>
   <select id="timeSelect" name="time" class="w-full px-4 py-2 border rounded">
           <?php for ($h = 9; $h < 18; $h++): ?>
             <option value="<?php echo sprintf('%02d:00', $h); ?>"><?php echo sprintf('%02d:00', $h); ?></option>
@@ -166,7 +166,7 @@ if (!$isPartial) include __DIR__ . '/../includes/dashboard_header.php';
     </div>
 
     <div>
-      <label class="block text-sm font-bold mb-2">Notlar (isteğe bağlı)</label>
+      <label for="notes" class="block text-sm font-bold mb-2">Notlar (isteğe bağlı)</label>
       <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border rounded"></textarea>
     </div>
 

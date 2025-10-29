@@ -95,7 +95,14 @@ if ($isPartial) :
 
       async function loadCarwashes(){
         try{
-          const resp = await fetch(API_CARWASHES,{cache:'no-store'});
+          const resp = await fetch(API_CARWASHES,{
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
           const list = await resp.json();
           const loc = el('location');
           if(!loc) return;
@@ -114,7 +121,14 @@ if ($isPartial) :
 
       async function loadServicesForCarwash(carwashId){
         try{
-          const resp = await fetch(API_SERVICES + '?carwash_id=' + encodeURIComponent(carwashId),{cache:'no-store'});
+          const resp = await fetch(API_SERVICES + '?carwash_id=' + encodeURIComponent(carwashId),{
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
           const svcs = await resp.json();
           const container = el('embeddedServices');
           container.innerHTML = '';
@@ -140,7 +154,15 @@ if ($isPartial) :
         const fd = new FormData(); fd.append('carwash_id', carwashId); fd.append('service_id', selectedService.id); fd.append('date', date); fd.append('time', time); fd.append('notes', notes);
         const btn = el('embeddedConfirm'); btn.disabled = true; btn.textContent = 'Gönderiliyor...';
         try{
-          const r = await fetch(API_CREATE, { method:'POST', body: fd, credentials: 'same-origin' });
+          const r = await fetch(API_CREATE, {
+            method: 'POST',
+            body: fd,
+            credentials: 'same-origin',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
           const json = await r.json();
           if(json.success){ msg.textContent = 'Rezervasyon başarılı. ID: '+json.booking_id; msg.style.color='green';
             // Optionally refresh reservations list by dispatching a custom event

@@ -79,14 +79,14 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
                 <h2 class="text-xl font-semibold mb-4">3. Tarih ve Saat Seçin</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Tarih</label>
-                        <input type="date" name="booking_date" required
+                        <label for="booking_date_input" class="block text-sm font-medium text-gray-700">Tarih</label>
+                        <input id="booking_date_input" type="date" name="booking_date" required
                             min="<?php echo date('Y-m-d'); ?>"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Saat</label>
-                        <select name="booking_time" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <label for="booking_time_select" class="block text-sm font-medium text-gray-700">Saat</label>
+                        <select id="booking_time_select" name="booking_time" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <!-- Time slots will be loaded dynamically -->
                         </select>
                     </div>

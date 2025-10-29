@@ -674,10 +674,109 @@ include '../includes/dashboard_header.php';
           </div>
 
           <!-- New Reservation Form (embedded booking UI) -->
+          <script>
+          /* Replacement: renderVehiclesList ensures safe image fallback and proper event wiring.
+             Note: this script is plain HTML/JS and must not be inside a &lt;?php ?&gt; block. */
+          
+          function renderVehiclesList(vehicles) {
+            const container = document.getElementById('vehiclesList');
+            container.innerHTML = '';
+            if (!Array.isArray(vehicles) || vehicles.length === 0) {
+              container.innerHTML = '<p class="text-gray-600 text-center col-span-full">Kayıtlı araç bulunamadı.</p>';
+              return;
+            }
+          
+            vehicles.forEach(v => {
+              const card = document.createElement('div');
+              card.className = 'bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col';
+          
+              // Minimal HTML escape helper (reused by other scripts on the page)
+              const escapeHtml = window.escapeHtml || function (str) {
+                if (str === null || str === undefined) return '';
+                return String(str).replace(/[&<>"'`=\/]/g, function (s) {
+                  return ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                    '/': '&#x2F;',
+                    '`': '&#x60;',
+                    '=': '&#x3D;'
+                  })[s];
+                });
+              };
+          
+              const imgSrc = escapeHtml(v.image || v.photo || '/carwash_project/frontend/assets/default-car.png');
+              const brandModel = `${escapeHtml(v.brand || '')} ${escapeHtml(v.model || '')}`.trim();
+          
+              card.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                  <div class="flex items-start gap-4">
+                    <div class="w-20 h-12 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
+                      <img
+                        src="${imgSrc}"
+                        alt="${escapeHtml(brandModel || 'Araç')}"
+                        class="w-full h-full object-cover"
+                        onerror="this.onerror=null;this.src='/carwash_project/frontend/assets/default-car.png';"
+                        loading="lazy"
+                      />
+                    </div>
+          
+                    <div>
+                      <h4 class="font-bold text-lg text-gray-800">${escapeHtml(v.brand || '')} ${escapeHtml(v.model || '')}</h4>
+                      <p class="text-sm text-gray-600">${escapeHtml(v.license_plate || '')}</p>
+                      <p class="text-xs text-gray-500 mt-1">${escapeHtml(v.year || '')} • ${escapeHtml(v.color || '')}</p>
+                    </div>
+                  </div>
+          
+                  <div>
+                    <button class="text-blue-600 mr-3" data-action="edit" aria-label="Düzenle">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="text-red-600" data-action="delete" aria-label="Sil">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+          
+                <div class="space-y-1 text-sm text-gray-600">
+                  <p><span class="font-medium">Plaka:</span> ${escapeHtml(v.license_plate || '—')}</p>
+                  <p><span class="font-medium">Model:</span> ${escapeHtml(v.model || '—')}</p>
+                  <p><span class="font-medium">Renk:</span> ${escapeHtml(v.color || '—')}</p>
+                </div>
+              `;
+          
+              // Attach event handlers for edit/delete
+              card.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                  const action = btn.getAttribute('data-action');
+                  if (action === 'edit') {
+                    // Prefer existing modal function if available
+                    if (typeof openEditVehicleModal === 'function') {
+                      openEditVehicleModal(v);
+                    } else {
+                      openVehicleModal({ id: v.id, brand: v.brand, model: v.model, license_plate: v.license_plate, year: v.year, color: v.color });
+                    }
+                  } else if (action === 'delete') {
+                    if (typeof confirmDeleteVehicle === 'function') {
+                      confirmDeleteVehicle(v);
+                    } else {
+                      deleteVehicle(v.id);
+                    }
+                  }
+                });
+              });
+          
+              container.appendChild(card);
+            });
+          }
+          </script>
           <div id="newReservationForm" class="p-6 hidden">
             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
 
             <div id="embeddedBooking" class="space-y-6">
+              <input type="hidden" id="editingBookingId" value="">
               <!-- Services loaded dynamically -->
               <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
@@ -686,13 +785,16 @@ include '../includes/dashboard_header.php';
                 </div>
               </div>
 
-              <!-- Vehicle selector (existing vehicles) -->
+              <!-- Vehicle selector (existing vehicles) with persistent preview image -->
               <div>
                 <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
-                <select id="vehicle" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                  <option value="">Araç Seçiniz</option>
-                  <!-- TODO: populate user vehicles dynamically -->
-                </select>
+                <div class="flex items-center gap-4">
+                  <img id="vehiclePreview" src="/carwash_project/frontend/assets/default-car.png" alt="Araç" style="width:72px;height:48px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb">
+                  <select id="vehicle" name="vehicle_id" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    <option value="">Araç Seçiniz</option>
+                    <!-- user vehicles populated dynamically -->
+                  </select>
+                </div>
               </div>
 
               <!-- Date & Time -->
@@ -738,13 +840,21 @@ include '../includes/dashboard_header.php';
                 const API_SERVICES = '/carwash_project/backend/api/services/list.php';
                 const API_CARWASHES = '/carwash_project/backend/api/carwashes/list.php';
                 const API_CREATE = '/carwash_project/backend/api/bookings/create.php';
+                const API_UPDATE = '/carwash_project/backend/api/bookings/update.php';
 
                 const el = id => document.getElementById(id);
 
                 // Populate carwash options into #location
                 async function loadCarwashes(){
                   try{
-                    const resp = await fetch(API_CARWASHES,{cache:'no-store'});
+                    const resp = await fetch(API_CARWASHES,{
+                      cache: 'no-store',
+                      credentials: 'same-origin',
+                      headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                      }
+                    });
                     const list = await resp.json();
                     const loc = el('location');
                     loc.innerHTML = '<option value="">Konum Seçiniz</option>';
@@ -759,7 +869,14 @@ include '../includes/dashboard_header.php';
 
                 async function loadServicesForCarwash(carwashId){
                   try{
-                    const resp = await fetch(API_SERVICES + '?carwash_id=' + encodeURIComponent(carwashId),{cache:'no-store'});
+                    const resp = await fetch(API_SERVICES + '?carwash_id=' + encodeURIComponent(carwashId),{
+                      cache: 'no-store',
+                      credentials: 'same-origin',
+                      headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                      }
+                    });
                     const svcs = await resp.json();
                     const container = el('embeddedServices');
                     container.innerHTML = '';
@@ -778,17 +895,49 @@ include '../includes/dashboard_header.php';
                 function populateTimes(){ const timeSel = el('reservationTime'); timeSel.innerHTML=''; for(let h=9; h<18; h++){ ['00','30'].forEach(m=>{ const o=document.createElement('option'); o.value = `${String(h).padStart(2,'0')}:${m}`; o.textContent = `${String(h).padStart(2,'0')}:${m}`; timeSel.appendChild(o); }); } }
 
                 async function submitEmbedded(){
-                  if(!selectedService){ alert('Lütfen hizmet seçin'); return; }
+                  const msgEl = document.getElementById('reservationMessage');
+                  if (msgEl) { msgEl.textContent = ''; msgEl.className = ''; }
+                  if(!selectedService){ if(msgEl){ msgEl.textContent='Lütfen hizmet seçin'; msgEl.className='text-red-600'; } return; }
                   const carwashId = el('location').value; const date = el('reservationDate').value; const time = el('reservationTime').value; const notes = el('notes').value || '';
-                  if(!carwashId || !date || !time){ alert('Lütfen tüm zorunlu alanları doldurun'); return; }
-                  const fd = new FormData(); fd.append('carwash_id', carwashId); fd.append('service_id', selectedService.id); fd.append('date', date); fd.append('time', time); fd.append('notes', notes);
+                  const vehicleId = el('vehicle') ? el('vehicle').value : '';
+                  if(!carwashId || !date || !time){ if(msgEl){ msgEl.textContent='Lütfen tüm zorunlu alanları doldurun'; msgEl.className='text-red-600'; } return; }
+                  const bookingIdInput = document.getElementById('editingBookingId');
+                  const isEdit = bookingIdInput && bookingIdInput.value;
+
+                  const fd = new FormData();
+                  fd.append('carwash_id', carwashId);
+                  fd.append('service_id', selectedService.id);
+                  fd.append('date', date);
+                  fd.append('time', time);
+                  fd.append('notes', notes);
+                  if (vehicleId) fd.append('vehicle_id', vehicleId);
+                  // CSRF token
+                  const csrf = document.querySelector('#vehicleForm input[name="csrf_token"]') ? document.querySelector('#vehicleForm input[name="csrf_token"]').value : (window.csrfToken || '');
+                  if (csrf) fd.append('csrf_token', csrf);
+
                   el('embeddedConfirm').disabled = true; el('embeddedConfirm').textContent = 'Gönderiliyor...';
                   try{
-                    const r = await fetch(API_CREATE, { method:'POST', body: fd, credentials: 'same-origin' });
+                    const url = isEdit ? API_UPDATE : API_CREATE;
+                    if (isEdit) fd.append('booking_id', bookingIdInput.value);
+                    const r = await fetch(url, {
+                      method: 'POST',
+                      body: fd,
+                      credentials: 'same-origin',
+                      headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                      }
+                    });
                     const json = await r.json();
-                    if(json.success){ alert('Rezervasyon başarılı. ID: '+json.booking_id); window.location.reload(); }
-                    else { alert('Hata: '+(json.errors?json.errors.join('\n'):(json.message||'Bilinmeyen hata'))); }
-                  }catch(e){ console.error(e); alert('Sunucu hatası'); }
+                    if(json && json.success){
+                      if (msgEl) { msgEl.textContent = isEdit ? 'Rezervasyon başarıyla güncellendi.' : 'Rezervasyon başarıyla oluşturuldu.'; msgEl.className='text-green-600'; }
+                      document.dispatchEvent(new CustomEvent('booking:updated', { detail: { booking_id: json.booking_id || (bookingIdInput && bookingIdInput.value) } }));
+                      if (isEdit) bookingIdInput.value = '';
+                      // refresh reservation list if available by emitting event
+                    } else {
+                      if (msgEl) { msgEl.textContent = (json && (json.errors ? (Array.isArray(json.errors) ? json.errors.join('\n') : json.errors) : (json.message || json.error))) || 'Bilinmeyen hata'; msgEl.className='text-red-600'; }
+                    }
+                  }catch(e){ console.error(e); if (msgEl) { msgEl.textContent='Sunucu hatası'; msgEl.className='text-red-600'; } }
                   finally{ el('embeddedConfirm').disabled = false; el('embeddedConfirm').textContent = 'Rezervasyon Yap'; }
                 }
 
@@ -816,33 +965,33 @@ include '../includes/dashboard_header.php';
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                   <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Ad</label>
-                    <input type="text" name="name" value="<?php echo htmlspecialchars($_SESSION['name'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
+                    <label for="profile_name" class="block text-sm font-bold text-gray-700 mb-2">Ad</label>
+                    <input id="profile_name" type="text" name="name" value="<?php echo htmlspecialchars($_SESSION['name'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
                   </div>
                   <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Soyad</label>
-                    <input type="text" name="surname" value="<?php echo htmlspecialchars($_SESSION['surname'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    <label for="profile_surname" class="block text-sm font-bold text-gray-700 mb-2">Soyad</label>
+                    <input id="profile_surname" type="text" name="surname" value="<?php echo htmlspecialchars($_SESSION['surname'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   </div>
                 </div>
 
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
-                  <input type="email" name="email" value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required|email">
+                  <label for="profile_email" class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
+                  <input id="profile_email" type="email" name="email" value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required|email">
                 </div>
 
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
-                  <input type="tel" name="phone" value="<?php echo htmlspecialchars($_SESSION['phone'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <label for="profile_phone" class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
+                  <input id="profile_phone" type="tel" name="phone" value="<?php echo htmlspecialchars($_SESSION['phone'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
-                  <textarea name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"><?php echo htmlspecialchars($_SESSION['address'] ?? ''); ?></textarea>
+                  <label for="profile_address" class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
+                  <textarea id="profile_address" name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"><?php echo htmlspecialchars($_SESSION['address'] ?? ''); ?></textarea>
                 </div>
 
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2">Profil Fotoğrafı (isteğe bağlı)</label>
-                  <input type="file" name="profile_photo" accept="image/*">
+                  <label for="profile_photo" class="block text-sm font-bold text-gray-700 mb-2">Profil Fotoğrafı (isteğe bağlı)</label>
+                  <input id="profile_photo" type="file" name="profile_photo" accept="image/*">
                 </div>
 
                 <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
@@ -880,41 +1029,59 @@ include '../includes/dashboard_header.php';
           </button>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-          <div class="bg-white rounded-2xl p-6 card-hover shadow-lg">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-car text-2xl text-blue-600"></i>
-              </div>
-              <button class="text-red-500 hover:text-red-700">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-            <h4 class="font-bold text-lg mb-2">Toyota Corolla</h4>
-            <div class="space-y-1 text-sm text-gray-600">
-              <p><span class="font-medium">Plaka:</span> 34 ABC 123</p>
-              <p><span class="font-medium">Model:</span> 2020</p>
-              <p><span class="font-medium">Renk:</span> Beyaz</p>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6" id="vehiclesList">
+          <!-- Vehicles will be loaded here via AJAX -->
+        </div>
+
+        <!-- Inline vehicle form shown in Main Content when adding/editing vehicles -->
+        <section id="vehicleInlineSection" class="card p-6 mb-6" style="display:none;">
+          <div class="flex items-center justify-between mb-4">
+            <h3 id="vehicleInlineTitle" class="text-xl font-bold">Yeni Araç Ekle</h3>
+            <button id="vehicleInlineClose" type="button" class="text-gray-600 hover:text-gray-900" aria-label="Kapat">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
 
-          <div class="bg-white rounded-2xl p-6 card-hover shadow-lg">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-car text-2xl text-green-600"></i>
+          <form id="vehicleFormInline" action="Customer_Dashboard_process.php" method="post" data-enable-validation="1" class="space-y-4">
+            <input type="hidden" name="action" id="vehicleFormAction" value="create">
+            <input type="hidden" name="vehicle_id" id="vehicle_id_input_inline" value="">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="car_brand_inline" class="block text-sm font-bold text-gray-700 mb-2">Marka</label>
+                <input name="car_brand" id="car_brand_inline" type="text" placeholder="Toyota" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
               </div>
-              <button class="text-red-500 hover:text-red-700">
-                <i class="fas fa-trash"></i>
-              </button>
+              <div>
+                <label for="car_model_inline" class="block text-sm font-bold text-gray-700 mb-2">Model</label>
+                <input name="car_model" id="car_model_inline" type="text" placeholder="Corolla" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label for="license_plate_inline" class="block text-sm font-bold text-gray-700 mb-2">Plaka</label>
+                <input name="license_plate" id="license_plate_inline" type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label for="car_year_inline" class="block text-sm font-bold text-gray-700 mb-2">Model Yılı</label>
+                <input name="car_year" id="car_year_inline" type="number" placeholder="2020" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label for="car_color_inline" class="block text-sm font-bold text-gray-700 mb-2">Renk</label>
+                <input name="car_color" id="car_color_inline" type="text" placeholder="Beyaz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label for="vehicle_image_inline" class="block text-sm font-bold text-gray-700 mb-2">Araç Görseli (isteğe bağlı)</label>
+                <input name="vehicle_image" id="vehicle_image_inline" type="file" accept="image/*" class="w-full text-sm">
+              </div>
             </div>
-            <h4 class="font-bold text-lg mb-2">Honda Civic</h4>
-            <div class="space-y-1 text-sm text-gray-600">
-              <p><span class="font-medium">Plaka:</span> 34 XYZ 789</p>
-              <p><span class="font-medium">Model:</span> 2019</p>
-              <p><span class="font-medium">Renk:</span> Siyah</p>
+
+            <div class="flex justify-end gap-3 pt-2">
+              <button type="button" id="vehicleInlineCancel" class="px-4 py-2 border rounded text-gray-700">İptal</button>
+              <button type="submit" id="vehicleInlineSubmit" class="px-4 py-2 gradient-bg text-white rounded font-bold">Kaydet</button>
             </div>
-          </div>
-        </div>
+
+            <div id="vehicleFormMessageInline" class="mt-2 text-sm"></div>
+          </form>
+        </section>
       </section>
 
       <!-- History Section -->
@@ -1122,40 +1289,9 @@ include '../includes/dashboard_header.php';
     </div>
   </div>
 
-  <!-- Vehicle Modal -->
-  <div id="vehicleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-      <h3 class="text-xl font-bold mb-6">Yeni Araç Ekle</h3>
-      <form id="vehicleForm" action="Customer_Dashboard_process.php" method="post" data-enable-validation="1">
-        <input type="hidden" name="action" value="update_vehicle">
-        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-        <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">Marka</label>
-          <input name="car_brand" type="text" placeholder="Toyota" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">Model</label>
-          <input name="car_model" type="text" placeholder="Corolla" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">Plaka</label>
-          <input name="license_plate" type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">Model Yılı</label>
-          <input name="car_year" type="number" placeholder="2020" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">Renk</label>
-          <input name="car_color" type="text" placeholder="Beyaz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-        </div>
-        <div class="flex space-x-3">
-          <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
-          <button type="button" onclick="closeVehicleModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- legacy vehicle modal removed; inline vehicle form is used in Main Content -->
+
+  <!-- vehicleInlineSection moved into Vehicles main content to display in the Main Content area -->
 
   <script>
     // Mobile Sidebar Functions
@@ -1193,7 +1329,13 @@ include '../includes/dashboard_header.php';
     const allCarWashes = [];
     async function loadCarWashesFromApi() {
       try {
-        const res = await fetch('/carwash_project/backend/api/carwashes/list.php', { credentials: 'same-origin' });
+        const res = await fetch('/carwash_project/backend/api/carwashes/list.php', {
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
         let json = [];
         try { json = await res.json(); } catch (e) { json = []; }
 
@@ -1259,6 +1401,7 @@ include '../includes/dashboard_header.php';
     // Districts data (dynamic loading) — expanded to requested cities/areas
     const districtsByCity = {
       'İstanbul': ['Kadıköy', 'Beşiktaş', 'Üsküdar'],
+
       'Ankara': ['Çankaya', 'Keçiören', 'Etimesgut'],
       'İzmir': ['Konak', 'Karşıyaka', 'Bornova'],
       'Antalya': ['Muratpaşa', 'Konyaaltı', 'Kepez'],
@@ -1296,6 +1439,15 @@ include '../includes/dashboard_header.php';
         // Load carwashes from API (will call filterCarWashes when done)
         loadCarWashesFromApi();
       }
+      // Load vehicles when navigating to vehicles section
+      if (sectionId === 'vehicles') {
+        if (typeof loadUserVehicles === 'function') {
+          loadUserVehicles();
+        } else {
+          // graceful fallback: try to fetch via generic endpoint
+          console.warn('loadUserVehicles not defined yet');
+        }
+      }
       // Ensure reservation list is shown by default when navigating to reservations
       if (sectionId === 'reservations') {
         hideNewReservationForm(); // Ensure the list view is active
@@ -1316,245 +1468,164 @@ include '../includes/dashboard_header.php';
       document.getElementById('notificationPanel').classList.add('hidden');
     }
 
-    function openVehicleModal() {
-      document.getElementById('vehicleModal').classList.remove('hidden');
-    }
+    // Populate and show the inline vehicle form for create/edit
+    function openVehicleModal(vehicle = null) {
+      const section = document.getElementById('vehicleInlineSection');
+      const form = document.getElementById('vehicleFormInline');
+      const title = document.getElementById('vehicleInlineTitle');
+      const actionInput = document.getElementById('vehicleFormAction');
+      const idInput = document.getElementById('vehicle_id_input_inline');
 
-    function closeVehicleModal() {
-      document.getElementById('vehicleModal').classList.add('hidden');
-    }
-
-    // Functions for New Reservation Form
-    function showNewReservationForm() {
-      document.getElementById('reservationListView').classList.add('hidden');
-      document.getElementById('newReservationForm').classList.remove('hidden');
-    }
-
-    function hideNewReservationForm() {
-      document.getElementById('newReservationForm').classList.add('hidden');
-      document.getElementById('reservationListView').classList.remove('hidden');
-    }
-
-    function submitNewReservation() {
-      // Here you would collect form data and send it to your backend
-      const service = document.getElementById('service').value;
-      const vehicle = document.getElementById('vehicle').value;
-      const date = document.getElementById('reservationDate').value;
-      const time = document.getElementById('reservationTime').value;
-      const location = document.getElementById('location').value; // This will be the selected car wash name
-      const notes = document.getElementById('notes').value;
-
-      // Basic validation (you'd want more robust validation)
-      if (!service || !vehicle || !date || !time || !location) {
-        alert('Lütfen tüm zorunlu alanları doldurun.');
-        return;
+      if (vehicle && typeof vehicle === 'object') {
+        title.textContent = 'Araç Düzenle';
+        actionInput.value = 'update';
+        idInput.value = vehicle.id || '';
+        document.getElementById('car_brand_inline').value = vehicle.brand || '';
+        document.getElementById('car_model_inline').value = vehicle.model || '';
+        document.getElementById('license_plate_inline').value = vehicle.license_plate || '';
+        document.getElementById('car_year_inline').value = vehicle.year || '';
+        document.getElementById('car_color_inline').value = vehicle.color || '';
+        // Scroll to form within dashboard
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        title.textContent = 'Yeni Araç Ekle';
+        actionInput.value = 'create';
+        idInput.value = '';
+        form.reset();
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
 
-      console.log('New Reservation Data:', { service, vehicle, date, time, location, notes });
-      alert('Rezervasyonunuz başarıyla oluşturuldu! (Bu bir demo mesajıdır)');
-      
-      // Optionally, clear the form
-      document.getElementById('service').value = '';
-      document.getElementById('vehicle').value = '';
-      document.getElementById('reservationDate').value = '';
-      document.getElementById('reservationTime').value = '';
-      document.getElementById('location').value = '';
-      document.getElementById('notes').value = '';
-
-      hideNewReservationForm(); // Go back to the reservation list after submission
+      // Show a small helper message
+      const msg = document.getElementById('vehicleFormMessageInline');
+      if (msg) { msg.textContent = ''; msg.className = ''; }
     }
 
-    // Car Wash Selection Functions
-    function loadDistrictOptions() {
-      const cityFilter = document.getElementById('cityFilter');
-      const districtFilter = document.getElementById('districtFilter');
-      const selectedCity = cityFilter.value;
+    // Hide the inline vehicle form
+    function closeVehicleModal() {
+      const section = document.getElementById('vehicleInlineSection');
+      const form = document.getElementById('vehicleFormInline');
+      if (!section) return;
+      form.reset();
+      section.style.display = 'none';
+    }
 
-      districtFilter.innerHTML = '<option value="">Tüm Mahalleler</option>'; // Reset districts
+    // Wire inline form buttons and submission behavior (AJAX fallback)
+    document.addEventListener('DOMContentLoaded', function () {
+      const closeBtn = document.getElementById('vehicleInlineClose');
+      const cancelBtn = document.getElementById('vehicleInlineCancel');
+      const form = document.getElementById('vehicleFormInline');
+      const msg = document.getElementById('vehicleFormMessageInline');
 
-      if (selectedCity && districtsByCity[selectedCity]) {
-        districtsByCity[selectedCity].forEach(district => {
-          const option = document.createElement('option');
-          option.value = district;
-          option.textContent = district;
-          districtFilter.appendChild(option);
+      if (closeBtn) closeBtn.addEventListener('click', closeVehicleModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeVehicleModal);
+
+      if (form) {
+        form.addEventListener('submit', async function (ev) {
+          ev.preventDefault();
+          if (!form) return;
+          const fd = new FormData(form);
+          // Keep same API endpoint as before
+          try {
+            const res = await fetch('Customer_Dashboard_process.php', {
+              method: 'POST',
+              credentials: 'same-origin',
+              body: fd,
+              headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+              }
+            });
+            const json = await res.json();
+            if (json && json.success) {
+              msg.textContent = 'Araç kaydedildi.';
+              msg.className = 'text-sm text-green-600';
+              // Refresh vehicles list and selects if functions exist
+              if (typeof loadUserVehicles === 'function') loadUserVehicles();
+              else if (typeof refreshVehicleSelect === 'function') refreshVehicleSelect();
+              // hide after short delay
+              setTimeout(closeVehicleModal, 900);
+            } else {
+              msg.textContent = json.error || 'Kaydetme sırasında bir hata oluştu.';
+              msg.className = 'text-sm text-red-600';
+            }
+          } catch (e) {
+            msg.textContent = 'İşlem başarısız: ' + e.message;
+            msg.className = 'text-sm text-red-600';
+          }
         });
       }
-    }
+    });
 
-    function filterCarWashes() {
-      const cityFilter = document.getElementById('cityFilter').value.toLowerCase();
-      const districtFilter = document.getElementById('districtFilter').value.toLowerCase();
-      const carWashNameFilter = document.getElementById('carWashNameFilter').value.toLowerCase();
-      const favoriteFilter = document.getElementById('favoriteFilter').checked;
-      const carWashListDiv = document.getElementById('carWashList');
-      carWashListDiv.innerHTML = ''; // Clear current list
-
-      const filteredWashes = allCarWashes.filter(carWash => {
-        const matchesCity = !cityFilter || carWash.city.toLowerCase().includes(cityFilter);
-        const matchesDistrict = !districtFilter || carWash.district.toLowerCase().includes(districtFilter);
-        const matchesName = !carWashNameFilter || carWash.name.toLowerCase().includes(carWashNameFilter);
-        const matchesFavorite = !favoriteFilter || carWash.isFavorite;
-        
-        return matchesCity && matchesDistrict && matchesName && matchesFavorite;
-      });
-
-      if (filteredWashes.length === 0) {
-        carWashListDiv.innerHTML = '<p class="text-gray-600 text-center col-span-full">Seçiminize uygun oto yıkama bulunamadı.</p>';
-        return;
-      }
-
-      filteredWashes.forEach(carWash => {
-        const carWashCard = `
-          <div class="bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col">
-            <div class="flex justify-between items-start mb-4">
-              <h4 class="font-bold text-xl text-gray-800">${carWash.name}</h4>
-              <button onclick="toggleFavorite(${carWash.id})" class="text-gray-400 hover:text-red-500 transition-colors">
-                <i class="${carWash.isFavorite ? 'fas text-red-500' : 'far'} fa-heart text-xl"></i>
-              </button>
-            </div>
-            <p class="text-sm text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${carWash.district}, ${carWash.city}</p>
-            <p class="text-sm text-gray-600 mb-4"><i class="fas fa-star text-yellow-400 mr-2"></i>${carWash.rating} (${(Math.random() * 100).toFixed(0)} yorum)</p>
-            <div class="flex flex-wrap gap-2 mb-4">
-        ${(carWash.services || []).map(service => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${service}</span>`).join('')}
-            </div>
-            <a href="#" role="button" onclick="selectCarWashForReservation(event, ${carWash.id}, '${carWash.name.replace(/'/g, "\\'")}')" class="mt-auto inline-block text-center gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all" aria-label="${carWash.name} için rezervasyon yap">
-              <i class="fas fa-calendar-alt mr-2"></i>Rezervasyon Yap
-            </a>
-          </div>
-        `;
-        carWashListDiv.innerHTML += carWashCard;
-      });
-    }
-
-    function toggleFavorite(carWashId) {
-      const carWashIndex = allCarWashes.findIndex(cw => cw.id === carWashId);
-      if (carWashIndex > -1) {
-        allCarWashes[carWashIndex].isFavorite = !allCarWashes[carWashIndex].isFavorite;
-        filterCarWashes(); // Re-render the list to update heart icon
-      }
-    }
-    
-    // Helper to insert HTML and run contained scripts when loading a partial form via fetch
-    function insertHTMLWithScripts(container, html) {
-      container.innerHTML = html;
-      // Execute any inline scripts inside the injected HTML
-      const scripts = Array.from(container.querySelectorAll('script'));
-      scripts.forEach(s => {
-        const ns = document.createElement('script');
-        if (s.src) {
-          ns.src = s.src;
-          ns.async = false;
-          document.head.appendChild(ns);
-        } else {
-          ns.textContent = s.textContent;
-          document.head.appendChild(ns);
-          document.head.removeChild(ns);
-        }
-        s.parentNode.removeChild(s);
-      });
-    }
-
-    async function selectCarWashForReservation(ev, carWashId, carWashName) {
-      // Open the existing embedded reservation form and pre-fill city/district/carwash.
-      ev && ev.preventDefault && ev.preventDefault();
+    // Load user vehicles via AJAX and populate vehicles list + booking select
+    async function loadUserVehicles() {
+      const container = document.getElementById('vehiclesList');
+      const msgEl = document.getElementById('vehicleFormMessageInline');
       try {
-        const cw = allCarWashes.find(c => Number(c.id) === Number(carWashId)) || {};
+        const csrfInput = document.querySelector('input[name="csrf_token"]');
+        const csrf = csrfInput ? csrfInput.value : (window.csrfToken || '');
+        const fd = new FormData();
+        fd.append('action', 'list_vehicles');
+        if (csrf) fd.append('csrf_token', csrf);
 
-        // Preselect city and district in the filters so the user sees the correct area
-        const citySel = document.getElementById('cityFilter');
-        const districtSel = document.getElementById('districtFilter');
-        if (citySel && cw.city) {
-          citySel.value = cw.city;
-          // rebuild district options for the selected city
-          loadDistrictOptions();
-          if (districtSel && cw.district) districtSel.value = cw.district;
+        const res = await fetch('Customer_Dashboard_process.php', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          body: fd
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          console.error('Failed to load vehicles', res.status, txt);
+          if (msgEl) { msgEl.textContent = 'Araçlar yüklenemedi.'; msgEl.className = 'text-sm text-red-600'; }
+          return;
         }
 
-        // Show reservations section and embedded form (keeps everything inside dashboard)
-        showSection('reservations');
-        showNewReservationForm();
-
-        // Populate the location select from in-memory carwash list if it's not already populated
-        const loc = document.getElementById('location');
-        if (loc) {
-          if (loc.options.length <= 1) { // only default option present
-            loc.innerHTML = '<option value="">Konum Seçiniz</option>';
-            allCarWashes.forEach(c => {
-              const o = document.createElement('option');
-              o.value = c.id;
-              o.textContent = c.name + (c.district ? (' — ' + c.district) : '');
-              loc.appendChild(o);
-            });
-          }
-
-          // Set selected carwash and trigger change so embedded script loads services
-          loc.value = String(carWashId);
-          const changeEvt = new Event('change', { bubbles: true });
-          loc.dispatchEvent(changeEvt);
+        const json = await res.json();
+        if (!json || !json.success) {
+          console.warn('list_vehicles returned no vehicles', json);
+          if (msgEl) { msgEl.textContent = json.message || 'Araç bulunamadı.'; msgEl.className = 'text-sm text-gray-600'; }
+          renderVehiclesList([]);
+          refreshVehicleSelect([]);
+          return;
         }
 
-        // Focus the date input for accessibility
-        const container = document.getElementById('newReservationForm');
-        if (container) {
-          container.classList.remove('hidden');
-          container.scrollIntoView({ behavior: 'smooth' });
-          const dateInput = container.querySelector('#reservationDate');
-          if (dateInput) dateInput.focus();
-        }
+        const vehicles = Array.isArray(json.vehicles) ? json.vehicles : (json.data && Array.isArray(json.data.vehicles) ? json.data.vehicles : []);
+        renderVehiclesList(vehicles);
+        refreshVehicleSelect(vehicles);
       } catch (e) {
-        console.warn('Failed to open embedded reservation form, falling back to full navigation', e);
-        window.location.href = '/carwash_project/backend/booking/new_booking.php?carwash_id=' + encodeURIComponent(carWashId);
+        console.error('Error loading vehicles', e);
+        if (msgEl) { msgEl.textContent = 'Araçlar yüklenirken hata oluştu.'; msgEl.className = 'text-sm text-red-600'; }
       }
     }
 
+    // Refresh booking vehicle select with vehicles array
+    function refreshVehicleSelect(vehicles) {
+      const sel = document.getElementById('vehicle');
+      const preview = document.getElementById('vehiclePreview');
+      if (!sel) return;
+      // Clear existing options except placeholder
+      const placeholder = sel.querySelector('option[value=""]') ? sel.querySelector('option[value=""]').outerHTML : '<option value="">Araç Seçiniz</option>';
+      sel.innerHTML = placeholder;
+      if (!Array.isArray(vehicles) || vehicles.length === 0) return;
+      vehicles.forEach(v => {
+        const o = document.createElement('option');
+        o.value = v.id;
+        o.textContent = (v.brand || '') + ' ' + (v.model || '') + (v.license_plate ? (' — ' + v.license_plate) : '');
+        if (v.image_path) o.dataset.preview = v.image_path;
+        sel.appendChild(o);
+      });
 
-    // Close modals when clicking outside
-    window.onclick = function(event) {
-      const modal = document.getElementById('vehicleModal');
-      const notificationPanel = document.getElementById('notificationPanel');
-
-      if (event.target == modal) {
-        modal.classList.add('hidden');
-      }
-
-      if (!event.target.closest('#notificationPanel') && !event.target.closest('[onclick="toggleNotifications()"]')) {
-        notificationPanel.classList.add('hidden');
-      }
+      // Update preview when select changes
+      sel.addEventListener('change', function () {
+        const opt = sel.selectedOptions[0];
+        const url = opt && opt.dataset && opt.dataset.preview ? opt.dataset.preview : '/carwash_project/frontend/assets/default-car.png';
+        if (preview) preview.src = url;
+      });
     }
-
-    // Handle window resize for responsive behavior
-    window.addEventListener('resize', function() {
-      if (window.innerWidth >= 1024) {
-        // Desktop view - close mobile sidebar if open
-        closeMobileSidebar();
-      }
-    });
-
-    // Prevent body scroll when mobile menu is open
-    function preventBodyScroll(prevent) {
-      if (prevent) {
-        document.body.style.overflow = 'hidden';
-        document.body.style.height = '100%';
-      } else {
-        document.body.style.overflow = '';
-        document.body.style.height = '';
-      }
-    }
-
-    // Initialize dashboard
-    document.addEventListener('DOMContentLoaded', function() {
-      showSection('dashboard');
-      
-      // Set minimum date for reservation form to today
-      const today = new Date().toISOString().split('T')[0];
-      const dateInput = document.getElementById('reservationDate');
-      if (dateInput) {
-        dateInput.setAttribute('min', today);
-      }
-    });
   </script>
-
 </div> <!-- End Dashboard Layout -->
 
 <?php 

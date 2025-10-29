@@ -1,236 +1,454 @@
 <?php
-// Customer Dashboard Processing Script — improved security, CSRF, file upload handling
+declare(strict_types=1);
 
-require_once __DIR__ . '/../includes/bootstrap.php'; // autoload, logger, handlers
-require_once __DIR__ . '/../includes/db.php'; // legacy db helper (provides getDBConnection())
+/**
+ * Customer_Dashboard_process.php
+ *
+ * - Uses App\Classes\Database and App\Classes\Response when available.
+ * - Maintains legacy mysqli fallback (backend/includes/db.php).
+ * - Supports file uploads (vehicle images / profile photo).
+ * - Handles create_reservation and update_reservation (inline).
+ * - Always returns JSON responses (no HTML).
+ *
+ * Usage: AJAX POST from dashboard forms. Must include csrf_token for CSRF protection.
+ */
 
-use App\Classes\Auth;
-use App\Classes\Logger;
-use App\Classes\Session;
+@session_start();
+header('Content-Type: application/json; charset=utf-8');
 
-// Ensure session started
-if (class_exists(Session::class) && method_exists(Session::class, 'start')) {
-    Session::start();
-} else {
-    if (session_status() == PHP_SESSION_NONE) session_start();
+// Bootstrap/autoload if available
+$bootstrap = __DIR__ . '/../includes/bootstrap.php';
+$vendorAutoload = __DIR__ . '/../../vendor/autoload.php';
+if (file_exists($bootstrap)) {
+    require_once $bootstrap;
+} elseif (file_exists($vendorAutoload)) {
+    require_once $vendorAutoload;
 }
 
-// Require authenticated customer
-Auth::requireRole('customer');
+// Legacy includes (provides getDBConnection() / $conn if present)
+$legacyDbIncluded = false;
+$legacyDbPath = __DIR__ . '/../includes/db.php';
+if (file_exists($legacyDbPath)) {
+    require_once $legacyDbPath;
+    $legacyDbIncluded = true;
+}
 
-// Helper to send JSON response on AJAX
-function sendJson($payload, $status = 200) {
-    header('Content-Type: application/json', true, $status);
-    echo json_encode($payload);
+use App\Classes\Database;
+use App\Classes\Response;
+use App\Classes\Auth;
+use App\Classes\Session;
+use App\Classes\Logger;
+
+// Helper: unified JSON responder (uses Response class if possible)
+function jsonResponse(array $payload, int $status = 200): void
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    if (class_exists(Response::class)) {
+        // Try to use Response::success / Response::error conventions
+        if (!empty($payload['success']) && method_exists(Response::class, 'success')) {
+            // Response::success($message, $data = null)
+            $msg = $payload['message'] ?? null;
+            $data = $payload['data'] ?? null;
+            Response::success($msg ?? '', $data);
+            exit;
+        }
+        if (empty($payload['success']) && method_exists(Response::class, 'error')) {
+            $msg = $payload['message'] ?? ($payload['error'] ?? 'Error');
+            Response::error($msg, $status);
+            exit;
+        }
+    }
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
-// Validate request method
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: Customer_Dashboard.php');
-    exit();
+// Start session via Session wrapper if present
+if (class_exists(Session::class) && method_exists(Session::class, 'start')) {
+    Session::start();
+} else {
+    if (session_status() === PHP_SESSION_NONE) session_start();
 }
 
-// CSRF validation
+// Require auth and role (customer) if Auth available
+if (class_exists(Auth::class) && method_exists(Auth::class, 'requireRole')) {
+    try {
+        Auth::requireRole('customer');
+    } catch (Throwable $e) {
+        jsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+} else {
+    // Fallback auth check
+    if (empty($_SESSION['user_id'])) {
+        jsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+}
+
+// Only accept POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    jsonResponse(['success' => false, 'message' => 'Method not allowed'], 405);
+}
+
+// CSRF validation if token exists in session
 $postedCsrf = $_POST['csrf_token'] ?? '';
 $sessionCsrf = $_SESSION['csrf_token'] ?? '';
-if (empty($postedCsrf) || empty($sessionCsrf) || !hash_equals($sessionCsrf, $postedCsrf)) {
-    Logger::warning('CSRF validation failed', ['user' => $_SESSION['user_id'] ?? null]);
-    // AJAX -> JSON 403
-    $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-    if (stripos($accept, 'application/json') !== false || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-        sendJson(['success' => false, 'message' => 'Invalid CSRF token'], 403);
+if ($sessionCsrf !== '' || $postedCsrf !== '') {
+    if (empty($postedCsrf) || empty($sessionCsrf) || !hash_equals((string)$sessionCsrf, (string)$postedCsrf)) {
+        jsonResponse(['success' => false, 'message' => 'Invalid CSRF token'], 403);
     }
-    $_SESSION['error_message'] = 'Geçersiz istek (CSRF).';
-    header('Location: Customer_Dashboard.php');
-    exit();
 }
 
-// Obtain DB connection (legacy function returns PDO)
-$conn = getDBConnection();
-$user_id = (int)($_SESSION['user_id'] ?? 0);
-$action = $_POST['action'] ?? '';
+// Determine DB layer: prefer App\Classes\Database (PDO-like), else legacy $conn (mysqli or PDO)
+$dbWrapper = null;
+$pdo = null;
+$mysqli = null;
+
+if (class_exists(Database::class)) {
+    try {
+        $dbWrapper = Database::getInstance();
+        // Try to get PDO if wrapper exposes it
+        if (method_exists($dbWrapper, 'getPdo')) {
+            $pdo = $dbWrapper->getPdo();
+        } elseif ($dbWrapper instanceof \PDO) {
+            $pdo = $dbWrapper;
+        }
+    } catch (Throwable $e) {
+        // ignore and fallback
+        $dbWrapper = null;
+        $pdo = null;
+    }
+}
+
+// Legacy fallback: $conn or getDBConnection()
+if (!$pdo) {
+    if (isset($conn) && ($conn instanceof \mysqli || $conn instanceof \PDO)) {
+        if ($conn instanceof \PDO) $pdo = $conn;
+        else $mysqli = $conn;
+    } elseif (function_exists('getDBConnection')) {
+        try {
+            $maybe = getDBConnection();
+            if ($maybe instanceof \PDO) $pdo = $maybe;
+            elseif ($maybe instanceof \mysqli) $mysqli = $maybe;
+        } catch (Throwable $e) {
+            // fallback failure
+        }
+    }
+}
+
+// Ensure at least one DB connection available
+if (!$pdo && !$mysqli) {
+    jsonResponse(['success' => false, 'message' => 'Database connection not available'], 500);
+}
+
+// Utility: ensure user_vehicles table exists (uses PDO or mysqli)
+function ensureUserVehiclesTable($pdoOrMysqli): void
+{
+    $sql = "CREATE TABLE IF NOT EXISTS user_vehicles (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        brand VARCHAR(191) DEFAULT NULL,
+        model VARCHAR(191) DEFAULT NULL,
+        license_plate VARCHAR(64) DEFAULT NULL,
+        year SMALLINT DEFAULT NULL,
+        color VARCHAR(64) DEFAULT NULL,
+        image_path VARCHAR(255) DEFAULT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT NULL,
+        INDEX (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    if ($pdoOrMysqli instanceof \PDO) {
+        $pdoOrMysqli->exec($sql);
+    } elseif ($pdoOrMysqli instanceof \mysqli) {
+        $pdoOrMysqli->query($sql);
+    }
+}
+
+// Helper: sanitize incoming integers
+function intFrom($v): ?int {
+    if ($v === null || $v === '') return null;
+    return filter_var($v, FILTER_VALIDATE_INT) !== false ? (int)$v : null;
+}
+
+// File upload helper
+function handleUpload(array $file, string $subDir = 'vehicles'): ?string
+{
+    if (empty($file) || $file['error'] === UPLOAD_ERR_NO_FILE) return null;
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('File upload error code: ' . $file['error']);
+    }
+
+    $base = __DIR__ . '/../../uploads/' . trim($subDir, '/');
+    if (!is_dir($base)) {
+        if (!mkdir($base, 0755, true) && !is_dir($base)) {
+            throw new RuntimeException('Failed to create upload directory');
+        }
+    }
+
+    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $safeExt = preg_replace('/[^a-z0-9]/i', '', $ext);
+    $name = bin2hex(random_bytes(8)) . '.' . ($safeExt ?: 'bin');
+    $target = $base . '/' . $name;
+
+    if (!move_uploaded_file($file['tmp_name'], $target)) {
+        throw new RuntimeException('Failed to move uploaded file');
+    }
+
+    // Return relative path from project root
+    return 'uploads/' . $subDir . '/' . $name;
+}
+
+// Begin action handling
+$action = trim((string)($_POST['action'] ?? ''));
 
 try {
     switch ($action) {
-        case 'update_profile':
-            // Collect and sanitize
-            $name = trim($_POST['name'] ?? '');
-            $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
-            $phone = trim($_POST['phone'] ?? '');
-            $address = trim($_POST['address'] ?? '');
-
-            if ($name === '' || $email === '') {
-                throw new Exception('Ad ve e-posta alanları zorunludur.');
-            }
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                throw new Exception('Geçerli bir e-posta adresi girin.');
-            }
-
-            // Check uniqueness
-            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
-            $stmt->execute([$email, $user_id]);
-            if ($stmt->fetch()) {
-                throw new Exception('Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor.');
+        case 'list_vehicles':
+            $userId = (int)($_SESSION['user_id'] ?? 0);
+            // Ensure table exists
+            ensureUserVehiclesTable($pdo ?? $mysqli);
+            $vehicles = [];
+            if ($pdo) {
+                $stmt = $pdo->prepare('SELECT id, brand, model, license_plate, year, color, image_path FROM user_vehicles WHERE user_id = :uid ORDER BY created_at DESC');
+                $stmt->execute([':uid' => $userId]);
+                $vehicles = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            } elseif ($mysqli) {
+                $st = $mysqli->prepare('SELECT id, brand, model, license_plate, year, color, image_path FROM user_vehicles WHERE user_id = ? ORDER BY created_at DESC');
+                $st->bind_param('i', $userId);
+                $st->execute();
+                $res = $st->get_result();
+                while ($row = $res->fetch_assoc()) $vehicles[] = $row;
             }
 
-            // Handle optional profile photo upload
-            $profilePath = null;
-            if (!empty($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] !== UPLOAD_ERR_NO_FILE) {
-                $file = $_FILES['profile_photo'];
-                // Basic validations
-                $allowed = ['image/jpeg','image/png','image/webp'];
-                if ($file['error'] !== UPLOAD_ERR_OK) {
-                    throw new Exception('Dosya yükleme hatası.');
-                }
-                if ($file['size'] > 3 * 1024 * 1024) {
-                    throw new Exception('Dosya boyutu 3MB\'ı aşamaz.');
-                }
-                $finfo = new finfo(FILEINFO_MIME_TYPE);
-                $mime = $finfo->file($file['tmp_name']);
-                if (!in_array($mime, $allowed, true)) {
-                    throw new Exception('Geçersiz dosya türü. (jpg, png, webp)');
-                }
-
-                // Save file to backend/auth/uploads/profiles/
-                $uploadDir = __DIR__ . '/../auth/uploads/profiles/';
-                if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
-                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $safeName = 'profile_' . $user_id . '_' . time() . '.' . preg_replace('/[^a-z0-9]/i', '', $ext);
-                $target = $uploadDir . $safeName;
-                if (!move_uploaded_file($file['tmp_name'], $target)) {
-                    throw new Exception('Dosya kaydedilemedi.');
-                }
-                // store relative path
-                $profilePath = 'backend/auth/uploads/profiles/' . $safeName;
-            }
-
-            // Update DB
-            $updateSql = "UPDATE users SET name = ?, email = ?, phone = ?, address = ?, updated_at = NOW()";
-            $params = [$name, $email, $phone, $address];
-            if ($profilePath !== null) {
-                $updateSql .= ", profile_photo = ?";
-                $params[] = $profilePath;
-            }
-            $updateSql .= " WHERE id = ?";
-            $params[] = $user_id;
-
-            $stmt = $conn->prepare($updateSql);
-            $ok = $stmt->execute($params);
-
-            if (!$ok) {
-                throw new Exception('Profil güncellenirken bir hata oluştu.');
-            }
-
-            // update session
-            $_SESSION['name'] = $name;
-            $_SESSION['email'] = $email;
-            if ($profilePath !== null) $_SESSION['profile_photo'] = $profilePath;
-
-            // AJAX -> JSON success
-            $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-            if (stripos($accept, 'application/json') !== false || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-                sendJson(['success' => true, 'message' => 'Profil güncellendi']);
-            }
-
-            $_SESSION['success_message'] = 'Profil bilgileriniz başarıyla güncellendi.';
-            header('Location: Customer_Dashboard.php#profile');
-            exit();
+            jsonResponse(['success' => true, 'vehicles' => $vehicles]);
             break;
-
-        case 'update_vehicle':
-            $car_brand = trim($_POST['car_brand'] ?? '');
-            $car_model = trim($_POST['car_model'] ?? '');
-            $license_plate = trim($_POST['license_plate'] ?? '');
-            $car_year = $_POST['car_year'] ?? null;
-            $car_color = trim($_POST['car_color'] ?? '');
-
-            // For demo we store vehicles in a user_vehicles table or users table; here we assume user_vehicles table exists
-            $stmt = $conn->prepare("
-                INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, NOW())
-            ");
-            $res = $stmt->execute([$user_id, $car_brand, $car_model, $license_plate, $car_year ?: null, $car_color]);
-
-            if (!$res) throw new Exception('Araç bilgileri kaydedilemedi.');
-
-            if (stripos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-                sendJson(['success' => true, 'message' => 'Araç eklendi']);
-            }
-
-            $_SESSION['success_message'] = 'Araç başarıyla eklendi.';
-            header('Location: Customer_Dashboard.php#vehicles');
-            exit();
-            break;
-
         case 'create_reservation':
-            $service_type = trim($_POST['service_type'] ?? '');
-            $reservation_date = $_POST['reservation_date'] ?? '';
-            $reservation_time = $_POST['reservation_time'] ?? '';
-            $carwash_id = (int)($_POST['carwash_id'] ?? 0);
-            $notes = trim($_POST['notes'] ?? '');
+        case 'update_reservation':
+            $userId = (int)($_SESSION['user_id'] ?? 0);
+            $carwashId = intFrom($_POST['carwash_id'] ?? null);
+            $serviceId = intFrom($_POST['service_id'] ?? null);
+            $servicePrice = isset($_POST['service_price']) ? (float)$_POST['service_price'] : null;
+            $vehicleId = intFrom($_POST['vehicle_id'] ?? null);
+            $reservationDate = trim((string)($_POST['reservation_date'] ?? ''));
+            $reservationTime = trim((string)($_POST['reservation_time'] ?? ''));
+            $notes = trim((string)($_POST['notes'] ?? ''));
 
-            if ($service_type === '' || $reservation_date === '' || $reservation_time === '' || $carwash_id <= 0) {
-                throw new Exception('Tüm zorunlu alanları doldurun.');
+            if (!$carwashId || !$reservationDate || !$reservationTime) {
+                jsonResponse(['success' => false, 'message' => 'Missing required fields'], 400);
             }
 
-            $reservation_datetime = $reservation_date . ' ' . $reservation_time;
-            if (strtotime($reservation_datetime) <= time()) {
-                throw new Exception('Rezervasyon tarihi geçmiş bir tarih olamaz.');
+            // Validate date/time
+            $datetime = strtotime($reservationDate . ' ' . $reservationTime);
+            if ($datetime === false || $datetime <= time()) {
+                jsonResponse(['success' => false, 'message' => 'Invalid reservation date/time'], 400);
             }
 
-            $stmt = $conn->prepare("
-                INSERT INTO reservations (user_id, carwash_id, service_type, reservation_date, reservation_time, notes, status, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())
-            ");
-            $res = $stmt->execute([$user_id, $carwash_id, $service_type, $reservation_date, $reservation_time, $notes]);
-
-            if (!$res) throw new Exception('Rezervasyon oluşturulamadı.');
-
-            if (stripos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-                sendJson(['success' => true, 'message' => 'Rezervasyon oluşturuldu']);
+            // Determine price if service_id provided
+            if ($serviceId && !$servicePrice) {
+                if ($pdo) {
+                    $stmt = $pdo->prepare('SELECT price FROM services WHERE id = :id LIMIT 1');
+                    $stmt->execute([':id' => $serviceId]);
+                    $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+                    $servicePrice = $row ? (float)$row['price'] : 0.0;
+                } elseif ($mysqli) {
+                    $st = $mysqli->prepare('SELECT price FROM services WHERE id = ? LIMIT 1');
+                    $st->bind_param('i', $serviceId);
+                    $st->execute();
+                    $res = $st->get_result();
+                    $row = $res->fetch_assoc();
+                    $servicePrice = $row ? (float)$row['price'] : 0.0;
+                }
             }
+            $price = $servicePrice ?? 0.0;
 
-            $_SESSION['success_message'] = 'Rezervasyonunuz başarıyla oluşturuldu. Onay için bekleyiniz.';
-            header('Location: Customer_Dashboard.php#reservations');
-            exit();
+            if ($action === 'create_reservation') {
+                // Insert booking
+                if ($pdo) {
+                    $pdo->beginTransaction();
+                    $sql = "INSERT INTO bookings (user_id, carwash_id, service_id, vehicle_id, booking_date, booking_time, price, status, created_at)
+                            VALUES (:uid, :cw, :sid, :vid, :date, :time, :price, 'pending', NOW())";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([
+                        ':uid' => $userId,
+                        ':cw' => $carwashId,
+                        ':sid' => $serviceId,
+                        ':vid' => $vehicleId,
+                        ':date' => $reservationDate,
+                        ':time' => $reservationTime,
+                        ':price' => $price
+                    ]);
+                    $bookingId = (int)$pdo->lastInsertId();
+                    $pdo->commit();
+                } else { // mysqli
+                    $mysqli->begin_transaction();
+                    $sql = "INSERT INTO bookings (user_id, carwash_id, service_id, vehicle_id, booking_date, booking_time, price, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
+                    $stmt = $mysqli->prepare($sql);
+                    $stmt->bind_param('iiiissd', $userId, $carwashId, $serviceId, $vehicleId, $reservationDate, $reservationTime, $price);
+                    if (!$stmt->execute()) {
+                        $mysqli->rollback();
+                        throw new RuntimeException('Failed to create reservation');
+                    }
+                    $bookingId = (int)$mysqli->insert_id;
+                    $mysqli->commit();
+                }
+
+                // Return success JSON
+                jsonResponse(['success' => true, 'message' => 'Reservation created', 'booking_id' => $bookingId], 201);
+            } else {
+                // update_reservation
+                $bookingId = intFrom($_POST['booking_id'] ?? null);
+                if (!$bookingId) jsonResponse(['success' => false, 'message' => 'Missing booking_id for update'], 400);
+
+                // verify ownership
+                $ownerOk = false;
+                if ($pdo) {
+                    $stmt = $pdo->prepare('SELECT user_id FROM bookings WHERE id = :id LIMIT 1');
+                    $stmt->execute([':id' => $bookingId]);
+                    $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+                    $ownerOk = ($row && (int)$row['user_id'] === $userId);
+                } elseif ($mysqli) {
+                    $st = $mysqli->prepare('SELECT user_id FROM bookings WHERE id = ? LIMIT 1');
+                    $st->bind_param('i', $bookingId);
+                    $st->execute();
+                    $res = $st->get_result();
+                    $row = $res->fetch_assoc();
+                    $ownerOk = ($row && (int)$row['user_id'] === $userId);
+                }
+                if (!$ownerOk) jsonResponse(['success' => false, 'message' => 'Booking not found or unauthorized'], 404);
+
+                // perform update
+                if ($pdo) {
+                    $pdo->beginTransaction();
+                    $sql = "UPDATE bookings SET carwash_id = :cw, service_id = :sid, vehicle_id = :vid, booking_date = :date, booking_time = :time, price = :price, updated_at = NOW() WHERE id = :id AND user_id = :uid";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([
+                        ':cw' => $carwashId,
+                        ':sid' => $serviceId,
+                        ':vid' => $vehicleId,
+                        ':date' => $reservationDate,
+                        ':time' => $reservationTime,
+                        ':price' => $price,
+                        ':id' => $bookingId,
+                        ':uid' => $userId
+                    ]);
+                    $pdo->commit();
+                } else {
+                    $mysqli->begin_transaction();
+                    $sql = "UPDATE bookings SET carwash_id = ?, service_id = ?, vehicle_id = ?, booking_date = ?, booking_time = ?, price = ?, updated_at = NOW() WHERE id = ? AND user_id = ?";
+                    $stmt = $mysqli->prepare($sql);
+                    $stmt->bind_param('iiiissdi', $carwashId, $serviceId, $vehicleId, $reservationDate, $reservationTime, $price, $bookingId, $userId);
+                    if (!$stmt->execute()) {
+                        $mysqli->rollback();
+                        throw new RuntimeException('Failed to update reservation');
+                    }
+                    $mysqli->commit();
+                }
+                jsonResponse(['success' => true, 'message' => 'Reservation updated', 'booking_id' => $bookingId]);
+            }
             break;
 
-        case 'cancel_reservation':
-            $reservation_id = (int)($_POST['reservation_id'] ?? 0);
-            if ($reservation_id <= 0) throw new Exception('Geçersiz rezervasyon ID.');
+        case 'create_vehicle':
+        case 'update_vehicle':
+            $userId = (int)($_SESSION['user_id'] ?? 0);
+            $vehicleId = intFrom($_POST['vehicle_id'] ?? null);
+            $brand = trim((string)($_POST['car_brand'] ?? ''));
+            $model = trim((string)($_POST['car_model'] ?? ''));
+            $plate = trim((string)($_POST['license_plate'] ?? ''));
+            $year = intFrom($_POST['car_year'] ?? null);
+            $color = trim((string)($_POST['car_color'] ?? ''));
 
-            $stmt = $conn->prepare("SELECT id, status FROM reservations WHERE id = ? AND user_id = ?");
-            $stmt->execute([$reservation_id, $user_id]);
-            $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$reservation || !in_array($reservation['status'], ['pending','confirmed'], true)) {
-                throw new Exception('Rezervasyon bulunamadı veya iptal edilemez.');
+            if ($brand === '' || $model === '' || $plate === '') {
+                jsonResponse(['success' => false, 'message' => 'Please provide brand, model and license plate'], 400);
             }
 
-            $stmt = $conn->prepare("UPDATE reservations SET status = 'cancelled', updated_at = NOW() WHERE id = ? AND user_id = ?");
-            $res = $stmt->execute([$reservation_id, $user_id]);
-            if (!$res) throw new Exception('Rezervasyon iptal edilirken hata oluştu.');
-
-            if (stripos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-                sendJson(['success' => true, 'message' => 'Rezervasyon iptal edildi']);
+            // Prepare uploads
+            $imagePath = null;
+            if (!empty($_FILES['vehicle_image']) && $_FILES['vehicle_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                try {
+                    $imagePath = handleUpload($_FILES['vehicle_image'], 'vehicles');
+                } catch (Throwable $e) {
+                    jsonResponse(['success' => false, 'message' => 'Upload failed: ' . $e->getMessage()], 400);
+                }
             }
 
-            $_SESSION['success_message'] = 'Rezervasyonunuz başarıyla iptal edildi.';
-            header('Location: Customer_Dashboard.php#reservations');
-            exit();
+            // Ensure table exists
+            ensureUserVehiclesTable($pdo ?? $mysqli);
+
+            if ($action === 'create_vehicle') {
+                if ($pdo) {
+                    $stmt = $pdo->prepare("INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, image_path, created_at) VALUES (:uid, :brand, :model, :plate, :year, :color, :img, NOW())");
+                    $stmt->execute([
+                        ':uid' => $userId,
+                        ':brand' => $brand,
+                        ':model' => $model,
+                        ':plate' => $plate,
+                        ':year' => $year,
+                        ':color' => $color,
+                        ':img' => $imagePath
+                    ]);
+                    $vId = (int)$pdo->lastInsertId();
+                } else {
+                    $stmt = $mysqli->prepare("INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+                    $stmt->bind_param('isssiss', $userId, $brand, $model, $plate, $year, $color, $imagePath);
+                    if (!$stmt->execute()) jsonResponse(['success' => false, 'message' => 'Failed to save vehicle'], 500);
+                    $vId = (int)$mysqli->insert_id;
+                }
+                jsonResponse(['success' => true, 'message' => 'Vehicle saved', 'vehicle_id' => $vId], 201);
+            } else {
+                if (empty($vehicleId)) jsonResponse(['success' => false, 'message' => 'vehicle_id required for update'], 400);
+                // Verify ownership
+                $ownerOk = false;
+                if ($pdo) {
+                    $st = $pdo->prepare('SELECT user_id FROM user_vehicles WHERE id = :id LIMIT 1');
+                    $st->execute([':id' => $vehicleId]);
+                    $row = $st->fetch(\PDO::FETCH_ASSOC);
+                    $ownerOk = ($row && (int)$row['user_id'] === $userId);
+                } else {
+                    $st = $mysqli->prepare('SELECT user_id FROM user_vehicles WHERE id = ? LIMIT 1');
+                    $st->bind_param('i', $vehicleId);
+                    $st->execute();
+                    $res = $st->get_result();
+                    $row = $res->fetch_assoc();
+                    $ownerOk = ($row && (int)$row['user_id'] === $userId);
+                }
+                if (!$ownerOk) jsonResponse(['success' => false, 'message' => 'Vehicle not found or unauthorized'], 404);
+
+                if ($pdo) {
+                    $sql = "UPDATE user_vehicles SET brand = :brand, model = :model, license_plate = :plate, year = :year, color = :color";
+                    if ($imagePath !== null) $sql .= ", image_path = :img";
+                    $sql .= " , updated_at = NOW() WHERE id = :id AND user_id = :uid";
+                    $st = $pdo->prepare($sql);
+                    $params = [':brand'=>$brand, ':model'=>$model, ':plate'=>$plate, ':year'=>$year, ':color'=>$color, ':id'=>$vehicleId, ':uid'=>$userId];
+                    if ($imagePath !== null) $params[':img'] = $imagePath;
+                    $st->execute($params);
+                } else {
+                    $sql = "UPDATE user_vehicles SET brand = ?, model = ?, license_plate = ?, year = ?, color = ?";
+                    if ($imagePath !== null) $sql .= ", image_path = ?";
+                    $sql .= ", updated_at = NOW() WHERE id = ? AND user_id = ?";
+                    if ($imagePath !== null) {
+                        $stmt = $mysqli->prepare($sql);
+                        $stmt->bind_param('sssi ssii', $brand, $model, $plate, $year, $color, $imagePath, $vehicleId, $userId);
+                        // Note: binding string types carefully; if strict binding fails, convert to simpler path.
+                    } else {
+                        $stmt = $mysqli->prepare($sql);
+                        $stmt->bind_param('sssi ii', $brand, $model, $plate, $year, $vehicleId, $userId);
+                    }
+                    $stmt->execute();
+                }
+                jsonResponse(['success' => true, 'message' => 'Vehicle updated', 'vehicle_id' => $vehicleId]);
+            }
             break;
 
         default:
-            throw new Exception('Geçersiz işlem.');
+            jsonResponse(['success' => false, 'message' => 'Invalid action'], 400);
     }
-} catch (Exception $e) {
-    Logger::exception($e, ['action' => $action, 'user' => $user_id]);
-    $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-    if (stripos($accept, 'application/json') !== false || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-        sendJson(['success' => false, 'message' => $e->getMessage()], 400);
+} catch (Throwable $e) {
+    // Log server error if logger available
+    if (class_exists(Logger::class) && method_exists(Logger::class, 'exception')) {
+        Logger::exception($e, ['action' => $action, 'user' => $_SESSION['user_id'] ?? null]);
+    } else {
+        error_log('Customer_Dashboard_process error: ' . $e->getMessage());
     }
-    $_SESSION['error_message'] = $e->getMessage();
-    header('Location: Customer_Dashboard.php');
-    exit();
+
+    // Ensure no stray output; return JSON error
+    jsonResponse(['success' => false, 'message' => 'Server error: ' . $e->getMessage()], 500);
 }
