@@ -1625,6 +1625,52 @@ include '../includes/dashboard_header.php';
         if (preview) preview.src = url;
       });
     }
+
+    // Fallback implementations for functions used by other shared pages
+    // Only add if not already defined (prevents clobbering global implementations)
+    if (typeof loadDistrictOptions !== 'function') {
+      function loadDistrictOptions() {
+        try {
+          const citySel = document.getElementById('cityFilter');
+          const districtSel = document.getElementById('districtFilter');
+          if (!citySel || !districtSel) return;
+          const city = citySel.value || '';
+          const districts = (window.districtsByCity && window.districtsByCity[city]) ? window.districtsByCity[city] : [];
+          // Clear existing dynamic options
+          Array.from(districtSel.querySelectorAll('option[data-dynamic]')).forEach(o=>o.remove());
+          districtSel.innerHTML = '<option value="">Tüm Mahalleler</option>';
+          districts.forEach(d => {
+            const o = document.createElement('option');
+            o.value = d; o.textContent = d; o.setAttribute('data-dynamic','1'); districtSel.appendChild(o);
+          });
+        } catch (e) { console.warn('loadDistrictOptions fallback failed', e); }
+      }
+    }
+
+    if (typeof showNewReservationForm !== 'function') {
+      function showNewReservationForm() {
+        try {
+          const listView = document.getElementById('reservationListView');
+          const form = document.getElementById('newReservationForm');
+          if (listView) listView.classList.add('hidden');
+          if (form) form.classList.remove('hidden');
+          // scroll into view for good UX
+          if (form && typeof form.scrollIntoView === 'function') form.scrollIntoView({behavior:'smooth', block:'center'});
+        } catch (e) { console.warn('showNewReservationForm fallback failed', e); }
+      }
+    }
+
+    if (typeof hideNewReservationForm !== 'function') {
+      function hideNewReservationForm() {
+        try {
+          const listView = document.getElementById('reservationListView');
+          const form = document.getElementById('newReservationForm');
+          if (form) form.classList.add('hidden');
+          if (listView) listView.classList.remove('hidden');
+          if (listView && typeof listView.scrollIntoView === 'function') listView.scrollIntoView({behavior:'smooth', block:'start'});
+        } catch (e) { console.warn('hideNewReservationForm fallback failed', e); }
+      }
+    }
   </script>
 </div> <!-- End Dashboard Layout -->
 

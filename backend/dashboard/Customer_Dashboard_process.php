@@ -163,6 +163,26 @@ function ensureUserVehiclesTable($pdoOrMysqli): void
     }
 }
 
+// Helper: check if a table has a specific column (PDO or mysqli)
+function tableHasColumn($pdoOrMysqli, string $table, string $column): bool
+{
+    try {
+        if ($pdoOrMysqli instanceof \PDO) {
+            $stmt = $pdoOrMysqli->prepare('SHOW COLUMNS FROM `' . $table . '` LIKE :col');
+            $stmt->execute([':col' => $column]);
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            return (bool)$row;
+        } elseif ($pdoOrMysqli instanceof \mysqli) {
+            $colEsc = $pdoOrMysqli->real_escape_string($column);
+            $res = $pdoOrMysqli->query("SHOW COLUMNS FROM `" . $pdoOrMysqli->real_escape_string($table) . "` LIKE '" . $colEsc . "'");
+            return ($res && $res->num_rows > 0);
+        }
+    } catch (Throwable $e) {
+        return false;
+    }
+    return false;
+}
+
 // Helper: sanitize incoming integers
 function intFrom($v): ?int {
     if ($v === null || $v === '') return null;
@@ -204,15 +224,20 @@ try {
     switch ($action) {
         case 'list_vehicles':
             $userId = (int)($_SESSION['user_id'] ?? 0);
-            // Ensure table exists
+            // Ensure table exists (attempt to migrate if missing)
             ensureUserVehiclesTable($pdo ?? $mysqli);
             $vehicles = [];
+            // Be tolerant: only select image_path if the column exists
+            $hasImage = tableHasColumn($pdo ?? $mysqli, 'user_vehicles', 'image_path');
+            $cols = 'id, brand, model, license_plate, year, color' . ($hasImage ? ', image_path' : '');
             if ($pdo) {
-                $stmt = $pdo->prepare('SELECT id, brand, model, license_plate, year, color, image_path FROM user_vehicles WHERE user_id = :uid ORDER BY created_at DESC');
+                $sql = "SELECT {$cols} FROM user_vehicles WHERE user_id = :uid ORDER BY created_at DESC";
+                $stmt = $pdo->prepare($sql);
                 $stmt->execute([':uid' => $userId]);
                 $vehicles = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             } elseif ($mysqli) {
-                $st = $mysqli->prepare('SELECT id, brand, model, license_plate, year, color, image_path FROM user_vehicles WHERE user_id = ? ORDER BY created_at DESC');
+                $sql = "SELECT {$cols} FROM user_vehicles WHERE user_id = ? ORDER BY created_at DESC";
+                $st = $mysqli->prepare($sql);
                 $st->bind_param('i', $userId);
                 $st->execute();
                 $res = $st->get_result();
@@ -373,22 +398,43 @@ try {
             // Ensure table exists
             ensureUserVehiclesTable($pdo ?? $mysqli);
 
+            // Check if image_path column exists to avoid SQL errors on older schemas
+            $hasImage = tableHasColumn($pdo ?? $mysqli, 'user_vehicles', 'image_path');
+
             if ($action === 'create_vehicle') {
                 if ($pdo) {
-                    $stmt = $pdo->prepare("INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, image_path, created_at) VALUES (:uid, :brand, :model, :plate, :year, :color, :img, NOW())");
-                    $stmt->execute([
-                        ':uid' => $userId,
-                        ':brand' => $brand,
-                        ':model' => $model,
-                        ':plate' => $plate,
-                        ':year' => $year,
-                        ':color' => $color,
-                        ':img' => $imagePath
-                    ]);
+                    if ($hasImage) {
+                        $stmt = $pdo->prepare("INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, image_path, created_at) VALUES (:uid, :brand, :model, :plate, :year, :color, :img, NOW())");
+                        $params = [
+                            ':uid' => $userId,
+                            ':brand' => $brand,
+                            ':model' => $model,
+                            ':plate' => $plate,
+                            ':year' => $year,
+                            ':color' => $color,
+                            ':img' => $imagePath
+                        ];
+                    } else {
+                        $stmt = $pdo->prepare("INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, created_at) VALUES (:uid, :brand, :model, :plate, :year, :color, NOW())");
+                        $params = [
+                            ':uid' => $userId,
+                            ':brand' => $brand,
+                            ':model' => $model,
+                            ':plate' => $plate,
+                            ':year' => $year,
+                            ':color' => $color
+                        ];
+                    }
+                    $stmt->execute($params);
                     $vId = (int)$pdo->lastInsertId();
                 } else {
-                    $stmt = $mysqli->prepare("INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-                    $stmt->bind_param('isssiss', $userId, $brand, $model, $plate, $year, $color, $imagePath);
+                    if ($hasImage) {
+                        $stmt = $mysqli->prepare("INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+                        $stmt->bind_param('isssiss', $userId, $brand, $model, $plate, $year, $color, $imagePath);
+                    } else {
+                        $stmt = $mysqli->prepare("INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+                        $stmt->bind_param('isssis', $userId, $brand, $model, $plate, $year, $color);
+                    }
                     if (!$stmt->execute()) jsonResponse(['success' => false, 'message' => 'Failed to save vehicle'], 500);
                     $vId = (int)$mysqli->insert_id;
                 }
@@ -414,17 +460,17 @@ try {
 
                 if ($pdo) {
                     $sql = "UPDATE user_vehicles SET brand = :brand, model = :model, license_plate = :plate, year = :year, color = :color";
-                    if ($imagePath !== null) $sql .= ", image_path = :img";
+                    if ($hasImage && $imagePath !== null) $sql .= ", image_path = :img";
                     $sql .= " , updated_at = NOW() WHERE id = :id AND user_id = :uid";
                     $st = $pdo->prepare($sql);
                     $params = [':brand'=>$brand, ':model'=>$model, ':plate'=>$plate, ':year'=>$year, ':color'=>$color, ':id'=>$vehicleId, ':uid'=>$userId];
-                    if ($imagePath !== null) $params[':img'] = $imagePath;
+                    if ($hasImage && $imagePath !== null) $params[':img'] = $imagePath;
                     $st->execute($params);
                 } else {
                     $sql = "UPDATE user_vehicles SET brand = ?, model = ?, license_plate = ?, year = ?, color = ?";
-                    if ($imagePath !== null) $sql .= ", image_path = ?";
+                    if ($hasImage && $imagePath !== null) $sql .= ", image_path = ?";
                     $sql .= ", updated_at = NOW() WHERE id = ? AND user_id = ?";
-                    if ($imagePath !== null) {
+                    if ($hasImage && $imagePath !== null) {
                         $stmt = $mysqli->prepare($sql);
                         $stmt->bind_param('sssi ssii', $brand, $model, $plate, $year, $color, $imagePath, $vehicleId, $userId);
                         // Note: binding string types carefully; if strict binding fails, convert to simpler path.

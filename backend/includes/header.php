@@ -60,8 +60,15 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?php echo htmlspecialchars($page_title); ?></title>
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS (CDN) - development convenience. -->
+  <!-- Note: Using the CDN is convenient for development and quick demos.
+    For production it's recommended to build Tailwind with the CLI/PostCSS
+    and include a compiled, minified CSS file to enable purging of unused
+    styles and better performance. -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    console.warn("cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation");
+  </script>
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
