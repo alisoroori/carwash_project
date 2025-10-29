@@ -2,6 +2,10 @@
 require_once '../../includes/config.php';
 require_once '../../includes/security.php';
 require_once '../../includes/middleware.php';
+// Request helpers: JSON body merge + structured errors
+if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
+    require_once __DIR__ . '/../../includes/request_helpers.php';
+}
 
 header('Content-Type: application/json');
 session_start();
@@ -101,14 +105,22 @@ try {
             'booking_id' => $booking_id,
             'total_amount' => $service['price']
         ]);
-    } catch (Exception $e) {
-        if ($conn->inTransaction()) {
-            $conn->rollBack();
+    } catch (Throwable $e) {
+        if (isset($conn) && $conn instanceof PDO && $conn->inTransaction()) {
+            try { $conn->rollBack(); } catch (Throwable $_) { }
+        }
+        if (function_exists('send_structured_error_response')) {
+            send_structured_error_response($e, 400);
         }
         http_response_code(400);
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['success' => false, 'error_type' => get_class($e), 'message' => $e->getMessage()]);
+        exit;
     }
-} catch (Exception $e) {
+} catch (Throwable $e) {
+    if (function_exists('send_structured_error_response')) {
+        send_structured_error_response($e, 400);
+    }
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error_type' => get_class($e), 'message' => $e->getMessage()]);
+    exit;
 }

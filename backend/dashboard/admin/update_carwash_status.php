@@ -1,13 +1,18 @@
 <?php
 session_start();
 require_once '../../includes/db.php';
+// Request helpers: JSON body merge + structured errors
+if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
+    require_once __DIR__ . '/../../includes/request_helpers.php';
+}
 
 // Set JSON response header
 header('Content-Type: application/json');
 
 // Check admin authentication
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
     exit();
 }
 
@@ -24,9 +29,10 @@ try {
     $carwash_id = filter_var($_POST['carwash_id'], FILTER_SANITIZE_NUMBER_INT);
     $action = filter_var($_POST['action'], FILTER_SANITIZE_STRING);
 
-    if (!in_array($action, ['approve', 'reject'])) {
-        throw new Exception('Invalid action');
-    }
+        if (!in_array($action, ['approve', 'reject'])) {
+            if (function_exists('log_unknown_action')) log_unknown_action($action, 'update_carwash_status');
+            throw new Exception('Invalid action');
+        }
 
     // Get carwash details for email notification
     $stmt = $conn->prepare("
@@ -112,12 +118,14 @@ try {
         'message' => 'Carwash status updated successfully',
         'new_status' => $new_status
     ]);
-} catch (Exception $e) {
-    // Rollback on error
-    $conn->rollback();
-
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+} catch (Throwable $e) {
+    if (isset($conn) && method_exists($conn, 'rollback')) {
+        try { $conn->rollback(); } catch (Throwable $_) { }
+    }
+    if (function_exists('send_structured_error_response')) {
+        send_structured_error_response($e, 500);
+    }
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error_type' => get_class($e), 'message' => $e->getMessage()]);
+    exit;
 }

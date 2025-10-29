@@ -1,4 +1,59 @@
+<<?php
+// ...existing code...
+// Replace the inline vehicle form submit handler section with the snippet below
+// ...existing code...
+?>
+<script>
+(function(){
+  const vehicleFormInline = document.getElementById('vehicleFormInline');
+  if (vehicleFormInline) {
+    vehicleFormInline.addEventListener('submit', async (ev)=>{
+      ev.preventDefault();
+      const action = formAction.value;
+      const fd = new FormData(vehicleForm);
+      fd.set('action', action === 'create' ? 'create' : 'update');
+      // Ensure backend expects id under 'id' (vehicle_api.php looks for 'id')
+      const vid = document.getElementById('formVehicleId').value;
+      if (action !== 'create' && vid) {
+        // keep existing vehicle_id field but also set 'id' for backend compatibility
+        fd.set('id', vid);
+      }
+      const csrf = await fetchCsrfToken();
+      if (csrf) fd.append('csrf_token', csrf);
+      try {
+        const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', { method:'POST', credentials:'same-origin', body: fd });
+        const raw = await res.text();
+        let json = null;
+        try { json = raw ? JSON.parse(raw) : null; } catch(e){ showMessage('Sunucudan beklenmeyen cevap alındı', 'error'); return; }
+
+        if (json && json.success) {
+          showMessage('İşlem başarılı');
+
+          // Close edit/create panel
+          formPanel.style.display = 'none';
+
+          // If this was an edit/update, refresh the whole page once so every UI piece updates.
+          // For create, reload the vehicles list only to avoid full page reload.
+          if (action === 'update') {
+            // small delay to allow UI to close cleanly
+            setTimeout(() => { try { location.reload(); } catch(e){ loadVehicles(); } }, 300);
+          } else {
+            // create path: update list inline
+            loadVehicles();
+          }
+        } else {
+          showMessage(json && (json.message||json.error) ? (json.message||json.error) : 'İşlem başarısız', 'error');
+        }
+      } catch (e) {
+        console.error(e);
+        showMessage('İstek başarısız', 'error');
+      }
+    });
+  }
+})();
+</script>
 <?php
+// ...existing code...?php
 require_once __DIR__ . '/../includes/bootstrap.php';
 
 use App\Classes\Auth;
@@ -66,6 +121,23 @@ try {
             \App\Classes\Logger::exception($e, ['action' => 'ensure_user_vehicles_table']);
         } else {
             error_log('ensure_user_vehicles_table error: ' . $e->getMessage());
+        }
+    }
+
+    // Ensure image_path column exists for backward compatibility (table might be old)
+    try {
+        if ($dbConn instanceof PDO) {
+            $colStmt = $dbConn->query("SHOW COLUMNS FROM `user_vehicles` LIKE 'image_path'");
+            $hasCol = $colStmt && $colStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$hasCol) {
+                $dbConn->exec("ALTER TABLE `user_vehicles` ADD COLUMN `image_path` VARCHAR(255) DEFAULT NULL AFTER `color`");
+            }
+        }
+    } catch (Throwable $e) {
+        if (class_exists(\App\Classes\Logger::class) && method_exists(\App\Classes\Logger::class, 'exception')) {
+            \App\Classes\Logger::exception($e, ['action' => 'ensure_image_path']);
+        } else {
+            error_log('ensure_image_path error: ' . $e->getMessage());
         }
     }
 

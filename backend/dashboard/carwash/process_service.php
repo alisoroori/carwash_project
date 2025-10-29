@@ -1,13 +1,18 @@
 <?php
 session_start();
 require_once '../../includes/db.php';
+// Request helpers (JSON body merge + structured error responses)
+if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
+    require_once __DIR__ . '/../../includes/request_helpers.php';
+}
 
 // Set JSON response header
 header('Content-Type: application/json');
 
 // Check authentication
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'carwash') {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
     exit();
 }
 
@@ -24,12 +29,13 @@ if (!$carwash) {
 
 // Validate required fields
 $required_fields = ['service_name', 'duration', 'price'];
-foreach ($required_fields as $field) {
-    if (!isset($_POST[$field]) || empty($_POST[$field])) {
-        echo json_encode(['success' => false, 'error' => 'All required fields must be filled']);
-        exit();
+    foreach ($required_fields as $field) {
+        if (!isset($_POST[$field]) || empty($_POST[$field])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'All required fields must be filled']);
+            exit();
+        }
     }
-}
 
 try {
     // Start transaction
@@ -110,12 +116,14 @@ try {
         'success' => true,
         'message' => $message
     ]);
-} catch (Exception $e) {
-    // Rollback on error
-    $conn->rollback();
-
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+} catch (Throwable $e) {
+    if (isset($conn) && method_exists($conn, 'rollback')) {
+        try { $conn->rollback(); } catch (Throwable $_) { }
+    }
+    if (function_exists('send_structured_error_response')) {
+        send_structured_error_response($e, 500);
+    }
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error_type' => get_class($e), 'message' => $e->getMessage()]);
+    exit;
 }

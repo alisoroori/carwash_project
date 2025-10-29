@@ -4,6 +4,11 @@ header('Content-Type: application/json; charset=utf-8');
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
+// Request helpers: JSON body merge + structured errors
+if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
+    require_once __DIR__ . '/../../includes/request_helpers.php';
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'errors' => ['Method not allowed']]);
@@ -82,6 +87,9 @@ try {
     exit;
 } catch (Throwable $e) {
     error_log('bookings/update.php error: ' . $e->getMessage());
+    if (function_exists('send_structured_error_response')) {
+        send_structured_error_response($e, 500);
+    }
     http_response_code(500);
     echo json_encode(['success' => false, 'errors' => ['Internal server error']]);
     exit;

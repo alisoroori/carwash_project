@@ -3,6 +3,10 @@ session_start();
 require_once '../includes/db.php';
 require_once '../includes/email_helper.php';
 require_once '../includes/sms_helper.php';
+// Merge JSON body into $_POST and register structured error handler
+if (file_exists(__DIR__ . '/../includes/request_helpers.php')) {
+    require_once __DIR__ . '/../includes/request_helpers.php';
+}
 
 header('Content-Type: application/json');
 
@@ -111,14 +115,25 @@ try {
         'booking_id' => $booking_id,
         'message' => 'Rezervasyonunuz başarıyla oluşturuldu'
     ]);
-} catch (Exception $e) {
-    $conn->rollback();
-    error_log("Booking error: " . $e->getMessage());
+} catch (Throwable $e) {
+    // Attempt rollback if possible
+    if (isset($conn) && method_exists($conn, 'rollback')) {
+        try { $conn->rollback(); } catch (Throwable $_e) { /* ignore */ }
+    }
+    // Use structured error response helper if available
+    if (function_exists('send_structured_error_response')) {
+        send_structured_error_response($e, 500);
+    }
 
+    // Fallback
+    error_log("Booking error: " . $e->getMessage());
+    http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'error_type' => get_class($e),
+        'message' => $e->getMessage()
     ]);
+    exit;
 }
 
 function getProfilePhone()

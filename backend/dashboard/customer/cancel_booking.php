@@ -1,16 +1,22 @@
 <?php
 session_start();
 require_once '../../includes/db.php';
+// Request helpers
+if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
+    require_once __DIR__ . '/../../includes/request_helpers.php';
+}
 
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['booking_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Invalid request']);
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid request']);
     exit();
 }
 
@@ -44,6 +50,11 @@ try {
     }
 
     echo json_encode(['success' => true]);
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+} catch (Throwable $e) {
+    if (function_exists('send_structured_error_response')) {
+        send_structured_error_response($e, 500);
+    }
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error_type' => get_class($e), 'message' => $e->getMessage()]);
+    exit;
 }

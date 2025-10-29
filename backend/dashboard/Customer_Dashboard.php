@@ -1637,11 +1637,18 @@ include '../includes/dashboard_header.php';
       const placeholder = sel.querySelector('option[value=""]') ? sel.querySelector('option[value=""]').outerHTML : '<option value="">Araç Seçiniz</option>';
       sel.innerHTML = placeholder;
       if (!Array.isArray(vehicles) || vehicles.length === 0) return;
+      // helper: normalize stored upload paths to web-accessible URLs via secure endpoint
+      function resolveUploadUrl(vehicleId, path) {
+        const defaultImg = '/carwash_project/frontend/assets/default-car.png';
+        if (!path || !vehicleId) return defaultImg;
+        return `/carwash_project/backend/dashboard/serve_vehicle_image.php?vehicle_id=${vehicleId}`;
+      }
+
       vehicles.forEach(v => {
         const o = document.createElement('option');
         o.value = v.id;
         o.textContent = (v.brand || '') + ' ' + (v.model || '') + (v.license_plate ? (' — ' + v.license_plate) : '');
-        if (v.image_path) o.dataset.preview = v.image_path;
+        if (v.image_path) o.dataset.preview = resolveUploadUrl(v.id, v.image_path);
         sel.appendChild(o);
       });
 

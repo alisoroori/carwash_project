@@ -1,19 +1,25 @@
 <?php
 session_start();
 require_once '../../includes/db.php';
+// Request helpers: JSON body parsing + structured error responses
+if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
+    require_once __DIR__ . '/../../includes/request_helpers.php';
+}
 
 // Set JSON response header
 header('Content-Type: application/json');
 
 // Check authentication
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'carwash') {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
     exit();
 }
 
 // Validate input parameters
 if (!isset($_POST['service_id']) || !isset($_POST['current_status'])) {
-    echo json_encode(['success' => false, 'error' => 'Missing required parameters']);
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Missing required parameters']);
     exit();
 }
 
@@ -87,12 +93,14 @@ try {
     }
 
     echo json_encode($response);
-} catch (Exception $e) {
-    // Rollback on error
-    $conn->rollback();
-
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+} catch (Throwable $e) {
+    if (isset($conn) && method_exists($conn, 'rollback')) {
+        try { $conn->rollback(); } catch (Throwable $_) { }
+    }
+    if (function_exists('send_structured_error_response')) {
+        send_structured_error_response($e, 500);
+    }
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error_type' => get_class($e), 'message' => $e->getMessage()]);
+    exit;
 }
