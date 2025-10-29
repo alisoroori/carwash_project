@@ -24,9 +24,22 @@
     "@vitejs/plugin-legacy": "^7.2.1",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
+    "puppeteer": "^24.26.1",
     "vite": "^7.1.9"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14"
-  }
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alisoroori/carwash_project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alisoroori/carwash_project/issues"
+  },
+  "homepage": "https://github.com/alisoroori/carwash_project#readme"
 }

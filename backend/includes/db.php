@@ -11,7 +11,8 @@ if (!defined('DB_HOST')) {
     define('DB_HOST', '127.0.0.1');
 }
 if (!defined('DB_NAME')) {
-    define('DB_NAME', 'carwash');
+    // Default database name: align with backend/includes/config.php default (carwash_db)
+    define('DB_NAME', 'carwash_db');
 }
 if (!defined('DB_USER')) {
     define('DB_USER', 'root');
@@ -21,6 +22,10 @@ if (!defined('DB_PASS')) {
 }
 if (!defined('DB_CHARSET')) {
     define('DB_CHARSET', 'utf8mb4');
+}
+// Ensure DB_PORT is defined (defaults to MySQL standard port)
+if (!defined('DB_PORT')) {
+    define('DB_PORT', 3306);
 }
 
 /**

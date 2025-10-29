@@ -1,49 +1,326 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking Form</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Yeni Rezervasyon — CarWash</title>
+
+  <!-- Inline CSS: dashboard-friendly, compact -->
   <style>
-    /* minimal invalid input styling */
-    .invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.06); }
+    :root{
+      --bg:#f8fafc; --card:#fff; --muted:#6b7280; --accent-1:#667eea; --accent-2:#764ba2;
+      --border:#e5e7eb; --text:#0f172a;
+    }
+    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;font-size:15px;color:var(--text);}
+    .container{max-width:980px;margin:36px auto;padding:20px;}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.06);padding:22px;}
+    h1{margin:0 0 12px;font-size:20px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:14px}
+    .grid-cols-2{grid-template-columns:1fr 1fr}
+    label{display:block;font-weight:700;margin-bottom:6px;color:#374151;font-size:13px}
+    .input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;background:#fff;color:var(--text)}
+    .input:focus,select:focus,textarea:focus{outline:none;border-color:rgba(59,130,246,0.9);box-shadow:0 6px 18px rgba(59,130,246,0.06)}
+    .services-list{display:flex;flex-direction:column;gap:10px}
+    .service-card{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;border:1px solid #eef2ff;background:#fff;cursor:pointer;transition:transform .12s,box-shadow .12s}
+    .service-card:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(2,6,23,0.06)}
+    .service-card.selected{outline:3px solid rgba(37,99,235,0.12);border-color:rgba(59,130,246,0.12)}
+    .service-meta{display:flex;flex-direction:column}
+    .service-name{font-weight:700}
+    .service-desc{font-size:13px;color:var(--muted);margin-top:4px}
+    .price{font-weight:800}
+    .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+    .btn{padding:10px 14px;border-radius:8px;border:none;font-weight:800;cursor:pointer}
+    .btn-ghost{background:#fff;border:1px solid var(--border);color:#374151}
+    .btn-primary{background:linear-gradient(135deg,var(--accent-1) 0%,var(--accent-2) 100%);color:#fff;box-shadow:0 8px 24px rgba(118,75,162,0.12)}
+    .center{display:flex;align-items:center;gap:8px}
+    .notice{padding:10px;border-radius:8px;margin-bottom:12px;font-size:14px}
+    .notice.error{background:#fff5f5;color:#991b1b;border:1px solid #fecaca}
+    .notice.success{background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0}
+    @media(max-width:720px){.grid-cols-2{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <!-- Booking form (modified to enable client validation & CSRF) -->
-  <form id="bookingForm" action="/carwash_project/backend/api/bookings/create.php" method="post" data-enable-validation="1">
-    <div class="form-row">
-      <label for="service">Service</label>
-      <select id="service" name="service_id" data-validate="required">
-        <!-- ...existing options... -->
-      </select>
+  <div class="container">
+    <div class="card" id="reservationCard">
+      <h1>Yeni Rezervasyon Oluştur</h1>
+      <p class="muted" id="intro">Seçtiğiniz oto yıkama için hizmeti, tarihi ve saati seçin. Rezervasyon yapabilmek için giriş (oturum) gereklidir.</p>
+
+      <div id="messages" style="margin-top:10px"></div>
+
+      <div style="margin-top:12px" class="grid">
+        <!-- Services -->
+        <div>
+          <label>Hizmet Seçin</label>
+          <div id="embeddedServices" class="services-list">
+            <div class="muted">Hizmetler yükleniyor...</div>
+          </div>
+        </div>
+
+        <!-- Vehicle -->
+        <div>
+          <label for="vehicle">Araç Seçin</label>
+          <select id="vehicle" class="input">
+            <option value="">Araç bilgisi yükleniyor...</option>
+          </select>
+        </div>
+
+        <!-- Date & Time in two columns -->
+        <div class="grid grid-cols-2">
+          <div>
+            <label for="reservationDate">Tarih</label>
+            <input type="date" id="reservationDate" class="input" />
+          </div>
+          <div>
+            <label for="reservationTime">Saat</label>
+            <select id="reservationTime" class="input">
+              <option>Yükleniyor...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div>
+          <label for="location">Konum</label>
+          <select id="location" class="input">
+            <option value="">Konumlar yükleniyor...</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label for="notes">Ek Notlar (opsiyonel)</label>
+          <textarea id="notes" class="input" rows="3" placeholder="Özel istekleriniz..."></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-ghost" id="btnCancel">Geri Dön</button>
+        <button class="btn btn-primary" id="btnSubmit">
+          <span id="btnSubmitText">Rezervasyon Yap</span>
+        </button>
+      </div>
     </div>
+  </div>
 
-    <div class="form-row">
-      <label for="date">Date</label>
-      <input id="date" type="date" name="date" data-validate="required">
-    </div>
+  <!-- Inline JavaScript -->
+  <script>
+    (function(){
+      // Endpoints (adjust path if your app runs under different base path)
+      const API_CARWASHES = '/carwash_project/backend/api/carwashes/list.php';
+      const API_SERVICES  = '/carwash_project/backend/api/services/list.php';
+      const API_BOOKINGS  = '/carwash_project/backend/api/bookings/create.php';
+      const API_VEHICLES  = '/carwash_project/backend/api/vehicles/list.php'; // optional
 
-    <div class="form-row">
-      <label for="time">Time</label>
-      <input id="time" type="time" name="time" data-validate="required">
-    </div>
+      // Elements
+      const el = id => document.getElementById(id);
+      const servicesContainer = el('embeddedServices');
+      const locationSel = el('location');
+      const vehicleSel = el('vehicle');
+      const dateInput = el('reservationDate');
+      const timeSel = el('reservationTime');
+      const notesEl = el('notes');
+      const messages = el('messages');
+      const btnSubmit = el('btnSubmit');
+      const btnSubmitText = el('btnSubmitText');
+      const btnCancel = el('btnCancel');
 
-    <div class="form-row">
-      <label for="notes">Notes</label>
-      <textarea id="notes" name="notes" data-validate="min:3"></textarea>
-    </div>
+      let carwashes = [];
+      let selectedService = null;
 
-    <!-- CSRF token hidden input will be populated by JS if not present -->
-    <!-- <input type="hidden" name="csrf_token" value=""> -->
+      // Util: show message
+      function showMessage(type, text){
+        messages.innerHTML = `<div class="notice ${type==='error'?'error':'success'}">${text}</div>`;
+        setTimeout(()=>{ if(messages.firstChild) messages.removeChild(messages.firstChild) }, 7000);
+      }
 
-    <div style="margin-top:12px">
-      <button type="submit">Book Now</button>
-    </div>
-  </form>
+      // Parse query params for preselection
+      const qs = new URLSearchParams(window.location.search);
+      const preCarwashId = qs.get('carwash_id');
+      const preCarwashName = qs.get('carwash_name');
 
-  <!-- include validator script (deferred) -->
-  <script src="/carwash_project/frontend/js/form-validation.js" defer></script>
+      // Load carwashes
+      async function loadCarwashes(){
+        try{
+          const r = await fetch(API_CARWASHES, {cache:'no-store', credentials:'same-origin'});
+          const json = await r.json();
+          carwashes = Array.isArray(json) ? json : [];
+        }catch(e){
+          console.warn('carwashes fetch failed', e);
+          carwashes = [];
+        }
+        populateCarwashSelect();
+      }
+
+      function populateCarwashSelect(){
+        locationSel.innerHTML = '<option value=\"\">Konum Seçiniz</option>';
+        if(carwashes.length === 0){
+          locationSel.innerHTML = '<option value=\"\">(Sunucudan konum alınamadı)</option>';
+          return;
+        }
+        carwashes.forEach(cw=>{
+          const opt = document.createElement('option');
+          opt.value = cw.id;
+          opt.textContent = cw.name;
+          locationSel.appendChild(opt);
+        });
+        // preselect if present
+        if(preCarwashId){
+          if(Array.from(locationSel.options).some(o=>o.value===preCarwashId)){
+            locationSel.value = preCarwashId;
+          } else {
+            // if not present, try to add a custom one with name
+            const opt = document.createElement('option'); opt.value = preCarwashId; opt.textContent = preCarwashName || ('ID '+preCarwashId);
+            locationSel.appendChild(opt);
+            locationSel.value = preCarwashId;
+          }
+          loadServicesForCarwash(locationSel.value);
+        }
+      }
+
+      // Load services for selected carwash
+      async function loadServicesForCarwash(carwashId){
+        servicesContainer.innerHTML = '<div class="muted">Hizmetler yükleniyor...</div>';
+        selectedService = null;
+        try{
+          const r = await fetch(API_SERVICES + '?carwash_id=' + encodeURIComponent(carwashId), {cache:'no-store', credentials:'same-origin'});
+          const svcs = await r.json();
+          if(!Array.isArray(svcs) || svcs.length===0){
+            servicesContainer.innerHTML = '<div class="muted">Bu konum için hizmet bulunamadı.</div>';
+            return;
+          }
+          servicesContainer.innerHTML = '';
+          svcs.forEach(svc=>{
+            const card = document.createElement('div');
+            card.className = 'service-card';
+            card.dataset.serviceId = svc.id;
+            card.innerHTML = `<div class="service-meta"><div class="service-name">${escapeHtml(svc.name)}</div><div class="service-desc">${escapeHtml(svc.description||'')}</div></div><div class="price">₺${Number(svc.price||0).toFixed(2)}</div>`;
+            card.addEventListener('click', ()=>{ selectServiceCard(card, svc); });
+            servicesContainer.appendChild(card);
+          });
+        }catch(e){
+          console.warn('services fetch failed', e);
+          servicesContainer.innerHTML = '<div class="muted">Hizmetler alınırken hata oluştu.</div>';
+        }
+      }
+
+      function selectServiceCard(card, svc){
+        // remove selected class from others
+        document.querySelectorAll('.service-card').forEach(n=>n.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedService = svc;
+      }
+
+      // Populate time slots (09:00 - 17:30, every 30 min)
+      function populateTimes(){
+        timeSel.innerHTML = '<option value=\"\">Saat seçin</option>';
+        for(let h=9; h<=17; h++){
+          ['00','30'].forEach(m=>{
+            const val = `${String(h).padStart(2,'0')}:${m}`;
+            const opt = document.createElement('option'); opt.value = val; opt.textContent = val;
+            timeSel.appendChild(opt);
+          });
+        }
+      }
+
+      // Try to load user vehicles (optional)
+      async function loadVehicles(){
+        vehicleSel.innerHTML = '<option>Yükleniyor...</option>';
+        try{
+          const r = await fetch(API_VEHICLES, {cache:'no-store', credentials:'same-origin'});
+          if(r.ok){
+            const json = await r.json();
+            if(Array.isArray(json) && json.length){
+              vehicleSel.innerHTML = '<option value=\"\">Araç seçiniz</option>';
+              json.forEach(v=>{
+                const opt = document.createElement('option'); opt.value = v.id; opt.textContent = v.make ? `${v.make} ${v.model} - ${v.plate||''}` : (v.display||'Araç');
+                vehicleSel.appendChild(opt);
+              });
+              return;
+            }
+          }
+        }catch(e){
+          // silent
+        }
+        // fallback sample vehicles
+        vehicleSel.innerHTML = '<option value=\"\">Araç seçiniz</option><option value=\"1\">Toyota Corolla - 34 ABC 123</option><option value=\"2\">Honda Civic - 34 XYZ 789</option>';
+      }
+
+      // Submit handler
+      async function submitBooking(){
+        if(!selectedService){
+          showMessage('error','Lütfen önce bir hizmet seçin.');
+          return;
+        }
+        const carwashId = locationSel.value;
+        const serviceId = selectedService.id;
+        const date = dateInput.value;
+        const time = timeSel.value;
+        const notes = notesEl.value || '';
+        const vehicleId = vehicleSel.value || null;
+
+        if(!carwashId || !serviceId || !date || !time){
+          showMessage('error','Lütfen tüm zorunlu alanları doldurun (konum, hizmet, tarih, saat).');
+          return;
+        }
+
+        // Disable button
+        btnSubmit.disabled = true; btnSubmitText.textContent = 'Gönderiliyor...';
+
+        try{
+          const fd = new FormData();
+          fd.append('carwash_id', carwashId);
+          fd.append('service_id', serviceId);
+          fd.append('date', date);
+          fd.append('time', time);
+          fd.append('notes', notes);
+          if(vehicleId) fd.append('vehicle_id', vehicleId);
+
+          const resp = await fetch(API_BOOKINGS, {method:'POST', body:fd, credentials:'same-origin'});
+          const json = await resp.json().catch(()=>({success:false,errors:['Geçersiz sunucu yanıtı']}));
+          if(resp.status === 401 || (json && json.errors && json.errors.includes('Unauthorized: please log in'))){
+            showMessage('error','Oturum açmanız gerekiyor. Lütfen giriş yapın ve tekrar deneyin.');
+            // Optionally redirect to login: window.location.href = '/carwash_project/backend/auth/login.php';
+          } else if(json && json.success){
+            showMessage('success','Rezervasyon başarılı. ID: ' + (json.booking_id || '[bilinmiyor]'));
+            // optionally reset form
+            selectedService = null;
+            document.querySelectorAll('.service-card').forEach(n=>n.classList.remove('selected'));
+            notesEl.value = '';
+            // keep date/time for convenience
+          } else {
+            const err = (json && json.errors && json.errors.join('\n')) || json.message || 'Rezervasyon oluşturulamadı';
+            showMessage('error', err);
+          }
+        }catch(e){
+          console.error(e);
+          showMessage('error','Sunucu hatası oluştu.');
+        }finally{
+          btnSubmit.disabled = false; btnSubmitText.textContent = 'Rezervasyon Yap';
+        }
+      }
+
+      // Basic HTML escaping helper
+      function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+
+      // Event bindings
+      locationSel.addEventListener('change', ()=>{ const v=locationSel.value; if(v) loadServicesForCarwash(v); else servicesContainer.innerHTML = '<div class=\"muted\">Konum seçin</div>'; });
+      btnSubmit.addEventListener('click', submitBooking);
+      btnCancel.addEventListener('click', ()=>{ window.history.back(); });
+
+      // init
+      (function init(){
+        populateTimes();
+        loadCarwashes();
+        loadVehicles();
+        // set min date to today
+        const today = new Date().toISOString().split('T')[0]; dateInput.setAttribute('min', today);
+        // if preselected carwash but services may not load immediately until carwashes fetched; loadCarwashes handles it
+      })();
+
+      // expose small helpers for debugging (optional)
+      window.__carwash_debug = { loadCarwashes, loadServicesForCarwash, loadVehicles };
+    })();
+  </script>
 </body>
 </html>

@@ -8,13 +8,170 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
     exit();
 }
 
-$carwashes_query = "SELECT * FROM carwash_profiles WHERE status = 'active'";
+$carwashes_query = "SELECT id, business_name AS name, city, district FROM carwash_profiles WHERE status = 'active'";
 $carwashes = $conn->query($carwashes_query);
+
+// Support partial embedding: if ?partial=1, return only the form fragment
+$isPartial = isset($_GET['partial']) && $_GET['partial'] == '1';
 ?>
 
+<?php
+// If partial requested, output only the inner embedded booking fragment (form + scripts)
+if ($isPartial) :
+?>
+    <div id="newReservationForm" class="p-6">
+      <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
+
+      <div id="embeddedBooking" class="space-y-6">
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
+          <div id="embeddedServices" class="space-y-2">
+            <div class="text-sm muted">Hizmetler yükleniyor...</div>
+          </div>
+        </div>
+
+        <div>
+          <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
+          <select id="vehicle" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <option value="">Araç Seçiniz</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+          <div>
+            <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
+            <input type="date" id="reservationDate" name="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
+          </div>
+          <div>
+            <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
+            <select id="reservationTime" name="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
+              <option value="">Saat seçin</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="location" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
+          <select id="location" name="carwash_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
+            <option value="">Konum Seçiniz</option>
+            <?php
+            // Render server-side options for standalone usage
+            if ($carwashes && $carwashes->num_rows > 0) {
+              $carwashes->data_seek(0);
+              while ($cw = $carwashes->fetch_assoc()) {
+                $id = (int)$cw['id'];
+                $name = htmlspecialchars($cw['name']);
+                $label = $name . (!empty($cw['district']) ? ' — ' . htmlspecialchars($cw['district']) : '');
+                echo "<option value=\"{$id}\">{$label}</option>\n";
+              }
+            }
+            ?>
+          </select>
+        </div>
+
+        <div>
+          <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (İsteğe Bağlı)</label>
+          <textarea id="notes" name="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+        </div>
+
+        <div id="embeddedMessage" class="text-sm"></div>
+
+        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+          <button type="button" onclick="(function(){ const listView = document.getElementById('reservationListView'); if(listView){ document.getElementById('newReservationForm').classList.add('hidden'); listView.classList.remove('hidden'); } })()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition-colors">Geri Dön</button>
+          <button id="embeddedConfirm" type="button" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
+            <i class="fas fa-calendar-plus mr-2"></i>Rezervasyon Yap
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      const API_SERVICES = '/carwash_project/backend/api/services/list.php';
+      const API_CARWASHES = '/carwash_project/backend/api/carwashes/list.php';
+      const API_CREATE = '/carwash_project/backend/api/bookings/create.php';
+
+      const el = id => document.getElementById(id);
+
+      async function loadCarwashes(){
+        try{
+          const resp = await fetch(API_CARWASHES,{cache:'no-store'});
+          const list = await resp.json();
+          const loc = el('location');
+          if(!loc) return;
+          // preserve server-rendered options if any
+          const existing = Array.from(loc.options).map(o=>o.value).filter(v=>v);
+          list.forEach(cw=>{
+            if(!existing.includes(String(cw.id))){ const o=document.createElement('option'); o.value=cw.id; o.textContent=cw.name + (cw.district?(' — '+cw.district):''); loc.appendChild(o); }
+          });
+
+          // preselect from querystring if provided
+          const qs = new URLSearchParams(window.location.search);
+          const pre = qs.get('carwash_id') || qs.get('carwash');
+          if(pre) { loc.value = pre; if(loc.value) loadServicesForCarwash(loc.value); }
+        }catch(e){ console.warn('Failed to load carwashes',e); }
+      }
+
+      async function loadServicesForCarwash(carwashId){
+        try{
+          const resp = await fetch(API_SERVICES + '?carwash_id=' + encodeURIComponent(carwashId),{cache:'no-store'});
+          const svcs = await resp.json();
+          const container = el('embeddedServices');
+          container.innerHTML = '';
+          if(!Array.isArray(svcs) || svcs.length===0){ container.innerHTML = '<div class="muted">Hizmet bulunamadı</div>'; return; }
+          svcs.forEach(s=>{
+            const d = document.createElement('div'); d.className='p-3 border rounded-lg flex justify-between items-center cursor-pointer'; d.innerHTML = `<div><div style=\"font-weight:600\">${s.name}</div><div class=\"small muted\">${s.description||''}</div></div><div style=\"font-weight:700\">₺${Number(s.price||0).toFixed(2)}</div>`;
+            d.onclick = ()=>{ selectServiceEmbedded(s); };
+            container.appendChild(d);
+          });
+        }catch(e){ console.warn('Failed to load services',e); }
+      }
+
+      let selectedService = null;
+      function selectServiceEmbedded(s){ selectedService = s; document.querySelectorAll('#embeddedServices > div').forEach(n=>n.style.outline=''); const items = Array.from(document.querySelectorAll('#embeddedServices > div')); const idx = items.findIndex(it=>it.innerText.includes(s.name)); if(items[idx]) items[idx].style.outline='3px solid rgba(37,99,235,0.12)'; }
+
+      function populateTimes(){ const timeSel = el('reservationTime'); if(!timeSel) return; timeSel.innerHTML=''; for(let h=9; h<18; h++){ ['00','30'].forEach(m=>{ const o=document.createElement('option'); o.value = `${String(h).padStart(2,'0')}:${m}`; o.textContent = `${String(h).padStart(2,'0')}:${m}`; timeSel.appendChild(o); }); } }
+
+      async function submitEmbedded(){
+        const msg = el('embeddedMessage');
+        if(!selectedService){ msg.textContent='Lütfen hizmet seçin'; msg.style.color='red'; return; }
+        const carwashId = el('location').value; const date = el('reservationDate').value; const time = el('reservationTime').value; const notes = el('notes').value || '';
+        if(!carwashId || !date || !time){ msg.textContent='Lütfen tüm zorunlu alanları doldurun'; msg.style.color='red'; return; }
+        const fd = new FormData(); fd.append('carwash_id', carwashId); fd.append('service_id', selectedService.id); fd.append('date', date); fd.append('time', time); fd.append('notes', notes);
+        const btn = el('embeddedConfirm'); btn.disabled = true; btn.textContent = 'Gönderiliyor...';
+        try{
+          const r = await fetch(API_CREATE, { method:'POST', body: fd, credentials: 'same-origin' });
+          const json = await r.json();
+          if(json.success){ msg.textContent = 'Rezervasyon başarılı. ID: '+json.booking_id; msg.style.color='green';
+            // Optionally refresh reservations list by dispatching a custom event
+            window.dispatchEvent(new CustomEvent('booking:created', { detail: json }));
+            // hide form after short delay
+            setTimeout(()=>{ const list = document.getElementById('reservationListView'); if(list){ document.getElementById('newReservationForm').classList.add('hidden'); list.classList.remove('hidden'); } }, 900);
+          } else { msg.textContent = 'Hata: '+(json.errors?json.errors.join('\n'):(json.message||'Bilinmeyen hata')); msg.style.color='red'; }
+        }catch(e){ console.error(e); msg.textContent = 'Sunucu hatası'; msg.style.color='red'; }
+        finally{ btn.disabled = false; btn.textContent = 'Rezervasyon Yap'; }
+      }
+
+      document.addEventListener('DOMContentLoaded', function(){ populateTimes(); loadCarwashes(); const loc = el('location'); if(loc) loc.addEventListener('change', ()=>{ const v=el('location').value; if(v) loadServicesForCarwash(v); }); const btn = el('embeddedConfirm'); if(btn) btn.addEventListener('click', submitEmbedded);
+        // Pre-fill from query params (city/district) if present
+        const qs = new URLSearchParams(window.location.search);
+        const city = qs.get('city'); const district = qs.get('district');
+        if(city){ const cf = document.getElementById('cityFilter'); if(cf){ if(![...cf.options].some(o=>o.value===city)){ const o=document.createElement('option'); o.value=city; o.textContent=city; cf.appendChild(o); } cf.value=city; loadDistrictOptions && loadDistrictOptions(); }
+          if(district){ const df = document.getElementById('districtFilter'); if(df){ if(![...df.options].some(o=>o.value===district)){ const od=document.createElement('option'); od.value=district; od.textContent=district; df.appendChild(od); } df.value=district; } }
+        }
+      });
+    })();
+    </script>
+
+<?php
+// End partial
+    exit;
+endif;
+
+// Full standalone page falls back to the multi-step wizard but includes the embeddable booking UI above
+?>
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +179,6 @@ $carwashes = $conn->query($carwashes_query);
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body class="bg-gray-50">
     <!-- Navbar -->
     <nav class="bg-white shadow-lg mb-8">
@@ -38,171 +194,12 @@ $carwashes = $conn->query($carwashes_query);
     <div class="max-w-4xl mx-auto px-4">
         <h1 class="text-3xl font-bold text-gray-800 mb-8">Yeni Randevu Oluştur</h1>
 
-        <form id="bookingForm" action="process_booking.php" method="POST" class="bg-white rounded-lg shadow-md p-6">
-            <!-- Step 1: Select CarWash -->
-            <div class="booking-step" id="step1">
-                <h2 class="text-xl font-semibold mb-4">1. Araç Yıkama Merkezi Seçin</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <?php while ($carwash = $carwashes->fetch_assoc()): ?>
-                        <div class="border rounded p-4 hover:border-blue-500 cursor-pointer carwash-option">
-                            <input type="radio" name="carwash_id" value="<?php echo $carwash['id']; ?>" class="hidden">
-                            <h3 class="font-semibold"><?php echo htmlspecialchars($carwash['business_name']); ?></h3>
-                            <p class="text-sm text-gray-600"><?php echo htmlspecialchars($carwash['address']); ?></p>
-                            <p class="text-sm text-gray-500">
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <?php echo number_format($carwash['rating'], 1); ?>
-                            </p>
-                        </div>
-                    <?php endwhile; ?>
-                </div>
-            </div>
-
-            <!-- Step 2: Select Service -->
-            <div class="booking-step hidden" id="step2">
-                <h2 class="text-xl font-semibold mb-4">2. Hizmet Seçin</h2>
-                <div id="services-container" class="grid grid-cols-1 gap-4">
-                    <!-- Services will be loaded dynamically -->
-                </div>
-            </div>
-
-            <!-- Step 3: Select Date & Time -->
-            <div class="booking-step hidden" id="step3">
-                <h2 class="text-xl font-semibold mb-4">3. Tarih ve Saat Seçin</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Tarih</label>
-                        <input type="date" name="booking_date" required
-                            min="<?php echo date('Y-m-d'); ?>"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Saat</label>
-                        <select name="booking_time" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <!-- Time slots will be loaded dynamically -->
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Navigation Buttons -->
-            <div class="mt-6 flex justify-between">
-                <button type="button" id="prevBtn" class="hidden px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
-                    <i class="fas fa-arrow-left mr-2"></i> Geri
-                </button>
-                <button type="button" id="nextBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    İleri <i class="fas fa-arrow-right ml-2"></i>
-                </button>
-                <button type="submit" id="submitBtn" class="hidden px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                    Randevuyu Onayla <i class="fas fa-check ml-2"></i>
-                </button>
-            </div>
-        </form>
+        <!-- Embed the same booking fragment so standalone and embedded use identical UI/JS -->
+        <?php
+        // Output the same fragment by including this file via partial internally
+        $_GET['partial'] = '1';
+        include __FILE__;
+        ?>
     </div>
-
-    <script>
-        let currentStep = 1;
-        const totalSteps = 3;
-
-        // Handle carwash selection
-        document.querySelectorAll('.carwash-option').forEach(option => {
-            option.addEventListener('click', function() {
-                const radio = this.querySelector('input[type="radio"]');
-                radio.checked = true;
-                document.querySelectorAll('.carwash-option').forEach(opt => {
-                    opt.classList.remove('border-blue-500');
-                });
-                this.classList.add('border-blue-500');
-
-                // Load services for selected carwash
-                if (radio.checked) {
-                    loadServices(radio.value);
-                }
-            });
-        });
-
-        // Load services for selected carwash
-        function loadServices(carwashId) {
-            fetch(`get_services.php?carwash_id=${carwashId}`)
-                .then(response => response.json())
-                .then(services => {
-                    const container = document.getElementById('services-container');
-                    container.innerHTML = '';
-                    services.forEach(service => {
-                        container.innerHTML += `
-                            <div class="border rounded p-4 hover:border-blue-500 cursor-pointer service-option">
-                                <input type="radio" name="service_id" value="${service.id}" class="hidden">
-                                <h3 class="font-semibold">${service.service_name}</h3>
-                                <p class="text-sm text-gray-600">${service.description}</p>
-                                <p class="text-sm font-semibold text-blue-600">${service.price} TL</p>
-                            </div>
-                        `;
-                    });
-
-                    // Add click handlers for service options
-                    document.querySelectorAll('.service-option').forEach(option => {
-                        option.addEventListener('click', function() {
-                            const radio = this.querySelector('input[type="radio"]');
-                            radio.checked = true;
-                            document.querySelectorAll('.service-option').forEach(opt => {
-                                opt.classList.remove('border-blue-500');
-                            });
-                            this.classList.add('border-blue-500');
-                        });
-                    });
-                });
-        }
-
-        // Navigation between steps
-        document.getElementById('nextBtn').addEventListener('click', () => {
-            if (validateCurrentStep()) {
-                currentStep++;
-                updateStepVisibility();
-            }
-        });
-
-        document.getElementById('prevBtn').addEventListener('click', () => {
-            currentStep--;
-            updateStepVisibility();
-        });
-
-        function updateStepVisibility() {
-            document.querySelectorAll('.booking-step').forEach((step, index) => {
-                step.classList.toggle('hidden', index + 1 !== currentStep);
-            });
-
-            document.getElementById('prevBtn').classList.toggle('hidden', currentStep === 1);
-            document.getElementById('nextBtn').classList.toggle('hidden', currentStep === totalSteps);
-            document.getElementById('submitBtn').classList.toggle('hidden', currentStep !== totalSteps);
-        }
-
-        function validateCurrentStep() {
-            switch (currentStep) {
-                case 1:
-                    return document.querySelector('input[name="carwash_id"]:checked') !== null;
-                case 2:
-                    return document.querySelector('input[name="service_id"]:checked') !== null;
-                default:
-                    return true;
-            }
-        }
-
-        // Form submission
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!validateForm()) {
-                return;
-            }
-            this.submit();
-        });
-
-        function validateForm() {
-            const requiredFields = ['carwash_id', 'service_id', 'booking_date', 'booking_time'];
-            return requiredFields.every(field => {
-                const element = document.querySelector(`[name="${field}"]`);
-                return element && element.value;
-            });
-        }
-    </script>
 </body>
-
 </html>

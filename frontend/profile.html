@@ -937,7 +937,7 @@
             <div class="flex flex-wrap gap-2 mb-4">
               ${carWash.services.map(service => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${service}</span>`).join('')}
             </div>
-            <button onclick="selectCarWashForReservation('${carWash.name}')" class="mt-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
+            <button onclick="selectCarWashForReservation(${carWash.id}, '${carWash.name.replace(/'/g, "\\'")}')" class="mt-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
               <i class="fas fa-calendar-alt mr-2"></i>Rezervasyon Yap
             </button>
           </div>
@@ -954,13 +954,23 @@
       }
     }
 
-    function selectCarWashForReservation(carWashName) {
-      // Set the selected car wash in the reservation form's location field
-      document.getElementById('location').value = carWashName;
-      // Switch to the reservations section and show the new reservation form
+    function selectCarWashForReservation(carWashId, carWashName) {
+      try {
+        const params = new URLSearchParams();
+        params.set('carwash_id', String(carWashId));
+        if (carWashName) params.set('carwash_name', carWashName);
+        const bookingPath = '/carwash_project/frontend/booking.html';
+        window.open(bookingPath + '?' + params.toString(), '_blank');
+        return;
+      } catch (e) {
+        console.warn('Redirect to booking page failed, falling back to in-page form prefill', e);
+      }
+
+      // Fallback: prefill in-page form
+      const loc = document.getElementById('location');
+      if (loc) loc.value = carWashName || '';
       showSection('reservations');
       showNewReservationForm();
-      // Optionally, scroll to the new reservation form
       document.getElementById('newReservationForm').scrollIntoView({ behavior: 'smooth' });
     }
 

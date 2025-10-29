@@ -575,9 +575,7 @@ include '../includes/dashboard_header.php';
               <label for="cityFilter" class="block text-sm font-bold text-gray-700 mb-2">Şehir</label>
               <select id="cityFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 <option value="">Tüm Şehirler</option>
-                <option value="İstanbul">İstanbul</option>
-                <option value="Ankara">Ankara</option>
-                <option value="İzmir">İzmir</option>
+                <!-- Cities are loaded dynamically from the carwashes API -->
               </select>
             </div>
             <div>
@@ -675,37 +673,29 @@ include '../includes/dashboard_header.php';
             </div>
           </div>
 
-          <!-- New Reservation Form -->
+          <!-- New Reservation Form (embedded booking UI) -->
           <div id="newReservationForm" class="p-6 hidden">
             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
-            <form class="space-y-6" action="Customer_Dashboard_process.php" method="post" enctype="multipart/form-data" data-enable-validation="1">
-              <input type="hidden" name="action" value="create_reservation">
-              <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-              <!-- Service Selection -->
+            <div id="embeddedBooking" class="space-y-6">
+              <!-- Services loaded dynamically -->
               <div>
-                <label for="service" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
-                <select id="service" name="service_type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
-                  <option value="">Hizmet Seçiniz</option>
-                  <option value="Dış Yıkama">Dış Yıkama</option>
-                  <option value="Dış Yıkama + İç Temizlik">Dış Yıkama + İç Temizlik</option>
-                  <option value="Tam Detaylandırma">Tam Detaylandırma</option>
-                  <option value="Motor Temizliği">Motor Temizliği</option>
-                </select>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
+                <div id="embeddedServices" class="space-y-2">
+                  <div class="text-sm muted">Hizmetler yükleniyor...</div>
+                </div>
               </div>
 
-              <!-- Vehicle Selection -->
+              <!-- Vehicle selector (existing vehicles) -->
               <div>
                 <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
                 <select id="vehicle" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   <option value="">Araç Seçiniz</option>
-                  <!-- Options should carry the vehicle id value -->
-                  <option value="1">Toyota Corolla - 34 ABC 123</option>
-                  <option value="2">Honda Civic - 34 XYZ 789</option>
+                  <!-- TODO: populate user vehicles dynamically -->
                 </select>
               </div>
 
-              <!-- Date and Time -->
+              <!-- Date & Time -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                 <div>
                   <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
@@ -713,18 +703,17 @@ include '../includes/dashboard_header.php';
                 </div>
                 <div>
                   <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
-                  <input type="time" id="reservationTime" name="reservation_time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
+                  <select id="reservationTime" name="reservation_time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
+                    <option value="">Saat seçin</option>
+                  </select>
                 </div>
               </div>
 
-              <!-- Location (carwash id) -->
+              <!-- Location select already exists on dashboard; keep it for consistency -->
               <div>
                 <label for="location" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
                 <select id="location" name="carwash_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
                   <option value="">Konum Seçiniz</option>
-                  <option value="1">CarWash Merkez</option>
-                  <option value="2">CarWash Premium</option>
-                  <option value="3">CarWash Express</option>
                 </select>
               </div>
 
@@ -738,11 +727,74 @@ include '../includes/dashboard_header.php';
                 <button type="button" onclick="hideNewReservationForm()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition-colors">
                   Geri Dön
                 </button>
-                <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
+                <button id="embeddedConfirm" type="button" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
                   <i class="fas fa-calendar-plus mr-2"></i>Rezervasyon Yap
                 </button>
               </div>
-            </form>
+            </div>
+
+            <script>
+              (function(){
+                const API_SERVICES = '/carwash_project/backend/api/services/list.php';
+                const API_CARWASHES = '/carwash_project/backend/api/carwashes/list.php';
+                const API_CREATE = '/carwash_project/backend/api/bookings/create.php';
+
+                const el = id => document.getElementById(id);
+
+                // Populate carwash options into #location
+                async function loadCarwashes(){
+                  try{
+                    const resp = await fetch(API_CARWASHES,{cache:'no-store'});
+                    const list = await resp.json();
+                    const loc = el('location');
+                    loc.innerHTML = '<option value="">Konum Seçiniz</option>';
+                    list.forEach(cw=>{ const o = document.createElement('option'); o.value=cw.id; o.textContent=cw.name; loc.appendChild(o); });
+                    // If redirected from dashboard with query params, preselect
+                    const qs = new URLSearchParams(window.location.search);
+                    const preId = qs.get('carwash_id');
+                    if(preId) loc.value = preId;
+                    if(loc.value) loadServicesForCarwash(loc.value);
+                  }catch(e){ console.warn('Failed to load carwashes',e); }
+                }
+
+                async function loadServicesForCarwash(carwashId){
+                  try{
+                    const resp = await fetch(API_SERVICES + '?carwash_id=' + encodeURIComponent(carwashId),{cache:'no-store'});
+                    const svcs = await resp.json();
+                    const container = el('embeddedServices');
+                    container.innerHTML = '';
+                    if(!Array.isArray(svcs) || svcs.length===0){ container.innerHTML = '<div class="muted">Hizmet bulunamadı</div>'; return; }
+                    svcs.forEach(s=>{
+                      const d = document.createElement('div'); d.className='p-3 border rounded-lg flex justify-between items-center cursor-pointer'; d.innerHTML = `<div><div style=\"font-weight:600\">${s.name}</div><div class=\"small muted\">${s.description||''}</div></div><div style=\"font-weight:700\">₺${Number(s.price||0).toFixed(2)}</div>`;
+                      d.onclick = ()=>{ selectServiceEmbedded(s); };
+                      container.appendChild(d);
+                    });
+                  }catch(e){ console.warn('Failed to load services',e); }
+                }
+
+                let selectedService = null;
+                function selectServiceEmbedded(s){ selectedService = s; document.querySelectorAll('#embeddedServices > div').forEach(n=>n.style.outline=''); const items = Array.from(document.querySelectorAll('#embeddedServices > div')); const idx = items.findIndex(it=>it.innerText.includes(s.name)); if(items[idx]) items[idx].style.outline='3px solid rgba(37,99,235,0.12)'; }
+
+                function populateTimes(){ const timeSel = el('reservationTime'); timeSel.innerHTML=''; for(let h=9; h<18; h++){ ['00','30'].forEach(m=>{ const o=document.createElement('option'); o.value = `${String(h).padStart(2,'0')}:${m}`; o.textContent = `${String(h).padStart(2,'0')}:${m}`; timeSel.appendChild(o); }); } }
+
+                async function submitEmbedded(){
+                  if(!selectedService){ alert('Lütfen hizmet seçin'); return; }
+                  const carwashId = el('location').value; const date = el('reservationDate').value; const time = el('reservationTime').value; const notes = el('notes').value || '';
+                  if(!carwashId || !date || !time){ alert('Lütfen tüm zorunlu alanları doldurun'); return; }
+                  const fd = new FormData(); fd.append('carwash_id', carwashId); fd.append('service_id', selectedService.id); fd.append('date', date); fd.append('time', time); fd.append('notes', notes);
+                  el('embeddedConfirm').disabled = true; el('embeddedConfirm').textContent = 'Gönderiliyor...';
+                  try{
+                    const r = await fetch(API_CREATE, { method:'POST', body: fd, credentials: 'same-origin' });
+                    const json = await r.json();
+                    if(json.success){ alert('Rezervasyon başarılı. ID: '+json.booking_id); window.location.reload(); }
+                    else { alert('Hata: '+(json.errors?json.errors.join('\n'):(json.message||'Bilinmeyen hata'))); }
+                  }catch(e){ console.error(e); alert('Sunucu hatası'); }
+                  finally{ el('embeddedConfirm').disabled = false; el('embeddedConfirm').textContent = 'Rezervasyon Yap'; }
+                }
+
+                document.addEventListener('DOMContentLoaded', function(){ populateTimes(); loadCarwashes(); el('location').addEventListener('change', ()=>{ const v=el('location').value; if(v) loadServicesForCarwash(v); }); el('embeddedConfirm').addEventListener('click', submitEmbedded); });
+              })();
+            </script>
           </div>
         </div>
       </section>
@@ -1137,21 +1189,80 @@ include '../includes/dashboard_header.php';
       document.body.style.overflow = ''; // Restore scrolling
     }
 
-    // Sample data for car washes
-    const allCarWashes = [
-      { id: 1, name: 'CarWash Merkez', city: 'İstanbul', district: 'Kadıköy', rating: 4.8, isFavorite: true, services: ['Dış Yıkama', 'İç Temizlik'] },
-      { id: 2, name: 'CarWash Premium', city: 'İstanbul', district: 'Beşiktaş', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma', 'Motor Temizliği'] },
-      { id: 3, name: 'CarWash Express', city: 'İstanbul', district: 'Şişli', rating: 4.5, isFavorite: true, services: ['Dış Yıkama'] },
-      { id: 4, name: 'Ankara Oto Yıkama', city: 'Ankara', district: 'Çankaya', rating: 4.7, isFavorite: false, services: ['Dış Yıkama', 'İç Temizlik'] },
-      { id: 5, name: 'İzmir Hızlı Yıkama', city: 'İzmir', district: 'Bornova', rating: 4.6, isFavorite: true, services: ['Dış Yıkama'] },
-      { id: 6, name: 'Kadıköy Detay', city: 'İstanbul', district: 'Kadıköy', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma'] },
-    ];
+    // Load car washes from API (ensure IDs match database)
+    const allCarWashes = [];
+    async function loadCarWashesFromApi() {
+      try {
+        const res = await fetch('/carwash_project/backend/api/carwashes/list.php', { credentials: 'same-origin' });
+        let json = [];
+        try { json = await res.json(); } catch (e) { json = []; }
 
-    // Sample districts data (for dynamic loading)
+        // If API returned nothing, provide sample entries so booking UI can be tested
+        if (!Array.isArray(json) || json.length === 0) {
+          json = [
+            {id: 1, name: 'CarWash Premium', city: 'İstanbul', district: 'Beşiktaş'},
+            {id: 2, name: 'Beşiktaş AutoCare', city: 'İstanbul', district: 'Beşiktaş'},
+            {id: 3, name: 'Ankara Express', city: 'Ankara', district: 'Çankaya'},
+            {id: 4, name: 'Capitol Clean', city: 'Ankara', district: 'Keçiören'},
+            {id: 5, name: 'İzmir Shine', city: 'İzmir', district: 'Konak'},
+            {id: 6, name: 'Ege AutoWash', city: 'İzmir', district: 'Karşıyaka'},
+            {id: 7, name: 'Antalya WashCenter', city: 'Antalya', district: 'Muratpaşa'},
+            {id: 8, name: 'Lara Clean', city: 'Antalya', district: 'Konyaaltı'},
+            {id: 9, name: 'Bursa Spot', city: 'Bursa', district: 'Osmangazi'},
+            {id: 10, name: 'Nilüfer CarCare', city: 'Bursa', district: 'Nilüfer'}
+          ];
+        }
+
+        // normalize fields (city/district may be missing depending on API)
+        allCarWashes.length = 0;
+        json.forEach(cw => allCarWashes.push(Object.assign({ city: cw.city || '', district: cw.district || '', rating: cw.rating || 0, isFavorite: false, services: cw.services || [] }, cw)));
+
+        // Build city -> districts mapping and populate cityFilter select
+        const citySet = new Map();
+        allCarWashes.forEach(cw => {
+          const city = cw.city || '';
+          const district = cw.district || '';
+          if (!city) return;
+          if (!citySet.has(city)) citySet.set(city, new Set());
+          if (district) citySet.get(city).add(district);
+        });
+        // Populate cityFilter options
+        const citySel = document.getElementById('cityFilter');
+        if (citySel) {
+          // remove any existing dynamic options
+          Array.from(citySel.querySelectorAll('option[data-dynamic]')).forEach(o => o.remove());
+          for (const [city, districts] of citySet.entries()) {
+            const opt = document.createElement('option'); opt.value = city; opt.textContent = city; opt.setAttribute('data-dynamic', '1'); citySel.appendChild(opt);
+          }
+        }
+        // Build districtsByCity mapping used by filterCarWashes and expose globally
+        Object.keys(districtsByCity).forEach(k => delete districtsByCity[k]);
+        for (const [city, districts] of citySet.entries()) {
+          districtsByCity[city] = Array.from(districts);
+        }
+        window.districtsByCity = districtsByCity;
+        filterCarWashes();
+      } catch (e) {
+        console.warn('Failed to load carwashes from API', e);
+        // fallback to sample data if fetch fails
+        if (allCarWashes.length === 0) {
+          allCarWashes.push({id:1,name:'CarWash Premium',city:'İstanbul',district:'Beşiktaş'});
+          districtsByCity['İstanbul'] = ['Beşiktaş'];
+          window.districtsByCity = districtsByCity;
+          filterCarWashes();
+        } else {
+          document.getElementById('carWashList').innerHTML = '<p class="text-gray-600 text-center col-span-full">CarWash listesi yüklenemiyor.</p>';
+        }
+      }
+    }
+
+    // Districts data (dynamic loading) — expanded to requested cities/areas
     const districtsByCity = {
-      'İstanbul': ['Kadıköy', 'Beşiktaş', 'Şişli', 'Fatih'],
-      'Ankara': ['Çankaya', 'Kızılay', 'Yenimahalle'],
-      'İzmir': ['Bornova', 'Konak', 'Karşıyaka']
+      'İstanbul': ['Kadıköy', 'Beşiktaş', 'Üsküdar'],
+      'Ankara': ['Çankaya', 'Keçiören', 'Etimesgut'],
+      'İzmir': ['Konak', 'Karşıyaka', 'Bornova'],
+      'Antalya': ['Muratpaşa', 'Konyaaltı', 'Kepez'],
+      'Bursa': ['Osmangazi', 'Nilüfer', 'Yıldırım']
     };
 
     function showSection(sectionId) {
@@ -1182,7 +1293,8 @@ include '../includes/dashboard_header.php';
       // Special handling for carWashSelection to load list
       if (sectionId === 'carWashSelection') {
         loadDistrictOptions(); // Load districts for the default city or all
-        filterCarWashes(); // Display all car washes initially
+        // Load carwashes from API (will call filterCarWashes when done)
+        loadCarWashesFromApi();
       }
       // Ensure reservation list is shown by default when navigating to reservations
       if (sectionId === 'reservations') {
@@ -1304,9 +1416,9 @@ include '../includes/dashboard_header.php';
             <p class="text-sm text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${carWash.district}, ${carWash.city}</p>
             <p class="text-sm text-gray-600 mb-4"><i class="fas fa-star text-yellow-400 mr-2"></i>${carWash.rating} (${(Math.random() * 100).toFixed(0)} yorum)</p>
             <div class="flex flex-wrap gap-2 mb-4">
-              ${carWash.services.map(service => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${service}</span>`).join('')}
+        ${(carWash.services || []).map(service => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${service}</span>`).join('')}
             </div>
-            <a href="/carwash_project/frontend/booking.html?carwash_id=${carWash.id}&carwash_name=${encodeURIComponent(carWash.name)}" onclick="selectCarWashForReservation(${carWash.id}, '${carWash.name.replace(/'/g, "\\'")}')" class="mt-auto inline-block text-center gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
+            <a href="#" role="button" onclick="selectCarWashForReservation(event, ${carWash.id}, '${carWash.name.replace(/'/g, "\\'")}')" class="mt-auto inline-block text-center gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all" aria-label="${carWash.name} için rezervasyon yap">
               <i class="fas fa-calendar-alt mr-2"></i>Rezervasyon Yap
             </a>
           </div>
@@ -1322,29 +1434,78 @@ include '../includes/dashboard_header.php';
         filterCarWashes(); // Re-render the list to update heart icon
       }
     }
+    
+    // Helper to insert HTML and run contained scripts when loading a partial form via fetch
+    function insertHTMLWithScripts(container, html) {
+      container.innerHTML = html;
+      // Execute any inline scripts inside the injected HTML
+      const scripts = Array.from(container.querySelectorAll('script'));
+      scripts.forEach(s => {
+        const ns = document.createElement('script');
+        if (s.src) {
+          ns.src = s.src;
+          ns.async = false;
+          document.head.appendChild(ns);
+        } else {
+          ns.textContent = s.textContent;
+          document.head.appendChild(ns);
+          document.head.removeChild(ns);
+        }
+        s.parentNode.removeChild(s);
+      });
+    }
 
-    function selectCarWashForReservation(carWashId, carWashName) {
-      // If the booking page exists as a separate page, redirect immediately and pass the selected carwash id/name
+    async function selectCarWashForReservation(ev, carWashId, carWashName) {
+      // Open the existing embedded reservation form and pre-fill city/district/carwash.
+      ev && ev.preventDefault && ev.preventDefault();
       try {
-        const params = new URLSearchParams();
-        params.set('carwash_id', String(carWashId));
-        if (carWashName) params.set('carwash_name', carWashName);
+        const cw = allCarWashes.find(c => Number(c.id) === Number(carWashId)) || {};
 
-  // Use absolute path for booking page to avoid broken redirects in different environments
-  const bookingPath = '/carwash_project/frontend/booking.html';
-        window.location.href = bookingPath + '?' + params.toString();
-        return;
+        // Preselect city and district in the filters so the user sees the correct area
+        const citySel = document.getElementById('cityFilter');
+        const districtSel = document.getElementById('districtFilter');
+        if (citySel && cw.city) {
+          citySel.value = cw.city;
+          // rebuild district options for the selected city
+          loadDistrictOptions();
+          if (districtSel && cw.district) districtSel.value = cw.district;
+        }
+
+        // Show reservations section and embedded form (keeps everything inside dashboard)
+        showSection('reservations');
+        showNewReservationForm();
+
+        // Populate the location select from in-memory carwash list if it's not already populated
+        const loc = document.getElementById('location');
+        if (loc) {
+          if (loc.options.length <= 1) { // only default option present
+            loc.innerHTML = '<option value="">Konum Seçiniz</option>';
+            allCarWashes.forEach(c => {
+              const o = document.createElement('option');
+              o.value = c.id;
+              o.textContent = c.name + (c.district ? (' — ' + c.district) : '');
+              loc.appendChild(o);
+            });
+          }
+
+          // Set selected carwash and trigger change so embedded script loads services
+          loc.value = String(carWashId);
+          const changeEvt = new Event('change', { bubbles: true });
+          loc.dispatchEvent(changeEvt);
+        }
+
+        // Focus the date input for accessibility
+        const container = document.getElementById('newReservationForm');
+        if (container) {
+          container.classList.remove('hidden');
+          container.scrollIntoView({ behavior: 'smooth' });
+          const dateInput = container.querySelector('#reservationDate');
+          if (dateInput) dateInput.focus();
+        }
       } catch (e) {
-        // Fallback: if something fails, try to prefill the in-page reservation form (single-page dashboard)
-        console.warn('Redirect to booking page failed, falling back to in-page form prefill', e);
+        console.warn('Failed to open embedded reservation form, falling back to full navigation', e);
+        window.location.href = '/carwash_project/backend/booking/new_booking.php?carwash_id=' + encodeURIComponent(carWashId);
       }
-
-      // Fallback behavior when staying on the dashboard: prefill the local form by name
-      const loc = document.getElementById('location');
-      if (loc) loc.value = carWashName || '';
-      showSection('reservations');
-      showNewReservationForm();
-      document.getElementById('newReservationForm').scrollIntoView({ behavior: 'smooth' });
     }
 
 
