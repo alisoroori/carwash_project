@@ -8,6 +8,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Request helpers (merge JSON body into $_POST + structured errors)
+if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
+    require_once __DIR__ . '/../../includes/request_helpers.php';
+}
+
 // Require autoload if available
 if (file_exists(__DIR__ . '/../../../vendor/autoload.php')) {
     require_once __DIR__ . '/../../../vendor/autoload.php';
@@ -128,6 +133,9 @@ try {
     }
 } catch (Throwable $e) {
     error_log('bookings/create.php error: ' . $e->getMessage());
+    if (function_exists('send_structured_error_response')) {
+        send_structured_error_response($e, 500);
+    }
     http_response_code(500);
     $response['errors'][] = 'Internal server error';
     sendJson($response);

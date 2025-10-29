@@ -1525,35 +1525,50 @@ include '../includes/dashboard_header.php';
         form.addEventListener('submit', async function (ev) {
           ev.preventDefault();
           if (!form) return;
-          const fd = new FormData(form);
-          // Keep same API endpoint as before
-          try {
-            const res = await fetch('Customer_Dashboard_process.php', {
-              method: 'POST',
-              credentials: 'same-origin',
-              body: fd,
-              headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+            const fd = new FormData(form);
+            // Keep same API endpoint as before
+            try {
+              const res = await fetch('Customer_Dashboard_process.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: fd,
+                headers: {
+                  'Accept': 'application/json',
+                  'X-Requested-With': 'XMLHttpRequest'
+                }
+              });
+
+              // Read text first to guard against HTML error pages or non-JSON responses
+              const raw = await res.text();
+              let json = null;
+              try {
+                json = raw ? JSON.parse(raw) : null;
+              } catch (parseErr) {
+                console.error('Non-JSON response from Customer_Dashboard_process.php:', raw.slice(0, 2000));
+                msg.textContent = 'Sunucudan beklenmedik bir yanıt alındı.';
+                msg.className = 'text-sm text-red-600';
+                return;
               }
-            });
-            const json = await res.json();
-            if (json && json.success) {
-              msg.textContent = 'Araç kaydedildi.';
-              msg.className = 'text-sm text-green-600';
-              // Refresh vehicles list and selects if functions exist
-              if (typeof loadUserVehicles === 'function') loadUserVehicles();
-              else if (typeof refreshVehicleSelect === 'function') refreshVehicleSelect();
-              // hide after short delay
-              setTimeout(closeVehicleModal, 900);
-            } else {
-              msg.textContent = json.error || 'Kaydetme sırasında bir hata oluştu.';
+
+              if (res.ok && json && json.success) {
+                msg.textContent = 'Araç kaydedildi.';
+                msg.className = 'text-sm text-green-600';
+                // Refresh vehicles list and selects if functions exist
+                if (typeof loadUserVehicles === 'function') loadUserVehicles();
+                else if (typeof refreshVehicleSelect === 'function') refreshVehicleSelect();
+                // hide after short delay
+                setTimeout(closeVehicleModal, 900);
+              } else {
+                // Prefer structured server message if present
+                const serverMsg = (json && (json.message || json.error)) ? (json.message || json.error) : 'Kaydetme sırasında bir hata oluştu.';
+                msg.textContent = serverMsg;
+                msg.className = 'text-sm text-red-600';
+              }
+            } catch (e) {
+              console.error('Vehicle form submit error', e);
+              msg.textContent = 'İşlem başarısız: ' + (e && e.message ? e.message : 'Ağ hatası');
               msg.className = 'text-sm text-red-600';
             }
-          } catch (e) {
-            msg.textContent = 'İşlem başarısız: ' + e.message;
-            msg.className = 'text-sm text-red-600';
-          }
         });
       }
     });
@@ -1583,7 +1598,19 @@ include '../includes/dashboard_header.php';
           return;
         }
 
-        const json = await res.json();
+        // Accept non-JSON responses gracefully (some servers may return HTML on error)
+        const raw = await res.text();
+        let json = null;
+        try {
+          json = raw ? JSON.parse(raw) : null;
+        } catch (parseErr) {
+          console.error('Non-JSON response from Customer_Dashboard_process.php (list_vehicles):', raw.slice(0,2000));
+          if (msgEl) { msgEl.textContent = 'Araçlar yüklenemedi.'; msgEl.className = 'text-sm text-red-600'; }
+          renderVehiclesList([]);
+          refreshVehicleSelect([]);
+          return;
+        }
+
         if (!json || !json.success) {
           console.warn('list_vehicles returned no vehicles', json);
           if (msgEl) { msgEl.textContent = json.message || 'Araç bulunamadı.'; msgEl.className = 'text-sm text-gray-600'; }

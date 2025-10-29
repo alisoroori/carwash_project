@@ -71,9 +71,8 @@ try {
 
 
     $action = $_POST['action'] ?? '';
-
+    // We'll preserve reservation + vehicle listing handlers, but forward booking creation to the unified create endpoint
     switch ($action) {
-        // --- Existing reservation handlers preserved ---
         case 'fetch_reservations':
             if (!$dbConn) throw new RuntimeException('DB helper missing');
             $pdo = $dbConn;
@@ -94,7 +93,29 @@ try {
             echo json_encode(['success' => true], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             break;
 
-        // --- Begin: Vehicle handlers used by frontend (list/create/update/delete) ---
+        case 'create_booking':
+            // Forward booking creation to the central API endpoint
+            // We will include the create.php directly so it runs in this request context
+            // Ensure required booking fields exist
+            $hasBookingPayload = (isset($_POST['service_id']) || isset($_POST['carwash_id']) || isset($_POST['date']));
+            if (!$hasBookingPayload) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Missing booking payload']);
+                break;
+            }
+
+            // Include the central create handler. It will output JSON and exit.
+            $createPath = __DIR__ . '/../api/bookings/create.php';
+            if (file_exists($createPath)) {
+                require $createPath;
+                // create.php should exit, but if it returns here, ensure we stop
+                exit;
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Create endpoint missing']);
+            }
+            break;
+
         case 'list_vehicles':
             if (!$dbConn) throw new RuntimeException('Database connection not available');
             $pdo = $dbConn;
@@ -107,113 +128,6 @@ try {
                 echo json_encode(['success' => true, 'vehicles' => $vehicles], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             }
             break;
-
-        case 'create_vehicle':
-            if (!$dbConn) throw new RuntimeException('Database connection not available');
-
-            // CSRF enforcement (if token exists in session)
-            $postedCsrf = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
-            $sessionCsrf = $_SESSION['csrf_token'] ?? '';
-            if ($sessionCsrf !== '' || $postedCsrf !== '') {
-                if (empty($postedCsrf) || !hash_equals((string)$sessionCsrf, (string)$postedCsrf)) {
-                    http_response_code(403);
-                    echo json_encode(['success' => false, 'message' => 'Invalid CSRF']);
-                    exit;
-                }
-            }
-
-            $brand = trim((string)($_POST['car_brand'] ?? ''));
-            $model = trim((string)($_POST['car_model'] ?? ''));
-            $license = trim((string)($_POST['license_plate'] ?? ''));
-            $year = isset($_POST['car_year']) ? (int)$_POST['car_year'] : null;
-            $color = trim((string)($_POST['car_color'] ?? ''));
-            $image_path = null;
-
-            // Handle optional uploaded file if present (FormData)
-            if (!empty($_FILES['vehicle_image']['tmp_name']) && is_uploaded_file($_FILES['vehicle_image']['tmp_name'])) {
-                $uploadDir = __DIR__ . '/../../uploads/vehicles';
-                if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-                $ext = pathinfo($_FILES['vehicle_image']['name'] ?? '', PATHINFO_EXTENSION);
-                $safe = bin2hex(random_bytes(8)) . ($ext ? '.' . preg_replace('/[^a-z0-9]/i', '', $ext) : '');
-                $target = $uploadDir . '/' . $safe;
-                if (move_uploaded_file($_FILES['vehicle_image']['tmp_name'], $target)) {
-                    $image_path = 'uploads/vehicles/' . $safe;
-                }
-            }
-
-            $pdo = $dbConn;
-            $stmt = $pdo->prepare('INSERT INTO user_vehicles (user_id, brand, model, license_plate, year, color, image_path, created_at) VALUES (:uid, :brand, :model, :license, :year, :color, :img, NOW())');
-            $ok = $stmt->execute([
-                ':uid' => $_SESSION['user_id'],
-                ':brand' => $brand,
-                ':model' => $model,
-                ':license' => $license,
-                ':year' => $year,
-                ':color' => $color,
-                ':img' => $image_path
-            ]);
-            if (!$ok) throw new RuntimeException('Could not save vehicle');
-            $vid = (int)$pdo->lastInsertId();
-            echo json_encode(['success' => true, 'vehicle_id' => $vid], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            break;
-
-        case 'update_vehicle':
-            if (!$dbConn) throw new RuntimeException('Database connection not available');
-            $vid = (int)($_POST['vehicle_id'] ?? ($_POST['id'] ?? 0));
-            if ($vid <= 0) throw new InvalidArgumentException('Invalid vehicle id');
-
-            $postedCsrf = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
-            $sessionCsrf = $_SESSION['csrf_token'] ?? '';
-            if ($sessionCsrf !== '' || $postedCsrf !== '') {
-                if (empty($postedCsrf) || !hash_equals((string)$sessionCsrf, (string)$postedCsrf)) {
-                    http_response_code(403);
-                    echo json_encode(['success' => false, 'message' => 'Invalid CSRF']);
-                    exit;
-                }
-            }
-
-            $brand = trim((string)($_POST['car_brand'] ?? ''));
-            $model = trim((string)($_POST['car_model'] ?? ''));
-            $license = trim((string)($_POST['license_plate'] ?? ''));
-            $year = isset($_POST['car_year']) ? (int)$_POST['car_year'] : null;
-            $color = trim((string)($_POST['car_color'] ?? ''));
-            $image_path = null;
-
-            if (!empty($_FILES['vehicle_image']['tmp_name']) && is_uploaded_file($_FILES['vehicle_image']['tmp_name'])) {
-                $uploadDir = __DIR__ . '/../../uploads/vehicles';
-                if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-                $ext = pathinfo($_FILES['vehicle_image']['name'] ?? '', PATHINFO_EXTENSION);
-                $safe = bin2hex(random_bytes(8)) . ($ext ? '.' . preg_replace('/[^a-z0-9]/i', '', $ext) : '');
-                $target = $uploadDir . '/' . $safe;
-                if (move_uploaded_file($_FILES['vehicle_image']['tmp_name'], $target)) {
-                    $image_path = 'uploads/vehicles/' . $safe;
-                }
-            }
-
-            $pdo = $dbConn;
-            $sql = 'UPDATE user_vehicles SET brand = :brand, model = :model, license_plate = :license, year = :year, color = :color';
-            if ($image_path !== null) $sql .= ', image_path = :img';
-            $sql .= ' , updated_at = NOW() WHERE id = :id AND user_id = :uid';
-            $stmt = $pdo->prepare($sql);
-            $params = [':brand'=>$brand, ':model'=>$model, ':license'=>$license, ':year'=>$year, ':color'=>$color, ':id'=>$vid, ':uid'=>$_SESSION['user_id']];
-            if ($image_path !== null) $params[':img'] = $image_path;
-            $ok = $stmt->execute($params);
-            if (!$ok) throw new RuntimeException('Update failed');
-            echo json_encode(['success' => true, 'vehicle_id' => $vid], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            break;
-
-        case 'delete_vehicle':
-            if (!$dbConn) throw new RuntimeException('Database connection not available');
-            $vid = (int)($_POST['vehicle_id'] ?? ($_POST['id'] ?? 0));
-            if ($vid <= 0) throw new InvalidArgumentException('Invalid vehicle id');
-
-            $pdo = $dbConn;
-            $stmt = $pdo->prepare('DELETE FROM user_vehicles WHERE id = :id AND user_id = :uid');
-            $ok = $stmt->execute([':id' => $vid, ':uid' => $_SESSION['user_id']]);
-            if (!$ok) throw new RuntimeException('Delete failed');
-            echo json_encode(['success' => true], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            break;
-        // --- End: Vehicle handlers ---
 
         default:
             if (class_exists(\App\Classes\Logger::class) && method_exists(\App\Classes\Logger::class, 'warn')) {
