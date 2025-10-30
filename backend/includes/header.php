@@ -790,12 +790,10 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
     <div class="container mx-auto px-4">
       <div class="flex justify-between items-center py-3">
         <!-- Logo -->
-        <div class="flex items-center space-x-2">
-          <a href="<?php echo $home_url; ?>" class="flex items-center space-x-2 hover:opacity-80 transition-opacity group">
-            <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-300">
-              <i class="fas fa-car text-white text-sm sm:text-base lg:text-lg group-hover:rotate-12 transition-transform duration-300"></i>
-            </div>
-            <h1 class="text-base sm:text-lg lg:text-xl font-bold text-white group-hover:scale-105 transition-transform duration-300">CarWash</h1>
+        <div class="site-logo" style="display: flex; align-items: center;">
+          <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="./logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+            <span style=" font-size: 2rem; font-weight: 400; font-family: 'momo-signature-regular'; color: #194bb6ff;">MYCAR</span>
           </a>
         </div>
 
@@ -899,12 +897,10 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
     <div class="container mx-auto px-4">
       <div class="flex justify-between items-center py-3">
         <!-- Logo -->
-        <div class="flex items-center space-x-2">
-          <a href="<?php echo $home_url; ?>" class="flex items-center space-x-2 hover:opacity-80 transition-opacity group">
-            <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-300">
-              <i class="fas fa-car text-white text-sm sm:text-base lg:text-lg group-hover:rotate-12 transition-transform duration-300"></i>
-            </div>
-            <h1 class="text-base sm:text-lg lg:text-xl font-bold text-white group-hover:scale-105 transition-transform duration-300">CarWash</h1>
+        <div class="site-logo" style="display: flex; align-items: center;">
+          <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+            <span style=" font-size: 2rem; font-weight: 400; font-family: 'momo-signature-regular'; color: #194bb6ff;">MYCAR</span>
           </a>
         </div>
 
@@ -987,7 +983,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
             <i class="fas fa-info-circle mr-3 text-white w-5 opacity-90"></i>
             <span>Hakkımızda</span>
           </a>
-          <a href="<?php echo $contact_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
+          <a href="<?php echo $contact_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
             <i class="fas fa-envelope mr-3 text-white w-5 opacity-90"></i>
             <span>İletişim</span>
           </a>

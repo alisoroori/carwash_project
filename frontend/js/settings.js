@@ -16,7 +16,8 @@ const CONFIG = {
   TOAST_DURATION: 5000,
   AUTOSAVE_DELAY: 2000,
   PASSWORD_MIN_LENGTH: 8,
-  MOBILE_BREAKPOINT: 1024
+  MOBILE_BREAKPOINT: 1024,
+  USER_ID: 123 // Example user ID, replace with actual logic
 };
 
 // ===========================
@@ -78,7 +79,10 @@ class CarWashSettingsApp {
       toastContainer: document.getElementById('toast-container'),
       
       // Screen reader announcements
-      srAnnouncements: document.getElementById('sr-announcements')
+      srAnnouncements: document.getElementById('sr-announcements'),
+
+      // Vehicle elements
+      vehicleList: document.getElementById('vehicle-list')
     };
   }
 
@@ -533,9 +537,197 @@ class CarWashSettingsApp {
     }
   }
 
-  // ===========================
-  // VALIDATION METHODS
-  // ===========================
+  /**
+   * Load and render the user's vehicles.
+   */
+  async loadUserVehicles() {
+    try {
+      const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/vehicle_api.php?action=list&user_id=${CONFIG.USER_ID}`);
+
+      if (response.success && Array.isArray(response.data)) {
+        const vehicleList = document.querySelector('#vehicle-list');
+        vehicleList.innerHTML = ''; // Clear existing vehicles
+
+        response.data.forEach(vehicle => {
+          const imageUrl = vehicle.image_path || '/frontend/images/default-vehicle.png';
+
+          const vehicleItem = document.createElement('div');
+          vehicleItem.className = 'vehicle-item flex items-center p-4 border-b';
+          vehicleItem.innerHTML = `
+            <img src="${imageUrl}" alt="Vehicle Image" class="w-16 h-16 rounded mr-4">
+            <div class="flex-1">
+              <h4 class="text-lg font-bold">${vehicle.brand} ${vehicle.model}</h4>
+              <p class="text-sm text-gray-600">License Plate: ${vehicle.license_plate}</p>
+              <p class="text-sm text-gray-600">Year: ${vehicle.year} | Color: ${vehicle.color}</p>
+            </div>
+            <button class="edit-vehicle-btn px-4 py-2 bg-blue-500 text-white rounded" data-id="${vehicle.id}">Edit</button>
+          `;
+
+          // Attach event listener for editing
+          vehicleItem.querySelector('.edit-vehicle-btn').addEventListener('click', () => {
+            this.openEditVehicleModal(vehicle);
+          });
+
+          vehicleList.appendChild(vehicleItem);
+        });
+      } else {
+        throw new Error(response.message || 'Failed to load vehicles');
+      }
+    } catch (error) {
+      console.error('Error loading vehicles:', error);
+      this.showToast('Failed to load vehicles. Please try again.', 'error');
+    }
+  }
+
+  /**
+   * Open the Edit Vehicle Modal
+   * @param {Object} vehicle - The vehicle data to pre-fill the modal.
+   */
+  async openEditVehicleModal(vehicle) {
+    // Create the modal HTML
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+        <h3 class="text-lg font-bold mb-4">Edit Vehicle</h3>
+        <form id="edit-vehicle-form">
+          <label class="block mb-2">
+            Brand:
+            <input type="text" name="brand" value="${vehicle.brand}" class="w-full border rounded p-2">
+          </label>
+          <label class="block mb-2">
+            Model:
+            <input type="text" name="model" value="${vehicle.model}" class="w-full border rounded p-2">
+          </label>
+          <label class="block mb-2">
+            License Plate:
+            <input type="text" name="license_plate" value="${vehicle.license_plate}" class="w-full border rounded p-2">
+          </label>
+          <div class="flex justify-end mt-4">
+            <button type="button" class="modal-cancel px-4 py-2 border rounded mr-2">Cancel</button>
+            <button type="submit" class="modal-confirm px-4 py-2 bg-blue-500 text-white rounded">Save</button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    // Append modal to the body
+    document.body.appendChild(modal);
+
+    // Handle form submission
+    const form = modal.querySelector('#edit-vehicle-form');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      formData.append('action', 'update');
+      formData.append('csrf_token', CONFIG.CSRF_TOKEN);
+      formData.append('id', vehicle.id);
+
+      try {
+        const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/vehicle_api.php`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.success) {
+          this.showToast('Vehicle updated successfully!', 'success');
+          this.refreshVehicleList();
+          modal.remove();
+        } else {
+          throw new Error(response.message || 'Failed to update vehicle');
+        }
+      } catch (error) {
+        console.error('Error updating vehicle:', error);
+        this.showToast('Failed to update vehicle. Please try again.', 'error');
+      }
+    });
+
+    // Handle modal cancel
+    modal.querySelector('.modal-cancel').addEventListener('click', () => {
+      modal.remove();
+    });
+  }
+
+  /**
+   * Delete a vehicle.
+   * @param {number} vehicleId - The ID of the vehicle to delete.
+   */
+  async deleteVehicle(vehicleId) {
+    if (!confirm('Are you sure you want to delete this vehicle?')) {
+      return; // User canceled the deletion
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('action', 'delete');
+      formData.append('vehicle_id', vehicleId);
+      formData.append('csrf_token', CONFIG.CSRF_TOKEN);
+
+      const response = await fetch(`${CONFIG.API_BASE_URL}/vehicle_api.php`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Vehicle deleted successfully!');
+        updateVehicleList(); // Reload the vehicle list
+      } else {
+        throw new Error(result.message || 'Failed to delete vehicle');
+      }
+    } catch (error) {
+      console.error('Error deleting vehicle:', error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Update the vehicle list in the dashboard.
+   */
+  async updateVehicleList() {
+    try {
+      const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/vehicle_api.php?action=list`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.success && Array.isArray(response.vehicles)) {
+        const vehicleList = document.querySelector('#vehicle-list');
+        vehicleList.innerHTML = ''; // Clear existing vehicles
+
+        response.vehicles.forEach(vehicle => {
+          const imageUrl = vehicle.image_path || '/frontend/images/default-car.png';
+
+          const vehicleItem = document.createElement('div');
+          vehicleItem.className = 'vehicle-item flex items-center p-4 border-b';
+          vehicleItem.innerHTML = `
+            <img src="${imageUrl}" alt="Vehicle Image" class="w-16 h-16 rounded mr-4">
+            <div class="flex-1">
+              <h4 class="text-lg font-bold">${vehicle.brand} ${vehicle.model}</h4>
+              <p class="text-sm text-gray-600">License Plate: ${vehicle.license_plate}</p>
+            </div>
+          `;
+
+          vehicleList.appendChild(vehicleItem);
+        });
+      } else {
+        throw new Error(response.message || 'Failed to fetch vehicles');
+      }
+    } catch (error) {
+      console.error('Error updating vehicle list:', error);
+      alert('Failed to update vehicle list. Please try again.');
+    }
+  }
 
   /**
    * Validate entire form
@@ -1077,644 +1269,72 @@ class CarWashSettingsApp {
            cachedData.timestamp && 
            (Date.now() - cachedData.timestamp) < cachedData.ttl;
   }
+}
 
-// Additional placeholder methods for completeness
-  handleFormChange(event) { /* Implementation */ }
-  handleInputChange(event) { /* Implementation */ }
-  handleInputFocus(event) { /* Implementation */ }
-  handleResize() { /* Implementation */ }
-  handleScroll() { /* Implementation */ }
-  handleBeforeUnload(event) { /* Implementation */ }
-  handleHashChange() { /* Implementation */ }
-  handleDeleteAccount(event) { /* Implementation */ }
-  handleExportData(event) { /* Implementation */ }
-  handleNotificationSubmit(event) { /* Implementation */ }
-  handlePrivacySubmit(event) { /* Implementation */ }
-  togglePasswordVisibility(event) { /* Implementation */ }
+/**
+ * Handle AJAX errors gracefully.
+ * @param {Error} error - The error object.
+ * @param {string} context - Context or description of the operation.
+ */
+function handleAjaxError(error, context) {
+  console.error(`Error during ${context}:`, error);
+  alert(`An error occurred while ${context}. Please try again later.`);
+}
 
-  /**
-   * Handle global keyboard shortcuts for navigation and form actions.
-   * @param {KeyboardEvent} event - The keyboard event triggered by user interaction.
-   */
-  handleGlobalKeyboard(event) {
-    // Escape key to close mobile menu
-    if (event.key === 'Escape' && this.mobileMenuOpen) {
-      this.closeMobileMenu();
-      return;
+// Wrap fetch calls with error handling
+async function safeFetch(url, options, context) {
+  try {
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
     }
 
-    // Alt + number keys for quick navigation
-    if (event.altKey && event.key >= '1' && event.key <= '8') {
-      event.preventDefault();
-      const sectionIndex = parseInt(event.key) - 1;
-      const navLinks = Array.from(this.elements.navLinks);
-
-      if (navLinks[sectionIndex]) {
-        const targetSection = navLinks[sectionIndex].getAttribute('href').substring(1);
-        this.showSection(targetSection);
-        history.pushState(null, null, `#${targetSection}`);
-        this.announceToScreenReader(`Navigated to ${targetSection} section using keyboard shortcut`);
-      }
-    }
-
-    // Ctrl + S to save current form
-    if (event.ctrlKey && event.key === 's') {
-      event.preventDefault();
-      this.saveCurrentForm();
-    }
-  }
-  /**
-   * Save the currently visible form
-   */
-  saveCurrentForm() {
-    const activeSection = document.querySelector('.settings-section:not(.hidden)');
-    if (!activeSection) return;
-
-    const form = activeSection.querySelector('form');
-    if (form) {
-      const submitButton = form.querySelector('button[type="submit"]');
-      if (submitButton && !submitButton.disabled) {
-        submitButton.click();
-        this.announceToScreenReader('Form submitted using keyboard shortcut');
-      }
-    }
-  }
-
-  /**
-   * Handle two-factor authentication toggle
-   */
-  async handleTwoFactorToggle(event) {
-    const isEnabled = event.target.checked;
-    const twoFactorSection = document.getElementById('two-factor-section');
-    
-    try {
-      this.setLoadingState(true, 'Updating security settings...');
-      
-      const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/settings/toggle_2fa.php`, {
-        method: 'POST',
-        body: JSON.stringify({ enabled: isEnabled }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.success) {
-        if (isEnabled) {
-          // Show setup instructions
-          twoFactorSection?.classList.remove('hidden');
-          this.showQRCode(response.qr_code, response.secret);
-          this.showToast('Two-factor authentication enabled. Please scan the QR code with your authenticator app.', 'success');
-        } else {
-          // Hide setup section
-          twoFactorSection?.classList.add('hidden');
-          this.showToast('Two-factor authentication disabled.', 'info');
-        }
-        
-        this.announceToScreenReader(`Two-factor authentication ${isEnabled ? 'enabled' : 'disabled'}`);
-      } else {
-        throw new Error(response.message || '2FA toggle failed');
-      }
-      
-    } catch (error) {
-      console.error('2FA toggle error:', error);
-      event.target.checked = !isEnabled; // Revert toggle
-      this.showToast('Failed to update two-factor authentication settings.', 'error');
-      this.announceToScreenReader('Error: Failed to update two-factor authentication');
-    } finally {
-      this.setLoadingState(false);
-    }
-  }
-
-  /**
-  // (Moved inside CarWashSettingsApp class above)
-
-  /**
-   * Show QR code for 2FA setup
-   */
-  showQRCode(qrCodeUrl, secret) {
-    const qrContainer = document.getElementById('qr-code-container');
-    const secretDisplay = document.getElementById('secret-key');
-    
-    if (qrContainer) {
-      qrContainer.innerHTML = `
-        <div class="text-center">
-          <img src="${qrCodeUrl}" alt="Two-factor authentication QR code" class="mx-auto mb-4 border rounded-lg">
-          <p class="text-sm text-gray-600 mb-2">Scan this QR code with your authenticator app</p>
-          <p class="text-xs text-gray-500">Or enter this key manually:</p>
-        </div>
-      `;
-    }
-    
-    if (secretDisplay) {
-      secretDisplay.value = secret;
-    }
-  }
-
-  /**
-   * Handle account deletion
-   */
-  async handleDeleteAccount(event) {
-    event.preventDefault();
-    
-    const confirmationModal = this.createConfirmationModal(
-      'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone.',
-      'Delete Account',
-      'danger'
-    );
-    
-    const confirmed = await this.showModal(confirmationModal);
-    
-    if (confirmed) {
-      try {
-        this.setLoadingState(true, 'Deleting account...');
-        
-        const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/settings/delete_account.php`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.success) {
-          this.showToast('Account deleted successfully. Redirecting...', 'success');
-          setTimeout(() => {
-            window.location.href = '/backend/auth/logout.php';
-          }, 2000);
-        } else {
-          throw new Error(response.message || 'Account deletion failed');
-        }
-        
-      } catch (error) {
-        console.error('Account deletion error:', error);
-        this.showToast('Failed to delete account. Please try again.', 'error');
-      } finally {
-        this.setLoadingState(false);
-      }
-    }
-  }
-
-  /**
-   * Handle data export
-   */
-  async handleExportData(event) {
-    event.preventDefault();
-    
-    try {
-      this.setLoadingState(true, 'Preparing data export...');
-      
-      const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/settings/export_data.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.success) {
-        // Create download link
-        const blob = new Blob([JSON.stringify(response.data, null, 2)], {
-          type: 'application/json'
-        });
-        
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `carwash-data-export-${new Date().toISOString().split('T')[0]}.json`;
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        
-        this.showToast('Data exported successfully!', 'success');
-        this.announceToScreenReader('Data exported and download started');
-      } else {
-        throw new Error(response.message || 'Data export failed');
-      }
-      
-    } catch (error) {
-      console.error('Data export error:', error);
-      this.showToast('Failed to export data. Please try again.', 'error');
-    } finally {
-      this.setLoadingState(false);
-    }
-  }
-
-  /**
-   * Create confirmation modal
-   */
-  createConfirmationModal(title, message, confirmText, type = 'primary') {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-modal', 'true');
-    modal.setAttribute('aria-labelledby', 'modal-title');
-    
-    const buttonColors = {
-      primary: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
-      danger: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
-      warning: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500'
-    };
-    
-    modal.innerHTML = `
-      <div class="bg-white rounded-lg p-6 max-w-md mx-4 transform scale-95 opacity-0 transition-all duration-200">
-        <div class="flex items-center justify-between mb-4">
-          <h3 id="modal-title" class="text-lg font-bold text-gray-900">${title}</h3>
-          <button type="button" class="modal-close text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 rounded">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-        <p class="text-gray-700 mb-6">${message}</p>
-        <div class="flex justify-end space-x-3">
-          <button type="button" class="modal-cancel px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
-            Cancel
-          </button>
-          <button type="button" class="modal-confirm px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${buttonColors[type]}">
-            ${confirmText}
-          </button>
-        </div>
-      </div>
-    `;
-    
-    return modal;
-  }
-
-  /**
-   * Show modal and return promise with user's choice
-   */
-  showModal(modal) {
-    return new Promise((resolve) => {
-      document.body.appendChild(modal);
-      
-      // Animate in
-      requestAnimationFrame(() => {
-        const content = modal.querySelector('div');
-        content.style.transform = 'scale(1)';
-        content.style.opacity = '1';
-      });
-      
-      // Focus management
-      const firstButton = modal.querySelector('button');
-      if (firstButton) {
-        firstButton.focus();
-      }
-      
-      // Event handlers
-      const handleClose = (confirmed = false) => {
-        const content = modal.querySelector('div');
-        content.style.transform = 'scale(0.95)';
-        content.style.opacity = '0';
-        
-        setTimeout(() => {
-          document.body.removeChild(modal);
-          resolve(confirmed);
-        }, 200);
-      };
-      
-      modal.querySelector('.modal-confirm').addEventListener('click', () => handleClose(true));
-      modal.querySelector('.modal-cancel').addEventListener('click', () => handleClose(false));
-      modal.querySelector('.modal-close').addEventListener('click', () => handleClose(false));
-      
-      // Escape key handling
-      const handleKeydown = (event) => {
-        if (event.key === 'Escape') {
-          handleClose(false);
-          document.removeEventListener('keydown', handleKeydown);
-        }
-      };
-      
-      document.addEventListener('keydown', handleKeydown);
-      
-      // Click outside to close
-      modal.addEventListener('click', (event) => {
-        if (event.target === modal) {
-          handleClose(false);
-        }
-      });
-    });
-  }
-
-  /**
-   * Lazy load section content
-   */
-  lazyLoadSection(section) {
-    const sectionId = section.id.replace('-section', '');
-    
-    // Load section-specific resources
-    switch (sectionId) {
-      case 'security':
-        this.loadSecurityFeatures();
-        break;
-      case 'notifications':
-        this.loadNotificationHistory();
-        break;
-      case 'privacy':
-        this.loadPrivacySettings();
-        break;
-      case 'data':
-        this.loadDataManagementTools();
-        break;
-    }
-    
-    console.log(`Lazy loaded section: ${sectionId}`);
-  }
-
-  /**
-   * Load security features
-   */
-  async loadSecurityFeatures() {
-    try {
-      const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/settings/security_status.php`);
-      
-      if (response.success) {
-        this.updateSecurityStatus(response.data);
-      }
-    } catch (error) {
-      console.error('Failed to load security features:', error);
-    }
-  }
-
-  /**
-   * Update security status display
-   */
-  updateSecurityStatus(data) {
-    const lastLoginElement = document.getElementById('last-login');
-    const activeSessionsElement = document.getElementById('active-sessions');
-    const loginHistoryElement = document.getElementById('login-history');
-    
-    if (lastLoginElement && data.lastLogin) {
-      lastLoginElement.textContent = new Date(data.lastLogin).toLocaleString();
-    }
-    
-    if (activeSessionsElement && data.activeSessions) {
-      activeSessionsElement.textContent = data.activeSessions.toString();
-    }
-    
-    if (loginHistoryElement && data.recentLogins) {
-      loginHistoryElement.innerHTML = data.recentLogins.map(login => `
-        <div class="flex justify-between items-center py-2 border-b border-gray-200">
-          <div>
-            <p class="text-sm font-medium">${login.location || 'Unknown Location'}</p>
-            <p class="text-xs text-gray-500">${new Date(login.timestamp).toLocaleString()}</p>
-          </div>
-          <span class="text-xs px-2 py-1 rounded-full ${login.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-            ${login.status}
-          </span>
-        </div>
-      `).join('');
-    }
-  }
-
-  /**
-   * Load notification history
-   */
-  async loadNotificationHistory() {
-    try {
-      const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/settings/notification_history.php`);
-      
-      if (response.success) {
-        this.updateNotificationHistory(response.data);
-      }
-    } catch (error) {
-      console.error('Failed to load notification history:', error);
-    }
-  }
-
-  /**
-   * Update notification history display
-   */
-  updateNotificationHistory(notifications) {
-    const historyContainer = document.getElementById('notification-history');
-    
-    if (historyContainer && notifications.length > 0) {
-      historyContainer.innerHTML = notifications.map(notification => `
-        <div class="flex items-start space-x-3 py-3 border-b border-gray-200">
-          <div class="flex-shrink-0">
-            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zm-6-3h5v-5l-5 5zM12 22a10 10 0 110-20 10 10 0 010 20z"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900">${notification.title}</p>
-            <p class="text-sm text-gray-500">${notification.message}</p>
-            <p class="text-xs text-gray-400 mt-1">${new Date(notification.timestamp).toLocaleString()}</p>
-          </div>
-          <div class="flex-shrink-0">
-            <span class="text-xs px-2 py-1 rounded-full ${notification.read ? 'bg-gray-100 text-gray-800' : 'bg-blue-100 text-blue-800'}">
-              ${notification.read ? 'Read' : 'Unread'}
-            </span>
-          </div>
-        </div>
-      `).join('');
-    } else if (historyContainer) {
-      historyContainer.innerHTML = '<p class="text-gray-500 text-center py-8">No notifications found.</p>';
-    }
-  }
-
-  /**
-   * Load privacy settings
-   */
-  async loadPrivacySettings() {
-    try {
-      const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/settings/privacy_status.php`);
-      
-      if (response.success) {
-        this.updatePrivacySettings(response.data);
-      }
-    } catch (error) {
-      console.error('Failed to load privacy settings:', error);
-    }
-  }
-
-  /**
-   * Update privacy settings display
-   */
-  updatePrivacySettings(data) {
-    Object.entries(data).forEach(([key, value]) => {
-      const element = document.querySelector(`[name="${key}"]`);
-      if (element) {
-        if (element.type === 'checkbox') {
-          element.checked = Boolean(value);
-        } else {
-          element.value = value || '';
-        }
-      }
-    });
-  }
-
-  /**
-   * Load data management tools
-   */
-  async loadDataManagementTools() {
-    try {
-      const response = await this.makeAPIRequest(`${CONFIG.API_BASE_URL}/settings/data_summary.php`);
-      
-      if (response.success) {
-        this.updateDataSummary(response.data);
-      }
-    } catch (error) {
-      console.error('Failed to load data summary:', error);
-    }
-  }
-
-  /**
-   * Update data summary display
-   */
-  updateDataSummary(data) {
-    const summaryContainer = document.getElementById('data-summary');
-    
-    if (summaryContainer) {
-      summaryContainer.innerHTML = `
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <h4 class="text-sm font-medium text-gray-900">Account Created</h4>
-            <p class="text-lg font-bold text-blue-600">${new Date(data.accountCreated).toLocaleDateString()}</p>
-          </div>
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <h4 class="text-sm font-medium text-gray-900">Data Size</h4>
-            <p class="text-lg font-bold text-blue-600">${this.formatFileSize(data.dataSize)}</p>
-          </div>
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <h4 class="text-sm font-medium text-gray-900">Bookings</h4>
-            <p class="text-lg font-bold text-blue-600">${data.totalBookings || 0}</p>
-          </div>
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <h4 class="text-sm font-medium text-gray-900">Last Activity</h4>
-            <p class="text-lg font-bold text-blue-600">${new Date(data.lastActivity).toLocaleDateString()}</p>
-          </div>
-        </div>
-      `;
-    }
-  }
-
-  /**
-   * Format file size for display
-   */
-  formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  /**
-   * Pause non-critical operations
-   */
-  pauseNonCriticalOperations() {
-    // Clear all debounce timers
-    this.debounceTimers.forEach(timer => clearTimeout(timer));
-    this.debounceTimers.clear();
-    
-    console.log('Non-critical operations paused');
-  }
-
-  /**
-   * Resume operations
-   */
-  resumeOperations() {
-    // Re-setup autosave
-    this.setupAutosave('profileForm');
-    
-    console.log('Operations resumed');
-  }
-
-  /**
-   * Handle resize events
-   */
-  handleResize() {
-    // Close mobile menu on resize to desktop
-    if (window.innerWidth >= CONFIG.MOBILE_BREAKPOINT && this.mobileMenuOpen) {
-      this.closeMobileMenu();
-    }
-    
-    // Update mobile/desktop specific features
-    this.updateResponsiveFeatures();
-  }
-
-  /**
-   * Update responsive features
-   */
-  updateResponsiveFeatures() {
-    const isMobile = window.innerWidth < CONFIG.MOBILE_BREAKPOINT;
-    
-    // Update navigation behavior
-    this.elements.navLinks.forEach(link => {
-      if (isMobile) {
-        link.setAttribute('data-mobile', 'true');
-      } else {
-        link.removeAttribute('data-mobile');
-      }
-    });
-  }
-
-  /**
-   * Initialize complete validation system
-   */
-  initializeValidation() {
-    // Setup real-time validation
-    this.setupInputValidation();
-    
-    // Setup form validation indicators
-    this.setupValidationIndicators();
-  }
-
-  /**
-   * Setup validation indicators
-   */
-  setupValidationIndicators() {
-    const forms = document.querySelectorAll('form');
-    
-    forms.forEach(form => {
-      const indicator = document.createElement('div');
-      indicator.className = 'form-validation-indicator hidden';
-      indicator.innerHTML = `
-        <div class="flex items-center space-x-2 text-sm">
-          <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <span class="text-green-600 font-medium">All fields are valid</span>
-        </div>
-      `;
-      
-      form.appendChild(indicator);
-    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    handleAjaxError(error, context);
+    throw error; // Re-throw to allow further handling if needed
   }
 }
 
-// Initialize the app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  // Check if user prefers reduced motion
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  
-  if (prefersReducedMotion) {
-    document.documentElement.style.setProperty('--transition-duration', '0s');
-  }
-  
-  // Initialize settings app
-  window.carWashSettings = new CarWashSettingsApp();
-});
+// Example usage in updateVehicleList
+async function updateVehicleList() {
+  try {
+    const result = await safeFetch(`${CONFIG.API_BASE_URL}/vehicle_api.php?action=list`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }, 'fetching vehicle list');
 
-// Handle service worker registration for PWA features
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
-        console.log('SW registered: ', registration);
-      })
-      .catch(registrationError => {
-        console.log('SW registration failed: ', registrationError);
+    if (result.success && Array.isArray(result.vehicles)) {
+      const vehicleList = document.querySelector('#vehicle-list');
+      vehicleList.innerHTML = ''; // Clear existing vehicles
+
+      result.vehicles.forEach(vehicle => {
+        const imageUrl = vehicle.image_path || '/frontend/images/default-car.png';
+
+        const vehicleItem = document.createElement('div');
+        vehicleItem.className = 'vehicle-item flex items-center p-4 border-b';
+        vehicleItem.innerHTML = `
+          <img src="${imageUrl}" alt="Vehicle Image" class="w-16 h-16 rounded mr-4">
+          <div class="flex-1">
+            <h4 class="text-lg font-bold">${vehicle.brand} ${vehicle.model}</h4>
+            <p class="text-sm text-gray-600">License Plate: ${vehicle.license_plate}</p>
+          </div>
+        `;
+
+        vehicleList.appendChild(vehicleItem);
       });
-  });
+    } else {
+      throw new Error(result.message || 'Failed to fetch vehicles');
+    }
+  } catch (error) {
+    console.error('Error updating vehicle list:', error);
+    alert('Failed to update vehicle list. Please try again.');
+  }
 }
 
-// Export for module usage if needed
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = CarWashSettingsApp;
-}
+// Call the function to update the vehicle list on page load
+document.addEventListener('DOMContentLoaded', updateVehicleList);

@@ -15,9 +15,20 @@
     .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
     .btn.secondary{background:#fff;color:var(--accent);border:1px solid #e6e9f2}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:18px}
-    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(17,24,39,0.06);display:flex;flex-direction:column;gap:8px}
-  /* larger thumbnail for clearer images */
-  .thumb{height:200px;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(17,24,39,0.06);display:flex;flex-direction:column;width:270px;gap:8px}
+  /* larger thumbnail for clearer images, responsive aspect ratio */
+  .thumb {
+    aspect-ratio: 16 / 10; /* responsive width-to-height ratio */
+    min-height: 150px; /* minimum height for small screens */
+    max-height: 250px; /* maximum height for large screens */
+    border-radius: 8px;
+    background: #eef2ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
   .thumb img{width:100%;height:100%;object-fit:cover;display:block}
   /* show a subtle overlay when image is loading or missing */
   .thumb::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.03),rgba(0,0,0,0.06));pointer-events:none;border-radius:8px}
@@ -117,6 +128,28 @@
       }
     }
 
+    // Resolve vehicle image URL with proper fallbacks
+    function resolveVehicleImageUrl(path) {
+      if (!path || path.trim() === '') {
+        return '/carwash_project/frontend/assets/default-car.png';
+      }
+      
+      // If already relative or HTTP/HTTPS, return as-is
+      if (path.startsWith('/') || path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+      }
+      
+      // If absolute Windows path, try to convert to relative
+      if (/^[A-Za-z]:/.test(path)) {
+        // This shouldn't happen with the database fixes, but handle it just in case
+        console.warn('Absolute path detected in resolveVehicleImageUrl:', path);
+        return '/carwash_project/frontend/assets/default-car.png';
+      }
+      
+      // Other cases - assume relative
+      return path;
+    }
+
     const grid = document.getElementById('vehiclesGrid');
     const status = document.getElementById('status');
     const messages = document.getElementById('messages');
@@ -178,11 +211,8 @@
         vehicles.forEach(v => {
           const el = document.createElement('div');
           el.className = 'card';
-          // Resolve image_path securely via endpoint
-          let src = '/carwash_project/frontend/assets/default-car.png';
-          if (v && v.image_path) {
-            src = `/carwash_project/backend/dashboard/serve_vehicle_image.php?vehicle_id=${v.id}`;
-          }
+          // Resolve image_path using helper function
+          let src = resolveVehicleImageUrl(v && v.image_path);
 
           el.innerHTML = `
             <div class="thumb"><img loading="lazy" src="${escapeHtml(src)}" alt="${escapeHtml((v.brand||'')+' '+(v.model||''))}" onerror="handleImageError(this)"/></div>

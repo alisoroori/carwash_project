@@ -678,36 +678,51 @@ include '../includes/dashboard_header.php';
           /* Replacement: renderVehiclesList ensures safe image fallback and proper event wiring.
              Note: this script is plain HTML/JS and must not be inside a &lt;?php ?&gt; block. */
           
+          function escapeHtml(text) {
+            if (text == null) return '';
+            return String(text)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;');
+          }
+          
+          function resolveVehicleImageUrl(path) {
+            if (!path || path.trim() === '') {
+              return '/carwash_project/frontend/assets/default-car.png';
+            }
+            
+            // If already relative or HTTP/HTTPS, return as-is
+            if (path.startsWith('/') || path.startsWith('http://') || path.startsWith('https://')) {
+              return path;
+            }
+            
+            // If absolute Windows path, try to convert to relative
+            if (/^[A-Za-z]:/.test(path)) {
+              // This shouldn't happen with the database fixes, but handle it just in case
+              const docRoot = '/carwash_project'; // Assuming this is the web root
+              // For absolute paths, we'd need server-side conversion, but for now return default
+              console.warn('Absolute path detected in resolveVehicleImageUrl:', path);
+              return '/carwash_project/frontend/assets/default-car.png';
+            }
+            
+            // Other cases - assume relative
+            return path;
+          }
+          
           function renderVehiclesList(vehicles) {
             const container = document.getElementById('vehiclesList');
             container.innerHTML = '';
             if (!Array.isArray(vehicles) || vehicles.length === 0) {
-              container.innerHTML = '<p class="text-gray-600 text-center col-span-full">Kayıtlı araç bulunamadı.</p>';
+              container.innerHTML = '<p class="text-gray-500">Kayıtlı araç bulunamadı.</p>';
               return;
             }
-          
             vehicles.forEach(v => {
               const card = document.createElement('div');
-              card.className = 'bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col';
-          
-              // Minimal HTML escape helper (reused by other scripts on the page)
-              const escapeHtml = window.escapeHtml || function (str) {
-                if (str === null || str === undefined) return '';
-                return String(str).replace(/[&<>"'`=\/]/g, function (s) {
-                  return ({
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#39;',
-                    '/': '&#x2F;',
-                    '`': '&#x60;',
-                    '=': '&#x3D;'
-                  })[s];
-                });
-              };
-          
-              const imgSrc = escapeHtml(v.image || v.photo || '/carwash_project/frontend/assets/default-car.png');
+              card.className = 'bg-white rounded-2xl p-6 card-hover shadow-lg';
+              card.setAttribute('data-vehicle-id', v.id);
+              const imgSrc = resolveVehicleImageUrl(v.image_path);
               const brandModel = `${escapeHtml(v.brand || '')} ${escapeHtml(v.model || '')}`.trim();
           
               card.innerHTML = `
@@ -718,6 +733,7 @@ include '../includes/dashboard_header.php';
                         src="${imgSrc}"
                         alt="${escapeHtml(brandModel || 'Araç')}"
                         class="w-full h-full object-cover"
+                        data-original-src="${imgSrc}"
                         onerror="this.onerror=null;this.src='/carwash_project/frontend/assets/default-car.png';"
                         loading="lazy"
                       />
@@ -725,7 +741,6 @@ include '../includes/dashboard_header.php';
           
                     <div>
                       <h4 class="font-bold text-lg text-gray-800">${escapeHtml(v.brand || '')} ${escapeHtml(v.model || '')}</h4>
-                      <p class="text-sm text-gray-600">${escapeHtml(v.license_plate || '')}</p>
                       <p class="text-xs text-gray-500 mt-1">${escapeHtml(v.year || '')} • ${escapeHtml(v.color || '')}</p>
                     </div>
                   </div>
@@ -759,11 +774,7 @@ include '../includes/dashboard_header.php';
                       openVehicleModal({ id: v.id, brand: v.brand, model: v.model, license_plate: v.license_plate, year: v.year, color: v.color });
                     }
                   } else if (action === 'delete') {
-                    if (typeof confirmDeleteVehicle === 'function') {
-                      confirmDeleteVehicle(v);
-                    } else {
-                      deleteVehicle(v.id);
-                    }
+                    deleteVehicle(v.id);  // Now defined below
                   }
                 });
               });
@@ -771,6 +782,7 @@ include '../includes/dashboard_header.php';
               container.appendChild(card);
             });
           }
+
           </script>
           <div id="newReservationForm" class="p-6 hidden">
             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
@@ -912,7 +924,7 @@ include '../includes/dashboard_header.php';
                   fd.append('notes', notes);
                   if (vehicleId) fd.append('vehicle_id', vehicleId);
                   // CSRF token
-                  const csrf = document.querySelector('#vehicleForm input[name="csrf_token"]') ? document.querySelector('#vehicleForm input[name="csrf_token"]').value : (window.csrfToken || '');
+                  const csrf = document.querySelector('#vehicleFormInline input[name="csrf_token"]') ? document.querySelector('#vehicleFormInline input[name="csrf_token"]').value : (window.csrfToken || '');
                   if (csrf) fd.append('csrf_token', csrf);
 
                   el('embeddedConfirm').disabled = true; el('embeddedConfirm').textContent = 'Gönderiliyor...';
@@ -935,9 +947,14 @@ include '../includes/dashboard_header.php';
                       if (isEdit) bookingIdInput.value = '';
                       // refresh reservation list if available by emitting event
                     } else {
-                      if (msgEl) { msgEl.textContent = (json && (json.errors ? (Array.isArray(json.errors) ? json.errors.join('\n') : json.errors) : (json.message || json.error))) || 'Bilinmeyen hata'; msgEl.className='text-red-600'; }
+                      // Enhanced error handling for better user feedback
+                      if (msgEl) {
+                          const errorMessage = json && (json.errors ? (Array.isArray(json.errors) ? json.errors.join('\n') : json.errors) : (json.message || json.error)) || 'An unexpected error occurred. Please try again later.';
+                          msgEl.textContent = errorMessage;
+                          msgEl.className = 'text-red-600';
+                      }
                     }
-                  }catch(e){ console.error(e); if (msgEl) { msgEl.textContent='Sunucu hatası'; msgEl.className='text-red-600'; } }
+                  }catch(e){ logError('submitEmbedded error', e); if (msgEl) { msgEl.textContent='Sunucu hatası'; msgEl.className='text-red-600'; } }
                   finally{ el('embeddedConfirm').disabled = false; el('embeddedConfirm').textContent = 'Rezervasyon Yap'; }
                 }
 
@@ -1280,11 +1297,11 @@ include '../includes/dashboard_header.php';
       </div>
       <div class="p-4 border-b hover:bg-gray-50">
         <p class="text-sm">Önceki hizmetiniz tamamlandı</p>
-        <p class="text-xs text-gray-500">1 gün önce</p>
+        <p class="text-xs text-gray-500 mt-1">1 gün önce</p>
       </div>
       <div class="p-4 border-b hover:bg-gray-50">
         <p class="text-sm">Yeni kampanya başladı!</p>
-        <p class="text-xs text-gray-500">2 gün önce</p>
+        <p class="text-xs text-gray-500 mt-1">2 gün önce</p>
       </div>
     </div>
   </div>
@@ -1525,50 +1542,66 @@ include '../includes/dashboard_header.php';
         form.addEventListener('submit', async function (ev) {
           ev.preventDefault();
           if (!form) return;
-            const fd = new FormData(form);
-            // Keep same API endpoint as before
+          const fd = new FormData(form);
+          // Change to use vehicle_api.php
+          const action = document.getElementById('vehicleFormAction').value;
+          fd.set('action', action);  // 'create' or 'update'
+
+          // For update, set 'id' from vehicle_id_input_inline
+          const vid = document.getElementById('vehicle_id_input_inline').value;
+          if (action !== 'create' && vid) {
+            fd.set('id', vid);
+          }
+
+          try {
+            const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+              method: 'POST',
+              credentials: 'same-origin',
+              body: fd,
+              headers: { 'Accept': 'application/json' }
+            });
+
+            // Read text first to guard against HTML/warnings
+            const raw = await res.text();
+            let json = null;
             try {
-              const res = await fetch('Customer_Dashboard_process.php', {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: fd,
-                headers: {
-                  'Accept': 'application/json',
-                  'X-Requested-With': 'XMLHttpRequest'
-                }
-              });
-
-              // Read text first to guard against HTML error pages or non-JSON responses
-              const raw = await res.text();
-              let json = null;
-              try {
-                json = raw ? JSON.parse(raw) : null;
-              } catch (parseErr) {
-                console.error('Non-JSON response from Customer_Dashboard_process.php:', raw.slice(0, 2000));
-                msg.textContent = 'Sunucudan beklenmedik bir yanıt alındı.';
-                msg.className = 'text-sm text-red-600';
-                return;
-              }
-
-              if (res.ok && json && json.success) {
-                msg.textContent = 'Araç kaydedildi.';
-                msg.className = 'text-sm text-green-600';
-                // Refresh vehicles list and selects if functions exist
-                if (typeof loadUserVehicles === 'function') loadUserVehicles();
-                else if (typeof refreshVehicleSelect === 'function') refreshVehicleSelect();
-                // hide after short delay
-                setTimeout(closeVehicleModal, 900);
-              } else {
-                // Prefer structured server message if present
-                const serverMsg = (json && (json.message || json.error)) ? (json.message || json.error) : 'Kaydetme sırasında bir hata oluştu.';
-                msg.textContent = serverMsg;
-                msg.className = 'text-sm text-red-600';
-              }
-            } catch (e) {
-              console.error('Vehicle form submit error', e);
-              msg.textContent = 'İşlem başarısız: ' + (e && e.message ? e.message : 'Ağ hatası');
-              msg.className = 'text-sm text-red-600';
+              json = raw ? JSON.parse(raw) : null;
+            } catch (parseErr) {
+              console.error('Non-JSON response from vehicle_api.php:', raw.slice(0, 2000));
+              if (msg) { msg.textContent = 'Sunucudan beklenmeyen yanıt alındı.'; msg.className = 'text-sm text-red-600'; }
+              return;
             }
+
+            if (res.ok && json && json.success) {
+              if (msg) { msg.textContent = 'Araç kaydedildi.'; msg.className = 'text-sm text-green-600'; }
+
+              // Close modal/inline form
+              closeVehicleModal();
+
+              // If this was an edit/update, refresh the whole page once so every UI piece updates.
+              // For create, reload the vehicles list only to avoid full page reload.
+              if (action === 'update') {
+                // Small delay to allow modal close animation
+                setTimeout(() => { try { location.reload(); } catch(e){ if (typeof loadUserVehicles === 'function') loadUserVehicles(); } }, 300);
+              } else {
+                // Create path: refresh vehicles list inline
+                if (typeof loadUserVehicles === 'function') loadUserVehicles();
+              }
+            } else {
+              // Enhanced error handling for better user feedback
+              if (msg) {
+                  const errorMessage = json && (json.errors ? (Array.isArray(json.errors) ? json.errors.join('\n') : json.errors) : (json.message || json.error)) || 'An unexpected error occurred. Please try again later.';
+                  msg.textContent = errorMessage;
+                  msg.className = 'text-red-600';
+              }
+            }
+          } catch (err) {
+            logError('Vehicle inline submit error', err);
+            if (msg) { msg.textContent = 'İşlem başarısız: ' + (err.message || 'Ağ hatası'); msg.className='text-sm text-red-600'; }
+          } finally {
+            const submitBtn = document.getElementById('vehicleInlineSubmit');
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Kaydet'; }
+          }
         });
       }
     });
@@ -1578,17 +1611,10 @@ include '../includes/dashboard_header.php';
       const container = document.getElementById('vehiclesList');
       const msgEl = document.getElementById('vehicleFormMessageInline');
       try {
-        const csrfInput = document.querySelector('input[name="csrf_token"]');
-        const csrf = csrfInput ? csrfInput.value : (window.csrfToken || '');
-        const fd = new FormData();
-        fd.append('action', 'list_vehicles');
-        if (csrf) fd.append('csrf_token', csrf);
-
-        const res = await fetch('Customer_Dashboard_process.php', {
-          method: 'POST',
+        const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+          method: 'GET',
           credentials: 'same-origin',
-          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-          body: fd
+          headers: { 'Accept': 'application/json' }
         });
 
         if (!res.ok) {
@@ -1604,22 +1630,27 @@ include '../includes/dashboard_header.php';
         try {
           json = raw ? JSON.parse(raw) : null;
         } catch (parseErr) {
-          console.error('Non-JSON response from Customer_Dashboard_process.php (list_vehicles):', raw.slice(0,2000));
+          console.error('Non-JSON response from vehicle_api.php (GET):', raw.slice(0,2000));
           if (msgEl) { msgEl.textContent = 'Araçlar yüklenemedi.'; msgEl.className = 'text-sm text-red-600'; }
           renderVehiclesList([]);
           refreshVehicleSelect([]);
           return;
         }
 
-        if (!json || !json.success) {
-          console.warn('list_vehicles returned no vehicles', json);
+        if (!json || json.status !== 'success') {
+          console.warn('vehicle_api returned no vehicles', json);
           if (msgEl) { msgEl.textContent = json.message || 'Araç bulunamadı.'; msgEl.className = 'text-sm text-gray-600'; }
           renderVehiclesList([]);
           refreshVehicleSelect([]);
           return;
         }
 
-        const vehicles = Array.isArray(json.vehicles) ? json.vehicles : (json.data && Array.isArray(json.data.vehicles) ? json.data.vehicles : []);
+        const vehicles = json.data && Array.isArray(json.data.vehicles) ? json.data.vehicles : [];
+        console.log('Loaded vehicles:', vehicles);
+        
+        // Verify vehicle images
+        await verifyVehicleImages(vehicles);
+        
         renderVehiclesList(vehicles);
         refreshVehicleSelect(vehicles);
       } catch (e) {
@@ -1637,11 +1668,9 @@ include '../includes/dashboard_header.php';
       const placeholder = sel.querySelector('option[value=""]') ? sel.querySelector('option[value=""]').outerHTML : '<option value="">Araç Seçiniz</option>';
       sel.innerHTML = placeholder;
       if (!Array.isArray(vehicles) || vehicles.length === 0) return;
-      // helper: normalize stored upload paths to web-accessible URLs via secure endpoint
+      // helper: normalize stored upload paths to web-accessible URLs
       function resolveUploadUrl(vehicleId, path) {
-        const defaultImg = '/carwash_project/frontend/assets/default-car.png';
-        if (!path || !vehicleId) return defaultImg;
-        return `/carwash_project/backend/dashboard/serve_vehicle_image.php?vehicle_id=${vehicleId}`;
+        return resolveVehicleImageUrl(path);
       }
 
       vehicles.forEach(v => {
@@ -1705,6 +1734,133 @@ include '../includes/dashboard_header.php';
         } catch (e) { console.warn('hideNewReservationForm fallback failed', e); }
       }
     }
+
+    // Vehicle delete function
+    async function deleteVehicle(vehicleId) {
+      if (!confirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+        return;
+      }
+
+      const csrfToken = await fetchCsrfToken();
+      try {
+        const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'delete',
+            id: vehicleId,
+            csrf_token: csrfToken
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('Araç başarıyla silindi.');
+          loadUserVehicles(); // Reload the list
+        } else {
+          alert('Araç silinirken hata oluştu: ' + (result.message || 'Bilinmeyen hata'));
+        }
+      } catch (error) {
+        console.error('Delete vehicle error:', error);
+        alert('Araç silinirken bir hata oluştu.');
+      }
+    }
+
+    // Fix openEditVehicleModal function
+    function openEditVehicleModal(vehicle) {
+      const modal = document.getElementById('editVehicleModal');
+      if (!modal) {
+        console.error('Edit vehicle modal not found.');
+        return;
+      }
+
+      // Populate modal fields with vehicle data
+      document.getElementById('editVehicleId').value = vehicle.id;
+      document.getElementById('editVehicleBrand').value = vehicle.brand || '';
+      document.getElementById('editVehicleModel').value = vehicle.model || '';
+      document.getElementById('editVehicleLicensePlate').value = vehicle.license_plate || '';
+      document.getElementById('editVehicleYear').value = vehicle.year || '';
+      document.getElementById('editVehicleColor').value = vehicle.color || '';
+
+      modal.style.display = 'block';
+
+      // Handle form submission
+      const form = document.getElementById('editVehicleForm');
+      form.onsubmit = async (event) => {
+        event.preventDefault();
+
+        const csrfToken = await fetchCsrfToken();
+        const formData = new FormData(form);
+        formData.append('action', 'update');
+        formData.append('csrf_token', csrfToken);
+
+        try {
+            const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('Vehicle updated successfully.');
+                modal.style.display = 'none';
+                loadUserVehicles();
+            } else {
+                alert('Failed to update vehicle: ' + (result.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Update vehicle error:', error);
+            alert('An error occurred while updating the vehicle.');
+        }
+      };
+    }
+
+    // Verify loadUserVehicles function
+    async function loadUserVehicles() {
+      try {
+        const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list');
+        const vehicles = await response.json();
+
+        const container = document.getElementById('vehiclesList');
+        container.innerHTML = '';
+
+        if (!Array.isArray(vehicles) || vehicles.length === 0) {
+          container.innerHTML = '<p class="text-gray-500">No vehicles found.</p>';
+          return;
+        }
+
+        vehicles.forEach(vehicle => {
+          const card = document.createElement('div');
+          card.className = 'vehicle-card';
+
+          const imgSrc = vehicle.image_path || '/carwash_project/frontend/assets/default-car.png';
+          card.innerHTML = `
+              <div>
+                  <img src="${imgSrc}" alt="${vehicle.brand || 'Vehicle'}" onerror="this.onerror=null;this.src='/carwash_project/frontend/assets/default-car.png';">
+                  <h4>${vehicle.brand || ''} ${vehicle.model || ''}</h4>
+                  <p>${vehicle.license_plate || '—'}</p>
+                  <button onclick="openEditVehicleModal(${JSON.stringify(vehicle)})">Edit</button>
+                  <button onclick="deleteVehicle(${vehicle.id})">Delete</button>
+              </div>
+          `;
+
+          container.appendChild(card);
+        });
+      } catch (error) {
+        console.error('Failed to load vehicles:', error);
+        alert('An error occurred while loading vehicles.');
+      }
+    }
+
+    // Add event listener to close modal
+    window.addEventListener('click', (event) => {
+      const modal = document.getElementById('editVehicleModal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
   </script>
 </div> <!-- End Dashboard Layout -->
 
@@ -1712,3 +1868,7 @@ include '../includes/dashboard_header.php';
 // Include the universal footer
 include '../includes/footer.php'; 
 ?>
+
+<!-- Vehicle Debug Helper -->
+<script src="vehicle_debug_helper.js"></script>
+<meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">

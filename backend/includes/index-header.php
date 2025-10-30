@@ -609,9 +609,10 @@ $user_name = $is_logged_in ? ($_SESSION['name'] ?? $_SESSION['full_name'] ?? 'Us
       }
       
       .logo-icon {
-        width: 3rem;
+        width: 22rem;
         height: 3rem;
       }
+     
     }
     
     /* Touch device optimizations */
@@ -688,12 +689,10 @@ $user_name = $is_logged_in ? ($_SESSION['name'] ?? $_SESSION['full_name'] ?? 'Us
     <div class="flex justify-between items-center h-16 sm:h-18 md:h-20">
       
       <!-- Logo Section -->
-      <div class="flex items-center flex-shrink-0">
-        <a href="<?php echo $home_url; ?>" class="logo-container flex items-center gap-2 sm:gap-3 group" title="CarWash Ana Sayfa">
-          <div class="logo-icon w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-lg sm:rounded-xl flex items-center justify-center">
-            <i class="fas fa-car text-white text-sm sm:text-base md:text-xl lg:text-2xl"></i>
-          </div>
-          <h1 class="logo-text text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">CarWash</h1>
+      <div class="site-logo" style="display: flex; align-items: center;">
+        <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
+          <img src="../frontend/assets/images/default-car.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+          <span style="font-size: 1.5rem; font-weight: 400; font-family: 'Momo Signature', cursive; color: #019be5;">MYCAR</span>
         </a>
       </div>
 

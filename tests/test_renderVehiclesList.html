@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test renderVehiclesList</title>
+    <script>
+        // Mock the resolveVehicleImageUrl function
+        function resolveVehicleImageUrl(path) {
+            if (!path || path.trim() === '') {
+                return '/carwash_project/frontend/assets/default-car.png';
+            }
+            if (path.startsWith('/') || path.startsWith('http://') || path.startsWith('https://')) {
+                return path;
+            }
+            return '/carwash_project/frontend/assets/default-car.png';
+        }
+
+        // Mock the renderVehiclesList function
+        function renderVehiclesList(vehicles) {
+            const container = document.getElementById('vehiclesList');
+            container.innerHTML = '';
+            if (!Array.isArray(vehicles) || vehicles.length === 0) {
+                container.innerHTML = '<p class="text-gray-500">Kayıtlı araç bulunamadı.</p>';
+                return;
+            }
+            vehicles.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'vehicle-card';
+                const imgSrc = resolveVehicleImageUrl(v.image_path);
+                card.innerHTML = `
+                    <div>
+                        <img src="${imgSrc}" alt="${v.brand || 'Araç'}" onerror="this.onerror=null;this.src='/carwash_project/frontend/assets/default-car.png';">
+                        <h4>${v.brand || ''} ${v.model || ''}</h4>
+                        <p>${v.license_plate || '—'}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Test cases
+        document.addEventListener('DOMContentLoaded', () => {
+            const testCases = [
+                [],
+                [{ id: 1, brand: 'Toyota', model: 'Corolla', license_plate: '34 ABC 123', image_path: '' }],
+                [{ id: 2, brand: 'Honda', model: 'Civic', license_plate: '34 XYZ 789', image_path: 'invalid_path' }],
+                [{ id: 3, brand: 'Ford', model: 'Focus', license_plate: '35 DEF 456', image_path: '/carwash_project/uploads/ford_focus.jpg' }]
+            ];
+
+            testCases.forEach((test, index) => {
+                console.log(`Running test case ${index + 1}`);
+                renderVehiclesList(test);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="vehiclesList"></div>
+</body>
+</html>

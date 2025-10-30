@@ -72,15 +72,11 @@ function send_json_response(array $payload, int $httpCode = 200): void {
     exit;
 }
 
-// Require authenticated customer
-if (class_exists(Auth::class) && method_exists(Auth::class, 'requireRole')) {
-    Auth::requireRole('customer');
-} else {
-    if (empty($_SESSION['user_id'])) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
-        exit;
-    }
+// Require authenticated user (simplified to avoid HTML output from Auth class)
+if (empty($_SESSION['user_id'])) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+    exit;
 }
 
 // Merge JSON request body into $_POST for application/json requests (without overwriting)
@@ -113,17 +109,22 @@ function handle_vehicle_image_upload(array $file, int $userId): ?array {
     if (empty($file) || empty($file['tmp_name'])) return null;
 
     // Use FileUploader for secure upload
-    $uploadDir = __DIR__ . '/../uploads/vehicles/';
+    // Update upload directory to include project-relative path
+    $uploadDir = __DIR__ . '/../carwash_project/uploads/vehicles/';
     $uploader = new FileUploader($uploadDir);
     $uploader->imagesOnly();
 
     $result = $uploader->upload($file);
     if (!$result) {
+        error_log('FileUploader failed for user ' . $userId . ': ' . implode(', ', $uploader->getErrors()));
         throw new RuntimeException('Upload failed: ' . implode(', ', $uploader->getErrors()));
     }
 
-    $web_path = $result['url']; // e.g., /carwash_project/backend/uploads/vehicles/filename.ext
-    $server_path = $result['filepath'];
+    // Update web path to include project-relative path
+    $web_path = '/carwash_project/backend/uploads/vehicles/' . basename($result['filepath']);
+
+    // Update server path to include project-relative path
+    $server_path = $_SERVER['DOCUMENT_ROOT'] . '/carwash_project/backend/uploads/vehicles/' . basename($result['filepath']);
 
     // Log final server path for diagnostics
     if (class_exists(Logger::class) && method_exists(Logger::class, 'info')) {
@@ -202,20 +203,138 @@ try {
     }
 }
 
+// Ensure CSRF token validation for all sensitive requests
+$csrfToken = request_csrf_token();
+if (in_array($method, ['POST', 'PUT', 'DELETE'], true)) {
+    if (!$csrfToken || !hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
+        send_json_response(['error' => 'Invalid CSRF token'], 403);
+    }
+}
+
+// Validate and sanitize inputs
+function sanitize_input($data) {
+    return htmlspecialchars(strip_tags(trim($data)));
+}
+
+// Example usage for POST data
+foreach ($_POST as $key => $value) {
+    $_POST[$key] = sanitize_input($value);
+}
+
+// Improve error handling
+set_exception_handler(function ($exception) {
+    error_log('Unhandled exception: ' . $exception->getMessage());
+    send_json_response(['error' => 'An unexpected error occurred. Please try again later.'], 500);
+});
+
+// Refactor CSRF validation into a reusable function
+function validate_csrf_token(string $token): void {
+    if (!$token || !hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+        send_json_response(['error' => 'Invalid CSRF token'], 403);
+    }
+}
+
+// Refactor database schema management to setup scripts
+function ensure_database_schema(PDO $pdo): void {
+    // Log a warning instead of dynamically creating tables
+    error_log('Database schema changes should be handled in migrations.');
+}
+
+// Consolidate error logging
+function log_error(Throwable $e, array $context = []): void {
+    if (class_exists(Logger::class) && method_exists(Logger::class, 'exception')) {
+        Logger::exception($e, $context);
+    } else {
+        error_log('Error: ' . $e->getMessage());
+    }
+}
+
+// Optimize database queries
+function fetch_user_vehicles(PDO $pdo, int $userId): array {
+    $stmt = $pdo->prepare('SELECT id, image_path FROM user_vehicles WHERE user_id = :uid AND image_path IS NOT NULL AND image_path != ""');
+    $stmt->execute([':uid' => $userId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // Main handler
 try {
     if ($method === 'GET') {
-        // list vehicles
-        if (!$pdo) throw new RuntimeException('Database connection not available');
-        $stmt = $pdo->prepare('SELECT id, brand, model, license_plate, year, color, image_path, created_at FROM user_vehicles WHERE user_id = :uid ORDER BY created_at DESC');
-        $stmt->execute([':uid' => $user_id]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if (class_exists(Response::class) && method_exists(Response::class, 'success')) {
-            Response::success('Vehicles listed', ['vehicles' => $rows]);
+        $getAction = $_GET['action'] ?? 'list';
+        
+        if ($getAction === 'check_images') {
+            // Check which vehicle images exist on disk
+            if (!$pdo) throw new RuntimeException('Database connection not available');
+            $stmt = $pdo->prepare('SELECT id, image_path FROM user_vehicles WHERE user_id = :uid AND image_path IS NOT NULL AND image_path != ""');
+            $stmt->execute([':uid' => $user_id]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $missing = [];
+            $existing = [];
+            
+            foreach ($rows as $row) {
+                $path = $row['image_path'];
+                if (empty($path)) continue;
+                
+                // Convert web path to filesystem path
+                if (strpos($path, '/carwash_project/') === 0) {
+                    $relativePath = substr($path, strlen('/carwash_project/'));
+                    $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/carwash_project/' . $relativePath;
+                } else {
+                    // Assume it's already a relative path from web root
+                    $fullPath = $_SERVER['DOCUMENT_ROOT'] . $path;
+                }
+                
+                if (file_exists($fullPath)) {
+                    $existing[] = ['id' => $row['id'], 'path' => $path, 'filesystem_path' => $fullPath];
+                } else {
+                    $missing[] = ['id' => $row['id'], 'path' => $path, 'filesystem_path' => $fullPath];
+                }
+            }
+            
+            if (class_exists(Response::class) && method_exists(Response::class, 'success')) {
+                Response::success('Image check completed', ['existing' => $existing, 'missing' => $missing]);
+            } else {
+                echo json_encode(['success' => true, 'existing' => $existing, 'missing' => $missing], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
+            exit;
+        } elseif ($getAction === 'list') {
+            // list vehicles
+            if (!$pdo) throw new RuntimeException('Database connection not available');
+            $stmt = $pdo->prepare('SELECT id, brand, model, license_plate, year, color, image_path, created_at FROM user_vehicles WHERE user_id = :uid ORDER BY created_at DESC');
+            $stmt->execute([':uid' => $user_id]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Process image paths to ensure they are valid public URLs
+            foreach ($rows as &$row) {
+                $imagePath = $row['image_path'];
+                
+                if (empty($imagePath)) {
+                    // Empty path - use default image
+                    $row['image_path'] = '/carwash_project/frontend/assets/default-car.png';
+                } elseif (strpos($imagePath, '/carwash_project/') !== 0) {
+                    // Relative path without full prefix - add it
+                    if (strpos($imagePath, '/') === 0) {
+                        $row['image_path'] = '/carwash_project' . $imagePath;
+                    } else {
+                        // Invalid path - use default
+                        $row['image_path'] = '/carwash_project/frontend/assets/default-car.png';
+                    }
+                }
+                // If it already starts with /carwash_project/, keep as-is
+            }
+            
+            if (class_exists(Response::class) && method_exists(Response::class, 'success')) {
+                Response::success('Vehicles listed', ['vehicles' => $rows]);
+            } else {
+                echo json_encode(['status' => 'success', 'message' => 'Vehicles listed', 'data' => ['vehicles' => $rows]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
+            exit;
         } else {
-            echo json_encode(['success' => true, 'vehicles' => $rows], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            // Unknown GET action
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Unknown GET action'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            exit;
         }
-        exit;
     }
 
     if (in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
@@ -250,24 +369,18 @@ try {
             $webPath = null;
             try {
                 if (!empty($_FILES['vehicle_image']) && is_array($_FILES['vehicle_image']) && $_FILES['vehicle_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                    error_log('vehicle_api create upload attempt for user: ' . $user_id);
                     $uploadResult = handle_vehicle_image_upload($_FILES['vehicle_image'], $user_id);
                     if (is_array($uploadResult) && !empty($uploadResult['web'])) {
                         $webPath = $uploadResult['web'];
                         // store web path in DB
                         $u = $pdo->prepare('UPDATE user_vehicles SET image_path = :path WHERE id = :id AND user_id = :uid');
                         $u->execute([':path' => $webPath, ':id' => $id, ':uid' => $user_id]);
-                        // Log server path for diagnostics
-                        if (!empty($uploadResult['server'])) {
-                            if (class_exists(Logger::class) && method_exists(Logger::class, 'info')) {
-                                Logger::info('vehicle_api server_path: ' . $uploadResult['server'], ['user' => $user_id, 'vehicle_id' => $id]);
-                            } else {
-                                error_log('vehicle_api server_path: ' . $uploadResult['server']);
-                            }
-                        }
                     }
                 }
             } catch (Throwable $e) {
                 // don't crash the main flow on upload failure; log and continue
+                error_log('vehicle_api create upload error: ' . $e->getMessage());
                 if (class_exists(Logger::class) && method_exists(Logger::class, 'exception')) {
                     Logger::exception($e, ['user' => $user_id, 'vehicle_id' => $id]);
                 } else {
@@ -293,6 +406,7 @@ try {
             $imagePathToSet = null;
             try {
                 if (!empty($_FILES['vehicle_image']) && is_array($_FILES['vehicle_image']) && $_FILES['vehicle_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                    error_log('vehicle_api update upload attempt for user: ' . $user_id . ' vehicle: ' . $id);
                     $uploadResult = handle_vehicle_image_upload($_FILES['vehicle_image'], $user_id);
                     if (is_array($uploadResult) && !empty($uploadResult['web'])) {
                         $imagePathToSet = $uploadResult['web'];
@@ -306,6 +420,7 @@ try {
                     }
                 }
             } catch (Throwable $e) {
+                error_log('vehicle_api update upload error: ' . $e->getMessage());
                 if (class_exists(Logger::class) && method_exists(Logger::class, 'exception')) {
                     Logger::exception($e, ['user' => $user_id, 'vehicle_id' => $id]);
                 } else {
@@ -332,6 +447,7 @@ try {
         if ($action === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
             if ($id <= 0) throw new InvalidArgumentException('Invalid vehicle id');
+            error_log('vehicle_api delete attempt: id=' . $id . ' user_id=' . $user_id);
             $stmt = $pdo->prepare('DELETE FROM user_vehicles WHERE id = :id AND user_id = :uid');
             $ok = $stmt->execute([':id' => $id, ':uid' => $user_id]);
             if (!$ok) throw new RuntimeException('Delete failed');

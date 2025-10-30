@@ -106,15 +106,18 @@ class FileUploader {
             return false;
         }
         
-        // Set correct permissions
-        chmod($targetPath, 0644);
+        // Generate web-accessible URL
+        $docRoot = rtrim(realpath($_SERVER['DOCUMENT_ROOT']), DIRECTORY_SEPARATOR);
+        $realTarget = realpath($targetPath);
+        $relativePath = str_replace($docRoot, '', $realTarget);
+        $url = str_replace(DIRECTORY_SEPARATOR, '/', $relativePath);
         
         return [
             'filename' => $filename,
             'filepath' => $targetPath,
             'filesize' => $file['size'],
             'filetype' => $file['type'],
-            'url' => str_replace($_SERVER['DOCUMENT_ROOT'], '', $targetPath)
+            'url' => $url
         ];
     }
     
