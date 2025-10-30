@@ -896,13 +896,13 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
   <header class="header-elite fixed top-0 w-full z-50">
     <div class="container mx-auto px-4">
       <div class="flex justify-between items-center py-3">
-        <!-- Logo -->
-        <div class="site-logo" style="display: flex; align-items: center;">
-          <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
-            <img src="logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
-            <span style=" font-size: 2rem; font-weight: 400; font-family: 'momo-signature-regular'; color: #194bb6ff;">MYCAR</span>
-          </a>
-        </div>
+      <!-- Logo Section -->
+      <div class="site-logo" style="display: flex; align-items: center;">
+        <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
+          <img src="../../frontend/assets/images/default-car.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+          <span style="font-size: 1.5rem; font-weight: 400; font-family: 'Momo Signature', cursive; color: #019be5;">MYCAR</span>
+        </a>
+      </div>
 
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center space-x-2 lg:space-x-4">

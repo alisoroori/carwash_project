@@ -587,8 +587,10 @@ $navigation_menu = array();
                         <i class="fas <?php echo $dashboard_icon; ?> text-white text-lg"></i>
                     </div>
                     <div class="flex flex-col">
-                        <span class="logo-text">CarWash</span>
-                        <span class="dashboard-badge"><?php echo $dashboard_label; ?></span>
+                        <span class="logo-text">MYCAR</span>
+                       <img src="../logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+                       <span style=" font-size: 2rem; font-weight: 400; font-family: 'momo-signature-regular'; color: #194bb6ff;">MYCAR</span>
+                         <span class="dashboard-badge"><?php echo $dashboard_label; ?></span>
                     </div>
                 </a>
             </div>
