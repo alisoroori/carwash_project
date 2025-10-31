@@ -1,381 +1,358 @@
 /**
- * Customer Dashboard Vehicle Debug Helper
+ * Vehicle Debug Runner
+ * - Fetches /backend/dashboard/vehicle_api.php?action=list
+ * - Logs vehicles array length and content
+ * - Verifies #vehiclesList exists
+ * - Attempts to render each vehicle card and append to #vehiclesList
+ * - Verifies images load
+ * - Confirms window.CONFIG.CSRF_TOKEN (first 8 chars)
+ * - Provides a manual refresh button and a debug panel with logs
  *
- * Provides comprehensive debugging for the vehicle section including:
- * - Global error catching
- * - Ajax request/response monitoring
- * - Form submission logging
- * - Image loading verification
- * - Delete button validation
+ * Usage:
+ * - Drop this file into backend/dashboard/vehicle_debug_runner.js
+ * - Include on Customer Dashboard pages (after DOM elements) with:
+ *     <script src="/carwash_project/backend/dashboard/vehicle_debug_runner.js"></script>
+ *
+ * Notes:
+ * - Does not use top-level await; uses async functions and event handlers.
+ * - Uses same-origin fetch and will pass credentials to respect session cookies.
  */
 
 (function () {
-    'use strict';
+  'use strict';
 
-    // Ensure CONFIG and CONFIG.API are safely initialized
+  // Ensure CONFIG and API defaults exist
+  window.CONFIG = window.CONFIG || {};
+  window.CONFIG.API = window.CONFIG.API || {};
+  window.CONFIG.API.VEHICLE_CREATE = window.CONFIG.API.VEHICLE_CREATE || '/carwash_project/backend/dashboard/vehicle_api.php';
+  window.CONFIG.API.VEHICLE_LIST = window.CONFIG.API.VEHICLE_LIST || '/carwash_project/backend/dashboard/vehicle_api.php?action=list';
+
+  // Read CSRF from meta tag safely and set on window.CONFIG (only once)
+  (function loadCsrfFromMeta() {
+    try {
+      const meta = document.querySelector('meta[name="csrf-token"]');
+      if (meta && meta.content) {
+        window.CONFIG = window.CONFIG || {};
+        if (!window.CONFIG.CSRF_TOKEN) {
+          window.CONFIG.CSRF_TOKEN = meta.content;
+          console.info('[VDR] CSRF_TOKEN loaded:', String(meta.content).substring(0, 8) + '...');
+        }
+      } else {
+        if (!window.__VDR_WARNED_CSRF_META) {
+          window.__VDR_WARNED_CSRF_META = true;
+          console.warn('[VDR] CSRF_TOKEN missing in meta tag');
+        }
+      }
+    } catch (e) {
+      console.warn('[VDR] CSRF token detection error', e);
+    }
+  })();
+
+  // Helper: append CSRF to FormData only once
+  function appendCsrfOnce(formData) {
+    if (!formData) return;
     window.CONFIG = window.CONFIG || {};
-    window.CONFIG.API = window.CONFIG.API || {
-        VEHICLE_CREATE: '/carwash_project/backend/dashboard/vehicle_api.php',
-        VEHICLE_CHECK_IMAGES: '/carwash_project/backend/dashboard/vehicle_api.php?action=check_images'
-    };
+    const token = window.CONFIG.CSRF_TOKEN || '';
+    if (token && !formData.has('csrf_token')) {
+      formData.append('csrf_token', token);
+    }
+  }
 
-    // Create debug panel
-    const debugPanel = document.createElement('div');
-    debugPanel.id = 'vehicle-debug-panel';
-    debugPanel.style.cssText = `
-        position: fixed;
-        bottom: 10px;
-        right: 10px;
-        width: 400px;
-        max-height: 300px;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        padding: 10px;
-        border-radius: 5px;
-        z-index: 9999;
-        overflow-y: auto;
-        display: none;
-    `;
+  // Replace any direct FormData append in the file to use appendCsrfOnce(fd)
+  // Example usage in create/update/delete flows:
+  // const fd = new FormData(formElem);
+  // appendCsrfOnce(fd);
+  // fetch(window.CONFIG.API.VEHICLE_CREATE, { method:'POST', body: fd, credentials:'same-origin' });
 
-    const debugHeader = document.createElement('div');
-    debugHeader.style.cssText = `
-        font-weight: bold;
-        margin-bottom: 5px;
-        border-bottom: 1px solid white;
-        padding-bottom: 5px;
-        cursor: pointer;
-    `;
-    debugHeader.textContent = 'Vehicle Debug Panel (Click to Collapse/Expand)';
+  // Debug panel creation
+  const panel = document.createElement('div');
+  panel.id = 'vehicle-debug-runner';
+  panel.style.cssText = 'position:fixed;right:12px;bottom:12px;width:420px;max-height:420px;background:rgba(0,0,0,0.85);color:#e6e6e6;font-family:monospace;font-size:12px;padding:10px;border-radius:6px;z-index:99999;overflow:auto;';
+  panel.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <strong style="color:#fff">Vehicle Debug Runner</strong>
+      <button id="vdr-toggle" style="background:transparent;border:1px solid #444;color:#fff;padding:2px 6px;border-radius:4px;cursor:pointer">Hide</button>
+    </div>
+    <div id="vdr-controls" style="margin-bottom:8px;">
+      <button id="vdr-refresh" style="margin-right:6px;padding:6px;background:#0b74de;border:none;border-radius:4px;color:white;cursor:pointer">Refresh</button>
+      <button id="vdr-fetch" style="padding:6px;background:#16a34a;border:none;border-radius:4px;color:white;cursor:pointer">Fetch Only</button>
+    </div>
+    <div id="vdr-log" style="white-space:pre-wrap;line-height:1.3;max-height:320px;overflow:auto;"></div>
+  `;
+  document.body.appendChild(panel);
 
-    const debugContent = document.createElement('div');
-    debugContent.id = 'debug-content';
-    debugContent.style.cssText = `
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    `;
+  const logEl = document.getElementById('vdr-log');
+  const toggleBtn = document.getElementById('vdr-toggle');
+  const refreshBtn = document.getElementById('vdr-refresh');
+  const fetchBtn = document.getElementById('vdr-fetch');
 
-    debugPanel.appendChild(debugHeader);
-    debugPanel.appendChild(debugContent);
-    document.body.appendChild(debugPanel);
+  function timestamp() {
+    return new Date().toLocaleTimeString();
+  }
 
-    // Show/hide toggle
-    debugHeader.addEventListener('click', function () {
-        debugContent.style.display = debugContent.style.display === 'none' ? 'block' : 'none';
+  function log(msg, level = 'info') {
+    const color = level === 'error' ? '#ff8b8b' : level === 'warn' ? '#ffd580' : '#cfe8ff';
+    const prefix = `[${timestamp()}] ${level.toUpperCase()}: `;
+    const entry = document.createElement('div');
+    entry.style.marginBottom = '6px';
+    entry.innerHTML = `<span style="color:${color}">${prefix}</span><span style="color:#ddd">${escapeHtml(String(msg))}</span>`;
+    logEl.appendChild(entry);
+    logEl.scrollTop = logEl.scrollHeight;
+    // Also print to console for developers
+    if (level === 'error') console.error(msg);
+    else if (level === 'warn') console.warn(msg);
+    else console.log(msg);
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, function (m) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
     });
+  }
 
-    // Logging function
-    function log(message, type = 'info') {
-        const timestamp = new Date().toLocaleTimeString();
-        const prefix = `[${timestamp}] ${type.toUpperCase()}: `;
-        const content = debugPanel.querySelector('#debug-content');
-        content.textContent += prefix + message + '\n\n';
-        content.scrollTop = content.scrollHeight;
-        debugPanel.style.display = 'block';
-    }
-
-    // Ensure CSRF token is loaded and validated
-    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-    window.CONFIG = window.CONFIG || {};
-    window.CONFIG.CSRF_TOKEN = csrfMeta ? csrfMeta.getAttribute('content') : null;
-
-    if (!window.CONFIG.CSRF_TOKEN) {
-        log('CSRF_TOKEN is missing. Ensure meta tag or backend injection is working.', 'error');
-        console.warn('CSRF_TOKEN is missing. Ensure meta tag or backend injection is working.');
+  toggleBtn.addEventListener('click', () => {
+    const controls = document.getElementById('vdr-controls');
+    if (logEl.style.display === 'none') {
+      logEl.style.display = 'block';
+      controls.style.display = 'block';
+      toggleBtn.textContent = 'Hide';
     } else {
-        log(`CSRF_TOKEN loaded successfully: ${window.CONFIG.CSRF_TOKEN.substring(0, 8)}...`, 'success');
+      logEl.style.display = 'none';
+      controls.style.display = 'none';
+      toggleBtn.textContent = 'Show';
     }
+  });
 
-    // Debug CSRF status
-    function debugCSRFStatus() {
-        const token = window.CONFIG.CSRF_TOKEN;
-        if (token) {
-            log(`CSRF_TOKEN validation passed: ${token.substring(0, 8)}...`, 'success');
+  // Main state counters for summary
+  let summary = {
+    totalFromJSON: 0,
+    successfullyRendered: 0,
+    missingImages: [],
+    errors: []
+  };
+
+  // Check CSRF token
+  function checkCsrf() {
+    if (window.CONFIG && window.CONFIG.CSRF_TOKEN) {
+      log(`CSRF_TOKEN loaded: ${String(window.CONFIG.CSRF_TOKEN).substring(0, 8)}...`, 'info');
+      return true;
+    } else {
+      log('CSRF_TOKEN not found on window.CONFIG or meta tag. Form submissions may fail.', 'warn');
+      return false;
+    }
+  }
+
+  // Verify container existence
+  function findVehiclesContainer() {
+    const container = document.getElementById('vehiclesList') || document.querySelector('.vehicles-list') || null;
+    if (container) {
+      log('Found vehicles container (#vehiclesList or .vehicles-list).', 'info');
+    } else {
+      log('Vehicles container not found. Look for element with id="vehiclesList" or class="vehicles-list".', 'error');
+    }
+    return container;
+  }
+
+  // Render a single vehicle card (minimal safe markup)
+  function renderVehicleCard(vehicle) {
+    const card = document.createElement('div');
+    card.className = 'vdr-vehicle-card';
+    card.style.cssText = 'background:#fff;color:#111;border-radius:10px;padding:10px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 2px 6px rgba(0,0,0,0.08);';
+    const imgSrc = vehicle.image_path || vehicle.image || '/carwash_project/frontend/images/default-car.png';
+    const img = document.createElement('img');
+    img.src = imgSrc;
+    img.alt = `${vehicle.brand || 'Vehicle'} ${vehicle.model || ''}`.trim();
+    img.style.cssText = 'width:84px;height:56px;object-fit:cover;border-radius:6px;background:#f3f4f6;';
+    img.setAttribute('data-vdr-src', imgSrc);
+
+    const body = document.createElement('div');
+    body.style.flex = '1';
+
+    const title = document.createElement('div');
+    title.style.fontWeight = '700';
+    title.style.marginBottom = '4px';
+    title.textContent = `${vehicle.brand || ''} ${vehicle.model || ''}`.trim();
+
+    const meta = document.createElement('div');
+    meta.style.fontSize = '12px';
+    meta.style.color = '#555';
+    meta.innerHTML = `<div><strong>Plate:</strong> ${escapeHtml(vehicle.license_plate || '—')}</div>
+                      <div><strong>Year:</strong> ${escapeHtml(String(vehicle.year || '—'))}</div>
+                      <div><strong>Color:</strong> ${escapeHtml(vehicle.color || '—')}</div>`;
+
+    body.appendChild(title);
+    body.appendChild(meta);
+
+    card.appendChild(img);
+    card.appendChild(body);
+
+    return { card, img };
+  }
+
+  // Verify image load
+  function verifyImageLoad(imgEl, vehicleIdOrLabel) {
+    return new Promise((resolve) => {
+      const testImg = new Image();
+      testImg.onload = () => {
+        log(`Image loaded for vehicle ${vehicleIdOrLabel}: ${imgEl.getAttribute('data-vdr-src')}`, 'info');
+        resolve(true);
+      };
+      testImg.onerror = () => {
+        log(`Image MISSING / failed for vehicle ${vehicleIdOrLabel}: ${imgEl.getAttribute('data-vdr-src')}`, 'warn');
+        resolve(false);
+      };
+      // Use the same src; some browsers may start loading already but onload/onerror will still fire
+      testImg.src = imgEl.getAttribute('data-vdr-src') || imgEl.src;
+      // Fallback timeout: if neither fires within X ms assume failure
+      setTimeout(() => resolve(false), 4000);
+    });
+  }
+
+  // Fetch the vehicles JSON from the API endpoint
+  async function fetchVehiclesJSON() {
+    summary = { totalFromJSON: 0, successfullyRendered: 0, missingImages: [], errors: [] };
+    log(`Fetching vehicles from: ${window.CONFIG.API.VEHICLE_LIST}`, 'info');
+    try {
+      const res = await fetch(window.CONFIG.API.VEHICLE_LIST, { method: 'GET', credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+      const raw = await res.text(); // read text to log potential HTML
+      if (!res.ok) {
+        log(`HTTP ${res.status} fetching vehicle list. Response snippet: ${raw.slice(0, 800)}`, 'error');
+        summary.errors.push(`HTTP ${res.status}`);
+        return null;
+      }
+      let json = null;
+      try {
+        json = raw ? JSON.parse(raw) : null;
+      } catch (err) {
+        log('Failed to parse JSON from vehicle API response. Response snippet follows:', 'error');
+        log(raw.slice(0, 2000), 'error');
+        summary.errors.push('Invalid JSON response');
+        return null;
+      }
+      if (!json || json.status !== 'success') {
+        log(`Vehicle API returned status != success: ${JSON.stringify(json && (json.message || json), null, 2)}`, 'warn');
+        summary.errors.push('API returned non-success status');
+        return json;
+      }
+      const vehicles = (json.data && Array.isArray(json.data.vehicles)) ? json.data.vehicles : [];
+      log(`Vehicles from JSON: ${vehicles.length}`, 'info');
+      // log the content (first N)
+      const preview = vehicles.slice(0, 20).map((v, i) => ({ i: i + 1, id: v.id ?? null, brand: v.brand ?? null, model: v.model ?? null, license_plate: v.license_plate ?? null, image_path: v.image_path ?? v.image ?? null }));
+      log(`First ${preview.length} vehicles preview:\n` + JSON.stringify(preview, null, 2), 'info');
+      summary.totalFromJSON = vehicles.length;
+      return vehicles;
+    } catch (err) {
+      log(`Network or fetch error: ${err.message}`, 'error');
+      summary.errors.push(err.message);
+      return null;
+    }
+  }
+
+  // Attempt to render vehicles into DOM
+  async function tryRenderVehicles(vehicles) {
+    const container = findVehiclesContainer();
+    if (!container) {
+      summary.errors.push('Missing container');
+      return;
+    }
+    // Optionally clear existing children (comment/uncomment depending on desired behavior)
+    // container.innerHTML = '';
+    let renderedCount = 0;
+    for (const v of vehicles) {
+      try {
+        const { card, img } = renderVehicleCard(v);
+        // attach data-vehicle-id for delete button logging / event wiring
+        if (v.id) card.setAttribute('data-vehicle-id', String(v.id));
+
+        // Append card to container
+        container.appendChild(card);
+        renderedCount++;
+
+        // Verify image load
+        const ok = await verifyImageLoad(img, v.id ?? v.license_plate ?? v.brand ?? 'unknown');
+        if (!ok) {
+          summary.missingImages.push({ id: v.id ?? null, src: img.getAttribute('data-vdr-src') });
         } else {
-            log('CSRF_TOKEN validation failed. Token is missing or invalid.', 'error');
-            console.warn('CSRF_TOKEN validation failed. Token is missing or invalid.');
+          // mark as successfully rendered with good image
+          summary.successfullyRendered++;
         }
+      } catch (err) {
+        log(`Error rendering vehicle ${v.id ?? '(no id)'}: ${err.message}`, 'error');
+        summary.errors.push(err.message);
+      }
     }
+    log(`Rendered ${renderedCount} vehicles into DOM (appended).`, 'info');
+  }
 
-    debugCSRFStatus();
-
-    // Hook into forms and AJAX requests
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function (e) {
-            const formData = new FormData(form);
-            if (!formData.has('csrf_token')) {
-                formData.append('csrf_token', window.CONFIG.CSRF_TOKEN);
-            }
-        });
-    });
-
-    const originalFetch = window.fetch;
-    window.fetch = async function (url, options = {}) {
-        if (options.method === 'POST') {
-            const headers = options.headers || {};
-            const body = options.body || new FormData();
-
-            if (body instanceof FormData && !body.has('csrf_token')) {
-                body.append('csrf_token', window.CONFIG.CSRF_TOKEN);
-            }
-
-            options.body = body;
-            options.headers = headers;
-        }
-
-        return originalFetch(url, options);
-    };
-
-    // 1. Global error handler
-    window.addEventListener('error', function (e) {
-        log(`JavaScript Error: ${e.message}\nFile: ${e.filename}\nLine: ${e.lineno}\nStack: ${e.error ? e.error.stack : 'N/A'}`, 'error');
-    });
-
-    window.addEventListener('unhandledrejection', function (e) {
-        log(`Unhandled Promise Rejection: ${e.reason}`, 'error');
-    });
-
-    // 2. Intercept Ajax requests
-    const loggedRequests = new Set(); // Prevent duplicate logs
-    window.fetch = function (...args) {
-        const url = args[0];
-        if (typeof url === 'string' && (url.includes('vehicle_api.php') || url.includes('Customer_Dashboard_process.php'))) {
-            if (!loggedRequests.has(url)) {
-                log(`Ajax Request: ${args[0]}\nMethod: ${args[1]?.method || 'GET'}`, 'ajax');
-                loggedRequests.add(url);
-            }
-
-            return originalFetch.apply(this, args).then(response => {
-                // Clone response for inspection
-                const clonedResponse = response.clone();
-
-                return clonedResponse.text().then(text => {
-                    log(`Ajax Response: ${response.url}\nStatus: ${response.status}`, 'ajax');
-
-                    try {
-                        const json = JSON.parse(text);
-                        if (json.success === false) {
-                            log(`Ajax Error Response:\nMessage: ${json.message || 'N/A'}\nError Type: ${json.error_type || 'N/A'}\nFull Response: ${JSON.stringify(json, null, 2)}`, 'error');
-                        } else {
-                            log(`Ajax Success Response: ${JSON.stringify(json).substring(0, 200)}...`, 'ajax');
-                        }
-                    } catch (e) {
-                        log(`Ajax Non-JSON Response:\n${text.substring(0, 500)}${text.length > 500 ? '...' : ''}`, 'warn');
-                    }
-
-                    // Return original response
-                    return response;
-                });
-            }).catch(error => {
-                log(`Ajax Network Error: ${error.message}`, 'error');
-                throw error;
-            });
-        }
-
-        return originalFetch.apply(this, args);
-    };
-
-    // 3. Form submission monitoring
-    function setupFormMonitoring() {
-        const form = document.getElementById('vehicleFormInline');
-        if (!form) {
-            log('Vehicle form not found', 'warn');
-            return;
-        }
-
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault(); // Prevent default form submission
-
-            log('Vehicle form submitted', 'form');
-
-            const formData = new FormData(form);
-
-            // Append CSRF token only once
-            if (!formData.has('csrf_token')) {
-                formData.append('csrf_token', csrfToken);
-            }
-
-            try {
-                const response = await fetch(window.CONFIG.API.VEHICLE_CREATE, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-
-                    if (result.success) {
-                        log('Vehicle added successfully', 'success');
-                        alert('Vehicle added successfully!'); // Display success message
-                        location.reload(); // Reload the page to update the vehicle list
-                    } else {
-                        throw new Error(result.message || 'Failed to add vehicle');
-                    }
-                } else {
-                    throw new Error(`HTTP Error: ${response.status}`);
-                }
-            } catch (error) {
-                log(`Error submitting vehicle form: ${error.message}`, 'error');
-                alert(`Error: ${error.message}`); // Display error message
-            }
-        });
+  // Full run: fetch and render and produce summary
+  async function runDebugCycle({ onlyFetch = false } = {}) {
+    const hasCsrf = checkCsrf();
+    const vehicles = await fetchVehiclesJSON();
+    if (!vehicles) {
+      log('No vehicles array to render (fetch failed or invalid).', 'warn');
+      printSummary();
+      return;
     }
-
-    // 4. Image verification
-    async function verifyVehicleImages() {
-        const images = document.querySelectorAll('#vehiclesList img');
-        log(`Found ${images.length} vehicle images to verify`, 'image');
-
-        if (images.length === 0) {
-            log('No vehicle images found. This is normal if vehicles haven\'t loaded yet or no vehicles exist for the current user.', 'info');
-        }
-
-        // First, check server-side file existence
-        try {
-            const response = await fetch(window.CONFIG.API.VEHICLE_CHECK_IMAGES, {
-                method: 'GET',
-                credentials: 'same-origin',
-                headers: { 'Accept': 'application/json' }
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success && result.missing && result.missing.length > 0) {
-                    result.missing.forEach(missing => {
-                        log(`MISSING FILE: Vehicle ID ${missing.id}\nDB Path: ${missing.path}\nFilesystem: ${missing.filesystem_path}`, 'error');
-                    });
-                }
-                if (result.existing && result.existing.length > 0) {
-                    log(`Server check: ${result.existing.length} images exist on disk`, 'image');
-                }
-            } else {
-                log('Failed to check image existence on server', 'warn');
-            }
-        } catch (error) {
-            log(`Error checking image existence: ${error.message}`, 'error');
-        }
-
-        // Then check client-side loading
-        images.forEach((img, index) => {
-            const src = img.src;
-            log(`Checking image ${index + 1}: ${src}`, 'image');
-
-            // Create a test image to check if it loads
-            const testImg = new Image();
-            testImg.onload = function () {
-                log(`Image ${index + 1} loaded successfully: ${src}`, 'image');
-            };
-            testImg.onerror = function () {
-                log(`Image ${index + 1} failed to load: ${src}\nIntended path: ${img.getAttribute('data-original-src') || 'N/A'}`, 'error');
-            };
-            testImg.src = src;
-        });
+    if (onlyFetch) {
+      log('Fetch-only mode: not rendering to DOM.', 'info');
+      printSummary();
+      return;
     }
-
-    // 5. Delete button verification
-    function verifyDeleteButtons() {
-        const deleteButtons = document.querySelectorAll('#vehiclesList [data-action="delete"]');
-        log(`Found ${deleteButtons.length} delete buttons`, 'button');
-
-        deleteButtons.forEach((btn, index) => {
-            // Add click listener for logging
-            btn.addEventListener('click', function (e) {
-                const vehicleCard = btn.closest('.bg-white');
-                const vehicleId = vehicleCard ? vehicleCard.getAttribute('data-vehicle-id') : 'unknown';
-                log(`Delete button ${index + 1} clicked\nVehicle ID: ${vehicleId}`, 'button');
-            });
-        });
-
-        if (deleteButtons.length === 0) {
-            log('No delete buttons found in vehicle list', 'warn');
-        }
+    // Ensure container exists
+    const container = findVehiclesContainer();
+    if (!container) {
+      log('Attempting to create a temporary container "#vehiclesList" for debug rendering.', 'warn');
+      const temp = document.createElement('div');
+      temp.id = 'vehiclesList';
+      temp.style.padding = '12px';
+      temp.style.maxWidth = '620px';
+      // insert near body top to be visible
+      document.body.insertBefore(temp, document.body.firstChild);
+      log('Temporary container created and inserted at top of body.', 'info');
     }
+    await tryRenderVehicles(vehicles);
+    printSummary();
+  }
 
-    // Function to add sample car washes for display
-    function addSampleCarWashes() {
-        const vehiclesList = document.getElementById('vehiclesList');
-        if (!vehiclesList) {
-            log('Vehicle list container not found. Cannot add sample car washes.', 'warn');
-            return;
-        }
-
-        const sampleCarWashes = [
-            {
-                id: 'sample1',
-                brand: 'Toyota',
-                model: 'Corolla',
-                licensePlate: 'ABC-1234',
-                imagePath: '/frontend/images/sample-car1.png'
-            },
-            {
-                id: 'sample2',
-                brand: 'Honda',
-                model: 'Civic',
-                licensePlate: 'XYZ-5678',
-                imagePath: '/frontend/images/sample-car2.png'
-            }
-        ];
-
-        sampleCarWashes.forEach(car => {
-            const vehicleCard = document.createElement('div');
-            vehicleCard.className = 'vehicle-card';
-            vehicleCard.innerHTML = `
-                <div class="bg-white" data-vehicle-id="${car.id}">
-                    <img src="${car.imagePath}" alt="${car.brand} ${car.model}" class="vehicle-image" />
-                    <div class="vehicle-details">
-                        <h4>${car.brand} ${car.model}</h4>
-                        <p>License Plate: ${car.licensePlate}</p>
-                    </div>
-                </div>
-            `;
-            vehiclesList.appendChild(vehicleCard);
-        });
-
-        log('Sample car washes added to the vehicle list.', 'info');
-    }
-
-    // Initialize on DOM ready
-    async function init() {
-        log('Vehicle Debug Helper initialized', 'init');
-
-        setupFormMonitoring();
-        await verifyVehicleImages();
-        verifyDeleteButtons();
-
-        const vehiclesList = document.getElementById('vehiclesList');
-        if (vehiclesList && vehiclesList.children.length === 0) {
-            addSampleCarWashes();
-        }
-
-        // Optimize MutationObserver logic
-        const observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                if (mutation.type === 'childList' && mutation.target.id === 'vehiclesList') {
-                    log('Vehicle list updated, re-verifying...', 'update');
-                    observer.disconnect(); // Disconnect to avoid repeated triggers
-                    setTimeout(async () => {
-                        await verifyVehicleImages();
-                        verifyDeleteButtons();
-                        observer.observe(mutation.target, { childList: true, subtree: true }); // Reconnect observer
-                    }, 100);
-                }
-            });
-        });
-
-        const vehiclesListElement = document.getElementById('vehiclesList');
-        if (vehiclesListElement) {
-            observer.observe(vehiclesListElement, { childList: true, subtree: true });
-        }
-    }
-
-    // Run on DOMContentLoaded or immediately if already loaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => init());
+  function printSummary() {
+    log('--- Debug Summary ---', 'info');
+    log(`Total vehicles in JSON: ${summary.totalFromJSON}`, 'info');
+    log(`Total vehicles successfully rendered (with confirmed images): ${summary.successfullyRendered}`, 'info');
+    log(`Missing images (${summary.missingImages.length}):\n` + JSON.stringify(summary.missingImages.slice(0, 20), null, 2), summary.missingImages.length ? 'warn' : 'info');
+    if (summary.errors && summary.errors.length) {
+      log(`Errors encountered (${summary.errors.length}):\n` + JSON.stringify(summary.errors.slice(0, 20), null, 2), 'error');
     } else {
-        init();
+      log('No errors encountered during this run.', 'info');
     }
+  }
 
-    // Expose log function globally for manual debugging
-    window.vehicleDebugLog = log;
+  // Attach actions
+  refreshBtn.addEventListener('click', async () => {
+    log('Manual refresh triggered by user.', 'info');
+    await runDebugCycle({ onlyFetch: false });
+  });
+  fetchBtn.addEventListener('click', async () => {
+    log('Manual fetch-only triggered by user.', 'info');
+    await runDebugCycle({ onlyFetch: true });
+  });
+
+  // Auto-run on load after a short delay to give page a chance to render async lists
+  function scheduleAutoRun() {
+    const delayMs = 1800;
+    log(`Scheduling automatic debug run in ${delayMs}ms...`, 'info');
+    setTimeout(() => {
+      runDebugCycle({ onlyFetch: false }).catch(err => {
+        log(`Unhandled error during debug run: ${err.message}`, 'error');
+      });
+    }, delayMs);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleAutoRun);
+  } else {
+    scheduleAutoRun();
+  }
+
+  // Expose a console-friendly shortcut
+  window.runVehicleDebug = runDebugCycle;
 })();
