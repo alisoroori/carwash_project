@@ -194,10 +194,12 @@ try {
             $stmt = $pdo->prepare('SELECT id, brand, model, license_plate, year, color, image_path, created_at FROM user_vehicles WHERE user_id = :uid ORDER BY created_at DESC');
             $stmt->execute([':uid' => $_SESSION['user_id']]);
             $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Ensure vehicles is an indexed array and use canonical API shape: { success|status, message, data: { vehicles: [] } }
+            $vehicles = is_array($vehicles) ? array_values($vehicles) : [];
             if (class_exists(\App\Classes\Response::class) && method_exists(\App\Classes\Response::class, 'success')) {
                 \App\Classes\Response::success('Vehicles listed', ['vehicles' => $vehicles]);
             } else {
-                echo json_encode(['success' => true, 'vehicles' => $vehicles], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                echo json_encode(['success' => true, 'message' => 'Vehicles listed', 'data' => ['vehicles' => $vehicles]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             }
             break;
 

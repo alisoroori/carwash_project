@@ -37,7 +37,7 @@ if ($json && isset($json['data']['vehicles'])) {
         echo "    ID: {$v['id']}, Image path: $imagePath\n";
 
         // Check if image file exists
-        if ($imagePath && $imagePath !== '/carwash_project/frontend/assets/default-car.png') {
+    if ($imagePath && $imagePath !== '/carwash_project/frontend/assets/images/default-car.png') {
             $filePath = str_replace('/carwash_project', __DIR__, $imagePath);
             $exists = file_exists($filePath) ? 'EXISTS' : 'MISSING';
             echo "      File check: $exists ($filePath)\n";
@@ -52,7 +52,7 @@ echo "\n3. Testing image URL resolution:\n";
 // Test the resolveVehicleImageUrl function (simplified version)
 function resolveVehicleImageUrl($path) {
     if (empty($path)) {
-        return '/carwash_project/frontend/assets/default-car.png';
+    return '/carwash_project/frontend/assets/images/default-car.png';
     }
 
     // If it already starts with /carwash_project/, keep as-is

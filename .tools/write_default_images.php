@@ -3,7 +3,7 @@
 // Run: php .tools\write_default_images.php
 $files = [
     // 1x1 transparent PNG
-    'frontend/assets/default-car.png' => 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=',
+    'frontend/assets/images/default-car.png' => 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=',
     // small placeholder JPEG (1x1 white)
     'frontend/images/default-carwash.jpg' => '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAAQABADASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAUBB//EABQBAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhADEAAAAf/EABYRAQEBAAAAAAAAAAAAAAAAAAABEv/aAAgBAQABPwC0f//EABYRAQEBAAAAAAAAAAAAAAAAAAABEv/aAAgBAgEBPwC0f//EABYRAQEBAAAAAAAAAAAAAAAAAAABEv/aAAgBAwEBPwC0f//Z'
 ];
