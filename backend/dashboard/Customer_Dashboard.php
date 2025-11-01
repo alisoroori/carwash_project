@@ -1886,185 +1886,63 @@ include '../includes/dashboard_header.php';
       }
     }
 
-    // Vehicle delete function
-    async function deleteVehicle(vehicleId) {
-      if (!confirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
-        return;
-      }
-
-      // Prefer CONFIG token, fallback to meta or fetchCsrfToken() if available
-      const csrfToken = (window.CONFIG && window.CONFIG.CSRF_TOKEN) ||
-                        document.querySelector('meta[name="csrf-token"]')?.content ||
-                        (typeof fetchCsrfToken === 'function' ? await fetchCsrfToken() : '');
-
+    /* Inserted: lightweight, non-throwing image verification helper used by loadUserVehicles */
+function verifyVehicleImages(vehicles = [], opts = { limit: 10, timeout: 3000 }) {
+  try {
+    if (!Array.isArray(vehicles) || vehicles.length === 0) return Promise.resolve([]);
+    const limit = Math.max(1, Math.min(50, opts.limit || 10));
+    const timeoutMs = Math.max(500, opts.timeout || 3000);
+    const subset = vehicles.slice(0, limit);
+    const defaultImg = '/carwash_project/frontend/assets/images/default-car.png';
+    const checks = subset.map((v) => new Promise((resolve) => {
       try {
-        const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken || ''
-          },
-          body: JSON.stringify({
-            action: 'delete',
-            id: vehicleId,
-            csrf_token: csrfToken || ''
-          })
-        });
+        // Prefer page helper if available
+        const src = (typeof resolveVehicleImageUrl === 'function') ? resolveVehicleImageUrl(v.image_path || v.image || '') : (v.image_path || v.image || defaultImg);
+        const img = new Image();
+        let done = false;
+        const timer = setTimeout(() => {
+          if (done) return;
+          done = true;
+          // mark as failed
+          if (v) v._image_fallback = defaultImg;
+          resolve(false);
+        }, timeoutMs);
 
-        // Best-effort parse JSON; handle non-JSON safely
-        let result = null;
-        try {
-          result = await response.json();
-        } catch (e) {
-          console.error('Non-JSON response from vehicle_api.php on delete:', await response.text());
-        }
-
-        if (result && result.success) {
-          alert('Araç başarıyla silindi.');
-          if (typeof loadUserVehicles === 'function') loadUserVehicles();
-          else location.reload();
-        } else {
-          const msg = (result && (result.message || result.error)) || 'Araç silinirken hata oluştu.';
-          alert(msg);
-        }
-      } catch (error) {
-        console.error('Delete vehicle error:', error);
-        alert('Araç silinirken bir hata oluştu.');
+        img.onload = function () {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          resolve(true);
+        };
+        img.onerror = function () {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          if (v) v._image_fallback = defaultImg;
+          resolve(false);
+        };
+        // trigger load
+        img.src = src;
+      } catch (e) {
+        // non-fatal: mark as failed and continue
+        try { if (v) v._image_fallback = defaultImg; } catch(e2) {}
+        resolve(false);
       }
-    }
+    }));
 
-    // Fix openEditVehicleModal function
-    function openEditVehicleModal(vehicle) {
-      const modal = document.getElementById('editVehicleModal');
-      if (!modal) {
-        console.error('Edit vehicle modal not found.');
-        return;
-      }
+    return Promise.all(checks).then((results) => {
+      // Quietly annotate vehicles with fallback for consumers
+      return results;
+    }).catch(() => {
+      return [];
+    });
+  } catch (err) {
+    return Promise.resolve([]);
+  }
+}
 
-      // Populate modal fields with vehicle data
-      document.getElementById('editVehicleId').value = vehicle.id;
-      document.getElementById('editVehicleBrand').value = vehicle.brand || '';
-      document.getElementById('editVehicleModel').value = vehicle.model || '';
-      document.getElementById('editVehicleLicensePlate').value = vehicle.license_plate || '';
-      document.getElementById('editVehicleYear').value = vehicle.year || '';
-      document.getElementById('editVehicleColor').value = vehicle.color || '';
-
-      modal.style.display = 'block';
-
-      // Handle form submission
-      const form = document.getElementById('editVehicleForm');
-      form.onsubmit = async (event) => {
-        event.preventDefault();
-
-        const csrfToken = await fetchCsrfToken();
-        const formData = new FormData(form);
-        formData.append('action', 'update');
-        formData.append('csrf_token', csrfToken);
-
-        try {
-            const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                alert('Vehicle updated successfully.');
-                modal.style.display = 'none';
-                loadUserVehicles();
-            } else {
-                alert('Failed to update vehicle: ' + (result.message || 'Unknown error'));
-            }
-        } catch (error) {
-            console.error('Update vehicle error:', error);
-            alert('An error occurred while updating the vehicle.');
-        }
-      };
-    }
-
-    // Unified loadUserVehicles: accepts multiple API shapes and verifies images before rendering.
-    async function loadUserVehicles() {
-      const container = document.getElementById('vehiclesList');
-      const msgEl = document.getElementById('vehicleFormMessageInline');
-      if (!container) return;
-
-      container.innerHTML = ''; // clear while loading
-      try {
-        const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', {
-          credentials: 'same-origin',
-          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-        });
-
-        // If unauthorized, show friendly message
-        if (res.status === 401 || res.status === 403) {
-          if (msgEl) { msgEl.textContent = 'Yetkisiz. Lütfen tekrar giriş yapın.'; msgEl.className = 'text-sm text-red-600'; }
-          return;
-        }
-
-        const raw = await res.text();
-        let json = null;
-        try { json = raw ? JSON.parse(raw) : null; } catch (e) { json = null; }
-
-        // Normalize vehicles array from different API shapes
-        let vehicles = [];
-        if (Array.isArray(json)) {
-          vehicles = json;
-        } else if (json && Array.isArray(json.data?.vehicles)) {
-          vehicles = json.data.vehicles;
-        } else if (json && Array.isArray(json.vehicles)) {
-          vehicles = json.vehicles;
-        } else if (json && json.success === true && Array.isArray(json.data)) {
-          vehicles = json.data;
-        } else {
-          // Try to detect any array inside the response
-          for (const k in (json || {})) {
-            if (Array.isArray(json[k])) { vehicles = json[k]; break; }
-          }
-        }
-
-        if (!Array.isArray(vehicles) || vehicles.length === 0) {
-          if (msgEl) { msgEl.textContent = (json && (json.message || 'Araç bulunamadı.')) || 'Araç bulunamadı.'; msgEl.className = 'text-sm text-gray-600'; }
-          // Use existing renderer to display empty state
-          if (typeof renderVehiclesList === 'function') renderVehiclesList([]);
-          if (typeof refreshVehicleSelect === 'function') refreshVehicleSelect([]);
-          return;
-        }
-
-        // Pre-verify images (non-blocking)
-        await verifyVehicleImages(vehicles);
-
-        // Render list using existing page helpers (defined earlier in the file)
-        if (typeof renderVehiclesList === 'function') renderVehiclesList(vehicles);
-        if (typeof refreshVehicleSelect === 'function') refreshVehicleSelect(vehicles);
-      } catch (err) {
-        console.error('Error loading vehicles', err);
-        if (msgEl) { msgEl.textContent = 'Araçlar yüklenirken hata oluştu.'; msgEl.className = 'text-sm text-red-600'; }
-        if (typeof renderVehiclesList === 'function') renderVehiclesList([]);
-        if (typeof refreshVehicleSelect === 'function') refreshVehicleSelect([]);
-      }
-    }
-
-    // Expose globally and ensure idempotent DOM init
-    if (!window.loadUserVehicles || typeof window.loadUserVehicles !== 'function') {
-      window.loadUserVehicles = loadUserVehicles;
-    }
-
-    // Safe auto-init: only run when DOM ready and the vehicles container exists
-    function initVehiclesAuto() {
-      try {
-        if (document.getElementById('vehiclesList')) {
-          // Debounce tiny delay to let other in-page initializers run
-          setTimeout(() => { try { window.loadUserVehicles(); } catch (e) { console.warn('loadUserVehicles init failed', e); } }, 150);
-        }
-      } catch (e) { /* ignore */ }
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initVehiclesAuto, { once: true });
-    } else {
-      initVehiclesAuto();
-    }
-
-  })();
-</script>
+// Expose for other inline scripts that may call it
+if (typeof window !== 'undefined') {
+  window.verifyVehicleImages = verifyVehicleImages;
+}
+  </script>
