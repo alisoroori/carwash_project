@@ -1454,8 +1454,8 @@ include '../includes/dashboard_header.php';
   <script>
     // Mobile Sidebar Functions
     function toggleMobileSidebar() {
-      const sidebar = document.getElementByd('mobileSidebar');
-      const overlay = document.getElement('mobileOverlay');
+  const sidebar = document.getElementById('mobileSidebar');
+  const overlay = document.getElementById('mobileOverlay');
       const menuBtn = document.getElementById('mobileMenuBtn');
       const menuIcon = document.getElementById('menuIcon');
 
@@ -1945,4 +1945,103 @@ function verifyVehicleImages(vehicles = [], opts = { limit: 10, timeout: 3000 })
 if (typeof window !== 'undefined') {
   window.verifyVehicleImages = verifyVehicleImages;
 }
+  </script>
+
+  <!-- Image health checker: runs on page load, logs to console/VDR and renders a small summary -->
+  <script>
+    (function attachImageChecker() {
+      async function checkAllImages() {
+        try {
+          const images = Array.from(document.querySelectorAll('img'));
+          const brokenImages = [];
+
+          for (const img of images) {
+            // skip empty srcs
+            const src = img.getAttribute('src') || img.src || '';
+            if (!src) {
+              brokenImages.push({ src: src, error: 'empty-src' });
+              continue;
+            }
+
+            try {
+              const res = await fetch(src, { method: 'HEAD', credentials: 'same-origin' });
+              if (!res.ok) {
+                brokenImages.push({ src: src, status: res.status });
+              }
+            } catch (e) {
+              // network error or cross-origin blocking
+              brokenImages.push({ src: src, error: e && e.message ? e.message : String(e) });
+            }
+          }
+
+          // Console output
+          console.log('✅ Total images checked:', images.length);
+          console.log('⚠️ Broken images:', brokenImages);
+
+          // VDR log if available
+          if (window.VDR && typeof window.VDR.log === 'function') {
+            window.VDR.log(`Total images checked: ${images.length}`);
+            if (brokenImages.length) window.VDR.log(`Broken images: ${JSON.stringify(brokenImages, null, 2)}`, 'warn');
+          }
+
+          // Render a small summary panel in the dashboard (non-blocking)
+          try {
+            let panel = document.getElementById('image-check-summary');
+            if (!panel) {
+              panel = document.createElement('div');
+              panel.id = 'image-check-summary';
+              panel.style.position = 'fixed';
+              panel.style.bottom = '16px';
+              panel.style.left = '16px';
+              panel.style.zIndex = '9999';
+              panel.style.background = 'rgba(0,0,0,0.75)';
+              panel.style.color = '#fff';
+              panel.style.padding = '10px 12px';
+              panel.style.borderRadius = '8px';
+              panel.style.fontSize = '13px';
+              panel.style.maxWidth = '420px';
+              panel.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)';
+              document.body.appendChild(panel);
+            }
+
+            panel.innerHTML = `<strong>Image check:</strong> ${images.length} checked — <span style="color:${brokenImages.length? '#ffcc00':'#9be7a0'}">${brokenImages.length} broken</span>`;
+
+            if (brokenImages.length) {
+              const list = document.createElement('pre');
+              list.style.maxHeight = '220px';
+              list.style.overflow = 'auto';
+              list.style.marginTop = '8px';
+              list.style.color = '#fff';
+              list.style.background = 'rgba(255,255,255,0.04)';
+              list.style.padding = '8px';
+              list.style.borderRadius = '6px';
+              list.textContent = JSON.stringify(brokenImages, null, 2);
+              // replace existing details if any
+              const existing = panel.querySelector('pre');
+              if (existing) existing.remove();
+              panel.appendChild(list);
+            }
+          } catch (e) {
+            /* non-fatal */
+            console.warn('Failed to render image-check summary', e);
+          }
+
+          return { total: images.length, broken: brokenImages };
+        } catch (err) {
+          console.error('Image checker failed', err);
+          return { total: 0, broken: [], error: err };
+        }
+      }
+
+      // Run once DOM is ready
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        // slightly defer to allow dynamic images to mount
+        setTimeout(checkAllImages, 600);
+      } else {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(checkAllImages, 600); });
+      }
+
+      // Expose for manual invocation from console: window.runImageCheck()
+      window.runImageCheck = checkAllImages;
+    })();
   </script>
