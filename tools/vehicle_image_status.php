@@ -6,8 +6,6 @@
  *
  * Place this file under project/tools/ and open in browser:
  *  http://localhost/carwash_project/tools/vehicle_image_status.php
- *
- * Related: backend/dashboard/Customer_Dashboard.php (uses these images)
  */
 
 declare(strict_types=1);

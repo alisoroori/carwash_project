@@ -321,6 +321,13 @@ if (!defined('ROOT_PATH')) {
     define('ROOT_PATH', realpath(__DIR__ . '/..'));
 }
 
+// Local dev override (temporary - remove in production)
+if (php_sapi_name() !== 'cli') {
+    if (!defined('BASE_URL')) define('BASE_URL', 'http://localhost/carwash_project');
+    if (!defined('BACKEND_URL')) define('BACKEND_URL', BASE_URL . '/backend');
+}
+
+
 // Guard common application constants to avoid "already defined" warnings
 if (!defined('BASE_URL')) {
     define('BASE_URL', 'http://localhost/carwash_project');
