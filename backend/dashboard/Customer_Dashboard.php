@@ -2045,3 +2045,78 @@ if (typeof window !== 'undefined') {
       window.runImageCheck = checkAllImages;
     })();
   </script>
+
+    Inserted: safe deleteVehicle implementation used by vehicle cards/buttons
+  <script>
+  async function deleteVehicle(vehicleId) {
+    try {
+      if (!vehicleId) return;
+      if (!confirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) return;
+
+      // Try to find the delete button to disable while request runs
+      const card = document.querySelector(`[data-vehicle-id="${vehicleId}"]`);
+      const btn = card ? card.querySelector('[data-action="delete"]') : null;
+      if (btn) btn.disabled = true;
+
+      // Prepare FormData with CSRF (idempotent)
+      const fd = new FormData();
+      fd.append('action', 'delete');
+      fd.append('id', vehicleId);
+      try { window.VDR && window.VDR.appendCsrfOnce && window.VDR.appendCsrfOnce(fd); } catch(e) { /* fallback */ }
+
+      const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: fd,
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      // Handle auth issues
+      if (res.status === 401 || res.status === 403) {
+        alert('İşlem yetkiniz yok. Lütfen tekrar giriş yapın.');
+        return;
+      }
+
+      const raw = await res.text();
+      let json = null;
+      try { json = raw ? JSON.parse(raw) : null; } catch (e) {
+        console.error('Non-JSON response from vehicle_api.php (delete):', raw.slice(0, 2000));
+      }
+
+      const ok = (res.ok && (json && (json.success === true || json.status === 'success'))) || (json && json.success);
+      if (ok) {
+        // remove card from DOM if present, and refresh lists safely
+        if (card) {
+          card.remove();
+        }
+        if (typeof refreshVehicleSelect === 'function') {
+          try { refreshVehicleSelect((await (async function(){ try { const r = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', { credentials:'same-origin', headers:{ 'Accept':'application/json','X-Requested-With':'XMLHttpRequest' } }); const txt = await r.text(); return txt ? JSON.parse(txt) : []; } catch(e){ return []; } })())) } catch(e) { /* ignore */ }
+        }
+        if (typeof loadUserVehicles === 'function') {
+          try { loadUserVehicles(); } catch(e) { /* ignore */ }
+        }
+        // Friendly feedback
+        if (typeof window.VDR?.log === 'function') window.VDR.log(`Vehicle ${vehicleId} deleted`, 'info');
+      } else {
+        const errMsg = (json && (json.message || json.error)) || 'Araç silinirken hata oluştu.';
+        alert(errMsg);
+      }
+    } catch (err) {
+      console.error('Delete vehicle error:', err);
+      alert('Araç silinirken bir hata oluştu.');
+    } finally {
+      // re-enable button
+      try {
+        const card = document.querySelector(`[data-vehicle-id="${vehicleId}"]`);
+        const btn = card ? card.querySelector('[data-action="delete"]') : null;
+        if (btn) btn.disabled = false;
+      } catch (e) { /* ignore */ }
+    }
+  }
+  // expose globally to ensure onclick handlers find it
+  window.deleteVehicle = deleteVehicle;
+  </script>
+  
