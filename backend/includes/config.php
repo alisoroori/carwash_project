@@ -121,6 +121,11 @@ define('UPLOAD_URL', BASE_URL . '/uploads');
 define('PROFILE_UPLOAD_URL', AUTH_URL . '/uploads/profiles');
 define('SERVICE_UPLOAD_URL', UPLOAD_URL . '/services');
 
+// Default vehicle image URL (used when a vehicle has no uploaded image)
+if (!defined('DEFAULT_VEHICLE_IMAGE')) {
+    define('DEFAULT_VEHICLE_IMAGE', FRONTEND_URL . '/assets/images/default-car.png');
+}
+
 // =============================================================================
 // APPLICATION SETTINGS
 // =============================================================================

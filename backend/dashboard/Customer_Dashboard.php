@@ -110,6 +110,11 @@
     if (!window.CONFIG.CSRF_TOKEN) {
       window.CONFIG.CSRF_TOKEN = "<?php echo htmlspecialchars($csrf_value ?? '', ENT_QUOTES, 'UTF-8'); ?>";
     }
+    // Expose canonical defaults (so client JS can use the same server-side default)
+    window.DEFAULTS = window.DEFAULTS || {};
+    if (!window.DEFAULTS.VEHICLE_IMAGE) {
+      window.DEFAULTS.VEHICLE_IMAGE = "<?php echo defined('DEFAULT_VEHICLE_IMAGE') ? addslashes(DEFAULT_VEHICLE_IMAGE) : '/carwash_project/frontend/assets/images/default-car.png'; ?>";
+    }
   </script>
 
   <script>
@@ -838,14 +843,14 @@ include '../includes/dashboard_header.php';
             if (path.startsWith('/') || path.startsWith('http://') || path.startsWith('https://')) {
               return path;
             }
-            
+
             // If absolute Windows path, try to convert to relative
             if (/^[A-Za-z]:/.test(path)) {
               // This shouldn't happen with the database fixes, but handle it just in case
               const docRoot = '/carwash_project'; // Assuming this is the web root
               // For absolute paths, we'd need server-side conversion, but for now return default
               console.warn('Absolute path detected in resolveVehicleImageUrl:', path);
-              return '/carwash_project/frontend/assets/images/default-car.png';
+              return (window.DEFAULTS && window.DEFAULTS.VEHICLE_IMAGE) ? window.DEFAULTS.VEHICLE_IMAGE : '/carwash_project/frontend/assets/images/default-car.png';
             }
             
             // Other cases - assume relative
@@ -875,7 +880,7 @@ include '../includes/dashboard_header.php';
                         alt="${escapeHtml(brandModel || 'Araç')}"
                         class="w-full h-full object-cover"
                         data-original-src="${imgSrc}"
-                        onerror="this.onerror=null;this.src='/carwash_project/frontend/assets/images/default-car.png';"
+                        onerror="this.onerror=null;this.src=(window.DEFAULTS && window.DEFAULTS.VEHICLE_IMAGE)?window.DEFAULTS.VEHICLE_IMAGE:'/carwash_project/frontend/assets/images/default-car.png';"
                         loading="lazy"
                       />
                     </div>
@@ -942,7 +947,7 @@ include '../includes/dashboard_header.php';
               <div>
                 <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
                 <div class="flex items-center gap-4">
-                  <img id="vehiclePreview" src="/carwash_project/frontend/assets/images/default-car.png" alt="Araç" style="width:72px;height:48px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb">
+                  <img id="vehiclePreview" src="" alt="Araç" style="width:72px;height:48px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb">
                   <select id="vehicle" name="vehicle_id" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                     <option value="">Araç Seçiniz</option>
                     <!-- user vehicles populated dynamically -->
@@ -1748,6 +1753,121 @@ include '../includes/dashboard_header.php';
       }
     });
 
+    // Debug helper: replace form submit behavior with a non-mutating simulated flow
+    // Usage:
+    //   // enable debug mode from console
+    //   window.enableVehicleFormDebug();
+    //   // optionally set to auto-enable on page load:
+    //   window.DEBUG_VEHICLE_FORM = true; window.enableVehicleFormDebug();
+    (function attachDebugSubmitHelper() {
+      window.DEBUG_VEHICLE_FORM = window.DEBUG_VEHICLE_FORM || false;
+
+      function serializeFormData(fd) {
+        const obj = {};
+        for (const pair of fd.entries()) {
+          const k = pair[0];
+          const v = pair[1];
+          // If multiple fields with same name, aggregate into array
+          if (Object.prototype.hasOwnProperty.call(obj, k)) {
+            if (!Array.isArray(obj[k])) obj[k] = [obj[k]];
+            obj[k].push(typeof v === 'object' && v.name ? '[FILE:' + v.name + ']' : String(v));
+          } else {
+            obj[k] = (typeof v === 'object' && v.name) ? '[FILE:' + v.name + ']' : String(v);
+          }
+        }
+        return obj;
+      }
+
+      async function debugSubmitHandler(ev) {
+        ev.preventDefault();
+        const f = ev.currentTarget || document.getElementById('vehicleFormInline');
+        if (!f) return console.warn('Debug submit: form not found');
+
+        const fd = new FormData(f);
+        const action = (document.getElementById('vehicleFormAction') || {}).value || fd.get('action') || 'create';
+        fd.set('action', action);
+        const vid = (document.getElementById('vehicle_id_input_inline') || {}).value || fd.get('id') || '';
+        if (action !== 'create' && vid) fd.set('id', vid);
+
+        // Ensure CSRF field appended (idempotent)
+        try { window.VDR && window.VDR.appendCsrfOnce && window.VDR.appendCsrfOnce(fd); } catch (e) { console.warn('appendCsrfOnce error', e); }
+
+        // Detailed console logging for debug
+        console.group('%c[Vehicle Form Debug Submit]', 'color:teal;font-weight:bold');
+        console.log('Action:', action);
+        console.log('Simulated FormData entries:');
+        console.table(serializeFormData(fd));
+
+        // Show where CSRF was taken from
+        const metaCsrf = document.querySelector('meta[name="csrf-token"]')?.content || null;
+        console.log('CSRF token (meta):', metaCsrf ? '[present]' : '[missing]');
+        console.log('CSRF token (window.CONFIG):', window.CONFIG && window.CONFIG.CSRF_TOKEN ? '[present]' : '[missing]');
+
+        // Instead of sending a mutating POST, we will simulate the request payload and
+        // perform a safe GET to the API (list) to show server connectivity & JSON shape.
+        console.log('Simulation: NO DB changes will be made. Not sending create/update/delete POST.');
+
+        try {
+          const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+          const text = await res.text();
+          let json = null;
+          try { json = text ? JSON.parse(text) : null; } catch (e) { json = null; }
+          console.log('Server GET /vehicle_api?action=list status:', res.status, 'ok:', res.ok);
+          console.log('Server response (parsed):', json !== null ? json : text.slice(0, 2000));
+        } catch (err) {
+          console.error('Debug GET to vehicle_api failed:', err);
+        }
+
+        // Build a simulated server response for the create/update action so UI can display it
+        const simulatedSuccess = {
+          status: 'success',
+          message: 'Simulation: vehicle create/update would have succeeded in debug mode',
+          data: {
+            vehicle_id: vid || (Math.floor(Math.random() * 900000) + 100000),
+            submitted: serializeFormData(fd)
+          }
+        };
+
+        console.log('Simulated server response for the attempted action:');
+        console.log(simulatedSuccess);
+
+        // Show simulated success to user (non-intrusive)
+        const msgEl = document.getElementById('vehicleFormMessageInline');
+        if (msgEl) {
+          msgEl.className = 'text-sm text-green-600';
+          msgEl.textContent = 'Simulation OK — no DB change (debug mode). See console for details.';
+        } else {
+          alert('Simulation OK — no DB change (debug mode). Check console for details.');
+        }
+
+        console.groupEnd();
+        return false;
+      }
+
+      // Expose function to enable debug mode at runtime
+      window.enableVehicleFormDebug = function enableVehicleFormDebug() {
+        window.DEBUG_VEHICLE_FORM = true;
+        const form = document.getElementById('vehicleFormInline');
+        if (!form) return console.warn('enableVehicleFormDebug: #vehicleFormInline not found');
+        // remove existing submit listeners by cloning
+        try {
+          const clone = form.cloneNode(true);
+          form.parentNode.replaceChild(clone, form);
+          clone.addEventListener('submit', debugSubmitHandler);
+          console.log('Vehicle form debug handler attached. Submissions will be simulated.');
+        } catch (e) {
+          // fallback: attach but do not remove existing listeners
+          form.addEventListener('submit', debugSubmitHandler);
+          console.log('Vehicle form debug handler attached (fallback).');
+        }
+      };
+
+      // If auto-enable flag set, attach immediately
+      if (window.DEBUG_VEHICLE_FORM) {
+        try { window.enableVehicleFormDebug(); } catch (e) { console.warn('Could not auto-enable vehicle form debug', e); }
+      }
+    })();
+
     // Load user vehicles via AJAX and populate vehicles list + booking select
     async function loadUserVehicles() {
       const container = document.getElementById('vehiclesList');
@@ -1835,7 +1955,7 @@ include '../includes/dashboard_header.php';
       // Update preview when select changes
       sel.addEventListener('change', function () {
         const opt = sel.selectedOptions[0];
-  const url = opt && opt.dataset && opt.dataset.preview ? opt.dataset.preview : '/carwash_project/frontend/assets/images/default-car.png';
+  const url = opt && opt.dataset && opt.dataset.preview ? opt.dataset.preview : ((window.DEFAULTS && window.DEFAULTS.VEHICLE_IMAGE) ? window.DEFAULTS.VEHICLE_IMAGE : '/carwash_project/frontend/assets/images/default-car.png');
         if (preview) preview.src = url;
       });
     }
@@ -1893,7 +2013,7 @@ function verifyVehicleImages(vehicles = [], opts = { limit: 10, timeout: 3000 })
     const limit = Math.max(1, Math.min(50, opts.limit || 10));
     const timeoutMs = Math.max(500, opts.timeout || 3000);
     const subset = vehicles.slice(0, limit);
-    const defaultImg = '/carwash_project/frontend/assets/images/default-car.png';
+  const defaultImg = (window.DEFAULTS && window.DEFAULTS.VEHICLE_IMAGE) ? window.DEFAULTS.VEHICLE_IMAGE : '/carwash_project/frontend/assets/images/default-car.png';
     const checks = subset.map((v) => new Promise((resolve) => {
       try {
         // Prefer page helper if available
@@ -1987,26 +2107,79 @@ if (typeof window !== 'undefined') {
           // Render a small summary panel in the dashboard (non-blocking)
           try {
             let panel = document.getElementById('image-check-summary');
-            if (!panel) {
-              panel = document.createElement('div');
-              panel.id = 'image-check-summary';
-              panel.style.position = 'fixed';
-              panel.style.bottom = '16px';
-              panel.style.left = '16px';
-              panel.style.zIndex = '9999';
-              panel.style.background = 'rgba(0,0,0,0.75)';
-              panel.style.color = '#fff';
-              panel.style.padding = '10px 12px';
-              panel.style.borderRadius = '8px';
-              panel.style.fontSize = '13px';
-              panel.style.maxWidth = '420px';
-              panel.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)';
-              document.body.appendChild(panel);
+            if (form) {
+              form.addEventListener('submit', async function (ev) {
+                ev.preventDefault();
+                if (!form) return;
+
+                const submitBtn = document.getElementById('vehicleInlineSubmit');
+                const originalBtnText = submitBtn ? submitBtn.textContent : null;
+
+                try {
+                  // build FormData and include action/id
+                  const fd = new FormData(form);
+                  const action = document.getElementById('vehicleFormAction').value;
+                  fd.set('action', action);
+                  const vid = document.getElementById('vehicle_id_input_inline').value;
+                  if (action !== 'create' && vid) fd.set('id', vid);
+
+                  // idempotent CSRF append helper
+                  try { window.VDR && window.VDR.appendCsrfOnce && window.VDR.appendCsrfOnce(fd); } catch (e) { /* ignore */ }
+
+                  // disable submit until done
+                  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Kaydediliyor...'; }
+                  if (msg) { msg.textContent = ''; msg.className = ''; }
+
+                  const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: fd,
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                  });
+
+                  if (res.status === 401 || res.status === 403) {
+                    if (msg) { msg.textContent = 'Yetkisiz. Lütfen tekrar giriş yapın.'; msg.className = 'text-sm text-red-600'; }
+                    return;
+                  }
+
+                  const raw = await res.text();
+                  let json = null;
+                  try { json = raw ? JSON.parse(raw) : null; } catch (e) { /* leave json null */ }
+
+                  const success = (json && (json.success === true || String(json.status).toLowerCase() === 'success')) || res.ok;
+                  if (success) {
+                    // Show success to user
+                    try {
+                      // prefer nicer UI if SweetAlert2 available
+                      if (typeof Swal === 'function') {
+                        Swal.fire({ icon: 'success', title: 'Başarılı', text: 'Araç başarıyla kaydedildi.' });
+                      } else {
+                        alert('✅ Araç başarıyla kaydedildi!');
+                      }
+                    } catch (e) { /* ignore */ }
+
+                    // Close the inline form/modal
+                    try { closeVehicleModal(); } catch (e) { /* ignore */ }
+
+                    // Refresh vehicles list without full reload if possible
+                    try { if (typeof loadUserVehicles === 'function') loadUserVehicles(); } catch (e) {}
+                    try { if (typeof refreshVehicleSelect === 'function') refreshVehicleSelect((json && json.data) ? json.data : []); } catch (e) {}
+
+                    // As a fallback, reload the page to ensure all state is consistent
+                    setTimeout(() => { try { location.reload(); } catch (e) {} }, 600);
+                  } else {
+                    const errMsg = (json && (json.message || json.error)) || 'Araç kaydı başarısız oldu.';
+                    if (msg) { msg.textContent = errMsg; msg.className = 'text-sm text-red-600'; }
+                  }
+
+                } catch (err) {
+                  console.error('Vehicle submit error', err);
+                  if (msg) { msg.textContent = 'İşlem başarısız: ' + (err.message || 'Ağ hatası'); msg.className = 'text-sm text-red-600'; }
+                } finally {
+                  if (submitBtn) { submitBtn.disabled = false; if (originalBtnText) submitBtn.textContent = originalBtnText; }
+                }
+              });
             }
-
-            panel.innerHTML = `<strong>Image check:</strong> ${images.length} checked — <span style="color:${brokenImages.length? '#ffcc00':'#9be7a0'}">${brokenImages.length} broken</span>`;
-
-            if (brokenImages.length) {
               const list = document.createElement('pre');
               list.style.maxHeight = '220px';
               list.style.overflow = 'auto';

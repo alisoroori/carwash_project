@@ -310,14 +310,14 @@ try {
                 
                 if (empty($imagePath)) {
                     // Empty path - use default image
-                    $row['image_path'] = '/carwash_project/frontend/assets/images/default-car.png';
+                    $row['image_path'] = defined('DEFAULT_VEHICLE_IMAGE') ? DEFAULT_VEHICLE_IMAGE : '/carwash_project/frontend/assets/images/default-car.png';
                 } elseif (strpos($imagePath, '/carwash_project/') !== 0) {
                     // Relative path without full prefix - add it
                     if (strpos($imagePath, '/') === 0) {
                         $row['image_path'] = '/carwash_project' . $imagePath;
                     } else {
                         // Invalid path - use default
-                        $row['image_path'] = '/carwash_project/frontend/assets/images/default-car.png';
+                        $row['image_path'] = defined('DEFAULT_VEHICLE_IMAGE') ? DEFAULT_VEHICLE_IMAGE : '/carwash_project/frontend/assets/images/default-car.png';
                     }
                 }
                 // If it already starts with /carwash_project/, keep as-is
