@@ -1233,6 +1233,10 @@ include '../includes/dashboard_header.php';
               <div>
                 <label for="vehicle_image_inline" class="block text-sm font-bold text-gray-700 mb-2">Araç Görseli (isteğe bağlı)</label>
                 <input name="vehicle_image" id="vehicle_image_inline" type="file" accept="image/*" class="w-full text-sm">
+                <img id="vehicleImagePreview"
+                     src="/carwash_project/backend/uploads/vehicles/default.jpg"
+                     alt="Preview"
+                     style="max-width: 120px; border-radius: 8px; margin-top: 6px;">
               </div>
             </div>
 
@@ -2203,7 +2207,6 @@ if (typeof window !== 'undefined') {
               if (existing) existing.remove();
               panel.appendChild(list);
             }
-catch (error) { console.error(error); }
 
           } catch (e) {
             /* non-fatal */
@@ -2266,7 +2269,6 @@ catch (error) { console.error(error); }
 
       const raw = await res.text();
       let json = null;
-      try { json = raw ? JSON.parse(raw) : null; } catch (e) {
         console.error('Non-JSON response from vehicle_api.php (delete):', raw.slice(0, 2000));
       }
 
@@ -2302,5 +2304,25 @@ catch (error) { console.error(error); }
   }
   // expose globally to ensure onclick handlers find it
   window.deleteVehicle = deleteVehicle;
+  </script>
+  <script>
+  // Vehicle image preview for inline form (shows selected file immediately)
+  document.addEventListener('DOMContentLoaded', () => {
+    const imageInput = document.getElementById('vehicleImage') || document.getElementById('vehicle_image_inline');
+    const previewImg = document.getElementById('vehicleImagePreview') || document.querySelector('#vehicleInlineSection img') || document.getElementById('vehiclePreview');
+
+    if (imageInput && previewImg) {
+      imageInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try { previewImg.src = ev.target.result; } catch (err) { console.warn('Preview update failed', err); }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  });
   </script>
   <script src="/carwash_project/backend/dashboard/customer_dashboard_forms.js"></script>
