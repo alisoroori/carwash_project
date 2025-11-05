@@ -2269,10 +2269,15 @@ if (typeof window !== 'undefined') {
 
       const raw = await res.text();
       let json = null;
-        console.error('Non-JSON response from vehicle_api.php (delete):', raw.slice(0, 2000));
+      try {
+        json = raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        // Non-JSON response (server may have emitted HTML/error). Log for debugging but continue.
+        console.warn('Non-JSON response from vehicle_api.php (delete):', raw.slice(0, 2000));
+        json = null;
       }
 
-      const ok = (res.ok && (json && (json.success === true || json.status === 'success'))) || (json && json.success);
+      const ok = (res.ok && (json && (json.success === true || String(json.status).toLowerCase() === 'success'))) || (json && json.success);
       if (ok) {
         // remove card from DOM if present, and refresh lists safely
         if (card) {
