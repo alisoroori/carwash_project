@@ -1,4 +1,7 @@
 <?php
+
+// Vehicle API: embedded HTML/JS removed because this is a backend JSON API endpoint.
+// JavaScript belongs in frontend assets; keep this file as pure PHP to avoid parse errors.
 require_once __DIR__ . '/../includes/bootstrap.php';
 require_once __DIR__ . '/../includes/db.php';
 
@@ -104,13 +107,18 @@ function request_csrf_token(): ?string {
     return $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
 }
 
-// Helper: handle uploaded vehicle image -> returns canonical web path (string) or null
+// Helper: handle uploaded vehicle image -> returns array with 'web' and 'server' paths or null
 function handle_vehicle_image_upload(array $file, int $userId): ?array {
     if (empty($file) || empty($file['tmp_name'])) return null;
 
-    // Use FileUploader for secure upload
-    // Update upload directory to include project-relative path
-    $uploadDir = __DIR__ . '/../carwash_project/uploads/vehicles/';
+    // Ensure uploads folder exists under backend/uploads/vehicles
+    $uploadDir = __DIR__ . '/../uploads/vehicles/';
+    if (!is_dir($uploadDir)) {
+        // attempt to create with safe permissions
+        @mkdir($uploadDir, 0755, true);
+    }
+
+    // Use FileUploader for secure upload into the backend uploads directory
     $uploader = new FileUploader($uploadDir);
     $uploader->imagesOnly();
 
@@ -120,11 +128,12 @@ function handle_vehicle_image_upload(array $file, int $userId): ?array {
         throw new RuntimeException('Upload failed: ' . implode(', ', $uploader->getErrors()));
     }
 
-    // Update web path to include project-relative path
-    $web_path = '/carwash_project/backend/uploads/vehicles/' . basename($result['filepath']);
+    // Determine final filename and public web path (relative to project webroot)
+    $filename = basename($result['filepath']);
+    $web_path = '/backend/uploads/vehicles/' . $filename; // stored in DB as requested
 
-    // Update server path to include project-relative path
-    $server_path = $_SERVER['DOCUMENT_ROOT'] . '/carwash_project/backend/uploads/vehicles/' . basename($result['filepath']);
+    // Filesystem path where the file should be accessible by the webserver
+    $server_path = rtrim($_SERVER['DOCUMENT_ROOT'], '\/') . '/backend/uploads/vehicles/' . $filename;
 
     // Log final server path for diagnostics
     if (class_exists(Logger::class) && method_exists(Logger::class, 'info')) {
@@ -133,7 +142,6 @@ function handle_vehicle_image_upload(array $file, int $userId): ?array {
         error_log('vehicle_api uploaded file to: ' . $server_path);
     }
 
-    // Return both web and server paths
     return ['web' => $web_path, 'server' => $server_path];
 }
 
