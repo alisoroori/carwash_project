@@ -1,27 +1,4 @@
-/* Refactored Customer Dashboard JS
-   - Improved form submission handling for profile and review forms
-   - Added robust response validation (response.ok, JSON parsing guard)
-   - Disabled submit button during submission to prevent duplicate posts
-   - Added improved success/error notification UI
-   - Automatically resets and closes form/modal on success
-   - Inline comments document weaknesses, potential bugs, and fixes
-*/
 
-/*
-  Notes / Findings (structured feedback):
-  - Weakness: previous handlers assumed response.json() always succeeds; non-JSON responses crash code.
-    Fix: check response.ok and attempt to parse JSON inside try/catch; fallback to generic error.
-  - Weakness: submit button wasn't disabled, risking duplicate submissions on slow networks.
-    Fix: disable button during request and re-enable on completion.
-  - UX: notifications were ephemeral but could stack or not be accessible. Use a single container and ARIA role.
-    Fix: create a notification area and limit simultaneous notifications; ensure accessible text.
-  - UX: after successful submission modal is hidden and location.reload() used in one handler; reload is heavy-handed.
-    Fix: reset form and close modal; only reload if explicitly required by caller. For review submission we will close modal and optionally navigate if backend suggests.
-  - Potential bug: direct DOM queries may return null (page variations). Defensive checks added.
-  - Security: ensure CSRF tokens included by the form elements themselves; handler will not mutate CSRF behavior.
-*/
-
-/* Utility: centralized notification container for consistent UX */
 (function () {
     const NOTIFICATION_TIMEOUT = 4000;
     let container = document.getElementById('cw-notification-container');
@@ -40,7 +17,6 @@
     }
 
     window.showNotification = function (message, type = 'info', opts = {}) {
-        // type: 'success' | 'error' | 'info' | 'warning'
         const el = document.createElement('div');
         el.className = `cw-notification cw-${type}`;
         el.style.minWidth = '200px';
@@ -110,50 +86,31 @@ async function safeJson(response) {
     }
 }
 
-/* Generic submit handler helper
-   - formElement: HTMLFormElement
-   - options:
-       url override (optional)
-       closeSelector: selector for modal/container to close on success (optional)
-       onSuccess: callback(data, form) optional
-       onError: callback(errorMessage, data, form) optional
-   Behavior:
-   - Prevent default form submission
-   - Disable submit button
-   - Send fetch with formData, expect JSON ideally
-   - On success: showNotification, reset form, close modal if present
-   - On error: showNotification with helpful message
-*/
+/* Generic submit handler helper */
 async function handleFormSubmission(formElement, options = {}) {
     if (!formElement || !(formElement instanceof HTMLFormElement)) return;
 
     formElement.addEventListener('submit', async function (ev) {
         ev.preventDefault();
 
-        // Find the submit button to disable (first button[type=submit] or input[type=submit])
         const submitBtn = formElement.querySelector('button[type="submit"], input[type="submit"]');
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.setAttribute('data-cw-disabled', '1');
-            // Provide visual feedback if desired
             submitBtn.classList && submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
         }
 
-        // Defensive: let callers override URL; otherwise use form.action or current location
         const submitUrl = options.url || formElement.action || window.location.href;
         const method = (formElement.method || 'POST').toUpperCase();
 
-        // Build FormData
         const fd = new FormData(formElement);
 
-        // Note: If backend expects JSON, callers should override and stringify / set headers.
         let fetchOptions = {
             method,
             body: fd,
             credentials: 'same-origin'
         };
 
-        // If caller wants JSON, they should provide fetchOptions via onBeforeFetch; keep flexible
         if (typeof options.onBeforeFetch === 'function') {
             try {
                 const custom = await options.onBeforeFetch({ form: formElement, fetchOptions, formData: fd });
@@ -182,10 +139,8 @@ async function handleFormSubmission(formElement, options = {}) {
             return;
         }
 
-        // Try to extract JSON, but guard if server returned HTML or empty body
         const data = await safeJson(response);
 
-        // If server returned non-2xx, prefer to show server-provided error message if present
         if (!response.ok) {
             let message = 'Server error';
             if (data && data.error) message = data.error;
@@ -204,28 +159,18 @@ async function handleFormSubmission(formElement, options = {}) {
             return;
         }
 
-        // response.ok -> attempt to interpret backend result
         if (data && (data.success === true || data.success === '1' || data.success === 1)) {
-            // Success path
             window.showNotification(data.message || data.success_message || 'Operation completed', 'success');
 
-            // Reset the form to clear inputs and file selections
-            try {
-                formElement.reset();
-            } catch (e) {
-                // Some forms with custom elements might need manual reset
-            }
+            try { formElement.reset(); } catch (e) {}
 
-            // Close containing modal or element if a selector was provided
             if (options.closeSelector) {
                 const container = document.querySelector(options.closeSelector);
                 if (container) {
-                    // Try common hiding patterns: add 'hidden', set display or hide modals via inline style
                     if (container.classList) container.classList.add('hidden');
                     container.style.display = 'none';
                 }
             } else {
-                // Auto-close: if form is inside an element with role=dialog or with id ending with 'Modal' hide it
                 const dialog = formElement.closest('[role="dialog"], .modal, .cw-modal, [id$="Modal"], [id$="modal"]');
                 if (dialog) {
                     dialog.style.display = 'none';
@@ -233,19 +178,16 @@ async function handleFormSubmission(formElement, options = {}) {
                 }
             }
 
-            // Call success callback if provided
             if (typeof options.onSuccess === 'function') {
                 try { options.onSuccess(data, formElement); } catch (e) { console.warn('onSuccess error', e); }
             }
 
-            // If backend indicates a redirect or reload, follow it (optional)
             if (data.redirect) {
                 window.location.href = data.redirect;
             } else if (data.reload) {
                 window.location.reload();
             }
         } else {
-            // Failure path: data may be null if non-JSON; handle gracefully
             let message = 'Failed to submit form';
             if (data && data.error) message = data.error;
             else if (data && data.message) message = data.message;
@@ -257,7 +199,6 @@ async function handleFormSubmission(formElement, options = {}) {
             }
         }
 
-        // Re-enable submit button
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.removeAttribute('data-cw-disabled');
@@ -266,35 +207,18 @@ async function handleFormSubmission(formElement, options = {}) {
     });
 }
 
-/* -------------------------
-   Initialize known dashboard forms
-   -------------------------
-   We attach behavior to:
-   - profile form with id "profileForm"
-   - review form with id "reviewForm" or forms opened via modal buttons (class .btn-review)
-   The previous code assumed specific endpoints and used location.reload in some places.
-   New behavior: show notification, reset/close form, call optional redirect only if backend asks.
-*/
 document.addEventListener('DOMContentLoaded', function () {
-    // Profile update form
     const profileForm = document.getElementById('profileForm');
     if (profileForm) {
         handleFormSubmission(profileForm, {
-            // backend endpoint already in form.action, so no url override
             onSuccess: (data, form) => {
-                // Structured feedback: success -> use friendly message
-                // If backend returns updated fields, you may update DOM here instead of reloading.
-                // E.g., refresh displayed name/email if present in response.
             },
             onError: (message, data, form) => {
-                // Could attach inline form errors if backend returns field-level errors
                 if (data && data.errors && typeof data.errors === 'object') {
-                    // Attempt to show first field error inline (example)
                     const firstField = Object.keys(data.errors)[0];
                     if (firstField) {
                         const input = form.querySelector(`[name="${firstField}"]`);
                         if (input) {
-                            // Optionally mark invalid (ARIA)
                             input.setAttribute('aria-invalid', 'true');
                         }
                     }
@@ -303,27 +227,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Generic review modal forms - attach to any form with id 'reviewForm' or data-role attribute
     const reviewForm = document.getElementById('reviewForm');
     if (reviewForm) {
         handleFormSubmission(reviewForm, {
-            // Some review endpoints used different URLs in repo; rely on form.action
-            // The previous code used location.reload; prefer closing modal + notification.
             closeSelector: '#reviewModal',
             onSuccess: (data, form) => {
-                // If backend indicates to navigate to review listing, it can set redirect
-                // If not, optionally reload reviews section via a custom loader (not implemented here).
             }
         });
     }
 
-    // If review modal opens dynamically per .btn-review, we still ensure any new form inserted is wired:
-    // Re-scan for dynamically inserted forms and attach handler:
     const observer = new MutationObserver((mutations) => {
         for (const m of mutations) {
             for (const node of Array.from(m.addedNodes)) {
                 if (!(node instanceof Element)) continue;
-                // attach to reviewForm if newly added
                 const newReviewForm = node.querySelector ? node.querySelector('#reviewForm') : null;
                 if (newReviewForm) {
                     handleFormSubmission(newReviewForm, {
@@ -334,8 +250,98 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
     observer.observe(document.body, { childList: true, subtree: true });
-
-    // For other inline forms in the dashboard (booking, vehicle, etc.), the same helper can be used by other scripts:
-    // Example usage elsewhere:
-    // handleFormSubmission(document.getElementById('bookingForm'), { onSuccess: ..., closeSelector: '#bookingModal' });
 });
+
+// Vehicle form wiring: attach robust handler for vehicle add/update
+(function attachVehicleFormHandler(){
+    const form = document.getElementById('vehicleFormInline');
+    if (!form) return;
+
+    handleFormSubmission(form, {
+        url: '/carwash_project/backend/dashboard/vehicle_api.php',
+        onBeforeFetch: async ({ form, fetchOptions, formData }) => {
+            // Ensure action param exists (create or update)
+            const actionInput = form.querySelector('#vehicleFormAction');
+            const action = actionInput ? (actionInput.value || 'create') : (formData.get('action') || 'create');
+            formData.set('action', action);
+            // id field
+            const vid = form.querySelector('#vehicle_id_input_inline') ? form.querySelector('#vehicle_id_input_inline').value : formData.get('id');
+            if (vid) formData.set('id', vid);
+
+            // Attach CSRF token idempotently
+            try {
+                if (window.VDR && typeof window.VDR.appendCsrfOnce === 'function') {
+                    window.VDR.appendCsrfOnce(formData);
+                } else {
+                    const token = (window.CONFIG && window.CONFIG.CSRF_TOKEN) || document.querySelector('meta[name="csrf-token"]')?.content;
+                    if (token && !formData.get('csrf_token')) formData.set('csrf_token', token);
+                }
+            } catch (e) { console.warn('CSRF append failed', e); }
+
+            // Keep default fetch options (FormData body). Return nothing or custom options.
+            return { body: formData, method: 'POST', credentials: 'same-origin' };
+        },
+        closeSelector: '#vehicleInlineSection',
+        onSuccess: (data, formEl) => {
+            try { window.showNotification(data.message || 'Araç başarıyla kaydedildi', 'success'); } catch(e){}
+            // Refresh vehicles list without full reload
+            try { if (typeof loadUserVehicles === 'function') loadUserVehicles(); } catch (e) { console.warn('loadUserVehicles refresh failed', e); }
+        },
+        onError: (message, data, formEl) => {
+            try { window.showNotification(message || 'Araç kaydı başarısız oldu', 'error'); } catch(e){}
+            // show field errors inline if present
+            if (data && data.errors && typeof data.errors === 'object') {
+                Object.keys(data.errors).forEach((field) => {
+                    const input = form.querySelector(`[name="${field}"]`);
+                    if (input) input.setAttribute('aria-invalid', 'true');
+                });
+            }
+        }
+    });
+
+    // Expose a programmatic helper to reset and close inline vehicle form
+    window.closeAndResetVehicleForm = function() {
+        try { form.reset(); } catch(e){}
+        const container = document.getElementById('vehicleInlineSection');
+        if (container) { container.style.display = 'none'; if (container.classList) container.classList.add('hidden'); }
+    };
+
+    // Override/deleteVehicle to ensure CSRF and consistent error handling
+    window.deleteVehicle = async function deleteVehicle(vehicleId){
+        if (!vehicleId) return;
+        if (!confirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) return;
+
+        const fd = new FormData();
+        fd.set('action','delete');
+        fd.set('id', vehicleId);
+        try {
+            if (window.VDR && typeof window.VDR.appendCsrfOnce === 'function') window.VDR.appendCsrfOnce(fd);
+            else {
+                const token = (window.CONFIG && window.CONFIG.CSRF_TOKEN) || document.querySelector('meta[name="csrf-token"]')?.content;
+                if (token) fd.set('csrf_token', token);
+            }
+        } catch(e) { /* ignore */ }
+
+        try {
+            const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+            const data = await safeJson(res);
+            if (!res.ok) {
+                const msg = (data && (data.error || data.message)) || (`Sunucu hatası: ${res.status}`);
+                window.showNotification(msg, 'error');
+                return;
+            }
+            if (data && (data.success === true || data.success === '1' || data.status === 'success')) {
+                // remove DOM card if present
+                try { const card = document.querySelector(`[data-vehicle-id="${vehicleId}"]`); if (card) card.remove(); } catch(e){}
+                window.showNotification(data.message || 'Araç silindi', 'success');
+                try { if (typeof loadUserVehicles === 'function') loadUserVehicles(); } catch(e){}
+            } else {
+                const msg = (data && (data.error || data.message)) || 'Araç silinirken hata oluştu.';
+                window.showNotification(msg, 'error');
+            }
+        } catch (err) {
+            console.error('Delete vehicle error:', err);
+            window.showNotification('Araç silinirken bir hata oluştu.', 'error');
+        }
+    };
+})();

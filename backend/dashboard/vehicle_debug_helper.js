@@ -22,7 +22,102 @@
   'use strict';
 
   // Ensure CONFIG and API defaults exist
-  window.CONFIG = window.CONFIG || {};
+    const fs = require('fs');
+  const path = require('path');
+  
+  const TARGET = path.join(__dirname, '..', 'backend', 'dashboard', 'Customer_Dashboard.php');
+  if (!fs.existsSync(TARGET)) {
+    console.error('Target file not found:', TARGET);
+    process.exit(2);
+  }
+  
+  const bak = TARGET + '.bak.' + Date.now();
+  fs.copyFileSync(TARGET, bak);
+  console.log('Backup created:', bak);
+  
+  let src = fs.readFileSync(TARGET, 'utf8');
+  
+  // Helper: find matching closing brace index for an opening brace at pos
+  function findMatchingBrace(str, pos) {
+    let depth = 0;
+    for (let i = pos; i < str.length; i++) {
+      const ch = str[i];
+      if (ch === '{') depth++;
+      else if (ch === '}') {
+        depth--;
+        if (depth === 0) return i;
+      } else if (ch === "'" || ch === '"') {
+        // skip strings
+        const quote = ch;
+        i++;
+        while (i < str.length && str[i] !== quote) {
+          if (str[i] === '\\') i++; // skip escape
+          i++;
+        }
+      } else if (str[i] === '/') {
+        // skip comments
+        if (str[i+1] === '/') { i += 2; while (i < str.length && str[i] !== '\n') i++; }
+        else if (str[i+1] === '*') { i += 2; while (i+1 < str.length && !(str[i]==='*' && str[i+1]==='/')) i++; i+=1; }
+      }
+    }
+    return -1;
+  }
+  
+  // Find all try { occurrences and ensure catch/finally follows
+  let out = '';
+  let cursor = 0;
+  let changes = 0;
+  const tryRegex = /try\s*\{/g;
+  while (true) {
+    const m = tryRegex.exec(src);
+    if (!m) break;
+    const start = m.index;
+    const braceOpenPos = src.indexOf('{', start);
+    const braceClosePos = findMatchingBrace(src, braceOpenPos);
+    if (braceClosePos === -1) {
+      // unable to find match; skip
+      tryRegex.lastIndex = start + 4;
+      continue;
+    }
+    // determine next non-whitespace/comment token after the closing brace
+    let i = braceClosePos + 1;
+    // skip whitespace
+    while (i < src.length && /\s/.test(src[i])) i++;
+    // skip single-line comments
+    if (src.substr(i,2) === '//') {
+      i += 2;
+      while (i < src.length && src[i] !== '\n') i++;
+      while (i < src.length && /\s/.test(src[i])) i++;
+    }
+    // skip block comments
+    if (src.substr(i,2) === '/*') {
+      i += 2;
+      while (i+1 < src.length && !(src[i] === '*' && src[i+1] === '/')) i++;
+      i += 2;
+      while (i < src.length && /\s/.test(src[i])) i++;
+    }
+    const nextToken = src.substr(i, 7).trim().toLowerCase();
+    const hasCatchOrFinally = nextToken.startsWith('catch') || nextToken.startsWith('finally');
+    if (!hasCatchOrFinally) {
+      // Insert catch block immediately after closing brace
+      const insertPos = braceClosePos + 1;
+      const catchBlock = "\ncatch (e) { console.error('Auto-fixed missing catch:', e); }\n";
+      src = src.slice(0, insertPos) + catchBlock + src.slice(insertPos);
+      changes++;
+      // adjust regex lastIndex to continue after inserted block
+      tryRegex.lastIndex = insertPos + catchBlock.length;
+    } else {
+      tryRegex.lastIndex = braceClosePos + 1;
+    }
+  }
+  
+  if (changes === 0) {
+    console.log('No missing catch/finally blocks found. No changes made.');
+  } else {
+    fs.writeFileSync(TARGET, src, 'utf8');
+    console.log(`Inserted ${changes} catch block(s) into:`, TARGET);
+    console.log('Please review the changes and run your linters/formatters.');
+  }window.CONFIG = window.CONFIG || {};
   window.CONFIG.API = window.CONFIG.API || {};
   window.CONFIG.API.VEHICLE_CREATE = window.CONFIG.API.VEHICLE_CREATE || '/carwash_project/backend/dashboard/vehicle_api.php';
   window.CONFIG.API.VEHICLE_LIST = window.CONFIG.API.VEHICLE_LIST || '/carwash_project/backend/dashboard/vehicle_api.php?action=list';

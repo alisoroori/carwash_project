@@ -2,7 +2,8 @@
 
 ?>
 <head>
-
+ 
+  
     <script>
      
   
@@ -1676,90 +1677,80 @@ include '../includes/dashboard_header.php';
 
     // Wire inline form buttons and submission behavior (AJAX fallback)
     document.addEventListener('DOMContentLoaded', function () {
-      // Replace with a compact, resilient submit handler that shows success, closes panel, and refreshes list
-      (function attachVehicleFormHandler() {
-        const vehicleForm = document.getElementById('vehicleFormInline');
-        const formPanel = document.getElementById('vehicleInlineSection') || document.getElementById('formPanel');
-        const formAction = document.getElementById('vehicleFormAction') || document.getElementById('formAction');
-        const msg = document.getElementById('vehicleFormMessageInline');
+      const closeBtn = document.getElementById('vehicleInlineClose');
+      const cancelBtn = document.getElementById('vehicleInlineCancel');
+      const form = document.getElementById('vehicleFormInline');
+      const msg = document.getElementById('vehicleFormMessageInline');
 
-        if (!vehicleForm) return;
+      if (closeBtn) closeBtn.addEventListener('click', closeVehicleModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeVehicleModal);
 
-        async function fetchCsrfToken() {
-          // Prefer exposed token, otherwise read meta
-          try {
-            if (window.CONFIG && window.CONFIG.CSRF_TOKEN) return window.CONFIG.CSRF_TOKEN;
-            const m = document.querySelector('meta[name="csrf-token"]');
-            return m ? m.content : '';
-          } catch (e) { return ''; }
-        }
-
-        function showMessage(text, type = 'info') {
-          const box = document.createElement('div');
-          box.textContent = text;
-          box.style.position = 'fixed';
-          box.style.bottom = '20px';
-          box.style.right = '20px';
-          box.style.padding = '10px 20px';
-          box.style.borderRadius = '8px';
-          box.style.color = '#fff';
-          box.style.fontSize = '14px';
-          box.style.zIndex = '9999';
-          box.style.backgroundColor = type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff';
-          document.body.appendChild(box);
-          setTimeout(() => box.remove(), 2500);
-        }
-
-        vehicleForm.addEventListener('submit', async (ev) => {
+      if (form) {
+        form.addEventListener('submit', async function (ev) {
           ev.preventDefault();
-          const action = formAction?.value || 'create';
-          const fd = new FormData(vehicleForm);
+          if (!form) return;
+          const fd = new FormData(form);
+          // Change to use vehicle_api.php
+          const action = document.getElementById('vehicleFormAction').value;
+          fd.set('action', action);  // 'create' or 'update'
 
-          fd.set('action', action === 'update' ? 'update' : 'create');
-          const vid = document.getElementById('vehicle_id_input_inline')?.value || document.getElementById('formVehicleId')?.value || '';
-          if (action === 'update' && vid) fd.set('id', vid);
-
-          const csrf = await fetchCsrfToken();
-          if (csrf) fd.set('csrf_token', csrf);
-
-          // disable submit while working
-          const submitBtn = document.getElementById('vehicleInlineSubmit');
-          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Gönderiliyor...'; }
+          // For update, set 'id' from vehicle_id_input_inline
+          const vid = document.getElementById('vehicle_id_input_inline').value;
+          if (action !== 'create' && vid) {
+            fd.set('id', vid);
+          }
 
           try {
             const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
               method: 'POST',
               credentials: 'same-origin',
-              body: fd
+              body: fd,
+              headers: { 'Accept': 'application/json' }
             });
+
+            // Read text first to guard against HTML/warnings
             const raw = await res.text();
             let json = null;
-            try { json = raw ? JSON.parse(raw) : null; } catch (parseErr) {
+            try {
+              json = raw ? JSON.parse(raw) : null;
+            } catch (parseErr) {
               console.error('Non-JSON response from vehicle_api.php:', raw.slice(0, 2000));
-              showMessage('Sunucudan beklenmeyen cevap alındı', 'error');
+              if (msg) { msg.textContent = 'Sunucudan beklenmeyen yanıt alındı.'; msg.className = 'text-sm text-red-600'; }
               return;
             }
 
-            if (json && (json.success === true || String(json.status).toLowerCase() === 'success' || res.ok)) {
-              showMessage(action === 'update' ? 'Vehicle updated successfully ✅' : 'Vehicle added successfully ✅', 'success');
-              // close panel
-              if (formPanel) formPanel.style.display = 'none';
-              // refresh list (use existing loader if available)
-              setTimeout(() => { try { if (typeof loadUserVehicles === 'function') loadUserVehicles(); if (typeof loadVehicles === 'function') loadVehicles(); } catch (e) { console.warn('refresh vehicles failed', e); } }, 500);
+            if (res.ok && json && json.success) {
+              if (msg) { msg.textContent = 'Araç kaydedildi.'; msg.className = 'text-sm text-green-600'; }
+
+              // Close modal/inline form
+              closeVehicleModal();
+
+              // If this was an edit/update, refresh the whole page once so every UI piece updates.
+              // For create, reload the vehicles list only to avoid full page reload.
+              if (action === 'update') {
+                // Small delay to allow modal close animation
+                setTimeout(() => { try { location.reload(); } catch (e) { if (typeof loadUserVehicles === 'function') loadUserVehicles(); } }, 300);
+              } else {
+                // Create path: refresh vehicles list inline
+                if (typeof loadUserVehicles === 'function') loadUserVehicles();
+              }
             } else {
-              const errMsg = (json && (json.message || json.error)) || 'İşlem başarısız';
-              showMessage(errMsg, 'error');
-              if (msg) { msg.textContent = errMsg; msg.className = 'text-sm text-red-600'; }
+              // Enhanced error handling for better user feedback
+              if (msg) {
+                  const errorMessage = json && (json.errors ? (Array.isArray(json.errors) ? json.errors.join('\n') : json.errors) : (json.message || json.error)) || 'An unexpected error occurred. Please try again later.';
+                  msg.textContent = errorMessage;
+                  msg.className = 'text-red-600';
+              }
             }
           } catch (err) {
-            console.error('Vehicle submit error', err);
-            showMessage('İstek başarısız', 'error');
+            console.error('Vehicle inline submit error', err);
             if (msg) { msg.textContent = 'İşlem başarısız: ' + (err.message || 'Ağ hatası'); msg.className = 'text-sm text-red-600'; }
           } finally {
+            const submitBtn = document.getElementById('vehicleInlineSubmit');
             if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Kaydet'; }
           }
         });
-      })();
+      }
     });
 
     // Debug helper: replace form submit behavior with a non-mutating simulated flow
@@ -2203,8 +2194,6 @@ if (typeof window !== 'undefined') {
               if (existing) existing.remove();
               panel.appendChild(list);
             }
-catch (error) { console.error(error); }
-
           } catch (e) {
             /* non-fatal */
             console.warn('Failed to render image-check summary', e);
@@ -2303,4 +2292,3 @@ catch (error) { console.error(error); }
   // expose globally to ensure onclick handlers find it
   window.deleteVehicle = deleteVehicle;
   </script>
-  <script src="/carwash_project/backend/dashboard/customer_dashboard_forms.js"></script>
