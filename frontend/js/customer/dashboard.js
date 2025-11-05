@@ -145,6 +145,12 @@ async function handleFormSubmission(formElement, options = {}) {
 
         // Build FormData
         const fd = new FormData(formElement);
+        // Ensure CSRF token is attached when available (from window.CONFIG or meta tag)
+        try {
+            fd.append('csrf_token', window.CONFIG?.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content);
+        } catch (e) {
+            // Optional chaining may not be supported in some older environments; fail silently
+        }
 
         // Note: If backend expects JSON, callers should override and stringify / set headers.
         let fetchOptions = {
