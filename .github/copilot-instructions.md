@@ -1,93 +1,125 @@
 # Copilot Instructions for CarWash Web Application
 
 ## Project Overview
-- **Purpose:** Manage car wash businesses, customer reservations, and service management.
-- **Tech Stack:** PHP (backend), MySQL (database), HTML/CSS/JS (frontend), Composer (PSR-4 autoloading). Runs on XAMPP/LAMP.
-- **Structure:**
-  - `backend/`: PHP API, authentication, dashboard logic, includes (DB, functions), **classes/** (PSR-4), **models/** (database models).
-  - `frontend/`: Static assets, CSS, JS, and UI HTML files.
-  - `vendor/`: Composer dependencies (auto-generated).
+- **Purpose:** Multi-role car wash management platform for admin, car wash businesses, and customers
+- **Tech Stack:** PHP 7.4+/8.x, MySQL, Composer (PSR-4), Vite (frontend bundling), TailwindCSS, WebSocket (real-time)
+- **Environment:** XAMPP/LAMP stack on `http://localhost/carwash_project/`
+- **Roles:** Admin (analytics, user management), Car Wash (bookings, services), Customer (reservations, payments)
 
-## Key Architectural Patterns
+## Architecture Overview
 
-### **Backend (Modernized with PSR-4):**
-- **New Architecture (Composer + PSR-4):**
-  - Namespace: `App\Classes` → `backend/classes/`
-  - Namespace: `App\Models` → `backend/models/`
-  - Autoloading via Composer: `require_once __DIR__ . '/vendor/autoload.php';`
-  
-- **Core Classes (`backend/classes/`):**
-  - `Database.php`: PDO wrapper with Singleton pattern, prepared statements
-  - `Session.php`: Secure session management wrapper
-  - `Auth.php`: User authentication (register, login, logout, role-based access)
-  - `Validator.php`: Input validation and sanitization
-  - `Response.php`: JSON API response handler
-  
-- **Models (`backend/models/`):**
-  - Database access layer for entities (User, Booking, Service, Payment)
-  - Each model extends base functionality from `Database` class
-  
-- **Legacy Support:**
-  - Old files in `backend/includes/` (db.php, functions.php) remain for backward compatibility
-  - New code should use PSR-4 classes; old code can still use legacy includes
+### **Backend (Modern PSR-4 + Legacy Compatibility)**
+- **Namespaces:**
+  - `App\Classes\*` → `backend/classes/` (core business logic, 90+ utility classes)
+  - `App\Models\*` → `backend/models/` (database models)
+- **Bootstrap:** Always use `backend/includes/bootstrap.php` which:
+  - Loads Composer autoloader (`vendor/autoload.php`)
+  - Initializes `Logger` with global error/exception handlers
+  - Loads `.env` via `vlucas/phpdotenv`
+  - Sets `APP_ENV` (production disables `display_errors`)
+- **Core Classes:**
+  - `Database`: PDO Singleton with `fetchOne()`, `fetchAll()`, `insert()`, `update()`, `delete()`
+  - `Auth`: `requireAuth()`, `requireRole(['admin'])`, `isAuthenticated()`, `hasRole()`
+  - `Response`: `success()`, `error()`, `validationError()`, `unauthorized()`, `notFound()`
+  - `Validator`: Fluent validation (`->required()`, `->email()`, `->minLength()`), `sanitize*()` methods
+  - `Session`: Secure wrapper with `regenerate()` after login
+  - `Logger`: Logs to `logs/app.log`, `Logger::exception($e)` for full traces
+  - `FileUploader`: Validates file uploads (type, size), stores in `backend/auth/uploads/profiles/`
 
-### **Frontend:**
-- Static HTML files for main pages (e.g., `index.php`, `booking.html`).
-- Custom CSS/JS in `frontend/css/` and `frontend/js/`.
+### **Frontend (Vite + TailwindCSS)**
+- **Build Tools:**
+  - `dev.bat` / `npm run dev` → Vite dev server on `localhost:3000` with PHP backend proxy
+  - `npm run build` → Production build to `dist/`
+  - `npm run build-css` → TailwindCSS watch mode (recommended for PHP dev)
+- **API Integration:** All frontend JS uses `fetch()` to call `/carwash_project/backend/api/*` endpoints
+- **Real-Time:** WebSocket client (`frontend/js/websocket-client.js`) connects to `ws://localhost:8080` for analytics/notifications
 
-## Developer Workflows
+## Critical Developer Workflows
 
-### **Local Development:**
-- Use XAMPP/LAMP. Place project in `htdocs` (Windows) or `www` (Linux).
-- Access via `http://localhost/carwash_project/`.
-
-### **Composer Setup:**
-```bash
-# Install dependencies (first time only)
+### **Quick Start (Windows PowerShell):**
+```powershell
+# 1. Install PHP dependencies
 cd c:\xampp\htdocs\carwash_project
 composer install
 
-# Update dependencies
-composer update
+# 2. Install Node.js dependencies (Vite + TailwindCSS)
+.\setup.bat  # or npm install
 
-# Regenerate autoloader
-composer dump-autoload
+# 3. Import database schema
+# MySQL CLI: mysql -u root -p < database/carwash.sql
+
+# 4. Configure database
+# Edit backend/includes/config.php (DB_HOST, DB_NAME, DB_USER, DB_PASS, BASE_URL)
+
+# 5. Start development
+.\dev.bat  # Choose option 1 for TailwindCSS watch mode
+# XAMPP must be running! Access: http://localhost/carwash_project/
 ```
 
-### **Database:**
-- Import schema from `database/carwash.sql`.
-- DB connection config in `backend/includes/config.php`.
-- **New Code:** Use `App\Classes\Database` for queries.
-- **Old Code:** Can still use `backend/includes/db.php`.
+### **Testing & CI:**
+```bash
+# Run PHPUnit tests
+vendor/bin/phpunit --configuration phpunit.xml.dist
 
-### **Authentication:**
-- Registration and login handled in `backend/auth/`.
-- **New Code:** Use `App\Classes\Auth` and `App\Classes\Session`.
-- **Old Code:** Direct `$_SESSION` manipulation still works.
+# CI runs on GitHub Actions (.github/workflows/ci.yml)
+# Tests run with matrix strategy: empty DB_PASS and set DB_PASS
+```
 
-### **Dashboards:**
-- Separate dashboards for admin, car wash, and customer in `backend/dashboard/`.
-- Add authentication checks using `Auth::requireAuth()` and `Auth::requireRole()`.
+### **API Development Pattern:**
+1. Create endpoint in `backend/api/{feature}/action.php`
+2. Use `Response::success()` / `Response::error()` for JSON responses
+3. **Auth check:** `Auth::requireRole(['admin', 'carwash'])` at file top
+4. **CSRF:** Frontend JS calls `PaymentUtils.generateCSRFToken()` and includes in POST
+5. **File uploads:** Use `FileUploader` class, validates type/size, stores with sanitized names
 
-## Project-Specific Conventions
+### **Database Migrations:**
+- SQL files in `database/` (e.g., `vehicle_image_default_migration.sql`)
+- PowerShell scripts: `migrate_add_district.ps1`, `auto_migrate_district.ps1`
+- Manual execution: `mysql -u root -p carwash_db < database/migration.sql`
 
-### **File Naming:**
-- PHP class files: PascalCase (e.g., `Database.php`, `User_Model.php`)
-- Other PHP files: Use underscores (e.g., `Car_Wash_Registration.php`)
-- HTML/JS/CSS files: lowercase with dashes/underscores
+## Project-Specific Conventions & Patterns
 
-### **Namespace Convention:**
-- Classes: `App\Classes\ClassName`
-- Models: `App\Models\ModelName`
+### **API Response Format (CRITICAL):**
+All API endpoints must return JSON via `Response` class:
+```php
+use App\Classes\Response;
 
-### **Composer + PSR-4:**
-- Dependencies managed via `composer.json`
-- Autoloading: `require_once __DIR__ . '/vendor/autoload.php';`
-- Do NOT commit `vendor/` folder to git (use `.gitignore`)
+// ✅ Success
+Response::success('Operation successful', ['user_id' => 123]);
+// Outputs: {"status":"success","message":"...","data":{...}}
 
-### **Uploads:**
-- User-uploaded images stored in `backend/auth/uploads/profiles/`.
-- Service images in `uploads/services/`.
+// ✅ Error
+Response::error('Validation failed', 400);
+// Outputs: {"status":"error","message":"..."}
+
+// ❌ NEVER do raw json_encode() - breaks error handling
+echo json_encode(['success' => false]);  // Breaks global error handler
+```
+
+### **Vehicle API Pattern (Special Case):**
+`backend/dashboard/vehicle_api.php` demonstrates robust JSON API:
+- Health-check endpoint: GET returns `{"status":"ok"}`
+- Output buffering to capture accidental HTML/warnings
+- Unified `send_json_response()` normalizes shape and logs raw output
+- Dev mode: X-Dev-User header simulates auth (REMOVE in production)
+
+### **Authentication Flow:**
+```php
+// Dashboard pages (HTML output)
+Auth::requireRole('admin');  // Redirects if not admin
+
+// API endpoints (JSON output)
+Auth::requireAuth();  // Returns 401 JSON if not authenticated
+if (!Auth::hasRole('customer')) {
+    Response::unauthorized();
+}
+```
+
+### **File Naming & Structure:**
+- **Classes:** PascalCase (e.g., `Database.php`, `PaymentGateway.php`)
+- **API endpoints:** lowercase with underscores (e.g., `get_profile.php`, `vehicle_api.php`)
+- **Frontend:** lowercase with dashes/underscores (e.g., `payment-result.js`, `checkout.html`)
+- **District field:** Many queries include `district` column for location filtering (see `backend/api/locations/search.php`)
 
 ## Integration Points
 
@@ -106,9 +138,20 @@ composer dump-autoload
   $result = mysqli_query($conn, "SELECT * FROM users");
   ```
 
-### **Frontend <-> Backend:**
-- Forms in HTML pages POST to PHP scripts in `backend/`.
-- API endpoints return JSON via `App\Classes\Response`.
+### **Frontend <-> Backend API:**
+- **CSRF Protection:** All POST requests include CSRF token:
+  ```js
+  const token = await PaymentUtils.generateCSRFToken();
+  // Backend endpoint: /backend/auth/get_csrf_token.php
+  ```
+- **Payment Flow:** `frontend/js/payment.js` → `backend/api/process_payment.php` → webhook handlers
+- **WebSocket:** Real-time analytics on `ws://localhost:8080` (see `frontend/js/websocket-client.js`)
+
+### **Payment Webhooks (Critical for Production):**
+- **Webhook handlers:** `backend/api/payment/webhook.php`, `webhook_handler.php`
+- **Signature verification:** Always validate `HTTP_X_WEBHOOK_SIGNATURE` header
+- **Status mapping:** Webhook updates `transactions` table with JSON response data
+- **Security:** Use `getenv('PAYMENT_WEBHOOK_SECRET')` for signature validation
 
 ## Code Examples
 

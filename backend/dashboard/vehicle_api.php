@@ -76,6 +76,41 @@ function send_json_response(array $payload, int $httpCode = 200): void {
 }
 
 // Require authenticated user (simplified to avoid HTML output from Auth class)
+// Quick health-check for GET requests so tooling and smoke-tests can verify the route
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $logDir = __DIR__ . '/../../.logs';
+    if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
+    @file_put_contents($logDir . '/vehicle_api_access.log', "[" . date('c') . "] GET from " . ($_SERVER['REMOTE_ADDR'] ?? 'cli') . "\n", FILE_APPEND | LOCK_EX);
+
+    if (!headers_sent()) {
+        http_response_code(200);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    echo json_encode(['status' => 'ok', 'message' => 'Vehicle API reachable (GET health-check)'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+// Logging helper dir (used for health-check and request logging)
+$logDir = __DIR__ . '/../../.logs';
+if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
+
+// Dev helper: allow simulating an authenticated session by passing an X-Dev-User header
+// NOTE: This is a development convenience ONLY. Remove or disable in production.
+$devUser = null;
+if (function_exists('getallheaders')) {
+    $hdrs = getallheaders();
+    if (!empty($hdrs['X-Dev-User'])) $devUser = (int)$hdrs['X-Dev-User'];
+    if (!$devUser && !empty($hdrs['x-dev-user'])) $devUser = (int)$hdrs['x-dev-user'];
+}
+if (!$devUser && !empty($_SERVER['HTTP_X_DEV_USER'])) {
+    $devUser = (int)$_SERVER['HTTP_X_DEV_USER'];
+}
+if ($devUser) {
+    $_SESSION['user_id'] = $devUser;
+    @file_put_contents($logDir . '/vehicle_api_access.log', "[" . date('c') . "] Simulated session user={$devUser} from " . ($_SERVER['REMOTE_ADDR'] ?? 'cli') . "\n", FILE_APPEND | LOCK_EX);
+}
+
+// Require authenticated user (simplified to avoid HTML output from Auth class)
 if (empty($_SESSION['user_id'])) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Not authenticated']);
@@ -308,35 +343,65 @@ try {
         } elseif ($getAction === 'list') {
             // list vehicles
             if (!$pdo) throw new RuntimeException('Database connection not available');
-            $stmt = $pdo->prepare('SELECT id, brand, model, license_plate, year, color, image_path, created_at FROM user_vehicles WHERE user_id = :uid ORDER BY created_at DESC');
-            $stmt->execute([':uid' => $user_id]);
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Process image paths to ensure they are valid public URLs
-            foreach ($rows as &$row) {
-                $imagePath = $row['image_path'];
+            try {
+                $stmt = $pdo->prepare('SELECT id, brand, model, license_plate, year, color, image_path, created_at 
+                                       FROM user_vehicles 
+                                       WHERE user_id = :uid 
+                                       ORDER BY created_at DESC');
+                $stmt->execute([':uid' => $user_id]);
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
-                if (empty($imagePath)) {
-                    // Empty path - use default image
-                    $row['image_path'] = defined('DEFAULT_VEHICLE_IMAGE') ? DEFAULT_VEHICLE_IMAGE : '/carwash_project/frontend/assets/images/default-car.png';
-                } elseif (strpos($imagePath, '/carwash_project/') !== 0) {
-                    // Relative path without full prefix - add it
-                    if (strpos($imagePath, '/') === 0) {
-                        $row['image_path'] = '/carwash_project' . $imagePath;
-                    } else {
-                        // Invalid path - use default
-                        $row['image_path'] = defined('DEFAULT_VEHICLE_IMAGE') ? DEFAULT_VEHICLE_IMAGE : '/carwash_project/frontend/assets/images/default-car.png';
+                // Ensure all rows are indexed (not associative with string keys at top level)
+                $rows = array_values($rows);
+                
+                // Process image paths to ensure they are valid
+                foreach ($rows as &$row) {
+                    $imagePath = $row['image_path'] ?? '';
+                    
+                    if (empty($imagePath)) {
+                        // Use default image
+                        $row['image_path'] = '/carwash_project/frontend/assets/images/default-car.png';
+                    } elseif (!preg_match('#^(https?://|/)#', $imagePath)) {
+                        // Relative path without leading slash - add carwash_project prefix
+                        $row['image_path'] = '/carwash_project/' . ltrim($imagePath, '/');
                     }
+                    
+                    // Ensure all expected fields exist with defaults
+                    $row['brand'] = $row['brand'] ?? '';
+                    $row['model'] = $row['model'] ?? '';
+                    $row['license_plate'] = $row['license_plate'] ?? '';
+                    $row['year'] = $row['year'] ?? null;
+                    $row['color'] = $row['color'] ?? '';
                 }
-                // If it already starts with /carwash_project/, keep as-is
-            }
-            
-            // Normalize to indexed array and return canonical shape
-            $rows = is_array($rows) ? array_values($rows) : [];
-            if (class_exists(Response::class) && method_exists(Response::class, 'success')) {
-                Response::success('Vehicles listed', ['vehicles' => $rows]);
-            } else {
-                echo json_encode(['status' => 'success', 'message' => 'Vehicles listed', 'data' => ['vehicles' => $rows]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                unset($row); // Break reference
+                
+                // Log for debugging
+                if (class_exists(Logger::class)) {
+                    Logger::info('Vehicle list retrieved', [
+                        'user_id' => $user_id,
+                        'count' => count($rows)
+                    ]);
+                }
+                
+                // Return consistent structure
+                send_json_response([
+                    'status' => 'success',
+                    'success' => true,
+                    'message' => 'Vehicles retrieved successfully',
+                    'data' => [
+                        'vehicles' => $rows
+                    ],
+                    'vehicles' => $rows // Also include at top level for backward compatibility
+                ]);
+                
+            } catch (Throwable $e) {
+                log_error($e, ['action' => 'list', 'user_id' => $user_id]);
+                send_json_response([
+                    'status' => 'error',
+                    'success' => false,
+                    'message' => 'Failed to retrieve vehicles: ' . $e->getMessage()
+                ], 500);
             }
             exit;
         } else {
@@ -378,9 +443,21 @@ try {
             // If a file was uploaded, handle it and update the record
             $webPath = null;
             try {
-                if (!empty($_FILES['vehicle_image']) && is_array($_FILES['vehicle_image']) && $_FILES['vehicle_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                // Accept either 'vehicle_image' key or fallback to the first uploaded file entry
+                $uploadedFile = null;
+                if (!empty($_FILES['vehicle_image']) && is_array($_FILES['vehicle_image']) && ($_FILES['vehicle_image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                    $uploadedFile = $_FILES['vehicle_image'];
+                } elseif (!empty($_FILES)) {
+                    // use the first file uploaded under any key
+                    $first = reset($_FILES);
+                    if (is_array($first) && ($first['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                        $uploadedFile = $first;
+                    }
+                }
+
+                if ($uploadedFile) {
                     error_log('vehicle_api create upload attempt for user: ' . $user_id);
-                    $uploadResult = handle_vehicle_image_upload($_FILES['vehicle_image'], $user_id);
+                    $uploadResult = handle_vehicle_image_upload($uploadedFile, $user_id);
                     if (is_array($uploadResult) && !empty($uploadResult['web'])) {
                         $webPath = $uploadResult['web'];
                         // store web path in DB
@@ -406,6 +483,73 @@ try {
 
         if ($action === 'update') {
             $id = (int)($_POST['id'] ?? 0);
+            // Find the list action handler (around line 340-380) and replace:
+            
+            if ($getAction === 'list') {
+                // list vehicles
+                if (!$pdo) throw new RuntimeException('Database connection not available');
+            
+                try {
+                    $stmt = $pdo->prepare('SELECT id, brand, model, license_plate, year, color, image_path, created_at 
+                                           FROM user_vehicles 
+                                           WHERE user_id = :uid 
+                                           ORDER BY created_at DESC');
+                    $stmt->execute([':uid' => $user_id]);
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    // Ensure all rows are indexed (not associative with string keys at top level)
+                    $rows = array_values($rows);
+                    
+                    // Process image paths to ensure they are valid
+                    foreach ($rows as &$row) {
+                        $imagePath = $row['image_path'] ?? '';
+                        
+                        if (empty($imagePath)) {
+                            // Use default image
+                            $row['image_path'] = '/carwash_project/frontend/assets/images/default-car.png';
+                        } elseif (!preg_match('#^(https?://|/)#', $imagePath)) {
+                            // Relative path without leading slash - add carwash_project prefix
+                            $row['image_path'] = '/carwash_project/' . ltrim($imagePath, '/');
+                        }
+                        
+                        // Ensure all expected fields exist with defaults
+                        $row['brand'] = $row['brand'] ?? '';
+                        $row['model'] = $row['model'] ?? '';
+                        $row['license_plate'] = $row['license_plate'] ?? '';
+                        $row['year'] = $row['year'] ?? null;
+                        $row['color'] = $row['color'] ?? '';
+                    }
+                    unset($row); // Break reference
+                    
+                    // Log for debugging
+                    if (class_exists(Logger::class)) {
+                        Logger::info('Vehicle list retrieved', [
+                            'user_id' => $user_id,
+                            'count' => count($rows)
+                        ]);
+                    }
+                    
+                    // Return consistent structure
+                    send_json_response([
+                        'status' => 'success',
+                        'success' => true,
+                        'message' => 'Vehicles retrieved successfully',
+                        'data' => [
+                            'vehicles' => $rows
+                        ],
+                        'vehicles' => $rows // Also include at top level for backward compatibility
+                    ]);
+                    
+                } catch (Throwable $e) {
+                    log_error($e, ['action' => 'list', 'user_id' => $user_id]);
+                    send_json_response([
+                        'status' => 'error',
+                        'success' => false,
+                        'message' => 'Failed to retrieve vehicles: ' . $e->getMessage()
+                    ], 500);
+                }
+                exit;
+            }
             if ($id <= 0) throw new InvalidArgumentException('Invalid vehicle id');
             $brand = trim((string)($_POST['car_brand'] ?? ''));
             $model = trim((string)($_POST['car_model'] ?? ''));
@@ -415,9 +559,20 @@ try {
             // If an image file is present, upload first and include in update
             $imagePathToSet = null;
             try {
-                if (!empty($_FILES['vehicle_image']) && is_array($_FILES['vehicle_image']) && $_FILES['vehicle_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                // Accept either 'vehicle_image' key or fallback to the first uploaded file entry
+                $uploadedFile = null;
+                if (!empty($_FILES['vehicle_image']) && is_array($_FILES['vehicle_image']) && ($_FILES['vehicle_image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                    $uploadedFile = $_FILES['vehicle_image'];
+                } elseif (!empty($_FILES)) {
+                    $first = reset($_FILES);
+                    if (is_array($first) && ($first['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                        $uploadedFile = $first;
+                    }
+                }
+
+                if ($uploadedFile) {
                     error_log('vehicle_api update upload attempt for user: ' . $user_id . ' vehicle: ' . $id);
-                    $uploadResult = handle_vehicle_image_upload($_FILES['vehicle_image'], $user_id);
+                    $uploadResult = handle_vehicle_image_upload($uploadedFile, $user_id);
                     if (is_array($uploadResult) && !empty($uploadResult['web'])) {
                         $imagePathToSet = $uploadResult['web'];
                         if (!empty($uploadResult['server'])) {

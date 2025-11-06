@@ -801,7 +801,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
         <!-- Logo -->
         <div class="site-logo" style="display: flex; align-items: center;">
           <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
-            <img src="./logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+            <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
             <span style=" font-size: 2rem; font-weight: 400; font-family: 'momo-signature-regular'; color: #194bb6ff;">MYCAR</span>
           </a>
         </div>
@@ -908,7 +908,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
       <!-- Logo Section -->
       <div class="site-logo" style="display: flex; align-items: center;">
         <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
-          <img src="../../frontend/assets/images/default-car.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
           <span style="font-size: 1.5rem; font-weight: 400; font-family: 'Momo Signature', cursive; color: #019be5;">MYCAR</span>
         </a>
       </div>

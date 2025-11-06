@@ -97,8 +97,8 @@ $navigation_menu = array();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($page_title); ?></title>
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS - Local Production Build -->
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -587,10 +587,11 @@ $navigation_menu = array();
                         <i class="fas <?php echo $dashboard_icon; ?> text-white text-lg"></i>
                     </div>
                     <div class="flex flex-col">
-                        <span class="logo-text">MYCAR</span>
+                        
                        <img src="../logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
-                       <span style=" font-size: 2rem; font-weight: 400; font-family: 'momo-signature-regular'; color: #194bb6ff;">MYCAR</span>
-                         <span class="dashboard-badge"><?php echo $dashboard_label; ?></span>
+                         <span class="dashboard-badge">
+                            <span class="logo-text">MYCAR</span> <?php echo $dashboard_label; ?>
+                        </span>
                     </div>
                 </a>
             </div>

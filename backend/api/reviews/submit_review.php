@@ -1,83 +1,132 @@
 <?php
-// backend/api/reviews/submit_review.php
-
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
-// Bootstrap app (autoload or bootstrap)
-$booted = false;
-if (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
-    require_once __DIR__ . '/../../vendor/autoload.php';
-    $booted = true;
-} elseif (file_exists(__DIR__ . '/../../includes/bootstrap.php')) {
-    require_once __DIR__ . '/../../includes/bootstrap.php';
-    $booted = true;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+// Bootstrap autoloader (Composer PSR-4)
+$vendorAutoload = dirname(__DIR__, 2) . '/vendor/autoload.php';
+if (file_exists($vendorAutoload)) {
+    require_once $vendorAutoload;
+} else {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Autoloader not found'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
-require_once __DIR__ . '/../../includes/db.php';
-require_once __DIR__ . '/../../includes/review_manager.php';
-
-// Helper to return JSON
+// Helper: JSON response
 function json_exit(array $data, int $status = 200): void {
     http_response_code($status);
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// ✅ Allow POST only
+// Only POST allowed
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_exit(['success' => false, 'message' => 'Method Not Allowed'], 405);
 }
 
-// ✅ Require login
+// Authentication check
 if (empty($_SESSION['user_id'])) {
     json_exit(['success' => false, 'message' => 'Unauthorized'], 401);
 }
 
-// ✅ Parse JSON input
-$data = json_decode(file_get_contents('php://input'), true);
-if (!is_array($data)) {
-    json_exit(['success' => false, 'message' => 'Invalid JSON body'], 400);
+$userId = (int)$_SESSION['user_id'];
+
+// Accept both JSON body and FormData
+$inputData = [];
+$contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+
+if (stripos($contentType, 'application/json') !== false) {
+    $raw = file_get_contents('php://input');
+    $decoded = json_decode($raw, true);
+    if (is_array($decoded)) {
+        $inputData = $decoded;
+    } else {
+        json_exit(['success' => false, 'message' => 'Invalid JSON body'], 400);
+    }
+} else {
+    // FormData fallback
+    $inputData = $_POST;
 }
 
-// ✅ Validate CSRF token if exists
-$csrf_ok = false;
-$csrf_token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
-if (isset($_SESSION['csrf_token'])) {
-    if ($csrf_token && hash_equals($_SESSION['csrf_token'], $csrf_token)) $csrf_ok = true;
-}
-if (isset($_SESSION['csrf_token']) && !$csrf_ok) {
-    json_exit(['success' => false, 'message' => 'Invalid CSRF token'], 401);
+// CSRF validation
+$csrfTokenSent = $inputData['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+if (!empty($_SESSION['csrf_token'])) {
+    if (!$csrfTokenSent || !hash_equals((string)$_SESSION['csrf_token'], (string)$csrfTokenSent)) {
+        json_exit(['success' => false, 'message' => 'Invalid CSRF token'], 401);
+    }
 }
 
-// ✅ Validate required fields
-$carwash_id = (int)($data['carwash_id'] ?? 0);
-$rating     = (int)($data['rating'] ?? 0);
-$comment    = trim((string)($data['comment'] ?? ''));
-$order_id   = isset($data['order_id']) ? (int)$data['order_id'] : null;
+// Normalize and validate inputs
+$carwashId = isset($inputData['carwash_id']) ? (int)$inputData['carwash_id'] : 0;
+$rating    = isset($inputData['rating']) ? (int)$inputData['rating'] : 0;
+$comment   = isset($inputData['comment']) ? trim((string)$inputData['comment']) : '';
+$orderId   = isset($inputData['order_id']) && $inputData['order_id'] ? (int)$inputData['order_id'] : null;
 
-if ($carwash_id <= 0 || $rating < 1 || $rating > 5) {
-    json_exit(['success' => false, 'message' => 'Validation failed: invalid carwash_id or rating'], 400);
+$errors = [];
+if ($carwashId <= 0) {
+    $errors['carwash_id'] = 'Invalid carwash id';
+}
+if ($rating < 1 || $rating > 5) {
+    $errors['rating'] = 'Rating must be between 1 and 5';
+}
+if (strlen($comment) > 2000) {
+    $errors['comment'] = 'Comment too long (max 2000 characters)';
+}
+
+if (!empty($errors)) {
+    json_exit(['success' => false, 'message' => 'Validation failed', 'errors' => $errors], 400);
 }
 
 try {
-    $reviewManager = new ReviewManager($conn);
+    // Instantiate modern Database class
+    $db = new \App\Classes\Database();
 
-    // ✅ Check cooldown
-    if (!$reviewManager->canUserReview($_SESSION['user_id'], $carwash_id)) {
-        json_exit(['success' => false, 'message' => 'You can only review once every 30 days'], 400);
+    // Business rule: cooldown check (user can review once every 30 days per carwash)
+    $cooldownDays = 30;
+    $db->query("
+        SELECT COUNT(*) as recent_count
+        FROM reviews
+        WHERE user_id = :user_id
+          AND carwash_id = :carwash_id
+          AND created_at > DATE_SUB(NOW(), INTERVAL :cooldown_days DAY)
+    ");
+    $db->bind(':user_id', $userId);
+    $db->bind(':carwash_id', $carwashId);
+    $db->bind(':cooldown_days', $cooldownDays);
+    $db->execute();
+    $cooldownCheck = $db->single();
+
+    if ($cooldownCheck && (int)$cooldownCheck['recent_count'] > 0) {
+        json_exit([
+            'success' => false,
+            'message' => "You can only review this carwash once every {$cooldownDays} days"
+        ], 400);
     }
 
-    // ✅ Insert review
-    if ($reviewManager->addReview($_SESSION['user_id'], $carwash_id, $order_id, $rating, $comment)) {
+    // Insert review
+    $db->query("
+        INSERT INTO reviews (user_id, carwash_id, order_id, rating, comment, created_at)
+        VALUES (:user_id, :carwash_id, :order_id, :rating, :comment, NOW())
+    ");
+    $db->bind(':user_id', $userId);
+    $db->bind(':carwash_id', $carwashId);
+    $db->bind(':order_id', $orderId); // can be null
+    $db->bind(':rating', $rating);
+    $db->bind(':comment', $comment);
+    $db->execute();
+
+    $rowCount = $db->rowCount();
+    if ($rowCount > 0) {
         json_exit(['success' => true, 'message' => 'Review submitted successfully'], 200);
     } else {
         json_exit(['success' => false, 'message' => 'Failed to submit review'], 500);
     }
-
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     error_log("SubmitReview error: " . $e->getMessage());
     json_exit(['success' => false, 'message' => 'Server error'], 500);
 }
+?>

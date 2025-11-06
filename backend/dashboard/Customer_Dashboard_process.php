@@ -1,56 +1,126 @@
-<<?php
+<?php
+// Start output buffering early to prevent "headers already sent" when later includes call session_start()
+if (!defined('CW_OB_STARTED')) {
+    @ob_start();
+    define('CW_OB_STARTED', true);
+}
+?>
+<?php
 // ...existing code...
 // Replace the inline vehicle form submit handler section with the snippet below
 // ...existing code...
 ?>
 <script>
-(function(){
-  const vehicleFormInline = document.getElementById('vehicleFormInline');
-  if (vehicleFormInline) {
-    vehicleFormInline.addEventListener('submit', async (ev)=>{
-      ev.preventDefault();
-      const action = formAction.value;
-      const fd = new FormData(vehicleForm);
-      fd.set('action', action === 'create' ? 'create' : 'update');
-      // Ensure backend expects id under 'id' (vehicle_api.php looks for 'id')
-      const vid = document.getElementById('formVehicleId').value;
-      if (action !== 'create' && vid) {
-        // keep existing vehicle_id field but also set 'id' for backend compatibility
-        fd.set('id', vid);
-      }
-      const csrf = await fetchCsrfToken();
-      if (csrf) fd.append('csrf_token', csrf);
-      try {
-        const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', { method:'POST', credentials:'same-origin', body: fd });
-        const raw = await res.text();
-        let json = null;
-        try { json = raw ? JSON.parse(raw) : null; } catch(e){ showMessage('Sunucudan beklenmeyen cevap alındı', 'error'); return; }
+    (function(){
+        // Robust vehicle form handler: ensure we reference the real form element and form controls
+        const vehicleForm = document.getElementById('vehicleFormInline');
+        if (!vehicleForm) return;
 
-        if (json && json.success) {
-          showMessage('İşlem başarılı');
-
-          // Close edit/create panel
-          formPanel.style.display = 'none';
-
-          // If this was an edit/update, refresh the whole page once so every UI piece updates.
-          // For create, reload the vehicles list only to avoid full page reload.
-          if (action === 'update') {
-            // small delay to allow UI to close cleanly
-            setTimeout(() => { try { location.reload(); } catch(e){ loadVehicles(); } }, 300);
-          } else {
-            // create path: update list inline
-            loadVehicles();
-          }
-        } else {
-          showMessage(json && (json.message||json.error) ? (json.message||json.error) : 'İşlem başarısız', 'error');
+        async function getActionValue() {
+            // Prefer an explicit input named 'action' or 'formAction' (id)
+            const byName = vehicleForm.querySelector('[name="action"]');
+            if (byName && byName.value) return byName.value;
+            const byId = document.getElementById('formAction');
+            if (byId && byId.value) return byId.value;
+            // Fallback: use data-action on form or default to 'create'
+            return vehicleForm.dataset.action || 'create';
         }
-      } catch (e) {
-        console.error(e);
-        showMessage('İstek başarısız', 'error');
-      }
-    });
-  }
-})();
+
+        vehicleForm.addEventListener('submit', async function(ev){
+            ev.preventDefault();
+
+            const action = (await getActionValue()) === 'create' ? 'create' : 'update';
+
+            // Build FormData from the real form element so file inputs are included
+            let fd = new FormData(vehicleForm);
+            // Ensure action field exists and matches backend expectations
+            fd.set('action', action);
+
+            // Ensure backend expects id under 'id' (vehicle_api.php looks for 'id')
+            const vidEl = vehicleForm.querySelector('#formVehicleId') || vehicleForm.querySelector('[name="id"]');
+            const vid = vidEl ? vidEl.value : '';
+            if (action !== 'create' && vid) fd.set('id', vid);
+
+            // Ensure uploaded file input name matches backend: 'vehicle_image'
+            // If the file input exists but with a different name, try to copy it
+            try {
+                const fileInput = vehicleForm.querySelector('input[type="file"]');
+                if (fileInput && fileInput.name && fileInput.name !== 'vehicle_image' && fileInput.files && fileInput.files.length) {
+                    // append the first file under the expected key as well
+                    fd.set('vehicle_image', fileInput.files[0]);
+                }
+            } catch (e) {
+                // ignore
+            }
+
+            // Derive api URL relative to current document so it works in different base paths
+            const apiUrl = new URL('./vehicle_api.php', window.location.href).toString();
+
+            // Add CSRF token if available (overwrite or set)
+            try {
+                const csrf = await fetchCsrfToken();
+                if (csrf) fd.set('csrf_token', csrf);
+            } catch (e) {
+                // ignore csrf fetch failure and let backend validate if possible
+            }
+
+            try {
+                let attemptedRetry = false;
+                const doRequest = async () => {
+                    const res = await fetch(apiUrl, { method:'POST', credentials:'same-origin', body: fd });
+                    const raw = await res.text();
+                    let json = null;
+                    try { json = raw ? JSON.parse(raw) : null; } catch(e){ showMessage('Sunucudan beklenmeyen cevap alındı', 'error'); return { ok: false, parsed: null } }
+                    return { ok: res.ok, parsed: json };
+                };
+
+                let result = await doRequest();
+
+                // If server explicitly says Unknown action, attempt one retry with corrected action name
+                if (result.parsed && (result.parsed.message === 'Unknown action' || result.parsed.error === 'Unknown action') && !attemptedRetry) {
+                    attemptedRetry = true;
+                    const corrected = (vid && String(vid).trim() !== '') ? 'update_vehicle' : 'add_vehicle';
+                    try {
+                        fd.set('action', corrected);
+                    } catch (e) {
+                        // Some browsers may not allow reusing FormData.set in certain contexts - rebuild FormData
+                        const rebuilt = new FormData(vehicleForm);
+                        rebuilt.set('action', corrected);
+                        // copy vehicle_image if present
+                        try {
+                            const fileInput = vehicleForm.querySelector('input[type="file"]');
+                            if (fileInput && fileInput.files && fileInput.files.length) rebuilt.set('vehicle_image', fileInput.files[0]);
+                        } catch (ee) {}
+                        // replace fd reference
+                        fd = rebuilt;
+                    }
+                    // retry request once
+                    result = await doRequest();
+                }
+
+                const json = result.parsed;
+                if (json && (json.status === 'success' || json.success === true)) {
+                    showMessage('İşlem başarılı');
+
+                    // Close edit/create panel if present
+                    const formPanel = document.getElementById('vehicleFormPanel') || document.querySelector('.vehicle-form-panel');
+                    if (formPanel) formPanel.style.display = 'none';
+
+                    // If this was an edit/update, refresh the whole page so UI updates reliably.
+                    if (action === 'update') {
+                        setTimeout(() => { try { location.reload(); } catch(e){ if (typeof loadVehicles === 'function') loadVehicles(); } }, 300);
+                    } else {
+                        if (typeof loadVehicles === 'function') loadVehicles();
+                    }
+                } else {
+                    showMessage((json && (json.message||json.error)) ? (json.message||json.error) : 'İşlem başarısız', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showMessage('İstek başarısız', 'error');
+            }
+        });
+    })();
 </script>
 <?php
 // ...existing code...?php
@@ -67,7 +137,32 @@ if (class_exists(Session::class) && method_exists(Session::class, 'start')) {
     if (session_status() === PHP_SESSION_NONE) session_start();
 }
 
+// Expose a local $user_id convenience variable for handlers
+$user_id = (int)($_SESSION['user_id'] ?? 0);
+
 header('Content-Type: application/json; charset=utf-8');
+
+// --- DEBUG: log incoming POST and FILES for diagnosis of 400 Bad Request ---
+try {
+    $dbgDir = __DIR__ . '/../../.logs';
+    if (!is_dir($dbgDir)) @mkdir($dbgDir, 0755, true);
+    $dbgPath = $dbgDir . '/customer_dashboard_post_debug.log';
+    $dump = [
+        'ts' => date('c'),
+        'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'request_uri' => $_SERVER['REQUEST_URI'] ?? null,
+        'method' => $_SERVER['REQUEST_METHOD'] ?? null,
+        'content_type' => $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? null,
+        'headers' => function_exists('getallheaders') ? getallheaders() : [],
+        'post' => $_POST,
+        'files' => array_map(function($f){ return ['name'=>$f['name'] ?? null,'size'=>$f['size'] ?? null,'error'=>$f['error'] ?? null]; }, $_FILES),
+        'raw_input_preview' => substr(file_get_contents('php://input'), 0, 4096)
+    ];
+    @file_put_contents($dbgPath, json_encode($dump, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n-----\n", FILE_APPEND | LOCK_EX);
+} catch (Throwable $e) {
+    // best effort logging
+    error_log('customer_dashboard_post_debug log error: ' . $e->getMessage());
+}
 
 // Merge JSON body into POST
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -200,6 +295,95 @@ try {
                 \App\Classes\Response::success('Vehicles listed', ['vehicles' => $vehicles]);
             } else {
                 echo json_encode(['success' => true, 'message' => 'Vehicles listed', 'data' => ['vehicles' => $vehicles]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
+            break;
+
+        case 'update_profile':
+            // Handle profile update including optional profile photo upload
+            $name = trim((string)($_POST['name'] ?? ''));
+            $surname = trim((string)($_POST['surname'] ?? ''));
+            $email = trim((string)($_POST['email'] ?? ''));
+            $phone = trim((string)($_POST['phone'] ?? ''));
+            $address = trim((string)($_POST['address'] ?? ''));
+
+            // Accept file under 'profile_photo' or fallback to first file
+            $uploaded = null;
+            if (!empty($_FILES['profile_photo']) && is_array($_FILES['profile_photo']) && ($_FILES['profile_photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $uploaded = $_FILES['profile_photo'];
+            } elseif (!empty($_FILES)) {
+                $first = reset($_FILES);
+                if (is_array($first) && ($first['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) $uploaded = $first;
+            }
+
+            $webPath = null;
+            if ($uploaded) {
+                $uploadDir = __DIR__ . '/../uploads/profiles/';
+                if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
+                $ext = pathinfo($uploaded['name'] ?? '', PATHINFO_EXTENSION);
+                $filename = 'profile_' . $user_id . '_' . time() . ($ext ? '.' . $ext : '');
+                $dest = $uploadDir . $filename;
+                if (is_uploaded_file($uploaded['tmp_name'])) {
+                    if (@move_uploaded_file($uploaded['tmp_name'], $dest)) {
+                        $webPath = '/backend/uploads/profiles/' . $filename;
+                    } else {
+                        error_log('profile upload move failed for user ' . $user_id);
+                    }
+                }
+            }
+
+            // Persist profile info using PDO or mysqli fallback
+            try {
+                if ($dbConn instanceof PDO) {
+                    // Update users table
+                    $stmt = $dbConn->prepare('UPDATE users SET name = :name, phone = :phone, email = :email WHERE id = :id');
+                    $stmt->execute([':name' => $name, ':phone' => $phone, ':email' => $email, ':id' => $user_id]);
+
+                    // Upsert profile details
+                    $dbConn->exec("CREATE TABLE IF NOT EXISTS user_profiles (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        user_id INT NOT NULL UNIQUE,
+                        profile_image VARCHAR(255),
+                        address TEXT,
+                        preferences JSON,
+                        last_updated DATETIME
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+                    $prefs = json_encode([]);
+                    $stmt = $dbConn->prepare('INSERT INTO user_profiles (user_id, profile_image, address, preferences, last_updated) VALUES (:uid, :img, :addr, :prefs, NOW()) ON DUPLICATE KEY UPDATE profile_image = VALUES(profile_image), address = VALUES(address), preferences = VALUES(preferences), last_updated = NOW()');
+                    $stmt->execute([':uid' => $user_id, ':img' => $webPath, ':addr' => $address, ':prefs' => $prefs]);
+                } else {
+                    // assume mysqli-like
+                    if (!class_exists('ProfileManager')) {
+                        require_once __DIR__ . '/../includes/profile_manager.php';
+                    }
+                    // If $dbConn is mysqli connection, use ProfileManager; otherwise, try getDBConnection()
+                    $mmConn = $dbConn;
+                    if (!($mmConn instanceof mysqli) && function_exists('getDBConnection')) $mmConn = getDBConnection();
+                    if ($mmConn instanceof mysqli) {
+                        $pm = new ProfileManager($mmConn);
+                        $pm->updateProfile($user_id, ['name' => $name, 'phone' => $phone, 'address' => $address, 'preferences' => []]);
+                        if ($webPath) {
+                            $stmt = $mmConn->prepare('UPDATE users SET email = ? WHERE id = ?');
+                            $stmt->bind_param('si', $email, $user_id);
+                            $stmt->execute();
+                        }
+                        // store profile image separately
+                        if ($webPath) {
+                            $u = $mmConn->prepare('INSERT INTO user_profiles (user_id, profile_image, address, preferences, last_updated) VALUES (?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE profile_image = VALUES(profile_image), address = VALUES(address), preferences = VALUES(preferences), last_updated = NOW()');
+                            $prefs = json_encode([]);
+                            $u->bind_param('isss', $user_id, $webPath, $address, $prefs);
+                            $u->execute();
+                        }
+                    } else {
+                        throw new RuntimeException('No DB connection available for profile update');
+                    }
+                }
+
+                // Success response
+                echo json_encode(['success' => true, 'message' => 'Profile updated', 'data' => ['image' => $webPath ?? null]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            } catch (Throwable $e) {
+                error_log('profile update error: ' . $e->getMessage());
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Profile update failed']);
             }
             break;
 

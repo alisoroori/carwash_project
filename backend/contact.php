@@ -1,10 +1,23 @@
 <?php
+/**
+ * Contact Page - CarWash
+ * Uses standard header similar to login page
+ */
+
 // Set page-specific variables
 $page_title = 'İletişim - CarWash';
 $current_page = 'contact';
+$is_dashboard = false; // This is not a dashboard page, it's a standard page
 
-// Include header
-include 'includes/header.php';
+// Build navigation URLs (relative paths from backend/)
+$home_url = './index.php';
+$about_url = './about.php';
+$contact_url = './contact.php';
+$login_url = './auth/login.php';
+$register_url = './auth/register.php';
+
+// Include standard header from the correct path
+include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Main Content -->
@@ -237,4 +250,7 @@ include 'includes/header.php';
   </div>
 </main>
 
-<?php include 'includes/footer.php'; ?>
+<?php 
+// Include footer
+include __DIR__ . '/includes/footer.php'; 
+?>

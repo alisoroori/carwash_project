@@ -1,4 +1,208 @@
+// ...existing code...
+/* Helper: safely parse JSON, return null on failure */
+async function safeJson(response) {
+    try {
+        // Prefer response.json() but guard against invalid JSON or empty bodies
+        if (!response) return null;
+        // If response has no content (204), return null
+        const contentType = response.headers && response.headers.get ? response.headers.get('Content-Type') : '';
+        if (response.status === 204) return null;
+        if (contentType && contentType.indexOf('application/json') === -1) {
+            // still attempt parse, but guard
+            try { return await response.json(); } catch (_) { return null; }
+        }
+        return await response.json();
+    } catch (err) {
+        return null;
+    }
+}
+// ...existing code...
+
+/* Generic submit handler helper
+   - formElement: HTMLFormElement
+*/
+async function handleFormSubmission(formElement, options = {}) {
+    if (!formElement || !(formElement instanceof HTMLFormElement)) return;
+
+    formElement.addEventListener('submit', async function (ev) {
+        ev.preventDefault();
+
+        // Find the submit button to disable (first button[type=submit] or input[type=submit])
+        const submitBtn = formElement.querySelector('button[type="submit"], input[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.setAttribute('data-cw-disabled', '1');
+            submitBtn.classList && submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        }
+
+        const submitUrl = options.url || formElement.action || window.location.href;
+        const method = (formElement.method || 'POST').toUpperCase();
+
+        const fd = new FormData(formElement);
+
+        // Ensure CSRF token is attached when available
+        try {
+            const token = window.CONFIG?.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content;
+            if (token && !fd.has('csrf_token')) fd.append('csrf_token', token);
+        } catch (e) { /* silent */ }
+
+        let fetchOptions = {
+            method,
+            body: fd,
+            credentials: 'same-origin'
+        };
+
+        if (typeof options.onBeforeFetch === 'function') {
+            try {
+                const custom = await options.onBeforeFetch({ form: formElement, fetchOptions, formData: fd });
+                if (custom && typeof custom === 'object') {
+                    fetchOptions = Object.assign(fetchOptions, custom);
+                }
+            } catch (e) {
+                console.warn('onBeforeFetch threw:', e);
+            }
+        }
+
+        let response;
+        try {
+            response = await fetch(submitUrl, fetchOptions);
+        } catch (networkError) {
+            console.error('Network error during form submission:', networkError);
+            window.showNotification('Network error: failed to reach server', 'error');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.removeAttribute('data-cw-disabled');
+                submitBtn.classList && submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+            if (typeof options.onError === 'function') {
+                options.onError('Network error', null, formElement);
+            }
+            return;
+        }
+
+        // Use safeJson and check response.ok
+        const data = await safeJson(response);
+
+        if (!response.ok) {
+            let message = 'Server error';
+            if (data && (data.error || data.message)) message = data.error || data.message;
+            else if (response.statusText) message = `${response.status} ${response.statusText}`;
+            window.showNotification(message, 'error');
+
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.removeAttribute('data-cw-disabled');
+                submitBtn.classList && submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+            if (typeof options.onError === 'function') {
+                options.onError(message, data, formElement);
+            }
+            return;
+        }
+
+        if (data && (data.success === true || data.success === '1' || data.success === 1)) {
+            window.showNotification(data.message || data.success_message || 'Operation completed', 'success');
+
+            try { formElement.reset(); } catch (e) { /* ignore */ }
+
+            if (options.closeSelector) {
+                const container = document.querySelector(options.closeSelector);
+                if (container) {
+                    if (container.classList) container.classList.add('hidden');
+                    container.style.display = 'none';
+                }
+            }
+
+            if (typeof options.onSuccess === 'function') {
+                try { options.onSuccess(data, formElement); } catch (e) { console.warn('onSuccess error', e); }
+            }
+
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else if (data.reload) {
+                window.location.reload();
+            }
+        } else {
+            let message = 'Failed to submit form';
+            if (data && (data.error || data.message)) message = data.error || data.message;
+            window.showNotification(message, 'error');
+
+            if (typeof options.onError === 'function') {
+                options.onError(message, data, formElement);
+            }
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.removeAttribute('data-cw-disabled');
+            submitBtn.classList && submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+        }
+    });
+}
+// ...existing code...// ...existing code...
+
+// Add safeJson helper (same behavior as dashboard.js)
+async function safeJson(response) {
+    try {
+        if (!response) return null;
+        if (response.status === 204) return null;
+        const contentType = response.headers && response.headers.get ? response.headers.get('Content-Type') : '';
+        if (contentType && contentType.indexOf('application/json') === -1) {
+            try { return await response.json(); } catch (_) { return null; }
+        }
+        return await response.json();
+    } catch (err) {
+        return null;
+    }
+}
+
+// ...existing code...
+
 class ReviewComponent {
+    /*...*/
+    setupReviewForm() {
+        const form = this.container.querySelector('.review-form');
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const rating = formData.get('rating');
+            const comment = formData.get('comment');
+
+            try {
+                const response = await fetch('/carwash_project/backend/api/reviews/submit_review.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                });
+
+                // Use safeJson and verify HTTP OK
+                const data = await safeJson(response);
+                if (!response.ok) {
+                    console.warn('[ReviewForms] Submission failed HTTP:', response.status, data);
+                    alert(data?.message || `Server error: ${response.status}`);
+                    return;
+                }
+
+                if (data && data.success) {
+                    await this.loadReviews();
+                    form.reset();
+                } else {
+                    alert(data?.message || data?.error || 'Değerlendirme gönderilemedi');
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Sistem hatası');
+            }
+        });
+    }
+    /*...*/
+}
+
+// ...existing code...class ReviewComponent {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         this.carwashId = this.container.dataset.carwashId;

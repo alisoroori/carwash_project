@@ -1,25 +1,3 @@
-/* Refactored Customer Dashboard JS
-   - Improved form submission handling for profile and review forms
-   - Added robust response validation (response.ok, JSON parsing guard)
-   - Disabled submit button during submission to prevent duplicate posts
-   - Added improved success/error notification UI
-   - Automatically resets and closes form/modal on success
-   - Inline comments document weaknesses, potential bugs, and fixes
-*/
-
-/*
-  Notes / Findings (structured feedback):
-  - Weakness: previous handlers assumed response.json() always succeeds; non-JSON responses crash code.
-    Fix: check response.ok and attempt to parse JSON inside try/catch; fallback to generic error.
-  - Weakness: submit button wasn't disabled, risking duplicate submissions on slow networks.
-    Fix: disable button during request and re-enable on completion.
-  - UX: notifications were ephemeral but could stack or not be accessible. Use a single container and ARIA role.
-    Fix: create a notification area and limit simultaneous notifications; ensure accessible text.
-  - UX: after successful submission modal is hidden and location.reload() used in one handler; reload is heavy-handed.
-    Fix: reset form and close modal; only reload if explicitly required by caller. For review submission we will close modal and optionally navigate if backend suggests.
-  - Potential bug: direct DOM queries may return null (page variations). Defensive checks added.
-  - Security: ensure CSRF tokens included by the form elements themselves; handler will not mutate CSRF behavior.
-*/
 
 /* Utility: centralized notification container for consistent UX */
 (function () {
@@ -145,12 +123,6 @@ async function handleFormSubmission(formElement, options = {}) {
 
         // Build FormData
         const fd = new FormData(formElement);
-        // Ensure CSRF token is attached when available (from window.CONFIG or meta tag)
-        try {
-            fd.append('csrf_token', window.CONFIG?.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content);
-        } catch (e) {
-            // Optional chaining may not be supported in some older environments; fail silently
-        }
 
         // Note: If backend expects JSON, callers should override and stringify / set headers.
         let fetchOptions = {
@@ -274,12 +246,7 @@ async function handleFormSubmission(formElement, options = {}) {
 
 /* -------------------------
    Initialize known dashboard forms
-   -------------------------
-   We attach behavior to:
-   - profile form with id "profileForm"
-   - review form with id "reviewForm" or forms opened via modal buttons (class .btn-review)
-   The previous code assumed specific endpoints and used location.reload in some places.
-   New behavior: show notification, reset/close form, call optional redirect only if backend asks.
+   ------------------------- 
 */
 document.addEventListener('DOMContentLoaded', function () {
     // Profile update form
@@ -289,20 +256,13 @@ document.addEventListener('DOMContentLoaded', function () {
             // backend endpoint already in form.action, so no url override
             onSuccess: (data, form) => {
                 // Structured feedback: success -> use friendly message
-                // If backend returns updated fields, you may update DOM here instead of reloading.
-                // E.g., refresh displayed name/email if present in response.
             },
             onError: (message, data, form) => {
-                // Could attach inline form errors if backend returns field-level errors
                 if (data && data.errors && typeof data.errors === 'object') {
-                    // Attempt to show first field error inline (example)
                     const firstField = Object.keys(data.errors)[0];
                     if (firstField) {
                         const input = form.querySelector(`[name="${firstField}"]`);
-                        if (input) {
-                            // Optionally mark invalid (ARIA)
-                            input.setAttribute('aria-invalid', 'true');
-                        }
+                        if (input) input.setAttribute('aria-invalid', 'true');
                     }
                 }
             }
@@ -313,35 +273,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const reviewForm = document.getElementById('reviewForm');
     if (reviewForm) {
         handleFormSubmission(reviewForm, {
-            // Some review endpoints used different URLs in repo; rely on form.action
-            // The previous code used location.reload; prefer closing modal + notification.
             closeSelector: '#reviewModal',
             onSuccess: (data, form) => {
-                // If backend indicates to navigate to review listing, it can set redirect
-                // If not, optionally reload reviews section via a custom loader (not implemented here).
+                // optionally refresh a review list or call a callback
             }
         });
     }
 
-    // If review modal opens dynamically per .btn-review, we still ensure any new form inserted is wired:
-    // Re-scan for dynamically inserted forms and attach handler:
+    // Observe dynamic insertion of review forms and auto-wire them
     const observer = new MutationObserver((mutations) => {
         for (const m of mutations) {
             for (const node of Array.from(m.addedNodes)) {
                 if (!(node instanceof Element)) continue;
-                // attach to reviewForm if newly added
                 const newReviewForm = node.querySelector ? node.querySelector('#reviewForm') : null;
                 if (newReviewForm) {
-                    handleFormSubmission(newReviewForm, {
-                        closeSelector: '#reviewModal'
-                    });
+                    handleFormSubmission(newReviewForm, { closeSelector: '#reviewModal' });
                 }
             }
         }
     });
     observer.observe(document.body, { childList: true, subtree: true });
-
-    // For other inline forms in the dashboard (booking, vehicle, etc.), the same helper can be used by other scripts:
-    // Example usage elsewhere:
-    // handleFormSubmission(document.getElementById('bookingForm'), { onSuccess: ..., closeSelector: '#bookingModal' });
 });

@@ -1,4 +1,22 @@
 {
     "CodeGPT.apiKey": "CodeGPT Plus Beta",
-    "tabby.config.telemetry": false
+    "tabby.config.telemetry": false,
+    "css.validate": false,
+    "less.validate": false,
+    "scss.validate": false,
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+    "editor.quickSuggestions": {
+        "strings": true
+    },
+    "tailwindCSS.emmetCompletions": true,
+    "tailwindCSS.includeLanguages": {
+        "html": "html",
+        "javascript": "javascript",
+        "php": "html"
+    },
+    "tailwindCSS.experimental.classRegex": [
+        ["class[:]\\s*['\"]([^'\"]*)['\"]", "([a-zA-Z0-9\\-:]+)"]
+    ]
 }
