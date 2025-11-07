@@ -323,6 +323,61 @@ $current_page = 'dashboard';
         .bg-gradient-primary {
             background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
         }
+        
+        /* Layout Fixes for Sidebar & Content */
+        #customer-sidebar {
+            /* Sidebar spans from header to footer */
+        }
+        
+        @media (min-width: 1024px) {
+            #customer-sidebar {
+                /* Sticky position on desktop - fills container height naturally */
+                position: sticky !important;
+                top: 0; /* Top of wrapper (wrapper already has pt-16) */
+                height: 100%; /* Full height of flex container */
+                min-height: calc(100vh - 4rem); /* At least viewport minus header */
+                overflow: hidden;
+            }
+        }
+        
+        @media (max-width: 1023px) {
+            #customer-sidebar {
+                /* Fixed position on mobile - below header */
+                position: fixed !important;
+                top: 4rem;
+                bottom: 0;
+                height: calc(100vh - 4rem);
+            }
+        }
+        
+        /* Hide scrollbar but keep scroll functionality if needed */
+        #customer-sidebar::-webkit-scrollbar {
+            width: 0;
+            display: none;
+        }
+        
+        #customer-sidebar {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        /* Smooth scrollbar for main content only */
+        #main-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #main-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        #main-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        #main-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 
@@ -431,8 +486,8 @@ $current_page = 'dashboard';
 </header>
 
 <!-- ================================
-     LAYOUT WRAPPER - Sidebar Stretches from Header to Footer
-     نوار کناری از زیر هدر تا بالای فوتر کشیده می‌شود
+     LAYOUT WRAPPER - Proper Flex Layout Structure
+     Sidebar: Fixed between Header and Footer (no internal scroll)
      ================================ -->
 
 <!-- Mobile Overlay (backdrop when sidebar is open on mobile, closes sidebar on click) -->
@@ -455,22 +510,25 @@ $current_page = 'dashboard';
     @keydown.space.prevent="mobileMenuOpen = false"
 ></div>
 
-<!-- Main Container: Flex Layout with Sidebar + Content (Same Height) -->
-<div class="flex flex-1 w-full" style="padding-top: 64px;">
+<!-- Main Content Wrapper: Takes flex-1 to push footer down, pt-16 for fixed header -->
+<div class="flex flex-1 pt-16">
     
     <!-- ================================
-         SIDEBAR - Hidden by default on mobile, slides in with overlay
-         نوار کناری: پنهان در موبایل، با کلیک اورلی بسته می‌شود
+         SIDEBAR - Sticky from header to footer
+         Desktop: Sticky position, fills available height naturally
+         Mobile: Fixed position with overlay, full height minus header
+         NO internal scroll - overflow-hidden
          ================================ -->
     <aside 
         id="customer-sidebar"
         class="w-64 bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
-               fixed lg:relative top-16 lg:top-0 left-0 
-               h-[calc(100vh-4rem)] lg:h-auto lg:flex-shrink-0
+               fixed top-16 left-0 bottom-0
+               lg:sticky lg:top-0 lg:bottom-auto
+               lg:h-full lg:min-h-[calc(100vh-4rem)] lg:self-start
                transform transition-transform duration-300 ease-in-out
                -translate-x-full lg:translate-x-0
                flex flex-col overflow-hidden
-               z-50 lg:z-40"
+               z-40"
         :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
         x-transition:enter="transition-transform ease-out duration-300"
         x-transition:enter-start="transform -translate-x-full"
@@ -481,23 +539,21 @@ $current_page = 'dashboard';
         role="navigation"
         aria-label="Main navigation"
         :aria-hidden="!mobileMenuOpen && window.innerWidth < 1024"
-        style="overflow-y: hidden !important; overflow-x: hidden !important;"
     >
-        <!-- User Profile Section (Fixed at top, compact) -->
-        <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30 overflow-hidden">
+        <!-- User Profile Section (Compact, no scroll) -->
+        <div class="flex-shrink-0 p-3 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30">
             <div class="text-center">
-                <div class="w-14 h-14 mx-auto mb-2 bg-white bg-opacity-20 rounded-full flex items-center justify-center shadow-lg ring-2 ring-white ring-opacity-10">
-                    <i class="fas fa-user text-xl text-white"></i>
+                <div class="w-12 h-12 mx-auto mb-1.5 bg-white bg-opacity-20 rounded-full flex items-center justify-center shadow-lg ring-2 ring-white ring-opacity-10">
+                    <i class="fas fa-user text-lg text-white"></i>
                 </div>
                 <h3 class="text-xs font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
-                <p class="text-[10px] text-blue-100 opacity-90 truncate mt-0.5"><?php echo htmlspecialchars($user_email); ?></p>
+                <p class="text-[10px] text-blue-100 opacity-90 truncate"><?php echo htmlspecialchars($user_email); ?></p>
             </div>
         </div>
         
-        <!-- Navigation Menu (Compact spacing, no scroll, all items visible) -->
-        <nav class="flex-1 px-2.5 py-2 space-y-0.5 flex flex-col justify-start overflow-hidden" 
+        <!-- Navigation Menu (Compact, no internal scroll) -->
+        <nav class="flex-1 px-2 py-2 space-y-0.5 flex flex-col overflow-hidden" 
              aria-label="Primary navigation"
-             style="overflow-y: hidden !important;"
         >
             
             <!-- Dashboard -->
@@ -592,13 +648,13 @@ $current_page = 'dashboard';
             </a>
         </nav>
         
-        <!-- Settings (Fixed at bottom, compact) -->
-        <div class="flex-shrink-0 p-2.5 border-t border-white border-opacity-20 bg-blue-800 bg-opacity-20 overflow-hidden">
+        <!-- Settings (Fixed at bottom, ultra-compact) -->
+        <div class="flex-shrink-0 p-2 border-t border-white border-opacity-20 bg-blue-800 bg-opacity-20">
             <a 
                 href="#settings" 
                 @click="currentSection = 'settings'; mobileMenuOpen = false"
                 :class="currentSection === 'settings' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
-                class="flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
                 tabindex="0"
             >
@@ -609,11 +665,12 @@ $current_page = 'dashboard';
     </aside>
 
     <!-- ================================
-         MAIN CONTENT AREA - Grows to fill space beside sidebar, matches sidebar height
-         محتوای اصلی در کنار ساید بار با ارتفاع یکسان
+         MAIN CONTENT AREA - Takes remaining space beside sidebar
+         Desktop: Sits next to sidebar with flex-1, no extra padding needed (wrapper has pt-16)
+         Mobile: Takes full width, no extra padding needed (wrapper has pt-16)
          ================================ -->
-    <main class="flex-1 p-6 lg:p-8 bg-gray-50 w-full lg:w-auto" id="main-content">
-        <div class="max-w-7xl mx-auto">
+    <main class="flex-1 bg-gray-50 overflow-y-auto" id="main-content">
+        <div class="p-6 lg:p-8 max-w-7xl mx-auto">
         
         <!-- ========== DASHBOARD SECTION ========== -->
         <section x-show="currentSection === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6">
@@ -1260,10 +1317,13 @@ $current_page = 'dashboard';
         
         <!-- Other sections (reservations, carWashSelection, history) would follow the same pattern -->
         
-    </div>
-</main>
+        </div> <!-- END: Max-width container -->
+    </main>
 
 </div> <!-- END: Flex Container (Sidebar + Content) -->
+
+<!-- Footer -->
+<?php include __DIR__ . '/../includes/footer.php'; ?>
 
 <!-- Vehicle Manager JavaScript -->
 <script>
@@ -1631,61 +1691,13 @@ console.log('✅ Customer Dashboard loaded successfully');
 })();
 
 // ================================
-// Dynamic Content & Layout Manager
-// Footer Fix: Sidebar ends above footer, content flows naturally
+// Dynamic Content Observer
+// Ensures proper rendering of dynamic content
 // ================================
 (function() {
     'use strict';
     
-    /**
-     * Ensure content renders beside sidebar (not under it)
-     */
-    function ensureProperLayout() {
-        const mainContent = document.getElementById('main-content');
-        
-        if (!mainContent) return;
-        
-        // Force flex layout parent to maintain structure
-        const parent = mainContent.parentElement;
-        if (parent && !parent.classList.contains('flex')) {
-            parent.classList.add('flex', 'flex-1', 'w-full');
-        }
-    }
-    
-    // Initialize on DOM ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            ensureProperLayout();
-        });
-    } else {
-        ensureProperLayout();
-    }
-    
-    // Watch for dynamic content changes (vehicles, reservations, etc.)
-    if (typeof MutationObserver !== 'undefined') {
-        const observer = new MutationObserver(function(mutations) {
-            // Check if content actually changed (not just attributes)
-            const hasContentChange = mutations.some(mutation => 
-                mutation.type === 'childList' && 
-                (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)
-            );
-            
-            if (hasContentChange) {
-                ensureProperLayout();
-            }
-        });
-        
-        const mainContent = document.getElementById('main-content');
-        if (mainContent) {
-            observer.observe(mainContent, { 
-                childList: true, 
-                subtree: true,
-                attributes: false // Ignore attribute changes to reduce overhead
-            });
-        }
-    }
-    
-    console.log('✅ Dynamic content & layout manager initialized (footer-optimized)');
+    console.log('✅ Dashboard layout initialized with proper flex structure');
     
 })();
 
@@ -1797,8 +1809,6 @@ console.log('✅ Customer Dashboard loaded successfully');
     
 })();
 </script>
-
-<?php include __DIR__ . '/../includes/footer.php'; ?>
 
 </body>
 </html>
