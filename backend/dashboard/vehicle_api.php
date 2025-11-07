@@ -1,4 +1,11 @@
 <?php
+// Start session FIRST (before any includes that might also try to start it)
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start(); // Suppress warnings
+}
+
+// Start output buffering to catch any unexpected output from includes
+ob_start();
 
 // Vehicle API: embedded HTML/JS removed because this is a backend JSON API endpoint.
 // JavaScript belongs in frontend assets; keep this file as pure PHP to avoid parse errors.
@@ -11,21 +18,14 @@ use App\Classes\Logger;
 use App\Classes\Response;
 use App\Classes\FileUploader;
 
-// Start session (Session wrapper if present)
+// Re-ensure session with Session wrapper if present
 if (class_exists(Session::class) && method_exists(Session::class, 'start')) {
-    Session::start();
-} else {
-    if (session_status() === PHP_SESSION_NONE) session_start();
+    Session::start(); // This should not double-start if session already exists
 }
 
-// Ensure JSON content-type early
+// Discard any output from includes and set JSON header
+ob_clean();
 header('Content-Type: application/json; charset=utf-8');
-
-// Start output buffering to catch accidental HTML/warnings
-if (!defined('VEHICLE_API_OB_STARTED')) {
-    @ob_start();
-    define('VEHICLE_API_OB_STARTED', true);
-}
 
 // Helper: unified JSON responder - normalizes response shape and handles any unexpected pre-output
 function send_json_response(array $payload, int $httpCode = 200): void {
@@ -76,11 +76,30 @@ function send_json_response(array $payload, int $httpCode = 200): void {
 }
 
 // Require authenticated user (simplified to avoid HTML output from Auth class)
-// Quick health-check for GET requests so tooling and smoke-tests can verify the route
-if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
+// Special endpoint for session check (before health-check)
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'check-session') {
+    $sessionData = [
+        'authenticated' => !empty($_SESSION['user_id']),
+        'user_id' => $_SESSION['user_id'] ?? null,
+        'user_name' => $_SESSION['user_name'] ?? null,
+        'user_email' => $_SESSION['user_email'] ?? null,
+        'role' => $_SESSION['role'] ?? null
+    ];
+    
+    if (!headers_sent()) {
+        http_response_code(200);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    echo json_encode(['status' => 'ok', 'session' => $sessionData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+// Quick health-check for GET requests WITHOUT action parameter (so tooling and smoke-tests can verify the route)
+// Allow actual API calls with action parameter to proceed
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'GET' && empty($_GET['action'])) {
     $logDir = __DIR__ . '/../../.logs';
     if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
-    @file_put_contents($logDir . '/vehicle_api_access.log', "[" . date('c') . "] GET from " . ($_SERVER['REMOTE_ADDR'] ?? 'cli') . "\n", FILE_APPEND | LOCK_EX);
+    @file_put_contents($logDir . '/vehicle_api_access.log', "[" . date('c') . "] GET health-check from " . ($_SERVER['REMOTE_ADDR'] ?? 'cli') . "\n", FILE_APPEND | LOCK_EX);
 
     if (!headers_sent()) {
         http_response_code(200);
@@ -165,10 +184,12 @@ function handle_vehicle_image_upload(array $file, int $userId): ?array {
 
     // Determine final filename and public web path (relative to project webroot)
     $filename = basename($result['filepath']);
-    $web_path = '/backend/uploads/vehicles/' . $filename; // stored in DB as requested
+    
+    // Store with /carwash_project prefix for consistency (works on localhost and in subdirectory deployments)
+    $web_path = '/carwash_project/backend/uploads/vehicles/' . $filename;
 
     // Filesystem path where the file should be accessible by the webserver
-    $server_path = rtrim($_SERVER['DOCUMENT_ROOT'], '\/') . '/backend/uploads/vehicles/' . $filename;
+    $server_path = rtrim($_SERVER['DOCUMENT_ROOT'], '\/') . '/carwash_project/backend/uploads/vehicles/' . $filename;
 
     // Log final server path for diagnostics
     if (class_exists(Logger::class) && method_exists(Logger::class, 'info')) {
@@ -362,8 +383,20 @@ try {
                     if (empty($imagePath)) {
                         // Use default image
                         $row['image_path'] = '/carwash_project/frontend/assets/images/default-car.png';
-                    } elseif (!preg_match('#^(https?://|/)#', $imagePath)) {
-                        // Relative path without leading slash - add carwash_project prefix
+                    } elseif (preg_match('#^https?://#', $imagePath)) {
+                        // Absolute URL - leave as is
+                        // Already has http:// or https://
+                    } elseif (strpos($imagePath, '/carwash_project/') === 0) {
+                        // Already has carwash_project prefix - leave as is
+                        // Path like: /carwash_project/backend/uploads/vehicles/file.jpg
+                    } elseif (strpos($imagePath, '/backend/') === 0 || strpos($imagePath, 'backend/') === 0) {
+                        // Path starts with /backend/ or backend/ - add carwash_project prefix
+                        $row['image_path'] = '/carwash_project' . (strpos($imagePath, '/') === 0 ? '' : '/') . $imagePath;
+                    } elseif (strpos($imagePath, '/') === 0) {
+                        // Absolute path starting with / but not /carwash_project - add prefix
+                        $row['image_path'] = '/carwash_project' . $imagePath;
+                    } else {
+                        // Relative path without leading slash - add full prefix
                         $row['image_path'] = '/carwash_project/' . ltrim($imagePath, '/');
                     }
                     

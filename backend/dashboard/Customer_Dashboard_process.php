@@ -324,7 +324,8 @@ try {
                 $dest = $uploadDir . $filename;
                 if (is_uploaded_file($uploaded['tmp_name'])) {
                     if (@move_uploaded_file($uploaded['tmp_name'], $dest)) {
-                        $webPath = '/backend/uploads/profiles/' . $filename;
+                        // Store with /carwash_project prefix for consistency
+                        $webPath = '/carwash_project/backend/uploads/profiles/' . $filename;
                     } else {
                         error_log('profile upload move failed for user ' . $user_id);
                     }
