@@ -334,8 +334,8 @@ $current_page = 'dashboard';
                 /* Sticky position on desktop - fills container height naturally */
                 position: sticky !important;
                 top: 0; /* Top of wrapper (wrapper already has pt-16) */
-                height: 100%; /* Full height of flex container */
-                min-height: calc(100vh - 4rem); /* At least viewport minus header */
+                height: auto; /* Auto height to fill flex container */
+                align-self: stretch; /* Stretch to container height */
                 overflow: hidden;
             }
         }
@@ -523,8 +523,8 @@ $current_page = 'dashboard';
         id="customer-sidebar"
         class="w-64 bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
                fixed top-16 left-0 bottom-0
-               lg:sticky lg:top-0 lg:bottom-auto
-               lg:h-full lg:min-h-[calc(100vh-4rem)] lg:self-start
+               lg:sticky lg:top-0
+               lg:self-stretch
                transform transition-transform duration-300 ease-in-out
                -translate-x-full lg:translate-x-0
                flex flex-col overflow-hidden
