@@ -1,146 +1,56 @@
 <?php
-// Start output buffering early to prevent "headers already sent" when later includes call session_start()
-if (!defined('CW_OB_STARTED')) {
-    @ob_start();
-    define('CW_OB_STARTED', true);
+// Backend API endpoint - outputs JSON only
+error_reporting(E_ALL);
+ini_set('display_errors', '1'); // Enable to see errors during development
+ini_set('log_errors', '1');
+
+// Start output buffering FIRST to catch any stray output
+ob_start();
+
+// Try to load bootstrap
+try {
+    require_once __DIR__ . '/../includes/bootstrap.php';
+} catch (Throwable $e) {
+    ob_end_clean();
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Bootstrap error: ' . $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
+    exit;
 }
-?>
-<?php
-// ...existing code...
-// Replace the inline vehicle form submit handler section with the snippet below
-// ...existing code...
-?>
-<script>
-    (function(){
-        // Robust vehicle form handler: ensure we reference the real form element and form controls
-        const vehicleForm = document.getElementById('vehicleFormInline');
-        if (!vehicleForm) return;
-
-        async function getActionValue() {
-            // Prefer an explicit input named 'action' or 'formAction' (id)
-            const byName = vehicleForm.querySelector('[name="action"]');
-            if (byName && byName.value) return byName.value;
-            const byId = document.getElementById('formAction');
-            if (byId && byId.value) return byId.value;
-            // Fallback: use data-action on form or default to 'create'
-            return vehicleForm.dataset.action || 'create';
-        }
-
-        vehicleForm.addEventListener('submit', async function(ev){
-            ev.preventDefault();
-
-            const action = (await getActionValue()) === 'create' ? 'create' : 'update';
-
-            // Build FormData from the real form element so file inputs are included
-            let fd = new FormData(vehicleForm);
-            // Ensure action field exists and matches backend expectations
-            fd.set('action', action);
-
-            // Ensure backend expects id under 'id' (vehicle_api.php looks for 'id')
-            const vidEl = vehicleForm.querySelector('#formVehicleId') || vehicleForm.querySelector('[name="id"]');
-            const vid = vidEl ? vidEl.value : '';
-            if (action !== 'create' && vid) fd.set('id', vid);
-
-            // Ensure uploaded file input name matches backend: 'vehicle_image'
-            // If the file input exists but with a different name, try to copy it
-            try {
-                const fileInput = vehicleForm.querySelector('input[type="file"]');
-                if (fileInput && fileInput.name && fileInput.name !== 'vehicle_image' && fileInput.files && fileInput.files.length) {
-                    // append the first file under the expected key as well
-                    fd.set('vehicle_image', fileInput.files[0]);
-                }
-            } catch (e) {
-                // ignore
-            }
-
-            // Derive api URL relative to current document so it works in different base paths
-            const apiUrl = new URL('./vehicle_api.php', window.location.href).toString();
-
-            // Add CSRF token if available (overwrite or set)
-            try {
-                const csrf = await fetchCsrfToken();
-                if (csrf) fd.set('csrf_token', csrf);
-            } catch (e) {
-                // ignore csrf fetch failure and let backend validate if possible
-            }
-
-            try {
-                let attemptedRetry = false;
-                const doRequest = async () => {
-                    const res = await fetch(apiUrl, { method:'POST', credentials:'same-origin', body: fd });
-                    const raw = await res.text();
-                    let json = null;
-                    try { json = raw ? JSON.parse(raw) : null; } catch(e){ showMessage('Sunucudan beklenmeyen cevap alındı', 'error'); return { ok: false, parsed: null } }
-                    return { ok: res.ok, parsed: json };
-                };
-
-                let result = await doRequest();
-
-                // If server explicitly says Unknown action, attempt one retry with corrected action name
-                if (result.parsed && (result.parsed.message === 'Unknown action' || result.parsed.error === 'Unknown action') && !attemptedRetry) {
-                    attemptedRetry = true;
-                    const corrected = (vid && String(vid).trim() !== '') ? 'update_vehicle' : 'add_vehicle';
-                    try {
-                        fd.set('action', corrected);
-                    } catch (e) {
-                        // Some browsers may not allow reusing FormData.set in certain contexts - rebuild FormData
-                        const rebuilt = new FormData(vehicleForm);
-                        rebuilt.set('action', corrected);
-                        // copy vehicle_image if present
-                        try {
-                            const fileInput = vehicleForm.querySelector('input[type="file"]');
-                            if (fileInput && fileInput.files && fileInput.files.length) rebuilt.set('vehicle_image', fileInput.files[0]);
-                        } catch (ee) {}
-                        // replace fd reference
-                        fd = rebuilt;
-                    }
-                    // retry request once
-                    result = await doRequest();
-                }
-
-                const json = result.parsed;
-                if (json && (json.status === 'success' || json.success === true)) {
-                    showMessage('İşlem başarılı');
-
-                    // Close edit/create panel if present
-                    const formPanel = document.getElementById('vehicleFormPanel') || document.querySelector('.vehicle-form-panel');
-                    if (formPanel) formPanel.style.display = 'none';
-
-                    // If this was an edit/update, refresh the whole page so UI updates reliably.
-                    if (action === 'update') {
-                        setTimeout(() => { try { location.reload(); } catch(e){ if (typeof loadVehicles === 'function') loadVehicles(); } }, 300);
-                    } else {
-                        if (typeof loadVehicles === 'function') loadVehicles();
-                    }
-                } else {
-                    showMessage((json && (json.message||json.error)) ? (json.message||json.error) : 'İşlem başarısız', 'error');
-                }
-            } catch (e) {
-                console.error(e);
-                showMessage('İstek başarısız', 'error');
-            }
-        });
-    })();
-</script>
-<?php
-// ...existing code...?php
-require_once __DIR__ . '/../includes/bootstrap.php';
 
 use App\Classes\Auth;
 use App\Classes\Session;
 use App\Classes\Response;
 use App\Classes\Logger;
 
-if (class_exists(Session::class) && method_exists(Session::class, 'start')) {
-    Session::start();
-} else {
-    if (session_status() === PHP_SESSION_NONE) session_start();
+// Start session BEFORE setting JSON header
+try {
+    if (class_exists(Session::class) && method_exists(Session::class, 'start')) {
+        Session::start();
+    } else {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+    }
+} catch (Throwable $e) {
+    ob_end_clean();
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Session error: ' . $e->getMessage()
+    ]);
+    exit;
 }
+
+// NOW set JSON header (after session)
+header('Content-Type: application/json; charset=utf-8');
 
 // Expose a local $user_id convenience variable for handlers
 $user_id = (int)($_SESSION['user_id'] ?? 0);
-
-header('Content-Type: application/json; charset=utf-8');
 
 // --- DEBUG: log incoming POST and FILES for diagnosis of 400 Bad Request ---
 try {
@@ -176,18 +86,11 @@ if (in_array($method, ['POST', 'PUT', 'PATCH'], true) && stripos($contentType, '
 }
 
 // Simple auth check
-if (class_exists(Auth::class) && method_exists(Auth::class, 'isAuthenticated')) {
-    if (!Auth::isAuthenticated()) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
-        exit;
-    }
-} else {
-    if (empty($_SESSION['user_id'])) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
-        exit;
-    }
+if (empty($_SESSION['user_id'])) {
+    ob_end_clean();
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+    exit;
 }
 
 try {
@@ -237,7 +140,11 @@ try {
     }
 
 
-    $action = $_POST['action'] ?? '';
+    $action = $_POST['action'] ?? $_GET['action'] ?? '';
+    
+    // Log the action for debugging
+    error_log("Customer_Dashboard_process: action='$action', user_id=$user_id");
+    
     // We'll preserve reservation + vehicle listing handlers, but forward booking creation to the unified create endpoint
     switch ($action) {
         case 'fetch_reservations':
@@ -299,16 +206,52 @@ try {
             break;
 
         case 'update_profile':
+            // Ensure database connection is available
+            if (!$dbConn) {
+                ob_end_clean();
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Database connection not available'
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                exit;
+            }
+            
             // Handle profile update including optional profile photo upload
             $name = trim((string)($_POST['name'] ?? ''));
             $surname = trim((string)($_POST['surname'] ?? ''));
             $email = trim((string)($_POST['email'] ?? ''));
             $phone = trim((string)($_POST['phone'] ?? ''));
+            $home_phone = trim((string)($_POST['home_phone'] ?? ''));
+            $national_id = trim((string)($_POST['national_id'] ?? ''));
+            $driver_license = trim((string)($_POST['driver_license'] ?? ''));
             $address = trim((string)($_POST['address'] ?? ''));
+            $city = trim((string)($_POST['city'] ?? ''));
 
-            // Accept file under 'profile_photo' or fallback to first file
+            // Validation: Required fields
+            $errors = [];
+            if (empty($name)) $errors[] = 'Ad Soyad gereklidir';
+            if (empty($email)) $errors[] = 'E-posta gereklidir';
+            if (empty($home_phone)) $errors[] = 'Ev telefonu gereklidir';
+            if (empty($national_id)) $errors[] = 'T.C. Kimlik No gereklidir';
+            
+            // Validate National ID format (11 digits)
+            if (!empty($national_id) && !preg_match('/^[0-9]{11}$/', $national_id)) {
+                $errors[] = 'T.C. Kimlik No 11 haneli olmalıdır';
+            }
+            
+            if (!empty($errors)) {
+                ob_end_clean();
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => implode(', ', $errors)], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                exit;
+            }
+
+            // Accept file under 'profile_image' or 'profile_photo' or fallback to first file
             $uploaded = null;
-            if (!empty($_FILES['profile_photo']) && is_array($_FILES['profile_photo']) && ($_FILES['profile_photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            if (!empty($_FILES['profile_image']) && is_array($_FILES['profile_image']) && ($_FILES['profile_image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $uploaded = $_FILES['profile_image'];
+            } elseif (!empty($_FILES['profile_photo']) && is_array($_FILES['profile_photo']) && ($_FILES['profile_photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
                 $uploaded = $_FILES['profile_photo'];
             } elseif (!empty($_FILES)) {
                 $first = reset($_FILES);
@@ -317,12 +260,46 @@ try {
 
             $webPath = null;
             if ($uploaded) {
+                // Validate uploaded file
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+                $maxSize = 2 * 1024 * 1024; // 2MB
+                
+                if (!in_array($uploaded['type'], $allowedTypes)) {
+                    ob_end_clean();
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'message' => 'Geçersiz dosya türü. JPG, PNG veya WEBP yükleyin.'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    exit;
+                }
+                
+                if ($uploaded['size'] > $maxSize) {
+                    ob_end_clean();
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'message' => 'Dosya boyutu 2MB\'dan küçük olmalıdır.'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    exit;
+                }
+                
                 $uploadDir = __DIR__ . '/../uploads/profiles/';
                 if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
                 $ext = pathinfo($uploaded['name'] ?? '', PATHINFO_EXTENSION);
                 $filename = 'profile_' . $user_id . '_' . time() . ($ext ? '.' . $ext : '');
                 $dest = $uploadDir . $filename;
+                
                 if (is_uploaded_file($uploaded['tmp_name'])) {
+                    // Delete old profile image if exists
+                    try {
+                        if ($dbConn instanceof PDO) {
+                            $oldStmt = $dbConn->prepare('SELECT profile_image FROM users WHERE id = :id');
+                            $oldStmt->execute([':id' => $user_id]);
+                            $oldImage = $oldStmt->fetchColumn();
+                            if ($oldImage) {
+                                $oldPath = __DIR__ . '/../..' . str_replace('/carwash_project', '', $oldImage);
+                                if (file_exists($oldPath)) @unlink($oldPath);
+                            }
+                        }
+                    } catch (Exception $e) {
+                        error_log('Could not delete old profile image: ' . $e->getMessage());
+                    }
+                    
                     if (@move_uploaded_file($uploaded['tmp_name'], $dest)) {
                         // Store with /carwash_project prefix for consistency
                         $webPath = '/carwash_project/backend/uploads/profiles/' . $filename;
@@ -335,22 +312,107 @@ try {
             // Persist profile info using PDO or mysqli fallback
             try {
                 if ($dbConn instanceof PDO) {
-                    // Update users table
-                    $stmt = $dbConn->prepare('UPDATE users SET name = :name, phone = :phone, email = :email WHERE id = :id');
-                    $stmt->execute([':name' => $name, ':phone' => $phone, ':email' => $email, ':id' => $user_id]);
+                    // Check if new columns exist, add them if not
+                    try {
+                        $checkColumns = $dbConn->query("SHOW COLUMNS FROM users LIKE 'home_phone'");
+                        if ($checkColumns->rowCount() === 0) {
+                            // Add new columns
+                            $dbConn->exec("ALTER TABLE users 
+                                ADD COLUMN home_phone VARCHAR(20) DEFAULT NULL AFTER phone,
+                                ADD COLUMN national_id VARCHAR(20) DEFAULT NULL AFTER home_phone,
+                                ADD COLUMN driver_license VARCHAR(20) DEFAULT NULL AFTER national_id");
+                            error_log('Added new profile columns to users table');
+                        }
+                    } catch (Exception $e) {
+                        error_log('Column check/add error: ' . $e->getMessage());
+                    }
+                    
+                    // Update users table with all fields
+                    $updateFields = [
+                        'name = :name',
+                        'phone = :phone',
+                        'home_phone = :home_phone',
+                        'national_id = :national_id',
+                        'driver_license = :driver_license',
+                        'email = :email'
+                    ];
+                    
+                    $params = [
+                        ':name' => $name,
+                        ':phone' => $phone,
+                        ':home_phone' => $home_phone,
+                        ':national_id' => $national_id,
+                        ':driver_license' => $driver_license,
+                        ':email' => $email,
+                        ':id' => $user_id
+                    ];
+                    
+                    if ($webPath) {
+                        $updateFields[] = 'profile_image = :profile_image';
+                        $params[':profile_image'] = $webPath;
+                    }
+                    
+                    $sql = 'UPDATE users SET ' . implode(', ', $updateFields) . ' WHERE id = :id';
+                    $stmt = $dbConn->prepare($sql);
+                    $stmt->execute($params);
 
-                    // Upsert profile details
+                    // Ensure user_profiles table exists with proper schema
                     $dbConn->exec("CREATE TABLE IF NOT EXISTS user_profiles (
                         id INT PRIMARY KEY AUTO_INCREMENT,
                         user_id INT NOT NULL UNIQUE,
                         profile_image VARCHAR(255),
                         address TEXT,
+                        city VARCHAR(100),
                         preferences JSON,
-                        last_updated DATETIME
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+                    
+                    // Add updated_at column if it doesn't exist (for backward compatibility)
+                    try {
+                        $checkCol = $dbConn->query("SHOW COLUMNS FROM user_profiles LIKE 'updated_at'");
+                        if ($checkCol->rowCount() === 0) {
+                            $dbConn->exec("ALTER TABLE user_profiles ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+                        }
+                    } catch (Exception $e) {
+                        error_log('Could not add updated_at column: ' . $e->getMessage());
+                    }
+                    
+                    // Remove old last_updated column if it exists
+                    try {
+                        $checkOldCol = $dbConn->query("SHOW COLUMNS FROM user_profiles LIKE 'last_updated'");
+                        if ($checkOldCol->rowCount() > 0) {
+                            $dbConn->exec("ALTER TABLE user_profiles DROP COLUMN last_updated");
+                        }
+                    } catch (Exception $e) {
+                        error_log('Could not drop last_updated column: ' . $e->getMessage());
+                    }
+                    
                     $prefs = json_encode([]);
-                    $stmt = $dbConn->prepare('INSERT INTO user_profiles (user_id, profile_image, address, preferences, last_updated) VALUES (:uid, :img, :addr, :prefs, NOW()) ON DUPLICATE KEY UPDATE profile_image = VALUES(profile_image), address = VALUES(address), preferences = VALUES(preferences), last_updated = NOW()');
-                    $stmt->execute([':uid' => $user_id, ':img' => $webPath, ':addr' => $address, ':prefs' => $prefs]);
+                    $stmt = $dbConn->prepare('INSERT INTO user_profiles (user_id, profile_image, address, city, preferences) 
+                        VALUES (:uid, :img, :addr, :city, :prefs) 
+                        ON DUPLICATE KEY UPDATE 
+                            profile_image = COALESCE(:img2, profile_image),
+                            address = :addr2, 
+                            city = :city2,
+                            preferences = :prefs2');
+                    $stmt->execute([
+                        ':uid' => $user_id, 
+                        ':img' => $webPath, 
+                        ':addr' => $address, 
+                        ':city' => $city,
+                        ':prefs' => $prefs,
+                        ':img2' => $webPath,
+                        ':addr2' => $address,
+                        ':city2' => $city,
+                        ':prefs2' => $prefs
+                    ]);
+                    
+                    // Update session variables
+                    $_SESSION['name'] = $name;
+                    $_SESSION['email'] = $email;
+                    
                 } else {
                     // assume mysqli-like
                     if (!class_exists('ProfileManager')) {
@@ -360,31 +422,61 @@ try {
                     $mmConn = $dbConn;
                     if (!($mmConn instanceof mysqli) && function_exists('getDBConnection')) $mmConn = getDBConnection();
                     if ($mmConn instanceof mysqli) {
-                        $pm = new ProfileManager($mmConn);
-                        $pm->updateProfile($user_id, ['name' => $name, 'phone' => $phone, 'address' => $address, 'preferences' => []]);
-                        if ($webPath) {
-                            $stmt = $mmConn->prepare('UPDATE users SET email = ? WHERE id = ?');
-                            $stmt->bind_param('si', $email, $user_id);
-                            $stmt->execute();
+                        // Check if columns exist
+                        try {
+                            $checkColumns = $mmConn->query("SHOW COLUMNS FROM users LIKE 'home_phone'");
+                            if ($checkColumns->num_rows === 0) {
+                                $mmConn->query("ALTER TABLE users 
+                                    ADD COLUMN home_phone VARCHAR(20) DEFAULT NULL AFTER phone,
+                                    ADD COLUMN national_id VARCHAR(20) DEFAULT NULL AFTER home_phone,
+                                    ADD COLUMN driver_license VARCHAR(20) DEFAULT NULL AFTER national_id");
+                            }
+                        } catch (Exception $e) {
+                            error_log('MySQLi column check error: ' . $e->getMessage());
                         }
-                        // store profile image separately
-                        if ($webPath) {
-                            $u = $mmConn->prepare('INSERT INTO user_profiles (user_id, profile_image, address, preferences, last_updated) VALUES (?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE profile_image = VALUES(profile_image), address = VALUES(address), preferences = VALUES(preferences), last_updated = NOW()');
-                            $prefs = json_encode([]);
-                            $u->bind_param('isss', $user_id, $webPath, $address, $prefs);
-                            $u->execute();
-                        }
+                        
+                        $stmt = $mmConn->prepare('UPDATE users SET name = ?, phone = ?, home_phone = ?, national_id = ?, driver_license = ?, email = ?, profile_image = ? WHERE id = ?');
+                        $stmt->bind_param('sssssssi', $name, $phone, $home_phone, $national_id, $driver_license, $email, $webPath, $user_id);
+                        $stmt->execute();
+                        
+                        // Update user_profiles (no last_updated column, use updated_at instead)
+                        $u = $mmConn->prepare('INSERT INTO user_profiles (user_id, profile_image, address, city, preferences) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE profile_image = COALESCE(VALUES(profile_image), profile_image), address = VALUES(address), city = VALUES(city), preferences = VALUES(preferences)');
+                        $prefs = json_encode([]);
+                        $u->bind_param('issss', $user_id, $webPath, $address, $city, $prefs);
+                        $u->execute();
+                        
+                        // Update session
+                        $_SESSION['name'] = $name;
+                        $_SESSION['email'] = $email;
                     } else {
                         throw new RuntimeException('No DB connection available for profile update');
                     }
                 }
 
-                // Success response
-                echo json_encode(['success' => true, 'message' => 'Profile updated', 'data' => ['image' => $webPath ?? null]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                // Success response - clean buffer first
+                ob_end_clean();
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Profil başarıyla güncellendi', 
+                    'data' => ['image' => $webPath ?? null]
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                exit;
+                
             } catch (Throwable $e) {
-                error_log('profile update error: ' . $e->getMessage());
+                ob_end_clean();
+                error_log('Profile update error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+                error_log('Profile update stack trace: ' . $e->getTraceAsString());
                 http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Profile update failed']);
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Profil güncellenirken bir hata oluştu: ' . $e->getMessage(),
+                    'debug' => [
+                        'error' => $e->getMessage(),
+                        'file' => basename($e->getFile()),
+                        'line' => $e->getLine()
+                    ]
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                exit;
             }
             break;
 
@@ -396,7 +488,16 @@ try {
             echo json_encode(['success' => false, 'message' => 'Unknown action']);
             break;
     }
+    
+    // If we reach here, clean buffer and exit
+    ob_end_clean();
+    
 } catch (Throwable $e) {
+    // Clean any buffered output before sending error
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    
     if (class_exists(\App\Classes\Logger::class) && method_exists(\App\Classes\Logger::class, 'exception')) {
         \App\Classes\Logger::exception($e);
     } else {
@@ -407,6 +508,6 @@ try {
     if (in_array($env, ['dev', 'development'], true)) $payload['trace'] = $e->getTraceAsString();
     http_response_code(500);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
 }
-?>
+
+exit;

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile Update Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1000px; margin: 0 auto; }
+        .result { padding: 15px; margin: 10px 0; border-radius: 5px; white-space: pre-wrap; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        input, select { padding: 8px; margin: 5px; width: 300px; }
+        label { display: inline-block; width: 150px; }
+    </style>
+</head>
+<body>
+    <h1>Profile Update Debugging Tool</h1>
+    
+    <div id="results"></div>
+    
+    <h2>Test Profile Update</h2>
+    <form id="testForm">
+        <div>
+            <label>Name:</label>
+            <input type="text" name="name" value="Test User" required>
+        </div>
+        <div>
+            <label>Email:</label>
+            <input type="email" name="email" value="test@example.com" required>
+        </div>
+        <div>
+            <label>Phone:</label>
+            <input type="tel" name="phone" value="+90 555 123 4567">
+        </div>
+        <div>
+            <label>Home Phone:</label>
+            <input type="tel" name="home_phone" value="+90 212 345 6789" required>
+        </div>
+        <div>
+            <label>National ID:</label>
+            <input type="text" name="national_id" value="12345678901" pattern="[0-9]{11}" required>
+        </div>
+        <div>
+            <label>Driver License:</label>
+            <input type="text" name="driver_license" value="A1234567">
+        </div>
+        <div>
+            <label>City:</label>
+            <input type="text" name="city" value="Istanbul">
+        </div>
+        <div>
+            <label>Address:</label>
+            <input type="text" name="address" value="Test Address 123">
+        </div>
+        <div>
+            <label>Profile Image:</label>
+            <input type="file" name="profile_image" accept="image/*">
+        </div>
+        <div style="margin-top: 15px;">
+            <button type="submit">Submit Profile Update</button>
+            <button type="button" onclick="testEndpoint()">Test Endpoint Only</button>
+            <button type="button" onclick="checkSession()">Check Session</button>
+        </div>
+    </form>
+    
+    <script>
+        function showResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = message;
+            results.insertBefore(div, results.firstChild);
+        }
+        
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            showResult('⏳ Submitting profile update...', 'info');
+            
+            try {
+                const formData = new FormData(this);
+                formData.append('action', 'update_profile');
+                
+                const response = await fetch('/carwash_project/backend/dashboard/Customer_Dashboard_process.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                });
+                
+                const text = await response.text();
+                showResult(`Status: ${response.status} ${response.statusText}\nRaw Response:\n${text}`, 
+                    response.ok ? 'success' : 'error');
+                
+                try {
+                    const json = JSON.parse(text);
+                    showResult(`Parsed JSON:\n${JSON.stringify(json, null, 2)}`, 
+                        json.success ? 'success' : 'error');
+                } catch (parseError) {
+                    showResult(`Failed to parse JSON: ${parseError.message}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`Fetch Error: ${error.message}\n${error.stack}`, 'error');
+            }
+        });
+        
+        async function testEndpoint() {
+            showResult('⏳ Testing endpoint...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('action', 'test');
+                
+                const response = await fetch('/carwash_project/backend/dashboard/Customer_Dashboard_process.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                });
+                
+                const text = await response.text();
+                showResult(`Endpoint Status: ${response.status}\nResponse:\n${text}`, 
+                    response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult(`Endpoint Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkSession() {
+            showResult('⏳ Checking session...', 'info');
+            
+            try {
+                const response = await fetch('/carwash_project/backend/auth/check_session.php', {
+                    credentials: 'same-origin'
+                });
+                
+                const text = await response.text();
+                showResult(`Session Check:\n${text}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult(`Session Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -12,6 +12,25 @@ $user_id = $_SESSION['user_id'];
 $user_name = $_SESSION['name'] ?? $_SESSION['full_name'] ?? 'User';
 $user_email = $_SESSION['email'] ?? '';
 
+// Fetch complete user profile data from database
+$db = Database::getInstance();
+$userData = $db->fetchOne(
+    "SELECT u.*, up.profile_image as profile_img, up.address, up.city 
+     FROM users u 
+     LEFT JOIN user_profiles up ON u.id = up.user_id 
+     WHERE u.id = :user_id",
+    ['user_id' => $user_id]
+);
+
+// Extract user data with defaults
+$user_phone = $userData['phone'] ?? '';
+$user_home_phone = $userData['home_phone'] ?? '';
+$user_national_id = $userData['national_id'] ?? '';
+$user_driver_license = $userData['driver_license'] ?? '';
+$user_profile_image = $userData['profile_img'] ?? $userData['profile_image'] ?? '';
+$user_address = $userData['address'] ?? '';
+$user_city = $userData['city'] ?? '';
+
 // Generate CSRF token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -540,7 +559,7 @@ $current_page = 'dashboard';
         x-transition:leave-end="transform -translate-x-full"
         role="navigation"
         aria-label="Main navigation"
-        :aria-hidden="!mobileMenuOpen && window.innerWidth < 1024"
+        :inert="!mobileMenuOpen && window.innerWidth < 1024"
     >
         <!-- User Profile Section (Better readability, always visible at top) -->
         <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30 sticky top-0 z-10">
@@ -1046,7 +1065,41 @@ $current_page = 'dashboard';
             </div>
             
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
-                <form class="space-y-6">
+                <form id="profileForm" class="space-y-6" enctype="multipart/form-data">
+                    <!-- Profile Image Upload Section -->
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <h4 class="text-lg font-bold text-gray-900 mb-4">Profil Fotoğrafı</h4>
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                            <!-- Current Profile Image -->
+                            <div class="flex-shrink-0">
+                                <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
+                                    <img 
+                                        id="profileImagePreview" 
+                                        src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/images/default-avatar.svg'; ?>" 
+                                        alt="Profile" 
+                                        class="w-full h-full object-cover"
+                                        onerror="this.src='/carwash_project/frontend/images/default-avatar.svg'"
+                                    >
+                                </div>
+                            </div>
+                            
+                            <!-- Upload Controls -->
+                            <div class="flex-1">
+                                <label for="profile_image" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Yeni Fotoğraf Yükle
+                                </label>
+                                <input 
+                                    type="file" 
+                                    id="profile_image" 
+                                    name="profile_image" 
+                                    accept="image/jpeg,image/png,image/jpg,image/webp"
+                                    class="block w-full text-sm text-gray-900 border-2 border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                >
+                                <p class="mt-2 text-xs text-gray-500">JPG, PNG veya WEBP formatında. Maksimum 2MB.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                         <!-- Name -->
                         <div class="mb-4">
@@ -1089,10 +1142,63 @@ $current_page = 'dashboard';
                                 type="tel"
                                 id="profile_phone"
                                 name="phone"
+                                value="<?php echo htmlspecialchars($user_phone); ?>"
                                 placeholder="+90 555 123 45 67"
                                 autocomplete="tel"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                             >
+                        </div>
+                        
+                        <!-- Home Phone (Required) -->
+                        <div class="mb-4">
+                            <label for="profile_home_phone" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Ev Telefonu <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="tel"
+                                id="profile_home_phone"
+                                name="home_phone"
+                                value="<?php echo htmlspecialchars($user_home_phone); ?>"
+                                required
+                                placeholder="+90 212 345 67 89"
+                                autocomplete="tel-local"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                            >
+                        </div>
+                        
+                        <!-- National ID (Required) -->
+                        <div class="mb-4">
+                            <label for="profile_national_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                                T.C. Kimlik No <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="text"
+                                id="profile_national_id"
+                                name="national_id"
+                                value="<?php echo htmlspecialchars($user_national_id); ?>"
+                                required
+                                maxlength="11"
+                                pattern="[0-9]{11}"
+                                placeholder="12345678901"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                            >
+                            <p class="mt-1 text-xs text-gray-500">11 haneli T.C. Kimlik numaranızı girin</p>
+                        </div>
+                        
+                        <!-- Driver License (Optional) -->
+                        <div class="mb-4">
+                            <label for="profile_driver_license" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Sürücü Belgesi No
+                            </label>
+                            <input 
+                                type="text"
+                                id="profile_driver_license"
+                                name="driver_license"
+                                value="<?php echo htmlspecialchars($user_driver_license); ?>"
+                                placeholder="A1234567"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                            >
+                            <p class="mt-1 text-xs text-gray-500">İsteğe bağlı alan</p>
                         </div>
                         
                         <!-- City -->
@@ -1102,10 +1208,24 @@ $current_page = 'dashboard';
                                 type="text"
                                 id="profile_city"
                                 name="city"
+                                value="<?php echo htmlspecialchars($user_city); ?>"
                                 placeholder="İstanbul"
                                 autocomplete="address-level2"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                             >
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="mb-4 md:col-span-2">
+                            <label for="profile_address" class="block text-sm font-semibold text-gray-700 mb-2">Adres</label>
+                            <textarea 
+                                id="profile_address"
+                                name="address"
+                                rows="3"
+                                placeholder="Tam adresiniz"
+                                autocomplete="street-address"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
+                            ><?php echo htmlspecialchars($user_address); ?></textarea>
                         </div>
                     </div>
                     
@@ -1326,6 +1446,144 @@ $current_page = 'dashboard';
 
 <!-- Footer -->
 <?php include __DIR__ . '/../includes/footer.php'; ?>
+
+<!-- Profile Form JavaScript -->
+<script>
+// ================================
+// Profile Image Preview Handler
+// ================================
+(function() {
+    'use strict';
+    
+    const profileImageInput = document.getElementById('profile_image');
+    const profileImagePreview = document.getElementById('profileImagePreview');
+    
+    if (profileImageInput && profileImagePreview) {
+        profileImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Lütfen geçerli bir resim dosyası seçin (JPG, PNG veya WEBP)');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Validate file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Resim boyutu 2MB\'dan küçük olmalıdır');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    profileImagePreview.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+})();
+
+// ================================
+// Profile Form Submission Handler
+// ================================
+(function() {
+    'use strict';
+    
+    const profileForm = document.getElementById('profileForm');
+    
+    if (!profileForm) {
+        console.warn('Profile form not found');
+        return;
+    }
+    
+    profileForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Get form elements
+        const submitBtn = profileForm.querySelector('button[type="submit"]');
+        const successMsg = document.getElementById('profile-success');
+        const errorMsg = document.getElementById('profile-error');
+        
+        // Hide previous messages
+        if (successMsg) successMsg.classList.add('hidden');
+        if (errorMsg) errorMsg.classList.add('hidden');
+        
+        // Disable submit button
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Kaydediliyor...</span>';
+        }
+        
+        try {
+            // Create FormData from form
+            const formData = new FormData(profileForm);
+            formData.append('action', 'update_profile');
+            
+            // Add CSRF token
+            const csrfToken = '<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>';
+            formData.append('csrf_token', csrfToken);
+            
+            // Submit form
+            const response = await fetch('/carwash_project/backend/dashboard/Customer_Dashboard_process.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: formData
+            });
+            
+            // Parse response
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success message
+                if (successMsg) {
+                    successMsg.classList.remove('hidden');
+                    successMsg.querySelector('span').textContent = result.message || 'Profil başarıyla güncellendi!';
+                }
+                
+                // Update session if needed
+                if (result.data && result.data.image) {
+                    const topAvatar = document.getElementById('userAvatarTop');
+                    if (topAvatar) {
+                        topAvatar.src = result.data.image;
+                    }
+                }
+                
+                // Scroll to top of form to show success message
+                profileForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+            } else {
+                throw new Error(result.message || 'Profil güncellenirken bir hata oluştu');
+            }
+            
+        } catch (error) {
+            console.error('Profile update error:', error);
+            
+            // Show error message
+            if (errorMsg) {
+                errorMsg.classList.remove('hidden');
+                errorMsg.querySelector('span').textContent = error.message || 'Bir hata oluştu. Lütfen tekrar deneyin.';
+            }
+            
+            // Scroll to error message
+            if (errorMsg) {
+                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } finally {
+            // Re-enable submit button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save text-sm"></i> <span>Kaydet</span>';
+            }
+        }
+    });
+})();
+</script>
 
 <!-- Vehicle Manager JavaScript -->
 <script>
@@ -1689,6 +1947,88 @@ console.log('✅ Customer Dashboard loaded successfully');
     });
     
     console.log('✅ Mobile sidebar toggle initialized');
+    
+})();
+
+// ================================
+// Accessibility: Focus Management & Inert Support
+// ================================
+(function() {
+    'use strict';
+    
+    const sidebar = document.getElementById('customer-sidebar');
+    if (!sidebar) return;
+    
+    /**
+     * Manage focusable elements in sidebar based on visibility
+     * Prevents keyboard focus on hidden sidebar links
+     */
+    function manageSidebarFocusability(isVisible, isMobile) {
+        if (!sidebar) return;
+        
+        // Get all focusable elements in sidebar
+        const focusableElements = sidebar.querySelectorAll(
+            'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        
+        focusableElements.forEach(element => {
+            if (isMobile && !isVisible) {
+                // On mobile when closed: make unfocusable
+                element.setAttribute('tabindex', '-1');
+            } else {
+                // On desktop or when open: restore focusability
+                element.removeAttribute('tabindex');
+            }
+        });
+        
+        console.log(`♿ Sidebar focusability: ${isVisible ? 'enabled' : 'disabled'} (mobile: ${isMobile})`);
+    }
+    
+    /**
+     * Check if viewport is mobile
+     */
+    function isMobileViewport() {
+        return window.innerWidth < 1024;
+    }
+    
+    /**
+     * Update sidebar focusability based on current state
+     */
+    function updateSidebarAccessibility() {
+        const body = document.body;
+        const isMobile = isMobileViewport();
+        const isOpen = body && body.__x && body.__x.$data && body.__x.$data.mobileMenuOpen;
+        
+        manageSidebarFocusability(isOpen || !isMobile, isMobile);
+    }
+    
+    // Watch for Alpine.js state changes
+    if (typeof Alpine !== 'undefined') {
+        document.addEventListener('alpine:init', function() {
+            Alpine.effect(() => {
+                updateSidebarAccessibility();
+            });
+        });
+    }
+    
+    // Update on page load
+    setTimeout(updateSidebarAccessibility, 100);
+    
+    // Update on window resize
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateSidebarAccessibility, 150);
+    });
+    
+    // Update when sidebar transitions complete
+    sidebar.addEventListener('transitionend', function(e) {
+        if (e.propertyName === 'transform') {
+            updateSidebarAccessibility();
+        }
+    });
+    
+    console.log('✅ Sidebar accessibility manager initialized');
     
 })();
 
