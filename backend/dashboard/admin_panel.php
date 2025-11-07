@@ -1526,8 +1526,15 @@ include '../includes/dashboard_header.php';
     <!-- Farsça: نوار کناری ناوبری - موقعیت چسبنده. -->
     <!-- Türkçe: Kenar çubuğu navigasyonu - Yapışkan Konum. -->
     <!-- English: Sidebar Navigation - Sticky Position. -->
-    <aside class="sidebar" id="sidebar">
-            <nav class="nav-menu">
+    <aside id="sidebar" class="sidebar-fixed fixed top-16 bottom-0 left-0 w-72 bg-white/5 backdrop-blur-sm text-white z-40 shadow-xl">
+        <div class="flex flex-col h-full">
+            <div class="p-4">
+                <!-- Optional top area: logo / user -->
+                <div class="mb-4">
+                    <div class="text-sm font-semibold">Yönetim</div>
+                </div>
+            </div>
+            <nav class="nav-menu flex-1 overflow-auto px-2 py-3">
                 <ul>
                     <!-- Dashboard -->
                     <li class="nav-item active">
@@ -1625,22 +1632,24 @@ include '../includes/dashboard_header.php';
                         </a>
                     </li>
                     
-                    <!-- Settings -->
-                    <li class="nav-item">
-                        <a href="#settings" class="nav-link" data-section="settings">
-                            <i class="fas fa-cog"></i>
-                            <span>Ayarlar</span>
-                        </a>
-                    </li>
                 </ul>
             </nav>
+
+            <!-- Settings pinned at bottom -->
+            <div class="p-4 border-t border-white/20">
+                <a href="#settings" class="flex items-center px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>Ayarlar</span>
+                </a>
+            </div>
+        </div>
     </aside>
 
     <!-- Main Content -->
     <!-- Farsça: محتوای اصلی. -->
     <!-- Türkçe: Ana İçerik. -->
     <!-- English: Main Content. -->
-    <main class="main-content">
+    <main class="main-content lg:ml-72">
             <!-- Dashboard Section -->
             <section id="dashboard" class="content-section active">
                 <div class="section-header">

@@ -279,6 +279,22 @@ $current_year = date('Y');
   });
 </script>
 
+<script>
+  // Adjust any fixed sidebar so it stops above the footer instead of overlapping it.
+  function adjustSidebarsToFooter() {
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+    const footerHeight = footer.offsetHeight || 0;
+    document.querySelectorAll('.sidebar-fixed').forEach(el => {
+      // apply inline bottom to override utility classes like bottom-0
+      el.style.bottom = footerHeight + 'px';
+    });
+  }
+
+  window.addEventListener('load', adjustSidebarsToFooter);
+  window.addEventListener('resize', adjustSidebarsToFooter);
+</script>
+
 <?php 
 // Include Universal JavaScript for entire website
 include_once(__DIR__ . '/universal_scripts.php');

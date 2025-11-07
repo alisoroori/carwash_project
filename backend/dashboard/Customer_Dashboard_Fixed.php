@@ -24,99 +24,107 @@ $current_page = 'dashboard';
 ?>
 <!DOCTYPE html>
 <html lang="tr" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($page_title); ?></title>
-    
-    <!-- TailwindCSS - Production Build -->
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Alpine.js for interactive components -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head>
-
-<body 
-    class="bg-gray-50 overflow-x-hidden" 
-    x-data="{ mobileMenuOpen: false, currentSection: 'dashboard' }"
-    x-effect="mobileMenuOpen ? document.body.classList.add('menu-open') : document.body.classList.remove('menu-open')"
+<!-- Sidebar -->
+<aside 
+    class="sidebar-fixed fixed top-16 bottom-0 left-0 w-72 sidebar-gradient text-white z-40 transition-transform duration-300 lg:translate-x-0 shadow-xl"
+    :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
 >
-
-<!-- ================================
-     HEADER - Fixed at Top (z-index: 50)
-     ================================ -->
-<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-    <div class="flex items-center justify-between h-16 px-4 lg:px-6">
-        
-        <!-- Mobile Menu Button (Hidden on Desktop) -->
-        <button 
-            @click="mobileMenuOpen = !mobileMenuOpen"
-            class="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="Toggle menu"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!mobileMenuOpen">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="mobileMenuOpen" style="display: none;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
-        
-        <!-- Logo -->
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center shadow-md">
-                <i class="fas fa-car-wash text-white text-lg"></i>
-            </div>
-            <div class="hidden sm:block">
-                <h1 class="text-lg font-bold text-gray-900 leading-tight">MYCAR</h1>
-                <p class="text-xs text-gray-500 -mt-1">Customer Panel</p>
+    <div class="flex flex-col h-full p-6">
+        <!-- User Profile Card (top) -->
+        <div class="bg-white bg-opacity-10 rounded-2xl p-4 mb-4 backdrop-blur-sm border border-white border-opacity-20">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-white bg-opacity-30 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-user text-xl"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold truncate text-white"><?php echo htmlspecialchars($user_name); ?></p>
+                    <p class="text-xs text-white text-opacity-80 truncate"><?php echo htmlspecialchars($user_email); ?></p>
+                </div>
             </div>
         </div>
-        
-        <!-- User Menu -->
-        <div class="relative" x-data="{ userMenuOpen: false }">
-            <button 
-                @click="userMenuOpen = !userMenuOpen"
-                @click.away="userMenuOpen = false"
-                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+        <!-- Navigation (flexible middle area) -->
+        <nav class="space-y-1 flex-1 overflow-auto">
+            <a 
+                href="#dashboard" 
+                @click="currentSection = 'dashboard'; mobileMenuOpen = false"
+                :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
+                class="sidebar-link"
             >
-                <div class="w-8 h-8 gradient-bg rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                    <?php echo strtoupper(substr($user_name, 0, 1)); ?>
-                </div>
-                <span class="hidden md:block text-sm font-medium text-gray-700 max-w-[150px] truncate"><?php echo htmlspecialchars($user_name); ?></span>
-                <i class="fas fa-chevron-down text-xs text-gray-400 hidden md:block"></i>
-            </button>
-            
-            <!-- Dropdown Menu -->
-            <div 
-                x-show="userMenuOpen"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 scale-95"
-                x-transition:enter-end="opacity-100 scale-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0 scale-95"
-                class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 overflow-hidden z-50"
-                style="display: none;"
+                <i class="fas fa-tachometer-alt w-5 mr-3 text-lg"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a 
+                href="#carWashSelection" 
+                @click="currentSection = 'carWashSelection'; mobileMenuOpen = false"
+                :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
+                class="sidebar-link"
             >
-                <div class="px-4 py-3 gradient-bg bg-opacity-10 border-b border-gray-200">
-                    <p class="text-sm font-semibold text-gray-900 truncate"><?php echo htmlspecialchars($user_name); ?></p>
-                    <p class="text-xs text-gray-600 truncate"><?php echo htmlspecialchars($user_email); ?></p>
-                </div>
-                <div class="py-2">
-                    <a href="#profile" @click="currentSection = 'profile'; userMenuOpen = false" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
-                        <i class="fas fa-user-circle w-5 text-blue-600 mr-3"></i>
-                        <span>Profil</span>
-                    </a>
-                    <a href="/carwash_project/backend/index.php" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
-                        <i class="fas fa-home w-5 text-blue-600 mr-3"></i>
-                        <span>Ana Sayfa</span>
-                    </a>
-                </div>
-                <div class="border-t border-gray-200">
+                <i class="fas fa-store w-5 mr-3 text-lg"></i>
+                <span>Yıkama Yerleri</span>
+            </a>
+
+            <a 
+                href="#reservations" 
+                @click="currentSection = 'reservations'; mobileMenuOpen = false"
+                :class="currentSection === 'reservations' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
+                class="sidebar-link"
+            >
+                <i class="fas fa-calendar-check w-5 mr-3 text-lg"></i>
+                <span>Rezervasyonlar</span>
+            </a>
+
+            <a 
+                href="#vehicles" 
+                @click="currentSection = 'vehicles'; mobileMenuOpen = false"
+                :class="currentSection === 'vehicles' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
+                class="sidebar-link"
+            >
+                <i class="fas fa-car w-5 mr-3 text-lg"></i>
+                <span>Araçlarım</span>
+            </a>
+
+            <a 
+                href="#history" 
+                @click="currentSection = 'history'; mobileMenuOpen = false"
+                :class="currentSection === 'history' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
+                class="sidebar-link"
+            >
+                <i class="fas fa-history w-5 mr-3 text-lg"></i>
+                <span>Geçmiş</span>
+            </a>
+
+            <a 
+                href="#profile" 
+                @click="currentSection = 'profile'; mobileMenuOpen = false"
+                :class="currentSection === 'profile' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
+                class="sidebar-link"
+            >
+                <i class="fas fa-user-circle w-5 mr-3 text-lg"></i>
+                <span>Profil</span>
+            </a>
+
+            <a 
+                href="#support" 
+                @click="currentSection = 'support'; mobileMenuOpen = false"
+                :class="currentSection === 'support' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
+                class="sidebar-link"
+            >
+                <i class="fas fa-headset w-5 mr-3 text-lg"></i>
+                <span>Destek</span>
+            </a>
+        </nav>
+
+        <!-- Settings pinned at bottom -->
+        <div class="mt-4 pt-4 border-t border-white border-opacity-20">
+            <a href="#settings" @click="currentSection = 'profile'; mobileMenuOpen = false" class="flex items-center px-3 py-2 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200">
+                <i class="fas fa-cog w-5 mr-3 text-lg"></i>
+                <span class="font-medium">Ayarlar</span>
+            </a>
+        </div>
+    </div>
+</aside>
                     <a href="/carwash_project/backend/includes/logout.php" class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium">
                         <i class="fas fa-sign-out-alt w-5 mr-3"></i>
                         <span>Çıkış Yap</span>
