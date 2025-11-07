@@ -326,17 +326,18 @@ $current_page = 'dashboard';
         
         /* Layout Fixes for Sidebar & Content */
         #customer-sidebar {
-            /* Sidebar spans from header to footer */
+            /* Sidebar spans from header to footer, always below header */
+            z-index: 30; /* Below header (z-50) */
         }
         
         @media (min-width: 1024px) {
             #customer-sidebar {
-                /* Sticky position on desktop - fills container height naturally */
+                /* Sticky position on desktop - stretches to fill flex container */
                 position: sticky !important;
-                top: 0; /* Top of wrapper (wrapper already has pt-16) */
+                top: 4rem; /* 64px below fixed header */
                 height: auto; /* Auto height to fill flex container */
-                align-self: stretch; /* Stretch to container height */
-                overflow: hidden;
+                align-self: stretch; /* Stretch to match tallest flex item (main content) */
+                overflow-y: auto; /* Allow scroll if content overflows */
             }
         }
         
@@ -344,9 +345,10 @@ $current_page = 'dashboard';
             #customer-sidebar {
                 /* Fixed position on mobile - below header */
                 position: fixed !important;
-                top: 4rem;
+                top: 4rem; /* 64px below header */
                 bottom: 0;
                 height: calc(100vh - 4rem);
+                overflow-y: auto; /* Allow scroll on mobile */
             }
         }
         
@@ -390,7 +392,7 @@ $current_page = 'dashboard';
 <!-- ================================
      HEADER - Fixed at Top
      ================================ -->
-<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm h-16">
+<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm h-16 flex-none">
     <div class="flex items-center justify-between h-16 px-4 lg:px-6">
         
         <!-- Mobile Menu Button -->
@@ -510,25 +512,25 @@ $current_page = 'dashboard';
     @keydown.space.prevent="mobileMenuOpen = false"
 ></div>
 
-<!-- Main Content Wrapper: Takes flex-1 to push footer down, pt-16 for fixed header -->
-<div class="flex flex-1 pt-16">
+<!-- Main Content Wrapper: Takes flex-1 to push footer down -->
+<div class="flex flex-1">
     
     <!-- ================================
-         SIDEBAR - Sticky from header to footer
-         Desktop: Sticky position, fills available height naturally
-         Mobile: Fixed position with overlay, full height minus header
+         SIDEBAR - Stretches from header to footer
+         Desktop: Sticky position, full height
+         Mobile: Fixed position with overlay
          NO internal scroll - overflow-hidden
          ================================ -->
     <aside 
         id="customer-sidebar"
         class="w-64 bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
                fixed top-16 left-0 bottom-0
-               lg:sticky lg:top-0
-               lg:self-stretch
+               lg:sticky lg:top-16
+               lg:self-stretch lg:h-auto
                transform transition-transform duration-300 ease-in-out
                -translate-x-full lg:translate-x-0
-               flex flex-col overflow-hidden
-               z-40"
+               flex flex-col overflow-y-auto
+               z-30"
         :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
         x-transition:enter="transition-transform ease-out duration-300"
         x-transition:enter-start="transform -translate-x-full"
@@ -540,19 +542,19 @@ $current_page = 'dashboard';
         aria-label="Main navigation"
         :aria-hidden="!mobileMenuOpen && window.innerWidth < 1024"
     >
-        <!-- User Profile Section (Compact, no scroll) -->
-        <div class="flex-shrink-0 p-3 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30">
+        <!-- User Profile Section (Better readability, always visible at top) -->
+        <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30 sticky top-0 z-10">
             <div class="text-center">
-                <div class="w-12 h-12 mx-auto mb-1.5 bg-white bg-opacity-20 rounded-full flex items-center justify-center shadow-lg ring-2 ring-white ring-opacity-10">
-                    <i class="fas fa-user text-lg text-white"></i>
+                <div class="w-16 h-16 mx-auto mb-2 bg-white bg-opacity-20 rounded-full flex items-center justify-center shadow-lg ring-2 ring-white ring-opacity-10">
+                    <i class="fas fa-user text-2xl text-white"></i>
                 </div>
-                <h3 class="text-xs font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
-                <p class="text-[10px] text-blue-100 opacity-90 truncate"><?php echo htmlspecialchars($user_email); ?></p>
+                <h3 class="text-sm font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
+                <p class="text-xs text-blue-100 opacity-90 truncate mt-1"><?php echo htmlspecialchars($user_email); ?></p>
             </div>
         </div>
         
-        <!-- Navigation Menu (Compact, no internal scroll) -->
-        <nav class="flex-1 px-2 py-2 space-y-0.5 flex flex-col overflow-hidden" 
+        <!-- Navigation Menu (Better spacing and readability) -->
+        <nav class="flex-1 px-3 py-3 space-y-1 flex flex-col overflow-y-auto" 
              aria-label="Primary navigation"
         >
             
@@ -561,12 +563,12 @@ $current_page = 'dashboard';
                 href="#dashboard" 
                 @click="currentSection = 'dashboard'; mobileMenuOpen = false"
                 :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
-                class="flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
                 tabindex="0"
             >
-                <i class="fas fa-tachometer-alt text-xs group-hover:scale-110 transition-transform"></i>
-                <span class="text-xs font-medium">Genel Bakış</span>
+                <i class="fas fa-tachometer-alt text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium">Genel Bakış</span>
             </a>
             
             <!-- Car Wash Selection -->
@@ -574,12 +576,12 @@ $current_page = 'dashboard';
                 href="#carWashSelection" 
                 @click="currentSection = 'carWashSelection'; mobileMenuOpen = false"
                 :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
-                class="flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
                 tabindex="0"
             >
-                <i class="fas fa-hand-pointer text-xs group-hover:scale-110 transition-transform"></i>
-                <span class="text-xs font-medium">Oto Yıkama Seçimi</span>
+                <i class="fas fa-hand-pointer text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium">Oto Yıkama Seçimi</span>
             </a>
             
             <!-- Reservations -->
@@ -587,12 +589,12 @@ $current_page = 'dashboard';
                 href="#reservations" 
                 @click="currentSection = 'reservations'; mobileMenuOpen = false"
                 :class="currentSection === 'reservations' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
-                class="flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
                 tabindex="0"
             >
-                <i class="fas fa-calendar-check text-xs group-hover:scale-110 transition-transform"></i>
-                <span class="text-xs font-medium">Rezervasyonlarım</span>
+                <i class="fas fa-calendar-check text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium">Rezervasyonlarım</span>
             </a>
             
             <!-- Vehicles -->
@@ -600,12 +602,12 @@ $current_page = 'dashboard';
                 href="#vehicles" 
                 @click="currentSection = 'vehicles'; mobileMenuOpen = false"
                 :class="currentSection === 'vehicles' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
-                class="flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
                 tabindex="0"
             >
-                <i class="fas fa-car text-xs group-hover:scale-110 transition-transform"></i>
-                <span class="text-xs font-medium">Araçlarım</span>
+                <i class="fas fa-car text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium">Araçlarım</span>
             </a>
             
             <!-- History -->
@@ -613,12 +615,12 @@ $current_page = 'dashboard';
                 href="#history" 
                 @click="currentSection = 'history'; mobileMenuOpen = false"
                 :class="currentSection === 'history' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
-                class="flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
                 tabindex="0"
             >
-                <i class="fas fa-history text-xs group-hover:scale-110 transition-transform"></i>
-                <span class="text-xs font-medium">Geçmiş</span>
+                <i class="fas fa-history text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium">Geçmiş</span>
             </a>
             
             <!-- Profile -->
@@ -626,12 +628,12 @@ $current_page = 'dashboard';
                 href="#profile" 
                 @click="currentSection = 'profile'; mobileMenuOpen = false"
                 :class="currentSection === 'profile' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
-                class="flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
                 tabindex="0"
             >
-                <i class="fas fa-user-circle text-xs group-hover:scale-110 transition-transform"></i>
-                <span class="text-xs font-medium">Profil</span>
+                <i class="fas fa-user-circle text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium">Profil</span>
             </a>
             
             <!-- Support -->
@@ -639,37 +641,37 @@ $current_page = 'dashboard';
                 href="#support" 
                 @click="currentSection = 'support'; mobileMenuOpen = false"
                 :class="currentSection === 'support' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
-                class="flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
                 tabindex="0"
             >
-                <i class="fas fa-headset text-xs group-hover:scale-110 transition-transform"></i>
-                <span class="text-xs font-medium">Destek</span>
+                <i class="fas fa-headset text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium">Destek</span>
             </a>
         </nav>
         
-        <!-- Settings (Fixed at bottom, ultra-compact) -->
-        <div class="flex-shrink-0 p-2 border-t border-white border-opacity-20 bg-blue-800 bg-opacity-20">
+        <!-- Settings (Fixed at bottom, better readability) -->
+        <div class="flex-shrink-0 p-3 border-t border-white border-opacity-20 bg-blue-800 bg-opacity-20">
             <a 
                 href="#settings" 
                 @click="currentSection = 'settings'; mobileMenuOpen = false"
                 :class="currentSection === 'settings' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
-                class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
                 tabindex="0"
             >
-                <i class="fas fa-cog text-xs group-hover:scale-110 transition-transform"></i>
-                <span class="text-xs font-medium">Ayarlar</span>
+                <i class="fas fa-cog text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium">Ayarlar</span>
             </a>
         </div>
     </aside>
 
     <!-- ================================
          MAIN CONTENT AREA - Takes remaining space beside sidebar
-         Desktop: Sits next to sidebar with flex-1, no extra padding needed (wrapper has pt-16)
-         Mobile: Takes full width, no extra padding needed (wrapper has pt-16)
+         Desktop: Sits next to sidebar with flex-1, pt-16 for fixed header
+         Mobile: Takes full width, pt-16 for fixed header
          ================================ -->
-    <main class="flex-1 bg-gray-50 overflow-y-auto" id="main-content">
+    <main class="flex-1 bg-gray-50 overflow-y-auto pt-16" id="main-content">
         <div class="p-6 lg:p-8 max-w-7xl mx-auto">
         
         <!-- ========== DASHBOARD SECTION ========== -->
