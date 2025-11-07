@@ -267,59 +267,6 @@ try {
     }
 }
 
-// Ensure CSRF token validation for all sensitive requests
-$csrfToken = request_csrf_token();
-if (in_array($method, ['POST', 'PUT', 'DELETE'], true)) {
-    if (!$csrfToken || !hash_equals($_SESSION['csrf_token'] ?? '', $csrfToken)) {
-        send_json_response(['error' => 'Invalid CSRF token'], 403);
-    }
-}
-
-// Validate and sanitize inputs
-function sanitize_input($data) {
-    return htmlspecialchars(strip_tags(trim($data)));
-}
-
-// Example usage for POST data
-foreach ($_POST as $key => $value) {
-    $_POST[$key] = sanitize_input($value);
-}
-
-// Improve error handling
-set_exception_handler(function ($exception) {
-    error_log('Unhandled exception: ' . $exception->getMessage());
-    send_json_response(['error' => 'An unexpected error occurred. Please try again later.'], 500);
-});
-
-// Refactor CSRF validation into a reusable function
-function validate_csrf_token(string $token): void {
-    if (!$token || !hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
-        send_json_response(['error' => 'Invalid CSRF token'], 403);
-    }
-}
-
-// Refactor database schema management to setup scripts
-function ensure_database_schema(PDO $pdo): void {
-    // Log a warning instead of dynamically creating tables
-    error_log('Database schema changes should be handled in migrations.');
-}
-
-// Consolidate error logging
-function log_error(Throwable $e, array $context = []): void {
-    if (class_exists(Logger::class) && method_exists(Logger::class, 'exception')) {
-        Logger::exception($e, $context);
-    } else {
-        error_log('Error: ' . $e->getMessage());
-    }
-}
-
-// Optimize database queries
-function fetch_user_vehicles(PDO $pdo, int $userId): array {
-    $stmt = $pdo->prepare('SELECT id, image_path FROM user_vehicles WHERE user_id = :uid AND image_path IS NOT NULL AND image_path != ""');
-    $stmt->execute([':uid' => $userId]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
 // Main handler
 try {
     if ($method === 'GET') {
@@ -516,79 +463,14 @@ try {
 
         if ($action === 'update') {
             $id = (int)($_POST['id'] ?? 0);
-            // Find the list action handler (around line 340-380) and replace:
-            
-            if ($getAction === 'list') {
-                // list vehicles
-                if (!$pdo) throw new RuntimeException('Database connection not available');
-            
-                try {
-                    $stmt = $pdo->prepare('SELECT id, brand, model, license_plate, year, color, image_path, created_at 
-                                           FROM user_vehicles 
-                                           WHERE user_id = :uid 
-                                           ORDER BY created_at DESC');
-                    $stmt->execute([':uid' => $user_id]);
-                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    
-                    // Ensure all rows are indexed (not associative with string keys at top level)
-                    $rows = array_values($rows);
-                    
-                    // Process image paths to ensure they are valid
-                    foreach ($rows as &$row) {
-                        $imagePath = $row['image_path'] ?? '';
-                        
-                        if (empty($imagePath)) {
-                            // Use default image
-                            $row['image_path'] = '/carwash_project/frontend/assets/images/default-car.png';
-                        } elseif (!preg_match('#^(https?://|/)#', $imagePath)) {
-                            // Relative path without leading slash - add carwash_project prefix
-                            $row['image_path'] = '/carwash_project/' . ltrim($imagePath, '/');
-                        }
-                        
-                        // Ensure all expected fields exist with defaults
-                        $row['brand'] = $row['brand'] ?? '';
-                        $row['model'] = $row['model'] ?? '';
-                        $row['license_plate'] = $row['license_plate'] ?? '';
-                        $row['year'] = $row['year'] ?? null;
-                        $row['color'] = $row['color'] ?? '';
-                    }
-                    unset($row); // Break reference
-                    
-                    // Log for debugging
-                    if (class_exists(Logger::class)) {
-                        Logger::info('Vehicle list retrieved', [
-                            'user_id' => $user_id,
-                            'count' => count($rows)
-                        ]);
-                    }
-                    
-                    // Return consistent structure
-                    send_json_response([
-                        'status' => 'success',
-                        'success' => true,
-                        'message' => 'Vehicles retrieved successfully',
-                        'data' => [
-                            'vehicles' => $rows
-                        ],
-                        'vehicles' => $rows // Also include at top level for backward compatibility
-                    ]);
-                    
-                } catch (Throwable $e) {
-                    log_error($e, ['action' => 'list', 'user_id' => $user_id]);
-                    send_json_response([
-                        'status' => 'error',
-                        'success' => false,
-                        'message' => 'Failed to retrieve vehicles: ' . $e->getMessage()
-                    ], 500);
-                }
-                exit;
-            }
             if ($id <= 0) throw new InvalidArgumentException('Invalid vehicle id');
+            
             $brand = trim((string)($_POST['car_brand'] ?? ''));
             $model = trim((string)($_POST['car_model'] ?? ''));
             $license = trim((string)($_POST['license_plate'] ?? ''));
             $year = isset($_POST['car_year']) ? (int)$_POST['car_year'] : null;
             $color = trim((string)($_POST['car_color'] ?? ''));
+            
             // If an image file is present, upload first and include in update
             $imagePathToSet = null;
             try {

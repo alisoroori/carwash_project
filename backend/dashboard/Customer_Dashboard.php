@@ -893,7 +893,7 @@ $current_page = 'dashboard';
                         </div>
                     </div>
                     
-                    <form @submit.prevent="saveVehicle()" class="p-6">
+                    <form id="vehicleForm" @submit.prevent="saveVehicle()" class="p-6" enctype="multipart/form-data">
                         <input type="hidden" name="csrf_token" :value="csrfToken">
                         <input type="hidden" name="action" :value="editingVehicle ? 'update' : 'create'">
                         <input type="hidden" name="id" :value="editingVehicle?.id || ''">
@@ -1445,8 +1445,8 @@ function vehicleManager() {
             this.message = '';
             
             try {
-                const form = document.querySelector('#customer-sidebar').closest('body').querySelector('form[x-data]') || 
-                             document.querySelector('form[x-data]');
+                // Get the vehicle form by ID
+                const form = document.getElementById('vehicleForm');
                 
                 if (!form) {
                     throw new Error('Form not found');

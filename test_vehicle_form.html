@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Form Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .result { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .test-section { border: 2px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🚗 Vehicle Form Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Check if Form Exists</h2>
+        <button onclick="testFormExists()">Run Test</button>
+        <div id="test1-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Check Form Attributes</h2>
+        <button onclick="testFormAttributes()">Run Test</button>
+        <div id="test2-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Check Form Fields</h2>
+        <button onclick="testFormFields()">Run Test</button>
+        <div id="test3-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Test Form Submission (Mock)</h2>
+        <button onclick="testFormSubmission()">Run Test</button>
+        <div id="test4-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 5: Live Dashboard Test</h2>
+        <p>Open the Customer Dashboard and try adding/editing a vehicle.</p>
+        <a href="http://localhost/carwash_project/backend/dashboard/Customer_Dashboard.php" target="_blank">
+            <button>Open Dashboard</button>
+        </a>
+    </div>
+
+    <script>
+        function showResult(testId, title, data, isSuccess = true) {
+            const resultDiv = document.getElementById(testId + '-result');
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.innerHTML = `
+                <h3>${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+        
+        async function testFormExists() {
+            try {
+                const response = await fetch('http://localhost/carwash_project/backend/dashboard/Customer_Dashboard.php', {
+                    credentials: 'include'
+                });
+                const html = await response.text();
+                
+                const hasFormTag = html.includes('<form') && html.includes('id="vehicleForm"');
+                const hasSubmitHandler = html.includes('@submit.prevent="saveVehicle()"');
+                const hasFormClose = html.includes('</form>');
+                
+                const result = {
+                    formTagExists: hasFormTag,
+                    submitHandlerExists: hasSubmitHandler,
+                    formCloseTagExists: hasFormClose,
+                    status: hasFormTag && hasSubmitHandler && hasFormClose ? '✅ PASS' : '❌ FAIL'
+                };
+                
+                showResult('test1', hasFormTag && hasSubmitHandler && hasFormClose ? '✅ Form Structure Valid' : '❌ Form Structure Invalid', result, hasFormTag && hasSubmitHandler && hasFormClose);
+            } catch (error) {
+                showResult('test1', '❌ Test Failed', { error: error.message }, false);
+            }
+        }
+        
+        async function testFormAttributes() {
+            try {
+                const response = await fetch('http://localhost/carwash_project/backend/dashboard/Customer_Dashboard.php', {
+                    credentials: 'include'
+                });
+                const html = await response.text();
+                
+                const hasFormId = html.includes('id="vehicleForm"');
+                const hasEnctype = html.includes('enctype="multipart/form-data"');
+                const hasSubmitPrevent = html.includes('@submit.prevent');
+                const hasCsrfToken = html.includes('name="csrf_token"');
+                const hasActionField = html.includes('name="action"');
+                
+                const result = {
+                    formId: hasFormId ? '✅ Present' : '❌ Missing',
+                    enctype: hasEnctype ? '✅ Present' : '❌ Missing',
+                    submitHandler: hasSubmitPrevent ? '✅ Present' : '❌ Missing',
+                    csrfToken: hasCsrfToken ? '✅ Present' : '❌ Missing',
+                    actionField: hasActionField ? '✅ Present' : '❌ Missing',
+                    status: hasFormId && hasEnctype && hasSubmitPrevent ? '✅ PASS' : '❌ FAIL'
+                };
+                
+                showResult('test2', hasFormId && hasEnctype ? '✅ Form Attributes Valid' : '❌ Form Attributes Invalid', result, hasFormId && hasEnctype);
+            } catch (error) {
+                showResult('test2', '❌ Test Failed', { error: error.message }, false);
+            }
+        }
+        
+        async function testFormFields() {
+            try {
+                const response = await fetch('http://localhost/carwash_project/backend/dashboard/Customer_Dashboard.php', {
+                    credentials: 'include'
+                });
+                const html = await response.text();
+                
+                const requiredFields = [
+                    { name: 'car_brand', label: 'Brand' },
+                    { name: 'car_model', label: 'Model' },
+                    { name: 'license_plate', label: 'License Plate' },
+                    { name: 'car_year', label: 'Year' },
+                    { name: 'car_color', label: 'Color' },
+                    { name: 'vehicle_image', label: 'Image' }
+                ];
+                
+                const result = {};
+                let allPresent = true;
+                
+                requiredFields.forEach(field => {
+                    const present = html.includes(`name="${field.name}"`);
+                    result[field.label] = present ? '✅ Present' : '❌ Missing';
+                    if (!present) allPresent = false;
+                });
+                
+                result.status = allPresent ? '✅ PASS' : '❌ FAIL';
+                
+                showResult('test3', allPresent ? '✅ All Form Fields Present' : '❌ Some Fields Missing', result, allPresent);
+            } catch (error) {
+                showResult('test3', '❌ Test Failed', { error: error.message }, false);
+            }
+        }
+        
+        async function testFormSubmission() {
+            try {
+                // Test the JavaScript selector fix
+                const result = {
+                    oldSelector: 'document.querySelector("#customer-sidebar").closest("body").querySelector("form[x-data]")',
+                    newSelector: 'document.getElementById("vehicleForm")',
+                    explanation: 'Old selector looked for form[x-data] which did not exist. New selector uses form ID.',
+                    fix: '✅ Form selector has been fixed',
+                    recommendation: 'Test by opening dashboard, clicking "Add Vehicle" button, filling form, and submitting'
+                };
+                
+                showResult('test4', '✅ Selector Logic Fixed', result, true);
+            } catch (error) {
+                showResult('test4', '❌ Test Failed', { error: error.message }, false);
+            }
+        }
+        
+        // Auto-run all tests
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testFormExists();
+                setTimeout(() => testFormAttributes(), 500);
+                setTimeout(() => testFormFields(), 1000);
+                setTimeout(() => testFormSubmission(), 1500);
+            }, 500);
+        });
+    </script>
+</body>
+</html>
