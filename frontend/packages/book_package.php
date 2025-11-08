@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../../backend/includes/auth_check.php';
 require_once '../../backend/includes/db.php';
 
@@ -26,7 +26,7 @@ $package = $stmt->get_result()->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <title>Book Package - <?= htmlspecialchars($package['name']) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
 </head>
 
 <body class="bg-gray-50">
@@ -36,7 +36,7 @@ $package = $stmt->get_result()->fetch_assoc();
             <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                 <h1 class="text-2xl font-bold mb-4"><?= htmlspecialchars($package['name']) ?></h1>
                 <div class="text-gray-600 mb-4"><?= nl2br(htmlspecialchars($package['description'])) ?></div>
-                <div class="text-2xl font-bold text-blue-600 mb-2">₺<?= number_format($package['price'], 2) ?></div>
+                <div class="text-2xl font-bold text-blue-600 mb-2">â‚º<?= number_format($package['price'], 2) ?></div>
                 <?php if ($package['discount_percentage'] > 0): ?>
                     <div class="text-green-600">Save <?= $package['discount_percentage'] ?>%</div>
                 <?php endif; ?>
@@ -70,3 +70,4 @@ $package = $stmt->get_result()->fetch_assoc();
 </body>
 
 </html>
+

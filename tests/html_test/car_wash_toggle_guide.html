@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Wash Dashboard - Toggle Switch Guide</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .toggle-switch {
@@ -103,19 +103,19 @@
                     <div class="flex items-center gap-4">
                         <!-- Toggle Switch Demo -->
                         <div class="flex items-center gap-3">
-                            <span id="label1" class="text-sm font-semibold">İşletme Açık</span>
+                            <span id="label1" class="text-sm font-semibold">Ä°ÅŸletme AÃ§Ä±k</span>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="toggle1" checked onchange="updateDemo(1)">
                                 <span class="slider"></span>
                             </label>
                             <div class="status-indicator status-open" id="status1">
                                 <span class="status-dot" style="background: currentColor;"></span>
-                                <span id="text1">Açık</span>
+                                <span id="text1">AÃ§Ä±k</span>
                             </div>
                         </div>
                         <button class="bg-white bg-opacity-10 px-4 py-2 rounded-lg">
                             <i class="fas fa-user mr-2"></i>
-                            <span>Kullanıcı</span>
+                            <span>KullanÄ±cÄ±</span>
                         </button>
                     </div>
                 </div>
@@ -128,12 +128,12 @@
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <h3 class="text-xl font-bold text-green-600 mb-4">
                     <i class="fas fa-check-circle mr-2"></i>
-                    AÇIK Durumu (ON)
+                    AÃ‡IK Durumu (ON)
                 </h3>
                 <div class="space-y-4">
                     <div class="flex items-center gap-3 p-4 bg-green-50 rounded-lg border-2 border-green-200">
                         <span class="font-semibold text-gray-700">Etiket:</span>
-                        <span class="text-green-700 font-bold">İşletme Açık</span>
+                        <span class="text-green-700 font-bold">Ä°ÅŸletme AÃ§Ä±k</span>
                     </div>
                     <div class="flex items-center gap-3 p-4 bg-green-50 rounded-lg border-2 border-green-200">
                         <span class="font-semibold text-gray-700">Renk:</span>
@@ -151,7 +151,7 @@
                         <span class="font-semibold text-gray-700">Badge:</span>
                         <div class="status-indicator status-open">
                             <span class="status-dot" style="background: currentColor;"></span>
-                            <span>Açık</span>
+                            <span>AÃ§Ä±k</span>
                         </div>
                     </div>
                 </div>
@@ -166,7 +166,7 @@
                 <div class="space-y-4">
                     <div class="flex items-center gap-3 p-4 bg-red-50 rounded-lg border-2 border-red-200">
                         <span class="font-semibold text-gray-700">Etiket:</span>
-                        <span class="text-red-700 font-bold">İşletme Kapalı</span>
+                        <span class="text-red-700 font-bold">Ä°ÅŸletme KapalÄ±</span>
                     </div>
                     <div class="flex items-center gap-3 p-4 bg-red-50 rounded-lg border-2 border-red-200">
                         <span class="font-semibold text-gray-700">Renk:</span>
@@ -184,7 +184,7 @@
                         <span class="font-semibold text-gray-700">Badge:</span>
                         <div class="status-indicator status-closed">
                             <span class="status-dot" style="background: currentColor;"></span>
-                            <span>Kapalı</span>
+                            <span>KapalÄ±</span>
                         </div>
                     </div>
                 </div>
@@ -195,14 +195,14 @@
         <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-2xl p-8 text-white">
             <h2 class="text-3xl font-bold mb-6">
                 <i class="fas fa-hand-pointer mr-3"></i>
-                İnteraktif Demo
+                Ä°nteraktif Demo
             </h2>
-            <p class="mb-6 opacity-90">Aşağıdaki toggle switch'i tıklayarak durumu değiştirebilirsiniz:</p>
+            <p class="mb-6 opacity-90">AÅŸaÄŸÄ±daki toggle switch'i tÄ±klayarak durumu deÄŸiÅŸtirebilirsiniz:</p>
             
             <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-8">
                 <div class="flex flex-col items-center gap-6">
                     <div class="flex items-center gap-4">
-                        <span id="demoLabel" class="text-2xl font-bold">İşletme Açık</span>
+                        <span id="demoLabel" class="text-2xl font-bold">Ä°ÅŸletme AÃ§Ä±k</span>
                         <label class="toggle-switch" style="transform: scale(1.5);">
                             <input type="checkbox" id="demoToggle" checked onchange="updateMainDemo()">
                             <span class="slider"></span>
@@ -211,7 +211,7 @@
                     
                     <div class="status-indicator status-open" id="demoStatus" style="transform: scale(1.5);">
                         <span class="status-dot" style="background: currentColor;"></span>
-                        <span id="demoText">Açık</span>
+                        <span id="demoText">AÃ§Ä±k</span>
                     </div>
                     
                     <div class="bg-white text-gray-800 rounded-lg p-4 text-sm font-mono">
@@ -225,25 +225,25 @@
         <div class="bg-white rounded-xl shadow-lg p-8 mt-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">
                 <i class="fas fa-code text-purple-600 mr-2"></i>
-                Kod Örneği
+                Kod Ã–rneÄŸi
             </h2>
             <div class="bg-gray-900 text-green-400 p-6 rounded-lg overflow-x-auto">
                 <pre><code>&lt;!-- Car Wash Dashboard Usage --&gt;
 &lt;?php
 $dashboard_type = 'carwash';
-$page_title = 'İşletme Paneli - CarWash';
+$page_title = 'Ä°ÅŸletme Paneli - CarWash';
 $current_page = 'dashboard';
 
 $custom_header_content = '
 &lt;div class="workplace-toggle-container"&gt;
-    &lt;span class="toggle-label" id="toggleLabel"&gt;İşletme Kapalı&lt;/span&gt;
+    &lt;span class="toggle-label" id="toggleLabel"&gt;Ä°ÅŸletme KapalÄ±&lt;/span&gt;
     &lt;label class="toggle-switch"&gt;
         &lt;input type="checkbox" id="workplaceStatus" checked onchange="toggleWorkplaceStatus()"&gt;
         &lt;span class="slider"&gt;&lt;/span&gt;
     &lt;/label&gt;
     &lt;div class="status-indicator status-open" id="statusIndicator"&gt;
         &lt;span class="status-dot" style="background: currentColor;"&gt;&lt;/span&gt;
-        &lt;span id="statusText"&gt;Açık&lt;/span&gt;
+        &lt;span id="statusText"&gt;AÃ§Ä±k&lt;/span&gt;
     &lt;/div&gt;
 &lt;/div&gt;
 ';
@@ -257,14 +257,14 @@ include '../includes/dashboard_header.php';
         <div class="bg-white rounded-xl shadow-lg p-8 mt-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                 <i class="fas fa-list-check text-blue-600 mr-2"></i>
-                Özellikler
+                Ã–zellikler
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
                     <i class="fas fa-check-circle text-blue-600 mt-1"></i>
                     <div>
                         <strong>Visual Feedback:</strong>
-                        <p class="text-sm text-gray-600">Renk değişimi ve animasyon ile açık/kapalı durumu gösterimi</p>
+                        <p class="text-sm text-gray-600">Renk deÄŸiÅŸimi ve animasyon ile aÃ§Ä±k/kapalÄ± durumu gÃ¶sterimi</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
@@ -278,14 +278,14 @@ include '../includes/dashboard_header.php';
                     <i class="fas fa-check-circle text-blue-600 mt-1"></i>
                     <div>
                         <strong>Responsive:</strong>
-                        <p class="text-sm text-gray-600">Mobilde etiket gizlenir, sadece toggle ve badge görünür</p>
+                        <p class="text-sm text-gray-600">Mobilde etiket gizlenir, sadece toggle ve badge gÃ¶rÃ¼nÃ¼r</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
                     <i class="fas fa-check-circle text-blue-600 mt-1"></i>
                     <div>
                         <strong>Animated:</strong>
-                        <p class="text-sm text-gray-600">Yumuşak geçişler ve pulse animasyonu</p>
+                        <p class="text-sm text-gray-600">YumuÅŸak geÃ§iÅŸler ve pulse animasyonu</p>
                     </div>
                 </div>
             </div>
@@ -301,12 +301,12 @@ include '../includes/dashboard_header.php';
             
             if (toggle.checked) {
                 status.className = 'status-indicator status-open';
-                text.textContent = 'Açık';
-                label.textContent = 'İşletme Açık';
+                text.textContent = 'AÃ§Ä±k';
+                label.textContent = 'Ä°ÅŸletme AÃ§Ä±k';
             } else {
                 status.className = 'status-indicator status-closed';
-                text.textContent = 'Kapalı';
-                label.textContent = 'İşletme Kapalı';
+                text.textContent = 'KapalÄ±';
+                label.textContent = 'Ä°ÅŸletme KapalÄ±';
             }
         }
 
@@ -319,16 +319,17 @@ include '../includes/dashboard_header.php';
             
             if (toggle.checked) {
                 status.className = 'status-indicator status-open';
-                text.textContent = 'Açık';
-                label.textContent = 'İşletme Açık';
+                text.textContent = 'AÃ§Ä±k';
+                label.textContent = 'Ä°ÅŸletme AÃ§Ä±k';
                 storage.textContent = 'workplaceStatus = "on"';
             } else {
                 status.className = 'status-indicator status-closed';
-                text.textContent = 'Kapalı';
-                label.textContent = 'İşletme Kapalı';
+                text.textContent = 'KapalÄ±';
+                label.textContent = 'Ä°ÅŸletme KapalÄ±';
                 storage.textContent = 'workplaceStatus = "off"';
             }
         }
     </script>
 </body>
 </html>
+

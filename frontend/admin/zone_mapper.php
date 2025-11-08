@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../backend/includes/db.php';
 require_once '../../backend/includes/auth_check.php';
@@ -11,7 +11,7 @@ require_once '../../backend/includes/maps_config.php';
 <head>
     <meta charset="UTF-8">
     <title>Zone Mapper</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars(getenv('GOOGLE_MAPS_API_KEY')) ?>&libraries=drawing"></script>
 </head>
 
@@ -42,3 +42,4 @@ require_once '../../backend/includes/maps_config.php';
 </body>
 
 </html>
+

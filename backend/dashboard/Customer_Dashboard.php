@@ -410,13 +410,9 @@ $current_page = 'dashboard';
             height: 60px;
         }
 
-        /* Site logo sizing (desktop default) */
-        #siteLogo {
-            width: 150px;
-            height: auto;
-            max-height: 64px;
-            object-fit: contain;
-        }
+        /* Site logo sizing is controlled globally in universal styles to enforce
+           a single source-of-truth (80px). Removed local #siteLogo rules so the
+           global CSS in backend/includes/universal_styles.php can apply. */
         
         /* Sidebar Navigation Menu */
         #customer-sidebar nav {
@@ -473,11 +469,7 @@ $current_page = 'dashboard';
                 height: 48px;
             }
 
-            /* Logo smaller on small screens */
-            #siteLogo {
-                width: 120px;
-                max-height: 48px;
-            }
+            /* Logo sizing is handled globally; local overrides removed. */
             
             #main-content {
                 margin-left: 200px;
@@ -503,7 +495,7 @@ $current_page = 'dashboard';
                 overflow-y: auto !important;     /* Allow scroll on mobile */
                 bottom: 0;                       /* Full height */
                 top: 80px;
-                z-index: 45;                    /* Above other content */
+                z-index: 48;                    /* Above main content but below header (header z-50) */
             }
             
             #customer-sidebar img#sidebarProfileImage {
@@ -522,11 +514,7 @@ $current_page = 'dashboard';
                 height: 48px;
             }
 
-            /* Logo smaller on mobile */
-            #siteLogo {
-                width: 100px;
-                max-height: 40px;
-            }
+            /* Logo sizing is handled globally; local overrides removed. */
             
             #main-content {
                 margin-left: 0;                 /* Full width content */
@@ -537,6 +525,54 @@ $current_page = 'dashboard';
                 margin-left: 0 !important;      /* Full width footer */
             }
         }
+        }
+
+        /* Mobile (<=900px) explicit rules to ensure hamburger menu visibility and layering */
+        @media (max-width: 900px) {
+            /* Ensure header stays on top */
+            header {
+                z-index: 50 !important;
+            }
+
+            /* Sidebar becomes a slide-in mobile panel beneath header */
+            #customer-sidebar {
+                position: fixed !important;
+                top: 80px;
+                left: 0;
+                height: calc(100vh - 80px);
+                width: 80%; /* take most of the screen on small devices */
+                max-width: 320px;
+                transform: translateX(-100%);
+                transition: transform 300ms ease-in-out;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.25);
+                z-index: 48; /* below header but above main content */
+            }
+
+            /* When mobile menu is open (class applied), show it */
+            #customer-sidebar.mobile-open {
+                transform: translateX(0) !important;
+            }
+
+            /* Overlay backdrop sits below the sidebar but above main content */
+            .mobile-menu-backdrop-dashboard {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.45);
+                z-index: 47;
+                display: none;
+            }
+
+            .mobile-menu-backdrop-dashboard.active {
+                display: block;
+            }
+
+            /* Ensure the hamburger button is visible */
+            .hamburger-toggle-dashboard {
+                display: inline-flex !important;
+            }
         }
         /* Hide scrollbar but keep scroll functionality if needed */
         #customer-sidebar::-webkit-scrollbar {
@@ -583,8 +619,9 @@ $current_page = 'dashboard';
         
         <!-- Mobile Menu Button -->
         <button 
+            id="mobileMenuToggleBtn"
             @click="mobileMenuOpen = !mobileMenuOpen"
-            class="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 hamburger-toggle-dashboard"
             aria-label="Toggle menu"
         >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!mobileMenuOpen">
@@ -2205,6 +2242,68 @@ console.log('✅ Customer Dashboard loaded successfully');
     console.log('✅ Mobile sidebar toggle initialized');
     
 })();
+
+    // Sync Alpine mobileMenuOpen state to CSS classes and provide a non-Alpine fallback
+    (function() {
+        'use strict';
+
+        const sidebar = document.getElementById('customer-sidebar');
+        // Select overlay by multiple class attributes instead of chained classes (avoid CSS escape issues)
+        const overlay = document.querySelector('div[role="button"][aria-label="Close sidebar"]');
+        const toggleBtn = document.getElementById('mobileMenuToggleBtn');
+
+        function applyOpenState(isOpen) {
+            if (!sidebar) return;
+            if (isOpen) {
+                sidebar.classList.add('mobile-open');
+                if (overlay) overlay.classList.add('active');
+                document.body.classList.add('menu-open');
+            } else {
+                sidebar.classList.remove('mobile-open');
+                if (overlay) overlay.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            }
+        }
+
+        // Alpine-aware observer
+        if (typeof Alpine !== 'undefined') {
+            document.addEventListener('alpine:init', function() {
+                Alpine.effect(() => {
+                    try {
+                        const body = document.body;
+                        const isOpen = body && body.__x && body.__x.$data && !!body.__x.$data.mobileMenuOpen;
+                        applyOpenState(isOpen);
+                    } catch (e) {
+                        // ignore
+                    }
+                });
+            });
+        }
+
+        // Non-Alpine fallback: toggle classes directly when hamburger is clicked
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function(e) {
+                // If Alpine is present, let it control state; fallback only if not
+                if (typeof Alpine === 'undefined' || !document.body.__x) {
+                    const isOpen = sidebar.classList.contains('mobile-open');
+                    applyOpenState(!isOpen);
+                }
+            });
+        }
+
+        // Close on ESC (fallback)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                // If Alpine present, set its state; otherwise use fallback
+                if (document.body && document.body.__x && document.body.__x.$data) {
+                    document.body.__x.$data.mobileMenuOpen = false;
+                } else {
+                    applyOpenState(false);
+                }
+            }
+        });
+
+    })();
 
 // ================================
 // Accessibility: Focus Management & Inert Support

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../includes/auth_required.php';
 require_once '../includes/db.php';
 
@@ -27,7 +27,7 @@ $carwash = $stmt->get_result()->fetch_assoc();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Wash Booking - <?= htmlspecialchars($carwash['business_name'] ?? $carwash['name'] ?? '') ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="/carwash_project/frontend/css/style.css" rel="stylesheet">
     <link href="/carwash_project/frontend/css/booking.css" rel="stylesheet">
@@ -71,7 +71,7 @@ $carwash = $stmt->get_result()->fetch_assoc();
                     <div class="bg-gray-50 p-4 rounded">
                         <div id="selectedServices" class="mb-4"></div>
                         <div class="text-xl font-bold">
-                            Total: <span id="totalPrice">₺0</span>
+                            Total: <span id="totalPrice">â‚º0</span>
                         </div>
                     </div>
                 </div>
@@ -103,3 +103,4 @@ $carwash = $stmt->get_result()->fetch_assoc();
 </body>
 
 </html>
+

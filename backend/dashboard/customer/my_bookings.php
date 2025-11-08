@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../includes/bootstrap.php';
 
@@ -35,8 +35,8 @@ $bookings = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Randevularım - AquaTR</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>RandevularÄ±m - AquaTR</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -46,7 +46,7 @@ $bookings = $stmt->fetchAll();
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <a href="index.php" class="text-xl font-semibold text-blue-600">
-                    <i class="fas fa-arrow-left"></i> Panele Dön
+                    <i class="fas fa-arrow-left"></i> Panele DÃ¶n
                 </a>
                 <a href="new_booking.php" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                     <i class="fas fa-plus"></i> Yeni Randevu
@@ -56,7 +56,7 @@ $bookings = $stmt->fetchAll();
     </nav>
 
     <div class="max-w-6xl mx-auto px-4">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">Randevularım</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">RandevularÄ±m</h1>
 
         <?php if (isset($_SESSION['success'])): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6" role="alert">
@@ -67,9 +67,9 @@ $bookings = $stmt->fetchAll();
 
         <?php if (empty($bookings)): ?>
             <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                <p class="text-gray-600">Henüz randevunuz bulunmamaktadır.</p>
+                <p class="text-gray-600">HenÃ¼z randevunuz bulunmamaktadÄ±r.</p>
                 <a href="new_booking.php" class="inline-block mt-4 text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-plus"></i> Yeni Randevu Oluştur
+                    <i class="fas fa-plus"></i> Yeni Randevu OluÅŸtur
                 </a>
             </div>
         <?php else: ?>
@@ -106,7 +106,7 @@ $bookings = $stmt->fetchAll();
                         </div>
 
                         <div class="mt-4">
-                            <p class="text-sm text-gray-600">Ücret</p>
+                            <p class="text-sm text-gray-600">Ãœcret</p>
                             <p class="font-medium"><?php echo number_format((float)($booking['total_amount'] ?? $booking['total_price'] ?? 0), 2); ?> TL</p>
                         </div>
 
@@ -121,7 +121,7 @@ $bookings = $stmt->fetchAll();
                             <?php if ($booking['status'] === 'pending'): ?>
                                 <button onclick="cancelBooking(<?php echo $booking['id']; ?>)"
                                     class="text-red-600 hover:text-red-800">
-                                    <i class="fas fa-times"></i> İptal Et
+                                    <i class="fas fa-times"></i> Ä°ptal Et
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -133,7 +133,7 @@ $bookings = $stmt->fetchAll();
 
     <script>
         function cancelBooking(bookingId) {
-            if (confirm('Randevuyu iptal etmek istediğinizden emin misiniz?')) {
+            if (confirm('Randevuyu iptal etmek istediÄŸinizden emin misiniz?')) {
                 fetch('cancel_booking.php', {
                         method: 'POST',
                         headers: {
@@ -146,12 +146,12 @@ $bookings = $stmt->fetchAll();
                         if (data.success) {
                             location.reload();
                         } else {
-                            alert(data.error || 'Bir hata oluştu.');
+                            alert(data.error || 'Bir hata oluÅŸtu.');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Bir hata oluştu.');
+                        alert('Bir hata oluÅŸtu.');
                     });
             }
         }
@@ -180,11 +180,11 @@ $bookings = $stmt->fetchAll();
             case 'pending':
                 return 'Beklemede';
             case 'confirmed':
-                return 'Onaylandı';
+                return 'OnaylandÄ±';
             case 'completed':
-                return 'Tamamlandı';
+                return 'TamamlandÄ±';
             case 'cancelled':
-                return 'İptal Edildi';
+                return 'Ä°ptal Edildi';
             default:
                 return 'Bilinmiyor';
         }
@@ -193,3 +193,4 @@ $bookings = $stmt->fetchAll();
 </body>
 
 </html>
+

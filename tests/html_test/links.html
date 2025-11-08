@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CarWash Project Links</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
 </head>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
@@ -61,16 +61,16 @@ h2 {
 }
 
 h2::before {
-    content: '🚀'; /* آیکون ساده برای هر بخش */
+    content: 'ðŸš€'; /* Ø¢ÛŒÚ©ÙˆÙ† Ø³Ø§Ø¯Ù‡ Ø¨Ø±Ø§ÛŒ Ù‡Ø± Ø¨Ø®Ø´ */
     margin-right: 0.5rem;
     font-size: 1.5rem;
 }
 
-h2:nth-of-type(2)::before { content: '🔐'; } /* Backend Auth */
-h2:nth-of-type(3)::before { content: '📊'; } /* Dashboard */
-h2:nth-of-type(4)::before { content: '⚙️'; } /* Includes */
-h2:nth-of-type(5)::before { content: '🎨'; } /* Frontend */
-h2:nth-of-type(6)::before { content: '🏠'; } /* Root */
+h2:nth-of-type(2)::before { content: 'ðŸ”'; } /* Backend Auth */
+h2:nth-of-type(3)::before { content: 'ðŸ“Š'; } /* Dashboard */
+h2:nth-of-type(4)::before { content: 'âš™ï¸'; } /* Includes */
+h2:nth-of-type(5)::before { content: 'ðŸŽ¨'; } /* Frontend */
+h2:nth-of-type(6)::before { content: 'ðŸ '; } /* Root */
 
 a {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -102,7 +102,7 @@ a:hover {
     z-index: 1;
 }
 
-/* سفارشی‌سازی hover برای هر بخش */
+/* Ø³ÙØ§Ø±Ø´ÛŒâ€ŒØ³Ø§Ø²ÛŒ hover Ø¨Ø±Ø§ÛŒ Ù‡Ø± Ø¨Ø®Ø´ */
 a[href*="auth"] {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border: 1px solid #dbeafe;
@@ -153,7 +153,7 @@ a[href*="test_project"]:hover {
     color: #374151;
 }
 
-/* Responsive بهبود */
+/* Responsive Ø¨Ù‡Ø¨ÙˆØ¯ */
 @media (max-width: 768px) {
     .grid {
         grid-template-columns: 1fr;
@@ -163,7 +163,7 @@ a[href*="test_project"]:hover {
     }
 }
 
-/* انیمیشن کلی برای لود صفحه */
+/* Ø§Ù†ÛŒÙ…ÛŒØ´Ù† Ú©Ù„ÛŒ Ø¨Ø±Ø§ÛŒ Ù„ÙˆØ¯ ØµÙØ­Ù‡ */
 body {
     animation: fadeIn 1.5s ease-in-out;
 }
@@ -177,11 +177,11 @@ body {
 <body class="bg-gray-100 font-sans">
 
 <div class="container mx-auto py-10">
-  <h1 class="text-4xl font-bold text-center text-blue-600 mb-8">🚗 CarWash Project Links</h1>
+  <h1 class="text-4xl font-bold text-center text-blue-600 mb-8">ðŸš— CarWash Project Links</h1>
 
   <!-- Backend Auth -->
   <section class="mb-6">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Backend – Auth</h2>
+    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Backend â€“ Auth</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <a href="http://localhost/carwash_project/backend/auth/Car_Wash_Registration.php" target="_blank" class="p-4 bg-white rounded-lg shadow hover:bg-blue-50 transition text-center font-medium">Car Wash Registration</a>
       <a href="http://localhost/carwash_project/backend/auth/Customer_Registration.php" target="_blank" class="p-4 bg-white rounded-lg shadow hover:bg-blue-50 transition text-center font-medium">Customer Registration</a>
@@ -193,7 +193,7 @@ body {
 
   <!-- Backend Dashboard -->
   <section class="mb-6">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Backend – Dashboard</h2>
+    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Backend â€“ Dashboard</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <a href="http://localhost/carwash_project/backend/dashboard/admin_panel.php" target="_blank" class="p-4 bg-white rounded-lg shadow hover:bg-green-50 transition text-center font-medium">Admin Panel</a>
       <a href="http://localhost/carwash_project/backend/dashboard/Car_Wash_Dashboard.php" target="_blank" class="p-4 bg-white rounded-lg shadow hover:bg-green-50 transition text-center font-medium">Car Wash Dashboard</a>
@@ -203,7 +203,7 @@ body {
 
   <!-- Backend Includes -->
   <section class="mb-6">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Backend – Includes</h2>
+    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Backend â€“ Includes</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <a href="http://localhost/carwash_project/backend/includes/db.php" target="_blank" class="p-4 bg-white rounded-lg shadow hover:bg-yellow-50 transition text-center font-medium">DB</a>
       <a href="http://localhost/carwash_project/backend/includes/header.php" target="_blank" class="p-4 bg-white rounded-lg shadow hover:bg-yellow-50 transition text-center font-medium">Header</a>
@@ -236,3 +236,4 @@ body {
 
 </body>
 </html>
+

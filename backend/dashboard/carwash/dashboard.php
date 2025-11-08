@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -19,7 +19,7 @@ $carwash_id = $_SESSION['carwash_id'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carwash Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -29,7 +29,7 @@ $carwash_id = $_SESSION['carwash_id'];
         <!-- Sidebar -->
         <div class="bg-white w-64 shadow-lg">
             <div class="p-4 border-b">
-                <h1 class="text-xl font-bold">İşletme Paneli</h1>
+                <h1 class="text-xl font-bold">Ä°ÅŸletme Paneli</h1>
             </div>
             <nav class="p-4">
                 <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50 active">
@@ -42,7 +42,7 @@ $carwash_id = $_SESSION['carwash_id'];
                     <i class="fas fa-cog mr-2"></i> Hizmetler
                 </a>
                 <a href="reviews.php" class="block py-2 px-4 rounded hover:bg-blue-50">
-                    <i class="fas fa-star mr-2"></i> Değerlendirmeler
+                    <i class="fas fa-star mr-2"></i> DeÄŸerlendirmeler
                 </a>
             </nav>
         </div>
@@ -52,11 +52,11 @@ $carwash_id = $_SESSION['carwash_id'];
             <!-- Today's Stats -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow p-6">
-                    <div class="text-sm text-gray-500 mb-1">Bugünkü Randevular</div>
+                    <div class="text-sm text-gray-500 mb-1">BugÃ¼nkÃ¼ Randevular</div>
                     <div class="text-2xl font-bold" id="todayAppointments">...</div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
-                    <div class="text-sm text-gray-500 mb-1">Günlük Gelir</div>
+                    <div class="text-sm text-gray-500 mb-1">GÃ¼nlÃ¼k Gelir</div>
                     <div class="text-2xl font-bold" id="todayRevenue">...</div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
@@ -72,17 +72,17 @@ $carwash_id = $_SESSION['carwash_id'];
             <!-- Upcoming Appointments -->
             <div class="bg-white rounded-lg shadow mb-8">
                 <div class="p-6 border-b">
-                    <h3 class="text-lg font-semibold">Yaklaşan Randevular</h3>
+                    <h3 class="text-lg font-semibold">YaklaÅŸan Randevular</h3>
                 </div>
                 <div class="p-6">
                     <table class="w-full" id="appointmentsTable">
                         <thead class="text-left text-sm text-gray-500">
                             <tr>
                                 <th class="pb-3">Saat</th>
-                                <th class="pb-3">Müşteri</th>
+                                <th class="pb-3">MÃ¼ÅŸteri</th>
                                 <th class="pb-3">Hizmet</th>
                                 <th class="pb-3">Durum</th>
-                                <th class="pb-3">İşlem</th>
+                                <th class="pb-3">Ä°ÅŸlem</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -95,11 +95,11 @@ $carwash_id = $_SESSION['carwash_id'];
             <!-- Charts -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold mb-4">Haftalık Gelir</h3>
+                    <h3 class="text-lg font-semibold mb-4">HaftalÄ±k Gelir</h3>
                     <canvas id="weeklyRevenueChart"></canvas>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold mb-4">Popüler Hizmetler</h3>
+                    <h3 class="text-lg font-semibold mb-4">PopÃ¼ler Hizmetler</h3>
                     <canvas id="popularServicesChart"></canvas>
                 </div>
             </div>
@@ -110,3 +110,4 @@ $carwash_id = $_SESSION['carwash_id'];
 </body>
 
 </html>
+

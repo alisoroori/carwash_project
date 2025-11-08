@@ -563,4 +563,47 @@ footer:not(:last-of-type) {
         overflow: visible !important;
     }
 }
+
+/* ========================================
+   GLOBAL LOGO SIZING (CONSISTENT 80px)
+   Applies to header/footer/logo usages across the site.
+   - Sets width to 80px, preserves aspect ratio (height:auto)
+   - Uses !important to override inline styles where present
+   - Keeps max-width:100% so logos remain responsive in very small containers
+   - Targets common logo selectors found in the repo
+   ======================================== */
+.logo-image,
+.site-logo img,
+.logo-icon img,
+img.logo,
+img.logo-image,
+.logo-link img,
+.logo,
+.logo-image-class,
+.dashboard-logo img,
+.header .site-logo img,
+.universal-footer img {
+    width: 80px !important;
+    height: auto !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+}
+
+/* Slightly reduce logo size on very narrow viewports to avoid layout issues */
+@media (max-width: 360px) {
+    .logo-image,
+    .site-logo img,
+    .logo-icon img,
+    img.logo {
+        width: 64px !important;
+    }
+}
+
+/* Catch other logo image usages that use different classes or utility classes */
+img[src*="logo"] {
+    width: 80px !important;
+    height: auto !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+}
 </style>

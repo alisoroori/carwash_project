@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -18,28 +18,28 @@ $reportManager = new ReportManager($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Değerlendirme Raporları - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>DeÄŸerlendirme RaporlarÄ± - Admin Panel</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold mb-6">Değerlendirme Raporları</h1>
+        <h1 class="text-2xl font-bold mb-6">DeÄŸerlendirme RaporlarÄ±</h1>
 
         <!-- Filters -->
         <div class="mb-6 flex gap-4">
             <select id="statusFilter" class="rounded-md border-gray-300 shadow-sm">
-                <option value="">Tüm Durumlar</option>
+                <option value="">TÃ¼m Durumlar</option>
                 <option value="pending">Beklemede</option>
-                <option value="resolved">Çözüldü</option>
+                <option value="resolved">Ã‡Ã¶zÃ¼ldÃ¼</option>
                 <option value="dismissed">Reddedildi</option>
             </select>
             <select id="reasonFilter" class="rounded-md border-gray-300 shadow-sm">
-                <option value="">Tüm Nedenler</option>
+                <option value="">TÃ¼m Nedenler</option>
                 <option value="spam">Spam</option>
-                <option value="offensive">Rahatsız Edici</option>
+                <option value="offensive">RahatsÄ±z Edici</option>
                 <option value="inappropriate">Uygunsuz</option>
-                <option value="other">Diğer</option>
+                <option value="other">DiÄŸer</option>
             </select>
         </div>
 
@@ -52,7 +52,7 @@ $reportManager = new ReportManager($conn);
                             Tarih
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                            Değerlendirme
+                            DeÄŸerlendirme
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                             Bildirim Nedeni
@@ -61,7 +61,7 @@ $reportManager = new ReportManager($conn);
                             Durum
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                            İşlemler
+                            Ä°ÅŸlemler
                         </th>
                     </tr>
                 </thead>
@@ -84,3 +84,4 @@ $reportManager = new ReportManager($conn);
     <script src="../../frontend/js/admin/review_reports.js"></script>
 </body>
 </html>
+

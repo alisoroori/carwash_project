@@ -1,15 +1,15 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Yeni Rezervasyon — CarWash</title>
+  <title>Yeni Rezervasyon â€” CarWash</title>
   <!-- Tailwind CSS (CDN) - development convenience. -->
   <!-- For production, generate a compiled Tailwind CSS file (tailwind CLI / PostCSS) and include that instead. -->
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    console.warn("cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation");
+  <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <script>
+    console.info("Tailwind CDN removed — local compiled CSS is used: /frontend/css/tailwind.css");
   </script>
 
   <!-- Inline CSS: dashboard-friendly, compact -->
@@ -50,25 +50,25 @@
 <body>
   <div class="container">
     <div class="card" id="reservationCard">
-      <h1>Yeni Rezervasyon Oluştur</h1>
-      <p class="muted" id="intro">Seçtiğiniz oto yıkama için hizmeti, tarihi ve saati seçin. Rezervasyon yapabilmek için giriş (oturum) gereklidir.</p>
+      <h1>Yeni Rezervasyon OluÅŸtur</h1>
+      <p class="muted" id="intro">SeÃ§tiÄŸiniz oto yÄ±kama iÃ§in hizmeti, tarihi ve saati seÃ§in. Rezervasyon yapabilmek iÃ§in giriÅŸ (oturum) gereklidir.</p>
 
       <div id="messages" style="margin-top:10px"></div>
 
       <div style="margin-top:12px" class="grid">
         <!-- Services -->
         <div>
-          <label>Hizmet Seçin</label>
+          <label>Hizmet SeÃ§in</label>
           <div id="embeddedServices" class="services-list">
-            <div class="muted">Hizmetler yükleniyor...</div>
+            <div class="muted">Hizmetler yÃ¼kleniyor...</div>
           </div>
         </div>
 
         <!-- Vehicle -->
         <div>
-          <label for="vehicle">Araç Seçin</label>
+          <label for="vehicle">AraÃ§ SeÃ§in</label>
           <select id="vehicle" class="input">
-            <option value="">Araç bilgisi yükleniyor...</option>
+            <option value="">AraÃ§ bilgisi yÃ¼kleniyor...</option>
           </select>
         </div>
 
@@ -81,7 +81,7 @@
           <div>
             <label for="reservationTime">Saat</label>
             <select id="reservationTime" class="input">
-              <option>Yükleniyor...</option>
+              <option>YÃ¼kleniyor...</option>
             </select>
           </div>
         </div>
@@ -90,19 +90,19 @@
         <div>
           <label for="location">Konum</label>
           <select id="location" class="input">
-            <option value="">Konumlar yükleniyor...</option>
+            <option value="">Konumlar yÃ¼kleniyor...</option>
           </select>
         </div>
 
         <!-- Notes -->
         <div>
           <label for="notes">Ek Notlar (opsiyonel)</label>
-          <textarea id="notes" class="input" rows="3" placeholder="Özel istekleriniz..."></textarea>
+          <textarea id="notes" class="input" rows="3" placeholder="Ã–zel istekleriniz..."></textarea>
         </div>
       </div>
 
       <div class="actions">
-        <button class="btn btn-ghost" id="btnCancel">Geri Dön</button>
+        <button class="btn btn-ghost" id="btnCancel">Geri DÃ¶n</button>
         <button class="btn btn-primary" id="btnSubmit">
           <span id="btnSubmitText">Rezervasyon Yap</span>
         </button>
@@ -160,9 +160,9 @@
       }
 
       function populateCarwashSelect(){
-        locationSel.innerHTML = '<option value=\"\">Konum Seçiniz</option>';
+        locationSel.innerHTML = '<option value=\"\">Konum SeÃ§iniz</option>';
         if(carwashes.length === 0){
-          locationSel.innerHTML = '<option value=\"\">(Sunucudan konum alınamadı)</option>';
+          locationSel.innerHTML = '<option value=\"\">(Sunucudan konum alÄ±namadÄ±)</option>';
           return;
         }
         carwashes.forEach(cw=>{
@@ -187,13 +187,13 @@
 
       // Load services for selected carwash
       async function loadServicesForCarwash(carwashId){
-        servicesContainer.innerHTML = '<div class="muted">Hizmetler yükleniyor...</div>';
+        servicesContainer.innerHTML = '<div class="muted">Hizmetler yÃ¼kleniyor...</div>';
         selectedService = null;
         try{
           const r = await fetch(API_SERVICES + '?carwash_id=' + encodeURIComponent(carwashId), {cache:'no-store', credentials:'same-origin'});
           const svcs = await r.json();
           if(!Array.isArray(svcs) || svcs.length===0){
-            servicesContainer.innerHTML = '<div class="muted">Bu konum için hizmet bulunamadı.</div>';
+            servicesContainer.innerHTML = '<div class="muted">Bu konum iÃ§in hizmet bulunamadÄ±.</div>';
             return;
           }
           servicesContainer.innerHTML = '';
@@ -201,13 +201,13 @@
             const card = document.createElement('div');
             card.className = 'service-card';
             card.dataset.serviceId = svc.id;
-            card.innerHTML = `<div class="service-meta"><div class="service-name">${escapeHtml(svc.name)}</div><div class="service-desc">${escapeHtml(svc.description||'')}</div></div><div class="price">₺${Number(svc.price||0).toFixed(2)}</div>`;
+            card.innerHTML = `<div class="service-meta"><div class="service-name">${escapeHtml(svc.name)}</div><div class="service-desc">${escapeHtml(svc.description||'')}</div></div><div class="price">â‚º${Number(svc.price||0).toFixed(2)}</div>`;
             card.addEventListener('click', ()=>{ selectServiceCard(card, svc); });
             servicesContainer.appendChild(card);
           });
         }catch(e){
           console.warn('services fetch failed', e);
-          servicesContainer.innerHTML = '<div class="muted">Hizmetler alınırken hata oluştu.</div>';
+          servicesContainer.innerHTML = '<div class="muted">Hizmetler alÄ±nÄ±rken hata oluÅŸtu.</div>';
         }
       }
 
@@ -220,7 +220,7 @@
 
       // Populate time slots (09:00 - 17:30, every 30 min)
       function populateTimes(){
-        timeSel.innerHTML = '<option value=\"\">Saat seçin</option>';
+        timeSel.innerHTML = '<option value=\"\">Saat seÃ§in</option>';
         for(let h=9; h<=17; h++){
           ['00','30'].forEach(m=>{
             const val = `${String(h).padStart(2,'0')}:${m}`;
@@ -232,15 +232,15 @@
 
       // Try to load user vehicles (optional)
       async function loadVehicles(){
-        vehicleSel.innerHTML = '<option>Yükleniyor...</option>';
+        vehicleSel.innerHTML = '<option>YÃ¼kleniyor...</option>';
         try{
           const r = await fetch(API_VEHICLES, {cache:'no-store', credentials:'same-origin'});
           if(r.ok){
             const json = await r.json();
             if(Array.isArray(json) && json.length){
-              vehicleSel.innerHTML = '<option value=\"\">Araç seçiniz</option>';
+              vehicleSel.innerHTML = '<option value=\"\">AraÃ§ seÃ§iniz</option>';
               json.forEach(v=>{
-                const opt = document.createElement('option'); opt.value = v.id; opt.textContent = v.make ? `${v.make} ${v.model} - ${v.plate||''}` : (v.display||'Araç');
+                const opt = document.createElement('option'); opt.value = v.id; opt.textContent = v.make ? `${v.make} ${v.model} - ${v.plate||''}` : (v.display||'AraÃ§');
                 vehicleSel.appendChild(opt);
               });
               return;
@@ -250,13 +250,13 @@
           // silent
         }
         // fallback sample vehicles
-        vehicleSel.innerHTML = '<option value=\"\">Araç seçiniz</option><option value=\"1\">Toyota Corolla - 34 ABC 123</option><option value=\"2\">Honda Civic - 34 XYZ 789</option>';
+        vehicleSel.innerHTML = '<option value=\"\">AraÃ§ seÃ§iniz</option><option value=\"1\">Toyota Corolla - 34 ABC 123</option><option value=\"2\">Honda Civic - 34 XYZ 789</option>';
       }
 
       // Submit handler
       async function submitBooking(){
         if(!selectedService){
-          showMessage('error','Lütfen önce bir hizmet seçin.');
+          showMessage('error','LÃ¼tfen Ã¶nce bir hizmet seÃ§in.');
           return;
         }
         const carwashId = locationSel.value;
@@ -267,12 +267,12 @@
         const vehicleId = vehicleSel.value || null;
 
         if(!carwashId || !serviceId || !date || !time){
-          showMessage('error','Lütfen tüm zorunlu alanları doldurun (konum, hizmet, tarih, saat).');
+          showMessage('error','LÃ¼tfen tÃ¼m zorunlu alanlarÄ± doldurun (konum, hizmet, tarih, saat).');
           return;
         }
 
         // Disable button
-        btnSubmit.disabled = true; btnSubmitText.textContent = 'Gönderiliyor...';
+        btnSubmit.disabled = true; btnSubmitText.textContent = 'GÃ¶nderiliyor...';
 
         try{
           const fd = new FormData();
@@ -284,24 +284,24 @@
           if(vehicleId) fd.append('vehicle_id', vehicleId);
 
           const resp = await fetch(API_BOOKINGS, {method:'POST', body:fd, credentials:'same-origin'});
-          const json = await resp.json().catch(()=>({success:false,errors:['Geçersiz sunucu yanıtı']}));
+          const json = await resp.json().catch(()=>({success:false,errors:['GeÃ§ersiz sunucu yanÄ±tÄ±']}));
           if(resp.status === 401 || (json && json.errors && json.errors.includes('Unauthorized: please log in'))){
-            showMessage('error','Oturum açmanız gerekiyor. Lütfen giriş yapın ve tekrar deneyin.');
+            showMessage('error','Oturum aÃ§manÄ±z gerekiyor. LÃ¼tfen giriÅŸ yapÄ±n ve tekrar deneyin.');
             // Optionally redirect to login: window.location.href = '/carwash_project/backend/auth/login.php';
           } else if(json && json.success){
-            showMessage('success','Rezervasyon başarılı. ID: ' + (json.booking_id || '[bilinmiyor]'));
+            showMessage('success','Rezervasyon baÅŸarÄ±lÄ±. ID: ' + (json.booking_id || '[bilinmiyor]'));
             // optionally reset form
             selectedService = null;
             document.querySelectorAll('.service-card').forEach(n=>n.classList.remove('selected'));
             notesEl.value = '';
             // keep date/time for convenience
           } else {
-            const err = (json && json.errors && json.errors.join('\n')) || json.message || 'Rezervasyon oluşturulamadı';
+            const err = (json && json.errors && json.errors.join('\n')) || json.message || 'Rezervasyon oluÅŸturulamadÄ±';
             showMessage('error', err);
           }
         }catch(e){
           console.error(e);
-          showMessage('error','Sunucu hatası oluştu.');
+          showMessage('error','Sunucu hatasÄ± oluÅŸtu.');
         }finally{
           btnSubmit.disabled = false; btnSubmitText.textContent = 'Rezervasyon Yap';
         }
@@ -311,7 +311,7 @@
       function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
 
       // Event bindings
-      locationSel.addEventListener('change', ()=>{ const v=locationSel.value; if(v) loadServicesForCarwash(v); else servicesContainer.innerHTML = '<div class=\"muted\">Konum seçin</div>'; });
+      locationSel.addEventListener('change', ()=>{ const v=locationSel.value; if(v) loadServicesForCarwash(v); else servicesContainer.innerHTML = '<div class=\"muted\">Konum seÃ§in</div>'; });
       btnSubmit.addEventListener('click', submitBooking);
       btnCancel.addEventListener('click', ()=>{ window.history.back(); });
 

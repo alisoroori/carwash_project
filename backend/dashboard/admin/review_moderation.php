@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
 
@@ -14,7 +14,7 @@ if ($_SESSION['user_role'] !== 'admin') {
 <head>
     <meta charset="UTF-8">
     <title>Review Moderation - Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -43,3 +43,4 @@ if ($_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+

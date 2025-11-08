@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/sms_template_manager.php';
@@ -19,8 +19,8 @@ $templates = $templateManager->getAllTemplates();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMS Şablon Testi - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>SMS Åžablon Testi - Admin Panel</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -30,7 +30,7 @@ $templates = $templateManager->getAllTemplates();
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="sms_templates.php" class="text-gray-700">
-                        <i class="fas fa-arrow-left mr-2"></i> Şablonlara Dön
+                        <i class="fas fa-arrow-left mr-2"></i> Åžablonlara DÃ¶n
                     </a>
                 </div>
             </div>
@@ -38,7 +38,7 @@ $templates = $templateManager->getAllTemplates();
     </nav>
 
     <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-3xl font-bold mb-6">SMS Şablon Test Aracı</h1>
+        <h1 class="text-3xl font-bold mb-6">SMS Åžablon Test AracÄ±</h1>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Template Selection and Variables -->
@@ -48,10 +48,10 @@ $templates = $templateManager->getAllTemplates();
                 <form id="testForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Şablon Seçin
+                            Åžablon SeÃ§in
                         </label>
                         <select id="templateSelect" class="w-full rounded-md border-gray-300 shadow-sm">
-                            <option value="">Şablon seçin...</option>
+                            <option value="">Åžablon seÃ§in...</option>
                             <?php foreach ($templates as $template): ?>
                                 <option value="<?= $template['id'] ?>"><?= htmlspecialchars($template['name']) ?></option>
                             <?php endforeach; ?>
@@ -64,7 +64,7 @@ $templates = $templateManager->getAllTemplates();
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Test Telefon Numarası
+                            Test Telefon NumarasÄ±
                         </label>
                         <input type="tel" id="testPhone"
                             placeholder="5XX XXX XXXX"
@@ -74,11 +74,11 @@ $templates = $templateManager->getAllTemplates();
                     <div class="flex space-x-2">
                         <button type="button" onclick="previewTemplate()"
                             class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                            Önizle
+                            Ã–nizle
                         </button>
                         <button type="button" onclick="sendTestSMS()"
                             class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
-                            Test SMS Gönder
+                            Test SMS GÃ¶nder
                         </button>
                     </div>
                 </form>
@@ -86,26 +86,26 @@ $templates = $templateManager->getAllTemplates();
 
             <!-- Preview Panel -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold mb-4">Önizleme</h2>
+                <h2 class="text-xl font-semibold mb-4">Ã–nizleme</h2>
                 <div class="border rounded-lg p-4 bg-gray-50 min-h-[200px]">
                     <div id="previewContent" class="whitespace-pre-wrap"></div>
                 </div>
                 <div class="mt-4 text-sm text-gray-500">
-                    <div id="characterCount">Karakter sayısı: 0</div>
-                    <div id="smsCount">SMS sayısı: 1</div>
+                    <div id="characterCount">Karakter sayÄ±sÄ±: 0</div>
+                    <div id="smsCount">SMS sayÄ±sÄ±: 1</div>
                 </div>
             </div>
         </div>
 
         <!-- Test History -->
         <div class="mt-8 bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Test Geçmişi</h2>
+            <h2 class="text-xl font-semibold mb-4">Test GeÃ§miÅŸi</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Şablon</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Åžablon</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Telefon</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
                         </tr>
@@ -147,7 +147,7 @@ $templates = $templateManager->getAllTemplates();
                     </label>
                     <input type="text" name="${variable}"
                            class="w-full rounded-md border-gray-300 shadow-sm"
-                           placeholder="Değer girin...">
+                           placeholder="DeÄŸer girin...">
                 `;
                 container.appendChild(div);
             });
@@ -177,9 +177,9 @@ $templates = $templateManager->getAllTemplates();
                     if (data.success) {
                         document.getElementById('previewContent').textContent = data.preview;
                         document.getElementById('characterCount').textContent =
-                            `Karakter sayısı: ${data.preview.length}`;
+                            `Karakter sayÄ±sÄ±: ${data.preview.length}`;
                         document.getElementById('smsCount').textContent =
-                            `SMS sayısı: ${Math.ceil(data.preview.length / 160)}`;
+                            `SMS sayÄ±sÄ±: ${Math.ceil(data.preview.length / 160)}`;
                     }
                 });
         }
@@ -208,10 +208,10 @@ $templates = $templateManager->getAllTemplates();
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Test SMS gönderildi!');
+                        alert('Test SMS gÃ¶nderildi!');
                         loadTestHistory();
                     } else {
-                        alert(data.error || 'SMS gönderilemedi.');
+                        alert(data.error || 'SMS gÃ¶nderilemedi.');
                     }
                 });
         }
@@ -229,7 +229,7 @@ $templates = $templateManager->getAllTemplates();
                             <td class="px-6 py-4">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     ${test.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                    ${test.status === 'success' ? 'Başarılı' : 'Başarısız'}
+                                    ${test.status === 'success' ? 'BaÅŸarÄ±lÄ±' : 'BaÅŸarÄ±sÄ±z'}
                                 </span>
                             </td>
                         </tr>
@@ -243,3 +243,4 @@ $templates = $templateManager->getAllTemplates();
 </body>
 
 </html>
+

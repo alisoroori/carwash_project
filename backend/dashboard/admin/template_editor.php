@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 <head>
     <meta charset="UTF-8">
     <title>Email Template Editor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
@@ -113,3 +113,4 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../includes/bootstrap.php';
 
@@ -28,7 +28,7 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yeni Randevu - AquaTR</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -38,19 +38,19 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <a href="index.php" class="text-xl font-semibold text-blue-600">
-                    <i class="fas fa-arrow-left"></i> Panele Dön
+                    <i class="fas fa-arrow-left"></i> Panele DÃ¶n
                 </a>
             </div>
         </div>
     </nav>
 
     <div class="max-w-4xl mx-auto px-4">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">Yeni Randevu Oluştur</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Yeni Randevu OluÅŸtur</h1>
 
         <form id="bookingForm" action="process_booking.php" method="POST" class="bg-white rounded-lg shadow-md p-6">
             <!-- Step 1: Select CarWash -->
             <div class="booking-step" id="step1">
-                <h2 class="text-xl font-semibold mb-4">1. Araç Yıkama Merkezi Seçin</h2>
+                <h2 class="text-xl font-semibold mb-4">1. AraÃ§ YÄ±kama Merkezi SeÃ§in</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <?php foreach ($carwashes as $carwash): ?>
                         <div class="border rounded p-4 hover:border-blue-500 cursor-pointer carwash-option">
@@ -68,7 +68,7 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
 
             <!-- Step 2: Select Service -->
             <div class="booking-step hidden" id="step2">
-                <h2 class="text-xl font-semibold mb-4">2. Hizmet Seçin</h2>
+                <h2 class="text-xl font-semibold mb-4">2. Hizmet SeÃ§in</h2>
                 <div id="services-container" class="grid grid-cols-1 gap-4">
                     <!-- Services will be loaded dynamically -->
                 </div>
@@ -76,7 +76,7 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
 
             <!-- Step 3: Select Date & Time -->
             <div class="booking-step hidden" id="step3">
-                <h2 class="text-xl font-semibold mb-4">3. Tarih ve Saat Seçin</h2>
+                <h2 class="text-xl font-semibold mb-4">3. Tarih ve Saat SeÃ§in</h2>
                 <div class="space-y-4">
                     <div>
                         <label for="booking_date_input" class="block text-sm font-medium text-gray-700">Tarih</label>
@@ -99,7 +99,7 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
                     <i class="fas fa-arrow-left mr-2"></i> Geri
                 </button>
                 <button type="button" id="nextBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    İleri <i class="fas fa-arrow-right ml-2"></i>
+                    Ä°leri <i class="fas fa-arrow-right ml-2"></i>
                 </button>
                 <button type="submit" id="submitBtn" class="hidden px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                     Randevuyu Onayla <i class="fas fa-check ml-2"></i>
@@ -215,3 +215,4 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
 </body>
 
 </html>
+

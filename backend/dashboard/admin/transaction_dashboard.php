@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
@@ -18,7 +18,7 @@ $analytics = new TransactionAnalytics($conn);
 <head>
     <meta charset="UTF-8">
     <title>Transaction Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -29,7 +29,7 @@ $analytics = new TransactionAnalytics($conn);
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-sm font-medium text-gray-500">Total Revenue</h3>
                 <div class="mt-2 flex items-baseline">
-                    <div class="text-2xl font-semibold" id="totalRevenue">₺0</div>
+                    <div class="text-2xl font-semibold" id="totalRevenue">â‚º0</div>
                 </div>
             </div>
 
@@ -67,3 +67,4 @@ $analytics = new TransactionAnalytics($conn);
 </body>
 
 </html>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 
@@ -24,7 +24,7 @@ $config = array_column($settings, 'value', 'key');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Settings - AquaTR</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -34,14 +34,14 @@ $config = array_column($settings, 'value', 'key');
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <a href="index.php" class="text-xl font-bold text-blue-600">
-                    <i class="fas fa-arrow-left"></i> Panele Dön
+                    <i class="fas fa-arrow-left"></i> Panele DÃ¶n
                 </a>
             </div>
         </div>
     </nav>
 
     <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">Sistem Ayarları</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Sistem AyarlarÄ±</h1>
 
         <?php if (isset($_SESSION['success'])): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6">
@@ -58,21 +58,21 @@ $config = array_column($settings, 'value', 'key');
                     <input type="hidden" name="section" value="general">
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Site Başlığı</label>
+                        <label class="block text-sm font-medium text-gray-700">Site BaÅŸlÄ±ÄŸÄ±</label>
                         <input type="text" name="site_title"
                             value="<?php echo htmlspecialchars($config['site_title'] ?? ''); ?>"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">İletişim Email</label>
+                        <label class="block text-sm font-medium text-gray-700">Ä°letiÅŸim Email</label>
                         <input type="email" name="contact_email"
                             value="<?php echo htmlspecialchars($config['contact_email'] ?? ''); ?>"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">İletişim Telefon</label>
+                        <label class="block text-sm font-medium text-gray-700">Ä°letiÅŸim Telefon</label>
                         <input type="tel" name="contact_phone"
                             value="<?php echo htmlspecialchars($config['contact_phone'] ?? ''); ?>"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -86,26 +86,26 @@ $config = array_column($settings, 'value', 'key');
 
             <!-- Booking Settings -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-6">Randevu Ayarları</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Randevu AyarlarÄ±</h2>
                 <form action="update_settings.php" method="POST" class="space-y-6">
                     <input type="hidden" name="section" value="booking">
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Minimum Randevu Süresi (dakika)</label>
+                        <label class="block text-sm font-medium text-gray-700">Minimum Randevu SÃ¼resi (dakika)</label>
                         <input type="number" name="min_booking_duration"
                             value="<?php echo htmlspecialchars($config['min_booking_duration'] ?? '30'); ?>"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Maksimum Önceden Rezervasyon (gün)</label>
+                        <label class="block text-sm font-medium text-gray-700">Maksimum Ã–nceden Rezervasyon (gÃ¼n)</label>
                         <input type="number" name="max_advance_booking_days"
                             value="<?php echo htmlspecialchars($config['max_advance_booking_days'] ?? '30'); ?>"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">İptal Süresi Limiti (saat)</label>
+                        <label class="block text-sm font-medium text-gray-700">Ä°ptal SÃ¼resi Limiti (saat)</label>
                         <input type="number" name="cancellation_limit_hours"
                             value="<?php echo htmlspecialchars($config['cancellation_limit_hours'] ?? '24'); ?>"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -119,7 +119,7 @@ $config = array_column($settings, 'value', 'key');
 
             <!-- Email Settings -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-6">Email Ayarları</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Email AyarlarÄ±</h2>
                 <form action="update_settings.php" method="POST" class="space-y-6">
                     <input type="hidden" name="section" value="email">
 
@@ -138,14 +138,14 @@ $config = array_column($settings, 'value', 'key');
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">SMTP Kullanıcı</label>
+                        <label class="block text-sm font-medium text-gray-700">SMTP KullanÄ±cÄ±</label>
                         <input type="text" name="smtp_user"
                             value="<?php echo htmlspecialchars($config['smtp_user'] ?? ''); ?>"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">SMTP Şifre</label>
+                        <label class="block text-sm font-medium text-gray-700">SMTP Åžifre</label>
                         <input type="password" name="smtp_pass"
                             value="<?php echo htmlspecialchars($config['smtp_pass'] ?? ''); ?>"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -159,21 +159,21 @@ $config = array_column($settings, 'value', 'key');
 
             <!-- System Maintenance -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-6">Sistem Bakımı</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Sistem BakÄ±mÄ±</h2>
                 <div class="space-y-4">
                     <button onclick="clearCache()"
                         class="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700">
-                        Önbelleği Temizle
+                        Ã–nbelleÄŸi Temizle
                     </button>
 
                     <button onclick="backupDatabase()"
                         class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
-                        Veritabanı Yedekle
+                        VeritabanÄ± Yedekle
                     </button>
 
                     <button onclick="confirmMaintenance()"
                         class="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700">
-                        Bakım Modu <?php echo ($config['maintenance_mode'] ?? 'off') === 'on' ? 'Kapat' : 'Aç'; ?>
+                        BakÄ±m Modu <?php echo ($config['maintenance_mode'] ?? 'off') === 'on' ? 'Kapat' : 'AÃ§'; ?>
                     </button>
                 </div>
             </div>
@@ -182,7 +182,7 @@ $config = array_column($settings, 'value', 'key');
 
     <script>
         function clearCache() {
-            if (confirm('Önbelleği temizlemek istediğinize emin misiniz?')) {
+            if (confirm('Ã–nbelleÄŸi temizlemek istediÄŸinize emin misiniz?')) {
                 fetch('maintenance.php', {
                         method: 'POST',
                         headers: {
@@ -193,16 +193,16 @@ $config = array_column($settings, 'value', 'key');
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('Önbellek temizlendi.');
+                            alert('Ã–nbellek temizlendi.');
                         } else {
-                            alert(data.error || 'Bir hata oluştu.');
+                            alert(data.error || 'Bir hata oluÅŸtu.');
                         }
                     });
             }
         }
 
         function backupDatabase() {
-            if (confirm('Veritabanı yedeklemesi başlatılsın mı?')) {
+            if (confirm('VeritabanÄ± yedeklemesi baÅŸlatÄ±lsÄ±n mÄ±?')) {
                 fetch('maintenance.php', {
                         method: 'POST',
                         headers: {
@@ -213,16 +213,16 @@ $config = array_column($settings, 'value', 'key');
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('Yedekleme tamamlandı.');
+                            alert('Yedekleme tamamlandÄ±.');
                         } else {
-                            alert(data.error || 'Bir hata oluştu.');
+                            alert(data.error || 'Bir hata oluÅŸtu.');
                         }
                     });
             }
         }
 
         function confirmMaintenance() {
-            if (confirm('Bakım modunu değiştirmek istediğinize emin misiniz?')) {
+            if (confirm('BakÄ±m modunu deÄŸiÅŸtirmek istediÄŸinize emin misiniz?')) {
                 fetch('maintenance.php', {
                         method: 'POST',
                         headers: {
@@ -235,7 +235,7 @@ $config = array_column($settings, 'value', 'key');
                         if (data.success) {
                             location.reload();
                         } else {
-                            alert(data.error || 'Bir hata oluştu.');
+                            alert(data.error || 'Bir hata oluÅŸtu.');
                         }
                     });
             }
@@ -244,3 +244,4 @@ $config = array_column($settings, 'value', 'key');
 </body>
 
 </html>
+

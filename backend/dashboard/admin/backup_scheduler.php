@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 <head>
     <meta charset="UTF-8">
     <title>Backup Scheduler</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
 </head>
 
 <body class="bg-gray-50">
@@ -86,3 +86,4 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+

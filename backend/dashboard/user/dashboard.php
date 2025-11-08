@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -18,8 +18,8 @@ $user_id = $_SESSION['user_id'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hesabım - CarWash</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>HesabÄ±m - CarWash</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -46,7 +46,7 @@ $user_id = $_SESSION['user_id'];
             </a>
             <a href="appointments.php" class="bg-white rounded-lg shadow p-6 hover:bg-blue-50">
                 <i class="fas fa-clock text-blue-600 text-2xl mb-2"></i>
-                <h3 class="font-semibold">Randevularım</h3>
+                <h3 class="font-semibold">RandevularÄ±m</h3>
             </a>
             <a href="favorites.php" class="bg-white rounded-lg shadow p-6 hover:bg-blue-50">
                 <i class="fas fa-heart text-blue-600 text-2xl mb-2"></i>
@@ -57,7 +57,7 @@ $user_id = $_SESSION['user_id'];
         <!-- Recent Appointments -->
         <div class="bg-white rounded-lg shadow mb-6">
             <div class="p-6 border-b">
-                <h2 class="text-lg font-semibold">Son Randevularım</h2>
+                <h2 class="text-lg font-semibold">Son RandevularÄ±m</h2>
             </div>
             <div class="p-6">
                 <div id="recentAppointments">
@@ -69,7 +69,7 @@ $user_id = $_SESSION['user_id'];
         <!-- My Reviews -->
         <div class="bg-white rounded-lg shadow">
             <div class="p-6 border-b">
-                <h2 class="text-lg font-semibold">Değerlendirmelerim</h2>
+                <h2 class="text-lg font-semibold">DeÄŸerlendirmelerim</h2>
             </div>
             <div class="p-6">
                 <div id="userReviews">
@@ -83,3 +83,4 @@ $user_id = $_SESSION['user_id'];
 </body>
 
 </html>
+

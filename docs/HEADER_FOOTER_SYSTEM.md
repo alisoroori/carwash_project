@@ -1,4 +1,4 @@
-# Header and Footer Component System
+﻿# Header and Footer Component System
 
 ## Overview
 
@@ -45,7 +45,7 @@ This system provides reusable, modern, and fully responsive header and footer co
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Page Title</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body { padding-top: 64px; } /* Space for fixed header */
@@ -110,23 +110,23 @@ document.addEventListener('DOMContentLoaded', function() {
 ## Key Features
 
 ### Header Features:
-✅ **Logo links to home page** - Clickable brand logo with hover effects  
-✅ **Main navigation** - Home, About Us, Contact Us links  
-✅ **Fully responsive** - Mobile-first design with breakpoints  
-✅ **Hamburger menu** - Automatic mobile menu for screens < 768px  
-✅ **Fixed position** - Stays at top during scrolling (sticky)  
-✅ **Visual depth** - Soft shadow with enhanced hover effects  
-✅ **Modern animations** - Smooth transitions and hover states  
-✅ **Accessibility** - ARIA labels and keyboard navigation  
+âœ… **Logo links to home page** - Clickable brand logo with hover effects  
+âœ… **Main navigation** - Home, About Us, Contact Us links  
+âœ… **Fully responsive** - Mobile-first design with breakpoints  
+âœ… **Hamburger menu** - Automatic mobile menu for screens < 768px  
+âœ… **Fixed position** - Stays at top during scrolling (sticky)  
+âœ… **Visual depth** - Soft shadow with enhanced hover effects  
+âœ… **Modern animations** - Smooth transitions and hover states  
+âœ… **Accessibility** - ARIA labels and keyboard navigation  
 
 ### Footer Features:
-✅ **Quick links** - Navigation to main pages  
-✅ **Contact information** - Phone, email, address  
-✅ **Auto-updating copyright** - JavaScript updates year automatically  
-✅ **Responsive design** - CSS Grid layout adapts to screen size  
-✅ **Social media links** - Facebook, Twitter, Instagram, LinkedIn  
-✅ **Visual consistency** - Matches header design patterns  
-✅ **Service listings** - Quick overview of offerings  
+âœ… **Quick links** - Navigation to main pages  
+âœ… **Contact information** - Phone, email, address  
+âœ… **Auto-updating copyright** - JavaScript updates year automatically  
+âœ… **Responsive design** - CSS Grid layout adapts to screen size  
+âœ… **Social media links** - Facebook, Twitter, Instagram, LinkedIn  
+âœ… **Visual consistency** - Matches header design patterns  
+âœ… **Service listings** - Quick overview of offerings  
 
 ## Customization
 
@@ -161,11 +161,11 @@ Update contact details in footer.html:
 
 ## Browser Compatibility
 
-- ✅ Chrome 60+
-- ✅ Firefox 55+
-- ✅ Safari 12+
-- ✅ Edge 79+
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
+- âœ… Chrome 60+
+- âœ… Firefox 55+
+- âœ… Safari 12+
+- âœ… Edge 79+
+- âœ… Mobile browsers (iOS Safari, Chrome Mobile)
 
 ## Dependencies
 
@@ -181,14 +181,14 @@ Update contact details in footer.html:
 ## File Structure
 ```
 carwash_project/
-├── frontend/
-│   ├── header.html          # Standalone header component
-│   ├── footer.html          # Standalone footer component
-│   └── example-page.html    # Usage demonstration
-└── backend/
-    └── includes/
-        ├── header.php       # PHP version of header
-        └── footer.php       # PHP version of footer
+â”œâ”€â”€ frontend/
+â”‚   â”œâ”€â”€ header.html          # Standalone header component
+â”‚   â”œâ”€â”€ footer.html          # Standalone footer component
+â”‚   â””â”€â”€ example-page.html    # Usage demonstration
+â””â”€â”€ backend/
+    â””â”€â”€ includes/
+        â”œâ”€â”€ header.php       # PHP version of header
+        â””â”€â”€ footer.php       # PHP version of footer
 ```
 
 ## Benefits
@@ -213,9 +213,9 @@ Any changes made to `header.html` or `footer.html` will automatically apply to a
 ## Testing
 
 Test the components across different:
-- ✅ Screen sizes (mobile, tablet, desktop)
-- ✅ Browsers (Chrome, Firefox, Safari, Edge)
-- ✅ Devices (iOS, Android, Windows, macOS)
-- ✅ Network conditions (slow/fast loading)
+- âœ… Screen sizes (mobile, tablet, desktop)
+- âœ… Browsers (Chrome, Firefox, Safari, Edge)
+- âœ… Devices (iOS, Android, Windows, macOS)
+- âœ… Network conditions (slow/fast loading)
 
 The system is designed to gracefully handle loading states and errors, ensuring a robust user experience across all conditions.

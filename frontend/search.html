@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Araç Yıkama Ara - CarWash</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>AraÃ§ YÄ±kama Ara - CarWash</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -24,7 +24,7 @@
                         <i class="fas fa-list"></i> Hizmetler
                     </a>
                     <a href="../backend/auth/login.php" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
-                        <i class="fas fa-sign-in-alt"></i> Giriş Yap
+                        <i class="fas fa-sign-in-alt"></i> GiriÅŸ Yap
                     </a>
                 </div>
             </div>
@@ -37,34 +37,34 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Konum</label>
-                    <input type="text" id="location" placeholder="Şehir veya ilçe girin" 
+                    <input type="text" id="location" placeholder="Åžehir veya ilÃ§e girin" 
                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Hizmet Türü</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Hizmet TÃ¼rÃ¼</label>
                     <select id="service_type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Tüm Hizmetler</option>
-                        <option value="basic">İç-Dış Yıkama</option>
-                        <option value="premium">Detaylı Temizlik</option>
+                        <option value="">TÃ¼m Hizmetler</option>
+                        <option value="basic">Ä°Ã§-DÄ±ÅŸ YÄ±kama</option>
+                        <option value="premium">DetaylÄ± Temizlik</option>
                         <option value="luxury">Full Detailing</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Fiyat Aralığı</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fiyat AralÄ±ÄŸÄ±</label>
                     <select id="price_range" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Tümü</option>
+                        <option value="">TÃ¼mÃ¼</option>
                         <option value="0-100">0-100 TL</option>
                         <option value="100-200">100-200 TL</option>
                         <option value="200+">200+ TL</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Sıralama</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">SÄ±ralama</label>
                     <select id="sort_by" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="rating">Puana Göre</option>
-                        <option value="price_low">Fiyat (Düşükten Yükseğe)</option>
-                        <option value="price_high">Fiyat (Yüksekten Düşüğe)</option>
-                        <option value="distance">Mesafeye Göre</option>
+                        <option value="rating">Puana GÃ¶re</option>
+                        <option value="price_low">Fiyat (DÃ¼ÅŸÃ¼kten YÃ¼kseÄŸe)</option>
+                        <option value="price_high">Fiyat (YÃ¼ksekten DÃ¼ÅŸÃ¼ÄŸe)</option>
+                        <option value="distance">Mesafeye GÃ¶re</option>
                     </select>
                 </div>
             </div>
@@ -76,7 +76,7 @@
             <div class="lg:col-span-2 space-y-4">
                 <!-- View Toggle -->
                 <div class="flex justify-between items-center mb-4">
-                    <p class="text-gray-600"><span id="result_count">0</span> sonuç bulundu</p>
+                    <p class="text-gray-600"><span id="result_count">0</span> sonuÃ§ bulundu</p>
                     <div class="flex space-x-2">
                         <button onclick="toggleView('list')" class="p-2 text-gray-600 hover:text-blue-600">
                             <i class="fas fa-list"></i>
@@ -109,7 +109,7 @@
     <script src="/carwash_project/frontend/js/config/api.js"></script>
     <script src="/carwash_project/frontend/js/booking/booking.js"></script>
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Araç yıkama ara...">
+        <input type="text" id="searchInput" placeholder="AraÃ§ yÄ±kama ara...">
         <div id="searchResults"></div>
     </div>
 
@@ -132,7 +132,7 @@
                     </div>
                 `).join('');
             } catch (error) {
-                searchResults.innerHTML = '<p class="error">Arama başarısız oldu. Lütfen tekrar deneyin.</p>';
+                searchResults.innerHTML = '<p class="error">Arama baÅŸarÄ±sÄ±z oldu. LÃ¼tfen tekrar deneyin.</p>';
             }
         });
     </script>

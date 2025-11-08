@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
@@ -17,7 +17,7 @@ $carwash_id = $_SESSION['carwash_id'];
 <head>
     <meta charset="UTF-8">
     <title>Service Management</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -82,7 +82,7 @@ $carwash_id = $_SESSION['carwash_id'];
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Price (₺)</label>
+                            <label class="block text-sm font-medium text-gray-700">Price (â‚º)</label>
                             <input type="number" id="servicePrice" name="price" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
@@ -121,3 +121,4 @@ $carwash_id = $_SESSION['carwash_id'];
 </body>
 
 </html>
+

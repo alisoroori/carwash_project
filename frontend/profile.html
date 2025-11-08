@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CarWash - Müşteri Paneli</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>CarWash - MÃ¼ÅŸteri Paneli</title>
+  <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @keyframes fadeInUp {
@@ -77,7 +77,7 @@
         <div class="flex items-center space-x-4">
           <div class="hidden md:flex items-center space-x-2">
             <i class="fas fa-user text-blue-600"></i>
-            <span class="text-gray-700 font-medium">Hoş Geldiniz, Ali Yılmaz</span>
+            <span class="text-gray-700 font-medium">HoÅŸ Geldiniz, Ali YÄ±lmaz</span>
           </div>
           <div class="flex space-x-2">
             <button onclick="toggleNotifications()" class="relative p-2 text-gray-600 hover:text-blue-600 transition-colors">
@@ -104,34 +104,34 @@
           <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-user text-3xl"></i>
           </div>
-          <h3 class="text-xl font-bold">Ali Yılmaz</h3>
+          <h3 class="text-xl font-bold">Ali YÄ±lmaz</h3>
           <p class="text-sm opacity-75">ali.yilmaz@email.com</p>
         </div>
 
         <nav class="space-y-2 flex-1 overflow-auto">
           <a href="#dashboard" onclick="showSection('dashboard')" class="flex items-center p-3 rounded-lg bg-white bg-opacity-20">
             <i class="fas fa-tachometer-alt mr-3"></i>
-            Genel Bakış
+            Genel BakÄ±ÅŸ
           </a>
           <a href="#carWashSelection" onclick="showSection('carWashSelection')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-hand-pointer mr-3"></i>
-            Oto Yıkama Seçimi
+            Oto YÄ±kama SeÃ§imi
           </a>
           <a href="#reservations" onclick="showSection('reservations')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-calendar-check mr-3"></i>
-            Rezervasyonlarım
+            RezervasyonlarÄ±m
           </a>
           <a href="#profile" onclick="showSection('profile')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-user-edit mr-3"></i>
-            Profil Yönetimi
+            Profil YÃ¶netimi
           </a>
           <a href="#vehicles" onclick="showSection('vehicles')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-car mr-3"></i>
-            Araçlarım
+            AraÃ§larÄ±m
           </a>
           <a href="#history" onclick="showSection('history')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-history mr-3"></i>
-            Geçmiş İşlemler
+            GeÃ§miÅŸ Ä°ÅŸlemler
           </a>
           <a href="#support" onclick="showSection('support')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-headset mr-3"></i>
@@ -153,8 +153,8 @@
       <!-- Dashboard Overview -->
       <section id="dashboard" class="section-content">
         <div class="mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">Genel Bakış</h2>
-          <p class="text-gray-600">Hesabınızın özeti ve son aktiviteleriniz</p>
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">Genel BakÄ±ÅŸ</h2>
+          <p class="text-gray-600">HesabÄ±nÄ±zÄ±n Ã¶zeti ve son aktiviteleriniz</p>
         </div>
 
         <!-- Stats Cards -->
@@ -183,7 +183,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Toplam Harcama</p>
-                <p class="text-3xl font-bold text-purple-600">₺1,240</p>
+                <p class="text-3xl font-bold text-purple-600">â‚º1,240</p>
               </div>
               <i class="fas fa-money-bill-wave text-4xl text-purple-600 opacity-20"></i>
             </div>
@@ -193,7 +193,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">Ortalama Puan</p>
-                <p class="text-3xl font-bold text-yellow-600">4.8★</p>
+                <p class="text-3xl font-bold text-yellow-600">4.8â˜…</p>
               </div>
               <i class="fas fa-star text-4xl text-yellow-600 opacity-20"></i>
             </div>
@@ -205,21 +205,21 @@
           <div class="bg-white rounded-2xl p-6 shadow-lg">
             <h3 class="text-xl font-bold text-gray-800 mb-4">
               <i class="fas fa-clock text-blue-600 mr-2"></i>
-              Yaklaşan Rezervasyonlar
+              YaklaÅŸan Rezervasyonlar
             </h3>
             <div class="space-y-4">
               <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div>
-                  <h4 class="font-bold">Dış Yıkama + İç Temizlik</h4>
-                  <p class="text-sm text-gray-600">Bugün, 14:00 - CarWash Merkez</p>
+                  <h4 class="font-bold">DÄ±ÅŸ YÄ±kama + Ä°Ã§ Temizlik</h4>
+                  <p class="text-sm text-gray-600">BugÃ¼n, 14:00 - CarWash Merkez</p>
                 </div>
-                <span class="status-confirmed px-3 py-1 rounded-full text-xs font-bold">Onaylandı</span>
+                <span class="status-confirmed px-3 py-1 rounded-full text-xs font-bold">OnaylandÄ±</span>
               </div>
 
               <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div>
-                  <h4 class="font-bold">Tam Detaylandırma</h4>
-                  <p class="text-sm text-gray-600">Yarın, 10:00 - CarWash Premium</p>
+                  <h4 class="font-bold">Tam DetaylandÄ±rma</h4>
+                  <p class="text-sm text-gray-600">YarÄ±n, 10:00 - CarWash Premium</p>
                 </div>
                 <span class="status-pending px-3 py-1 rounded-full text-xs font-bold">Bekliyor</span>
               </div>
@@ -233,48 +233,48 @@
             </h3>
             <div class="space-y-4">
               <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-600">
-                <p class="text-sm">Rezervasyonunuz onaylandı. 14:00'te CarWash Merkez'de olun.</p>
-                <p class="text-xs text-gray-500 mt-1">2 saat önce</p>
+                <p class="text-sm">Rezervasyonunuz onaylandÄ±. 14:00'te CarWash Merkez'de olun.</p>
+                <p class="text-xs text-gray-500 mt-1">2 saat Ã¶nce</p>
               </div>
 
               <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-600">
-                <p class="text-sm">Önceki hizmetiniz tamamlandı. Puan vererek deneyimlerinizi paylaşın!</p>
-                <p class="text-xs text-gray-500 mt-1">1 gün önce</p>
+                <p class="text-sm">Ã–nceki hizmetiniz tamamlandÄ±. Puan vererek deneyimlerinizi paylaÅŸÄ±n!</p>
+                <p class="text-xs text-gray-500 mt-1">1 gÃ¼n Ã¶nce</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Oto Yıkama Seçimi Section -->
+      <!-- Oto YÄ±kama SeÃ§imi Section -->
       <section id="carWashSelection" class="section-content hidden">
         <div class="mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">Oto Yıkama Seçimi</h2>
-          <p class="text-gray-600">Size en uygun oto yıkama merkezini bulun ve rezervasyon yapın.</p>
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">Oto YÄ±kama SeÃ§imi</h2>
+          <p class="text-gray-600">Size en uygun oto yÄ±kama merkezini bulun ve rezervasyon yapÄ±n.</p>
         </div>
 
         <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">Filtreleme Seçenekleri</h3>
+          <h3 class="text-xl font-bold text-gray-800 mb-4">Filtreleme SeÃ§enekleri</h3>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label for="cityFilter" class="block text-sm font-bold text-gray-700 mb-2">Şehir</label>
+              <label for="cityFilter" class="block text-sm font-bold text-gray-700 mb-2">Åžehir</label>
               <select id="cityFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                <option value="">Tüm Şehirler</option>
-                <option value="İstanbul">İstanbul</option>
+                <option value="">TÃ¼m Åžehirler</option>
+                <option value="Ä°stanbul">Ä°stanbul</option>
                 <option value="Ankara">Ankara</option>
-                <option value="İzmir">İzmir</option>
+                <option value="Ä°zmir">Ä°zmir</option>
               </select>
             </div>
             <div>
               <label for="districtFilter" class="block text-sm font-bold text-gray-700 mb-2">Mahalle</label>
               <select id="districtFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                <option value="">Tüm Mahalleler</option>
+                <option value="">TÃ¼m Mahalleler</option>
                 <!-- Options will be dynamically loaded based on city -->
               </select>
             </div>
             <div>
-              <label for="carWashNameFilter" class="block text-sm font-bold text-gray-700 mb-2">CarWash Adı</label>
-              <input type="text" id="carWashNameFilter" onkeyup="filterCarWashes()" placeholder="CarWash adı girin..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <label for="carWashNameFilter" class="block text-sm font-bold text-gray-700 mb-2">CarWash AdÄ±</label>
+              <input type="text" id="carWashNameFilter" onkeyup="filterCarWashes()" placeholder="CarWash adÄ± girin..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
             </div>
             <div class="flex items-end">
               <label for="favoriteFilter" class="flex items-center cursor-pointer">
@@ -293,8 +293,8 @@
       <!-- Reservations Section -->
       <section id="reservations" class="section-content hidden">
         <div class="mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">Rezervasyonlarım</h2>
-          <p class="text-gray-600">Tüm rezervasyonlarınızı görüntüleyin ve yönetin</p>
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">RezervasyonlarÄ±m</h2>
+          <p class="text-gray-600">TÃ¼m rezervasyonlarÄ±nÄ±zÄ± gÃ¶rÃ¼ntÃ¼leyin ve yÃ¶netin</p>
         </div>
 
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
@@ -318,41 +318,41 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Konum</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fiyat</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ä°ÅŸlemler</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                   <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4">
                       <div>
-                        <div class="font-medium">Dış Yıkama + İç Temizlik</div>
+                        <div class="font-medium">DÄ±ÅŸ YÄ±kama + Ä°Ã§ Temizlik</div>
                         <div class="text-sm text-gray-500">Toyota Corolla - 34 ABC 123</div>
                       </div>
                     </td>
                     <td class="px-6 py-4 text-sm">15.12.2024<br>14:00</td>
                     <td class="px-6 py-4 text-sm">CarWash Merkez</td>
-                    <td class="px-6 py-4"><span class="status-confirmed px-2 py-1 rounded-full text-xs">Onaylandı</span></td>
-                    <td class="px-6 py-4 font-medium">₺130</td>
+                    <td class="px-6 py-4"><span class="status-confirmed px-2 py-1 rounded-full text-xs">OnaylandÄ±</span></td>
+                    <td class="px-6 py-4 font-medium">â‚º130</td>
                     <td class="px-6 py-4 text-sm">
-                      <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
-                      <button class="text-red-600 hover:text-red-900">İptal</button>
+                      <button class="text-blue-600 hover:text-blue-900 mr-3">DÃ¼zenle</button>
+                      <button class="text-red-600 hover:text-red-900">Ä°ptal</button>
                     </td>
                   </tr>
 
                   <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4">
                       <div>
-                        <div class="font-medium">Tam Detaylandırma</div>
+                        <div class="font-medium">Tam DetaylandÄ±rma</div>
                         <div class="text-sm text-gray-500">Honda Civic - 34 XYZ 789</div>
                       </div>
                     </td>
                     <td class="px-6 py-4 text-sm">16.12.2024<br>10:00</td>
                     <td class="px-6 py-4 text-sm">CarWash Premium</td>
                     <td class="px-6 py-4"><span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span></td>
-                    <td class="px-6 py-4 font-medium">₺200</td>
+                    <td class="px-6 py-4 font-medium">â‚º200</td>
                     <td class="px-6 py-4 text-sm">
-                      <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
-                      <button class="text-red-600 hover:text-red-900">İptal</button>
+                      <button class="text-blue-600 hover:text-blue-900 mr-3">DÃ¼zenle</button>
+                      <button class="text-red-600 hover:text-red-900">Ä°ptal</button>
                     </td>
                   </tr>
                 </tbody>
@@ -362,25 +362,25 @@
 
           <!-- New Reservation Form -->
           <div id="newReservationForm" class="p-6 hidden">
-            <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
+            <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon OluÅŸtur</h3>
             <form class="space-y-6" onsubmit="event.preventDefault(); submitNewReservation();">
               <!-- Service Selection -->
               <div>
-                <label for="service" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
+                <label for="service" class="block text-sm font-bold text-gray-700 mb-2">Hizmet SeÃ§in</label>
                 <select id="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                  <option value="">Hizmet Seçiniz</option>
-                  <option value="Dış Yıkama">Dış Yıkama</option>
-                  <option value="Dış Yıkama + İç Temizlik">Dış Yıkama + İç Temizlik</option>
-                  <option value="Tam Detaylandırma">Tam Detaylandırma</option>
-                  <option value="Motor Temizliği">Motor Temizliği</option>
+                  <option value="">Hizmet SeÃ§iniz</option>
+                  <option value="DÄ±ÅŸ YÄ±kama">DÄ±ÅŸ YÄ±kama</option>
+                  <option value="DÄ±ÅŸ YÄ±kama + Ä°Ã§ Temizlik">DÄ±ÅŸ YÄ±kama + Ä°Ã§ Temizlik</option>
+                  <option value="Tam DetaylandÄ±rma">Tam DetaylandÄ±rma</option>
+                  <option value="Motor TemizliÄŸi">Motor TemizliÄŸi</option>
                 </select>
               </div>
 
               <!-- Vehicle Selection -->
               <div>
-                <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
+                <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">AraÃ§ SeÃ§in</label>
                 <select id="vehicle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                  <option value="">Araç Seçiniz</option>
+                  <option value="">AraÃ§ SeÃ§iniz</option>
                   <option value="Toyota Corolla - 34 ABC 123">Toyota Corolla - 34 ABC 123</option>
                   <option value="Honda Civic - 34 XYZ 789">Honda Civic - 34 XYZ 789</option>
                   <!-- Dynamically load user's vehicles here -->
@@ -403,7 +403,7 @@
               <div>
                 <label for="location" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
                 <select id="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                  <option value="">Konum Seçiniz</option>
+                  <option value="">Konum SeÃ§iniz</option>
                   <option value="CarWash Merkez">CarWash Merkez</option>
                   <option value="CarWash Premium">CarWash Premium</option>
                   <option value="CarWash Express">CarWash Express</option>
@@ -412,13 +412,13 @@
 
               <!-- Notes -->
               <div>
-                <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (İsteğe Bağlı)</label>
-                <textarea id="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (Ä°steÄŸe BaÄŸlÄ±)</label>
+                <textarea id="notes" rows="3" placeholder="Ã–zel istekleriniz veya notlarÄ±nÄ±z..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
               </div>
 
               <div class="flex justify-end space-x-4">
                 <button type="button" onclick="hideNewReservationForm()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition-colors">
-                  Geri Dön
+                  Geri DÃ¶n
                 </button>
                 <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
                   <i class="fas fa-calendar-plus mr-2"></i>Rezervasyon Yap
@@ -432,14 +432,14 @@
       <!-- Profile Management Section -->
       <section id="profile" class="section-content hidden">
         <div class="mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">Profil Yönetimi</h2>
-          <p class="text-gray-600">Kişisel bilgilerinizi güncelleyin</p>
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">Profil YÃ¶netimi</h2>
+          <p class="text-gray-600">KiÅŸisel bilgilerinizi gÃ¼ncelleyin</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div class="lg:col-span-2">
             <div class="bg-white rounded-2xl shadow-lg p-6">
-              <h3 class="text-xl font-bold mb-6">Kişisel Bilgiler</h3>
+              <h3 class="text-xl font-bold mb-6">KiÅŸisel Bilgiler</h3>
               <form class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -448,7 +448,7 @@
                   </div>
                   <div>
                     <label for="profile_lastName" class="block text-sm font-bold text-gray-700 mb-2">Soyad</label>
-                    <input id="profile_lastName" type="text" value="Yılmaz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    <input id="profile_lastName" type="text" value="YÄ±lmaz" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   </div>
                 </div>
 
@@ -464,24 +464,24 @@
 
                 <div>
                   <label for="profile_addressField" class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
-                  <textarea id="profile_addressField" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">İstanbul, Kadıköy, Moda Mahallesi</textarea>
+                  <textarea id="profile_addressField" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">Ä°stanbul, KadÄ±kÃ¶y, Moda Mahallesi</textarea>
                 </div>
 
                 <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
-                  <i class="fas fa-save mr-2"></i>Bilgileri Güncelle
+                  <i class="fas fa-save mr-2"></i>Bilgileri GÃ¼ncelle
                 </button>
               </form>
             </div>
           </div>
 
           <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="text-xl font-bold mb-6">Profil Fotoğrafı</h3>
+            <h3 class="text-xl font-bold mb-6">Profil FotoÄŸrafÄ±</h3>
             <div class="text-center">
               <div class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-user text-4xl text-gray-400"></i>
               </div>
               <button class="gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
-                <i class="fas fa-camera mr-2"></i>Fotoğraf Değiştir
+                <i class="fas fa-camera mr-2"></i>FotoÄŸraf DeÄŸiÅŸtir
               </button>
             </div>
           </div>
@@ -491,14 +491,14 @@
       <!-- Vehicles Section -->
       <section id="vehicles" class="section-content hidden">
         <div class="mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">Araçlarım</h2>
-          <p class="text-gray-600">Kayıtlı araçlarınızı yönetin</p>
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">AraÃ§larÄ±m</h2>
+          <p class="text-gray-600">KayÄ±tlÄ± araÃ§larÄ±nÄ±zÄ± yÃ¶netin</p>
         </div>
 
         <div class="flex justify-between items-center mb-6">
-          <h3 class="text-xl font-bold">Kayıtlı Araçlar</h3>
+          <h3 class="text-xl font-bold">KayÄ±tlÄ± AraÃ§lar</h3>
           <button onclick="openVehicleModal()" class="gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
-            <i class="fas fa-plus mr-2"></i>Araç Ekle
+            <i class="fas fa-plus mr-2"></i>AraÃ§ Ekle
           </button>
         </div>
 
@@ -542,13 +542,13 @@
       <!-- History Section -->
       <section id="history" class="section-content hidden">
         <div class="mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">Geçmiş İşlemler</h2>
-          <p class="text-gray-600">Tamamlanan hizmetlerinizin geçmişi</p>
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">GeÃ§miÅŸ Ä°ÅŸlemler</h2>
+          <p class="text-gray-600">Tamamlanan hizmetlerinizin geÃ§miÅŸi</p>
         </div>
 
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div class="p-6 border-b">
-            <h3 class="text-xl font-bold">İşlem Geçmişi</h3>
+            <h3 class="text-xl font-bold">Ä°ÅŸlem GeÃ§miÅŸi</h3>
           </div>
 
           <div class="overflow-x-auto">
@@ -557,7 +557,7 @@
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hizmet</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Araç</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">AraÃ§</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Konum</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fiyat</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
@@ -567,11 +567,11 @@
               <tbody class="divide-y divide-gray-200">
                 <tr class="hover:bg-gray-50">
                   <td class="px-6 py-4 text-sm">10.12.2024<br>15:30</td>
-                  <td class="px-6 py-4 text-sm">Tam Detaylandırma</td>
+                  <td class="px-6 py-4 text-sm">Tam DetaylandÄ±rma</td>
                   <td class="px-6 py-4 text-sm">Toyota Corolla</td>
                   <td class="px-6 py-4 text-sm">CarWash Premium</td>
-                  <td class="px-6 py-4 font-medium">₺180</td>
-                  <td class="px-6 py-4"><span class="status-completed px-2 py-1 rounded-full text-xs">Tamamlandı</span></td>
+                  <td class="px-6 py-4 font-medium">â‚º180</td>
+                  <td class="px-6 py-4"><span class="status-completed px-2 py-1 rounded-full text-xs">TamamlandÄ±</span></td>
                   <td class="px-6 py-4">
                     <div class="flex text-yellow-400">
                       <i class="fas fa-star"></i>
@@ -585,11 +585,11 @@
 
                 <tr class="hover:bg-gray-50">
                   <td class="px-6 py-4 text-sm">05.12.2024<br>11:00</td>
-                  <td class="px-6 py-4 text-sm">Dış Yıkama</td>
+                  <td class="px-6 py-4 text-sm">DÄ±ÅŸ YÄ±kama</td>
                   <td class="px-6 py-4 text-sm">Honda Civic</td>
                   <td class="px-6 py-4 text-sm">CarWash Express</td>
-                  <td class="px-6 py-4 font-medium">₺50</td>
-                  <td class="px-6 py-4"><span class="status-completed px-2 py-1 rounded-full text-xs">Tamamlandı</span></td>
+                  <td class="px-6 py-4 font-medium">â‚º50</td>
+                  <td class="px-6 py-4"><span class="status-completed px-2 py-1 rounded-full text-xs">TamamlandÄ±</span></td>
                   <td class="px-6 py-4">
                     <div class="flex text-yellow-400">
                       <i class="fas fa-star"></i>
@@ -610,27 +610,27 @@
       <section id="support" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Destek</h2>
-          <p class="text-gray-600">Yardıma mı ihtiyacınız var? Size yardımcı olalım</p>
+          <p class="text-gray-600">YardÄ±ma mÄ± ihtiyacÄ±nÄ±z var? Size yardÄ±mcÄ± olalÄ±m</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div class="bg-white rounded-2xl p-6 shadow-lg">
             <h3 class="text-xl font-bold mb-4">
               <i class="fas fa-question-circle text-blue-600 mr-2"></i>
-              Sık Sorulan Sorular
+              SÄ±k Sorulan Sorular
             </h3>
             <div class="space-y-4">
               <div>
-                <h4 class="font-bold text-gray-800">Rezervasyonumu nasıl iptal edebilirim?</h4>
-                <p class="text-sm text-gray-600 mt-1">Rezervasyonlar bölümünden iptal edebilirsiniz.</p>
+                <h4 class="font-bold text-gray-800">Rezervasyonumu nasÄ±l iptal edebilirim?</h4>
+                <p class="text-sm text-gray-600 mt-1">Rezervasyonlar bÃ¶lÃ¼mÃ¼nden iptal edebilirsiniz.</p>
               </div>
               <div>
-                <h4 class="font-bold text-gray-800">Ödeme yöntemleri nelerdir?</h4>
-                <p class="text-sm text-gray-600 mt-1">Nakit, kredi kartı ve mobil ödeme kabul ediyoruz.</p>
+                <h4 class="font-bold text-gray-800">Ã–deme yÃ¶ntemleri nelerdir?</h4>
+                <p class="text-sm text-gray-600 mt-1">Nakit, kredi kartÄ± ve mobil Ã¶deme kabul ediyoruz.</p>
               </div>
               <div>
-                <h4 class="font-bold text-gray-800">Hizmet kalitesi nasıl garanti ediliyor?</h4>
-                <p class="text-sm text-gray-600 mt-1">Tüm hizmetlerimizde kalite garantisi veriyoruz.</p>
+                <h4 class="font-bold text-gray-800">Hizmet kalitesi nasÄ±l garanti ediliyor?</h4>
+                <p class="text-sm text-gray-600 mt-1">TÃ¼m hizmetlerimizde kalite garantisi veriyoruz.</p>
               </div>
             </div>
           </div>
@@ -638,26 +638,26 @@
           <div class="bg-white rounded-2xl p-6 shadow-lg">
             <h3 class="text-xl font-bold mb-4">
               <i class="fas fa-headset text-blue-600 mr-2"></i>
-              Bize Ulaşın
+              Bize UlaÅŸÄ±n
             </h3>
             <form class="space-y-4">
               <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2">Konu</label>
                 <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                   <option>Rezervasyon Sorunu</option>
-                  <option>Ödeme Sorunu</option>
+                  <option>Ã–deme Sorunu</option>
                   <option>Hizmet Kalitesi</option>
-                  <option>Diğer</option>
+                  <option>DiÄŸer</option>
                 </select>
               </div>
 
               <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Mesajınız</label>
-                <textarea rows="4" placeholder="Sorunuzu veya şikayetinizi yazın..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                <label class="block text-sm font-bold text-gray-700 mb-2">MesajÄ±nÄ±z</label>
+                <textarea rows="4" placeholder="Sorunuzu veya ÅŸikayetinizi yazÄ±n..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
               </div>
 
               <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all">
-                <i class="fas fa-paper-plane mr-2"></i>Mesaj Gönder
+                <i class="fas fa-paper-plane mr-2"></i>Mesaj GÃ¶nder
               </button>
             </form>
           </div>
@@ -668,7 +668,7 @@
       <section id="settings" class="section-content hidden">
         <div class="mb-8">
           <h2 class="text-3xl font-bold text-gray-800 mb-2">Ayarlar</h2>
-          <p class="text-gray-600">Hesap ayarlarınızı yönetin</p>
+          <p class="text-gray-600">Hesap ayarlarÄ±nÄ±zÄ± yÃ¶netin</p>
         </div>
 
         <div class="bg-white rounded-2xl shadow-lg p-6">
@@ -677,7 +677,7 @@
             <label class="flex items-center justify-between p-4 border rounded-lg">
               <div>
                 <h4 class="font-bold">E-posta Bildirimleri</h4>
-                <p class="text-sm text-gray-600">Rezervasyon onayları ve güncellemeler</p>
+                <p class="text-sm text-gray-600">Rezervasyon onaylarÄ± ve gÃ¼ncellemeler</p>
               </div>
               <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
             </label>
@@ -685,7 +685,7 @@
             <label class="flex items-center justify-between p-4 border rounded-lg">
               <div>
                 <h4 class="font-bold">SMS Bildirimleri</h4>
-                <p class="text-sm text-gray-600">Acil durumlar için SMS</p>
+                <p class="text-sm text-gray-600">Acil durumlar iÃ§in SMS</p>
               </div>
               <input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
             </label>
@@ -693,23 +693,23 @@
             <label class="flex items-center justify-between p-4 border rounded-lg">
               <div>
                 <h4 class="font-bold">Promosyon Bildirimleri</h4>
-                <p class="text-sm text-gray-600">İndirim ve kampanya duyuruları</p>
+                <p class="text-sm text-gray-600">Ä°ndirim ve kampanya duyurularÄ±</p>
               </div>
               <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
             </label>
           </div>
 
           <div class="mt-8 pt-6 border-t">
-            <h3 class="text-xl font-bold mb-6">Güvenlik</h3>
+            <h3 class="text-xl font-bold mb-6">GÃ¼venlik</h3>
             <div class="space-y-4">
               <button class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                <h4 class="font-bold">Şifre Değiştir</h4>
-                <p class="text-sm text-gray-600">Hesap güvenliğiniz için şifrenizi güncelleyin</p>
+                <h4 class="font-bold">Åžifre DeÄŸiÅŸtir</h4>
+                <p class="text-sm text-gray-600">Hesap gÃ¼venliÄŸiniz iÃ§in ÅŸifrenizi gÃ¼ncelleyin</p>
               </button>
 
               <button class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                <h4 class="font-bold">İki Faktörlü Doğrulama</h4>
-                <p class="text-sm text-gray-600">Ek güvenlik katmanı ekleyin</p>
+                <h4 class="font-bold">Ä°ki FaktÃ¶rlÃ¼ DoÄŸrulama</h4>
+                <p class="text-sm text-gray-600">Ek gÃ¼venlik katmanÄ± ekleyin</p>
               </button>
             </div>
           </div>
@@ -730,16 +730,16 @@
     </div>
     <div class="max-h-96 overflow-y-auto">
       <div class="p-4 border-b hover:bg-gray-50">
-        <p class="text-sm">Rezervasyonunuz onaylandı</p>
-        <p class="text-xs text-gray-500">2 saat önce</p>
+        <p class="text-sm">Rezervasyonunuz onaylandÄ±</p>
+        <p class="text-xs text-gray-500">2 saat Ã¶nce</p>
       </div>
       <div class="p-4 border-b hover:bg-gray-50">
-        <p class="text-sm">Önceki hizmetiniz tamamlandı</p>
-        <p class="text-xs text-gray-500">1 gün önce</p>
+        <p class="text-sm">Ã–nceki hizmetiniz tamamlandÄ±</p>
+        <p class="text-xs text-gray-500">1 gÃ¼n Ã¶nce</p>
       </div>
       <div class="p-4 border-b hover:bg-gray-50">
-        <p class="text-sm">Yeni kampanya başladı!</p>
-        <p class="text-xs text-gray-500">2 gün önce</p>
+        <p class="text-sm">Yeni kampanya baÅŸladÄ±!</p>
+        <p class="text-xs text-gray-500">2 gÃ¼n Ã¶nce</p>
       </div>
     </div>
   </div>
@@ -747,7 +747,7 @@
   <!-- Vehicle Modal -->
   <div id="vehicleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-      <h3 class="text-xl font-bold mb-6">Yeni Araç Ekle</h3>
+      <h3 class="text-xl font-bold mb-6">Yeni AraÃ§ Ekle</h3>
       <form class="space-y-4">
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">Marka</label>
@@ -762,7 +762,7 @@
           <input type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
         </div>
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">Model Yılı</label>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Model YÄ±lÄ±</label>
           <input type="number" placeholder="2020" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
         </div>
         <div>
@@ -771,7 +771,7 @@
         </div>
         <div class="flex space-x-3">
           <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
-          <button type="button" onclick="closeVehicleModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
+          <button type="button" onclick="closeVehicleModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">Ä°ptal</button>
         </div>
       </form>
     </div>
@@ -780,19 +780,19 @@
   <script>
     // Sample data for car washes
     const allCarWashes = [
-      { id: 1, name: 'CarWash Merkez', city: 'İstanbul', district: 'Kadıköy', rating: 4.8, isFavorite: true, services: ['Dış Yıkama', 'İç Temizlik'] },
-      { id: 2, name: 'CarWash Premium', city: 'İstanbul', district: 'Beşiktaş', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma', 'Motor Temizliği'] },
-      { id: 3, name: 'CarWash Express', city: 'İstanbul', district: 'Şişli', rating: 4.5, isFavorite: true, services: ['Dış Yıkama'] },
-      { id: 4, name: 'Ankara Oto Yıkama', city: 'Ankara', district: 'Çankaya', rating: 4.7, isFavorite: false, services: ['Dış Yıkama', 'İç Temizlik'] },
-      { id: 5, name: 'İzmir Hızlı Yıkama', city: 'İzmir', district: 'Bornova', rating: 4.6, isFavorite: true, services: ['Dış Yıkama'] },
-      { id: 6, name: 'Kadıköy Detay', city: 'İstanbul', district: 'Kadıköy', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma'] },
+      { id: 1, name: 'CarWash Merkez', city: 'Ä°stanbul', district: 'KadÄ±kÃ¶y', rating: 4.8, isFavorite: true, services: ['DÄ±ÅŸ YÄ±kama', 'Ä°Ã§ Temizlik'] },
+      { id: 2, name: 'CarWash Premium', city: 'Ä°stanbul', district: 'BeÅŸiktaÅŸ', rating: 4.9, isFavorite: false, services: ['Tam DetaylandÄ±rma', 'Motor TemizliÄŸi'] },
+      { id: 3, name: 'CarWash Express', city: 'Ä°stanbul', district: 'ÅžiÅŸli', rating: 4.5, isFavorite: true, services: ['DÄ±ÅŸ YÄ±kama'] },
+      { id: 4, name: 'Ankara Oto YÄ±kama', city: 'Ankara', district: 'Ã‡ankaya', rating: 4.7, isFavorite: false, services: ['DÄ±ÅŸ YÄ±kama', 'Ä°Ã§ Temizlik'] },
+      { id: 5, name: 'Ä°zmir HÄ±zlÄ± YÄ±kama', city: 'Ä°zmir', district: 'Bornova', rating: 4.6, isFavorite: true, services: ['DÄ±ÅŸ YÄ±kama'] },
+      { id: 6, name: 'KadÄ±kÃ¶y Detay', city: 'Ä°stanbul', district: 'KadÄ±kÃ¶y', rating: 4.9, isFavorite: false, services: ['Tam DetaylandÄ±rma'] },
     ];
 
     // Sample districts data (for dynamic loading)
     const districtsByCity = {
-      'İstanbul': ['Kadıköy', 'Beşiktaş', 'Şişli', 'Fatih'],
-      'Ankara': ['Çankaya', 'Kızılay', 'Yenimahalle'],
-      'İzmir': ['Bornova', 'Konak', 'Karşıyaka']
+      'Ä°stanbul': ['KadÄ±kÃ¶y', 'BeÅŸiktaÅŸ', 'ÅžiÅŸli', 'Fatih'],
+      'Ankara': ['Ã‡ankaya', 'KÄ±zÄ±lay', 'Yenimahalle'],
+      'Ä°zmir': ['Bornova', 'Konak', 'KarÅŸÄ±yaka']
     };
 
     function showSection(sectionId) {
@@ -868,12 +868,12 @@
 
       // Basic validation (you'd want more robust validation)
       if (!service || !vehicle || !date || !time || !location) {
-        alert('Lütfen tüm zorunlu alanları doldurun.');
+        alert('LÃ¼tfen tÃ¼m zorunlu alanlarÄ± doldurun.');
         return;
       }
 
       console.log('New Reservation Data:', { service, vehicle, date, time, location, notes });
-      alert('Rezervasyonunuz başarıyla oluşturuldu! (Bu bir demo mesajıdır)');
+      alert('Rezervasyonunuz baÅŸarÄ±yla oluÅŸturuldu! (Bu bir demo mesajÄ±dÄ±r)');
       
       // Optionally, clear the form
       document.getElementById('service').value = '';
@@ -892,7 +892,7 @@
       const districtFilter = document.getElementById('districtFilter');
       const selectedCity = cityFilter.value;
 
-      districtFilter.innerHTML = '<option value="">Tüm Mahalleler</option>'; // Reset districts
+      districtFilter.innerHTML = '<option value="">TÃ¼m Mahalleler</option>'; // Reset districts
 
       if (selectedCity && districtsByCity[selectedCity]) {
         districtsByCity[selectedCity].forEach(district => {
@@ -922,7 +922,7 @@
       });
 
       if (filteredWashes.length === 0) {
-        carWashListDiv.innerHTML = '<p class="text-gray-600 text-center col-span-full">Seçiminize uygun oto yıkama bulunamadı.</p>';
+        carWashListDiv.innerHTML = '<p class="text-gray-600 text-center col-span-full">SeÃ§iminize uygun oto yÄ±kama bulunamadÄ±.</p>';
         return;
       }
 
@@ -1000,3 +1000,4 @@
 
 </body>
 </html>
+

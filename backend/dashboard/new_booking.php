@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 
@@ -20,20 +20,20 @@ $isPartial = isset($_GET['partial']) && $_GET['partial'] == '1';
 if ($isPartial) :
 ?>
     <div id="newReservationForm" class="p-6">
-      <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
+      <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon OluÅŸtur</h3>
 
       <div id="embeddedBooking" class="space-y-6">
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Hizmet SeÃ§in</label>
           <div id="embeddedServices" class="space-y-2">
-            <div class="text-sm muted">Hizmetler yükleniyor...</div>
+            <div class="text-sm muted">Hizmetler yÃ¼kleniyor...</div>
           </div>
         </div>
 
         <div>
-          <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
+          <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">AraÃ§ SeÃ§in</label>
           <select id="vehicle" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            <option value="">Araç Seçiniz</option>
+            <option value="">AraÃ§ SeÃ§iniz</option>
           </select>
         </div>
 
@@ -45,7 +45,7 @@ if ($isPartial) :
           <div>
             <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
             <select id="reservationTime" name="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
-              <option value="">Saat seçin</option>
+              <option value="">Saat seÃ§in</option>
             </select>
           </div>
         </div>
@@ -53,7 +53,7 @@ if ($isPartial) :
         <div>
           <label for="location" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
           <select id="location" name="carwash_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
-            <option value="">Konum Seçiniz</option>
+            <option value="">Konum SeÃ§iniz</option>
             <?php
             // Render server-side options for standalone usage
             if ($carwashes && $carwashes->num_rows > 0) {
@@ -61,7 +61,7 @@ if ($isPartial) :
               while ($cw = $carwashes->fetch_assoc()) {
                 $id = (int)$cw['id'];
                 $name = htmlspecialchars($cw['name']);
-                $label = $name . (!empty($cw['district']) ? ' — ' . htmlspecialchars($cw['district']) : '');
+                $label = $name . (!empty($cw['district']) ? ' â€” ' . htmlspecialchars($cw['district']) : '');
                 echo "<option value=\"{$id}\">{$label}</option>\n";
               }
             }
@@ -70,14 +70,14 @@ if ($isPartial) :
         </div>
 
         <div>
-          <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (İsteğe Bağlı)</label>
-          <textarea id="notes" name="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+          <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (Ä°steÄŸe BaÄŸlÄ±)</label>
+          <textarea id="notes" name="notes" rows="3" placeholder="Ã–zel istekleriniz veya notlarÄ±nÄ±z..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
         </div>
 
         <div id="embeddedMessage" class="text-sm"></div>
 
         <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
-          <button type="button" onclick="(function(){ const listView = document.getElementById('reservationListView'); if(listView){ document.getElementById('newReservationForm').classList.add('hidden'); listView.classList.remove('hidden'); } })()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition-colors">Geri Dön</button>
+          <button type="button" onclick="(function(){ const listView = document.getElementById('reservationListView'); if(listView){ document.getElementById('newReservationForm').classList.add('hidden'); listView.classList.remove('hidden'); } })()" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition-colors">Geri DÃ¶n</button>
           <button id="embeddedConfirm" type="button" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
             <i class="fas fa-calendar-plus mr-2"></i>Rezervasyon Yap
           </button>
@@ -109,7 +109,7 @@ if ($isPartial) :
           // preserve server-rendered options if any
           const existing = Array.from(loc.options).map(o=>o.value).filter(v=>v);
           list.forEach(cw=>{
-            if(!existing.includes(String(cw.id))){ const o=document.createElement('option'); o.value=cw.id; o.textContent=cw.name + (cw.district?(' — '+cw.district):''); loc.appendChild(o); }
+            if(!existing.includes(String(cw.id))){ const o=document.createElement('option'); o.value=cw.id; o.textContent=cw.name + (cw.district?(' â€” '+cw.district):''); loc.appendChild(o); }
           });
 
           // preselect from querystring if provided
@@ -132,9 +132,9 @@ if ($isPartial) :
           const svcs = await resp.json();
           const container = el('embeddedServices');
           container.innerHTML = '';
-          if(!Array.isArray(svcs) || svcs.length===0){ container.innerHTML = '<div class="muted">Hizmet bulunamadı</div>'; return; }
+          if(!Array.isArray(svcs) || svcs.length===0){ container.innerHTML = '<div class="muted">Hizmet bulunamadÄ±</div>'; return; }
           svcs.forEach(s=>{
-            const d = document.createElement('div'); d.className='p-3 border rounded-lg flex justify-between items-center cursor-pointer'; d.innerHTML = `<div><div style=\"font-weight:600\">${s.name}</div><div class=\"small muted\">${s.description||''}</div></div><div style=\"font-weight:700\">₺${Number(s.price||0).toFixed(2)}</div>`;
+            const d = document.createElement('div'); d.className='p-3 border rounded-lg flex justify-between items-center cursor-pointer'; d.innerHTML = `<div><div style=\"font-weight:600\">${s.name}</div><div class=\"small muted\">${s.description||''}</div></div><div style=\"font-weight:700\">â‚º${Number(s.price||0).toFixed(2)}</div>`;
             d.onclick = ()=>{ selectServiceEmbedded(s); };
             container.appendChild(d);
           });
@@ -148,11 +148,11 @@ if ($isPartial) :
 
       async function submitEmbedded(){
         const msg = el('embeddedMessage');
-        if(!selectedService){ msg.textContent='Lütfen hizmet seçin'; msg.style.color='red'; return; }
+        if(!selectedService){ msg.textContent='LÃ¼tfen hizmet seÃ§in'; msg.style.color='red'; return; }
         const carwashId = el('location').value; const date = el('reservationDate').value; const time = el('reservationTime').value; const notes = el('notes').value || '';
-        if(!carwashId || !date || !time){ msg.textContent='Lütfen tüm zorunlu alanları doldurun'; msg.style.color='red'; return; }
+        if(!carwashId || !date || !time){ msg.textContent='LÃ¼tfen tÃ¼m zorunlu alanlarÄ± doldurun'; msg.style.color='red'; return; }
         const fd = new FormData(); fd.append('carwash_id', carwashId); fd.append('service_id', selectedService.id); fd.append('date', date); fd.append('time', time); fd.append('notes', notes);
-        const btn = el('embeddedConfirm'); btn.disabled = true; btn.textContent = 'Gönderiliyor...';
+        const btn = el('embeddedConfirm'); btn.disabled = true; btn.textContent = 'GÃ¶nderiliyor...';
         try{
           const r = await fetch(API_CREATE, {
             method: 'POST',
@@ -164,13 +164,13 @@ if ($isPartial) :
             }
           });
           const json = await r.json();
-          if(json.success){ msg.textContent = 'Rezervasyon başarılı. ID: '+json.booking_id; msg.style.color='green';
+          if(json.success){ msg.textContent = 'Rezervasyon baÅŸarÄ±lÄ±. ID: '+json.booking_id; msg.style.color='green';
             // Optionally refresh reservations list by dispatching a custom event
             window.dispatchEvent(new CustomEvent('booking:created', { detail: json }));
             // hide form after short delay
             setTimeout(()=>{ const list = document.getElementById('reservationListView'); if(list){ document.getElementById('newReservationForm').classList.add('hidden'); list.classList.remove('hidden'); } }, 900);
           } else { msg.textContent = 'Hata: '+(json.errors?json.errors.join('\n'):(json.message||'Bilinmeyen hata')); msg.style.color='red'; }
-        }catch(e){ console.error(e); msg.textContent = 'Sunucu hatası'; msg.style.color='red'; }
+        }catch(e){ console.error(e); msg.textContent = 'Sunucu hatasÄ±'; msg.style.color='red'; }
         finally{ btn.disabled = false; btn.textContent = 'Rezervasyon Yap'; }
       }
 
@@ -198,7 +198,7 @@ endif;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yeni Randevu - AquaTR</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50">
@@ -207,14 +207,14 @@ endif;
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <a href="index.php" class="text-xl font-semibold text-blue-600">
-                    <i class="fas fa-arrow-left"></i> Panele Dön
+                    <i class="fas fa-arrow-left"></i> Panele DÃ¶n
                 </a>
             </div>
         </div>
     </nav>
 
     <div class="max-w-4xl mx-auto px-4">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">Yeni Randevu Oluştur</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Yeni Randevu OluÅŸtur</h1>
 
         <!-- Embed the same booking fragment so standalone and embedded use identical UI/JS -->
         <?php
@@ -225,3 +225,4 @@ endif;
     </div>
 </body>
 </html>
+

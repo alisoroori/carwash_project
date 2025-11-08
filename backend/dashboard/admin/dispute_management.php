@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
 require_once '../../includes/dispute_handler.php';
@@ -15,7 +15,7 @@ if ($_SESSION['user_role'] !== 'admin') {
 <head>
     <meta charset="UTF-8">
     <title>Dispute Management</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
 </head>
 
 <body class="bg-gray-50">
@@ -46,3 +46,4 @@ if ($_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+

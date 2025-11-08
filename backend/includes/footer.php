@@ -34,13 +34,12 @@ $current_year = date('Y');
   <div class="container mx-auto px-4">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       
-      <!-- Brand Section -->
+      <!-- Brand Section (updated to use dashboard logo + MYCAR) -->
       <div class="lg:col-span-1">
         <div class="flex items-center space-x-3 mb-6">
-          <div class="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-            <i class="fas fa-car text-white text-xl"></i>
-          </div>
-          <h3 class="text-2xl font-bold">CarWash</h3>
+          <!-- Use same dashboard logo image and sizing to keep brand consistent -->
+          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="MYCAR logo" class="object-contain rounded-xl shadow-lg">
+          <h3 class="text-2xl font-bold">MYCAR</h3>
         </div>
         <p class="text-gray-300 text-sm leading-relaxed mb-6">
           Türkiye'nin en güvenilir araç yıkama rezervasyon platformu. Kaliteli hizmet, güvenilir işletmeler ve kolay rezervasyon sistemi.
@@ -187,7 +186,7 @@ $current_year = date('Y');
       <!-- Copyright -->
       <div class="text-center md:text-left">
         <p class="text-gray-400 text-sm">
-          &copy; <?php echo $current_year; ?> CarWash. Tüm hakları saklıdır.
+          &copy; <?php echo $current_year; ?> MYCAR. Tüm hakları saklıdır.
         </p>
         <p class="text-gray-500 text-xs mt-1">
           Güvenilir araç yıkama hizmetleri için tercih edilen platform.

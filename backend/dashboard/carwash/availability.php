@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -8,8 +8,8 @@ require_once '../../includes/auth_check.php';
 
 <head>
     <meta charset="UTF-8">
-    <title>Çalışma Saatleri - CarWash Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Ã‡alÄ±ÅŸma Saatleri - CarWash Panel</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -17,7 +17,7 @@ require_once '../../includes/auth_check.php';
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Service Selection -->
         <div class="mb-6">
-            <h2 class="text-lg font-semibold mb-4">Hizmet Seçimi</h2>
+            <h2 class="text-lg font-semibold mb-4">Hizmet SeÃ§imi</h2>
             <div class="flex flex-wrap gap-2" id="serviceSelection">
                 <!-- Services will be loaded here -->
             </div>
@@ -30,7 +30,7 @@ require_once '../../includes/auth_check.php';
 
         <!-- Batch Update Form -->
         <div class="mt-6 bg-white rounded-lg shadow-lg p-6">
-            <h3 class="text-lg font-semibold mb-4">Toplu Güncelleme</h3>
+            <h3 class="text-lg font-semibold mb-4">Toplu GÃ¼ncelleme</h3>
             <form id="batchUpdateForm" class="space-y-4">
                 <!-- Form content -->
             </form>
@@ -102,3 +102,4 @@ require_once '../../includes/auth_check.php';
 </body>
 
 </html>
+

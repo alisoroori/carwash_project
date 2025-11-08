@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr" dir="ltr">
 <head>
     <!-- Basic Meta Tags -->
@@ -7,24 +7,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
     <!-- SEO Meta Tags -->
-    <title>Ödeme Geçmişi - CarWash | Araç Yıkama Rezervasyon Sistemi</title>
-    <meta name="description" content="CarWash ödeme geçmişi sayfası. Araç yıkama rezervasyon ödemelerinizi görüntüleyin ve yönetin. Türkiye'nin güvenilir araç yıkama platformu.">
-    <meta name="keywords" content="ödeme geçmişi, araç yıkama, car wash, rezervasyon, fatura, CarWash, İstanbul, Ankara">
+    <title>Ã–deme GeÃ§miÅŸi - CarWash | AraÃ§ YÄ±kama Rezervasyon Sistemi</title>
+    <meta name="description" content="CarWash Ã¶deme geÃ§miÅŸi sayfasÄ±. AraÃ§ yÄ±kama rezervasyon Ã¶demelerinizi gÃ¶rÃ¼ntÃ¼leyin ve yÃ¶netin. TÃ¼rkiye'nin gÃ¼venilir araÃ§ yÄ±kama platformu.">
+    <meta name="keywords" content="Ã¶deme geÃ§miÅŸi, araÃ§ yÄ±kama, car wash, rezervasyon, fatura, CarWash, Ä°stanbul, Ankara">
     <meta name="author" content="CarWash Team">
     <meta name="robots" content="noindex, nofollow">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Ödeme Geçmişi - CarWash">
-    <meta property="og:description" content="Araç yıkama rezervasyon ödemelerinizi görüntüleyin ve yönetin.">
+    <meta property="og:title" content="Ã–deme GeÃ§miÅŸi - CarWash">
+    <meta property="og:description" content="AraÃ§ yÄ±kama rezervasyon Ã¶demelerinizi gÃ¶rÃ¼ntÃ¼leyin ve yÃ¶netin.">
     <meta property="og:url" content="https://carwash.com/payment_history">
     <meta property="og:site_name" content="CarWash">
     <meta property="og:locale" content="tr_TR">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Ödeme Geçmişi - CarWash">
-    <meta name="twitter:description" content="Araç yıkama rezervasyon ödemelerinizi görüntüleyin ve yönetin.">
+    <meta name="twitter:title" content="Ã–deme GeÃ§miÅŸi - CarWash">
+    <meta name="twitter:description" content="AraÃ§ yÄ±kama rezervasyon Ã¶demelerinizi gÃ¶rÃ¼ntÃ¼leyin ve yÃ¶netin.">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/carwash_project/frontend/images/favicon.ico">
@@ -33,40 +33,41 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/carwash_project/frontend/images/favicon-16x16.png">
     
     <!-- Preconnect for Performance -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     
     <!-- CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
           integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
           crossorigin="anonymous" referrerpolicy="no-referrer">
     
     <!-- Tailwind Config -->
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'carwash-primary': '#2563eb',
-                        'carwash-secondary': '#64748b',
-                        'carwash-success': '#10b981',
-                        'carwash-warning': '#f59e0b',
-                        'carwash-error': '#ef4444',
-                        'carwash-info': '#0ea5e9'
-                    },
-                    fontFamily: {
-                        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif']
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-down': 'slideDown 0.3s ease-out',
-                        'pulse-slow': 'pulse 2s infinite'
+            if (typeof tailwind !== 'undefined') {
+                tailwind.config = {
+                    theme: {
+                        extend: {
+                            colors: {
+                                'carwash-primary': '#2563eb',
+                                'carwash-secondary': '#64748b',
+                                'carwash-success': '#10b981',
+                                'carwash-warning': '#f59e0b',
+                                'carwash-error': '#ef4444',
+                                'carwash-info': '#0ea5e9'
+                            },
+                            fontFamily: {
+                                'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                            },
+                            animation: {
+                                'fade-in': 'fadeIn 0.5s ease-in-out',
+                                'slide-down': 'slideDown 0.3s ease-out',
+                                'pulse-slow': 'pulse 2s infinite'
+                            }
+                        }
                     }
                 }
             }
-        }
     </script>
     
     <!-- Schema.org structured data -->
@@ -74,8 +75,8 @@
     {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": "Ödeme Geçmişi - CarWash",
-        "description": "CarWash ödeme geçmişi sayfası",
+        "name": "Ã–deme GeÃ§miÅŸi - CarWash",
+        "description": "CarWash Ã¶deme geÃ§miÅŸi sayfasÄ±",
         "url": "https://carwash.com/payment_history",
         "inLanguage": "tr",
         "isPartOf": {
@@ -99,7 +100,7 @@
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-sans antialiased">
     <!-- Skip to main content for accessibility -->
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-carwash-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:z-50 focus:outline-none focus:ring-2 focus:ring-white">
-        Ana içeriğe atla
+        Ana iÃ§eriÄŸe atla
     </a>
 
     <!-- Header -->
@@ -110,7 +111,7 @@
                 <div class="flex items-center">
                     <a href="/carwash_project/frontend/homes.html" 
                        class="flex items-center space-x-2 text-carwash-primary hover:text-blue-700 transition-colors duration-200"
-                       aria-label="CarWash ana sayfası">
+                       aria-label="CarWash ana sayfasÄ±">
                         <i class="fas fa-car text-2xl" aria-hidden="true"></i>
                         <span class="text-xl font-bold hidden sm:inline">CarWash</span>
                     </a>
@@ -129,14 +130,14 @@
                         </li>
                         <li>
                             <a href="/carwash_project/backend/dashboard/Customer_Dashboard.php" class="text-gray-500 hover:text-carwash-primary transition-colors">
-                                Hesabım
+                                HesabÄ±m
                             </a>
                         </li>
                         <li class="text-gray-400">
                             <i class="fas fa-chevron-right text-xs" aria-hidden="true"></i>
                         </li>
                         <li class="text-gray-900 font-medium" aria-current="page">
-                            Ödeme Geçmişi
+                            Ã–deme GeÃ§miÅŸi
                         </li>
                     </ol>
                 </nav>
@@ -147,7 +148,7 @@
                         <button class="flex items-center space-x-2 text-gray-700 hover:text-carwash-primary focus:outline-none focus:ring-2 focus:ring-carwash-primary focus:ring-offset-2 rounded-md p-2"
                                 aria-expanded="false" aria-haspopup="true" id="user-menu-button">
                             <i class="fas fa-user-circle text-xl" aria-hidden="true"></i>
-                            <span class="hidden sm:inline">Hesabım</span>
+                            <span class="hidden sm:inline">HesabÄ±m</span>
                             <i class="fas fa-chevron-down text-xs" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -164,15 +165,15 @@
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                         <i class="fas fa-credit-card text-carwash-primary mr-3" aria-hidden="true"></i>
-                        Ödeme Geçmişi
+                        Ã–deme GeÃ§miÅŸi
                     </h1>
-                    <p class="text-gray-600">Araç yıkama rezervasyon ödemelerinizi görüntüleyin ve yönetin</p>
+                    <p class="text-gray-600">AraÃ§ yÄ±kama rezervasyon Ã¶demelerinizi gÃ¶rÃ¼ntÃ¼leyin ve yÃ¶netin</p>
                 </div>
                 <div class="mt-4 sm:mt-0">
                     <button onclick="exportPayments()" 
                             class="inline-flex items-center px-4 py-2 border border-carwash-primary text-carwash-primary bg-white hover:bg-carwash-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-carwash-primary focus:ring-offset-2 rounded-md transition-colors duration-200">
                         <i class="fas fa-download mr-2" aria-hidden="true"></i>
-                        Dışa Aktar
+                        DÄ±ÅŸa Aktar
                     </button>
                 </div>
             </div>
@@ -189,24 +190,24 @@
                 <!-- Status Filter -->
                 <div class="space-y-2">
                     <label for="statusFilter" class="block text-sm font-medium text-gray-700">
-                        Ödeme Durumu
+                        Ã–deme Durumu
                     </label>
                     <select id="statusFilter" 
                             class="w-full rounded-lg border-gray-300 shadow-sm focus:border-carwash-primary focus:ring-carwash-primary focus:ring-1 transition-colors"
                             aria-describedby="status-help">
-                        <option value="">Tümü</option>
-                        <option value="completed">Tamamlandı</option>
+                        <option value="">TÃ¼mÃ¼</option>
+                        <option value="completed">TamamlandÄ±</option>
                         <option value="pending">Beklemede</option>
-                        <option value="cancelled">İptal Edildi</option>
-                        <option value="failed">Başarısız</option>
+                        <option value="cancelled">Ä°ptal Edildi</option>
+                        <option value="failed">BaÅŸarÄ±sÄ±z</option>
                     </select>
-                    <p id="status-help" class="text-xs text-gray-500">Ödeme durumuna göre filtreleyin</p>
+                    <p id="status-help" class="text-xs text-gray-500">Ã–deme durumuna gÃ¶re filtreleyin</p>
                 </div>
 
                 <!-- Date Range Filter -->
                 <div class="space-y-2">
                     <label for="dateFromFilter" class="block text-sm font-medium text-gray-700">
-                        Başlangıç Tarihi
+                        BaÅŸlangÄ±Ã§ Tarihi
                     </label>
                     <input type="date" id="dateFromFilter" 
                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-carwash-primary focus:ring-carwash-primary focus:ring-1 transition-colors">
@@ -214,7 +215,7 @@
 
                 <div class="space-y-2">
                     <label for="dateToFilter" class="block text-sm font-medium text-gray-700">
-                        Bitiş Tarihi
+                        BitiÅŸ Tarihi
                     </label>
                     <input type="date" id="dateToFilter" 
                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-carwash-primary focus:ring-carwash-primary focus:ring-1 transition-colors">
@@ -223,11 +224,11 @@
                 <!-- Amount Range Filter -->
                 <div class="space-y-2">
                     <label for="amountFilter" class="block text-sm font-medium text-gray-700">
-                        Tutar Aralığı
+                        Tutar AralÄ±ÄŸÄ±
                     </label>
                     <select id="amountFilter" 
                             class="w-full rounded-lg border-gray-300 shadow-sm focus:border-carwash-primary focus:ring-carwash-primary focus:ring-1 transition-colors">
-                        <option value="">Tümü</option>
+                        <option value="">TÃ¼mÃ¼</option>
                         <option value="0-50">0 - 50 TL</option>
                         <option value="50-100">50 - 100 TL</option>
                         <option value="100-200">100 - 200 TL</option>
@@ -253,7 +254,7 @@
 
         <!-- Summary Cards -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6" aria-labelledby="summary-heading">
-            <h2 id="summary-heading" class="sr-only">Ödeme Özeti</h2>
+            <h2 id="summary-heading" class="sr-only">Ã–deme Ã–zeti</h2>
             
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center">
@@ -263,7 +264,7 @@
                         </div>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Toplam Ödeme</p>
+                        <p class="text-sm font-medium text-gray-600">Toplam Ã–deme</p>
                         <p id="totalAmount" class="text-2xl font-bold text-gray-900">0 TL</p>
                     </div>
                 </div>
@@ -277,7 +278,7 @@
                         </div>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Toplam İşlem</p>
+                        <p class="text-sm font-medium text-gray-600">Toplam Ä°ÅŸlem</p>
                         <p id="totalTransactions" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -291,7 +292,7 @@
                         </div>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Bekleyen Ödeme</p>
+                        <p class="text-sm font-medium text-gray-600">Bekleyen Ã–deme</p>
                         <p id="pendingAmount" class="text-2xl font-bold text-gray-900">0 TL</p>
                     </div>
                 </div>
@@ -302,9 +303,9 @@
         <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" aria-labelledby="payments-heading">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 id="payments-heading" class="text-lg font-semibold text-gray-900">
-                    Ödeme Listesi
+                    Ã–deme Listesi
                 </h2>
-                <p class="text-sm text-gray-600 mt-1">Araç yıkama rezervasyon ödemelerinizin detaylı listesi</p>
+                <p class="text-sm text-gray-600 mt-1">AraÃ§ yÄ±kama rezervasyon Ã¶demelerinizin detaylÄ± listesi</p>
             </div>
 
             <!-- Loading State -->
@@ -312,18 +313,18 @@
                 <div class="animate-spin text-4xl text-carwash-primary mb-4" aria-hidden="true">
                     <i class="fas fa-circle-notch"></i>
                 </div>
-                <p class="text-gray-600">Ödeme geçmişi yükleniyor...</p>
+                <p class="text-gray-600">Ã–deme geÃ§miÅŸi yÃ¼kleniyor...</p>
             </div>
 
             <!-- Table -->
             <div id="tableContainer" class="hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200" role="table" aria-label="Ödeme geçmişi tablosu">
+                    <table class="min-w-full divide-y divide-gray-200" role="table" aria-label="Ã–deme geÃ§miÅŸi tablosu">
                         <thead class="bg-gray-50">
                             <tr role="row">
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <button class="flex items-center space-x-1 hover:text-gray-700 focus:outline-none" onclick="sortTable('order_id')">
-                                        <span>Sipariş No</span>
+                                        <span>SipariÅŸ No</span>
                                         <i class="fas fa-sort text-gray-400" aria-hidden="true"></i>
                                     </button>
                                 </th>
@@ -334,7 +335,7 @@
                                     </button>
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Araç Yıkama
+                                    AraÃ§ YÄ±kama
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Hizmet
@@ -349,7 +350,7 @@
                                     Durum
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    İşlemler
+                                    Ä°ÅŸlemler
                                 </th>
                             </tr>
                         </thead>
@@ -365,12 +366,12 @@
                 <div class="text-6xl text-gray-300 mb-4" aria-hidden="true">
                     <i class="fas fa-receipt"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Henüz ödeme kaydı bulunmuyor</h3>
-                <p class="text-gray-600 mb-4">İlk rezervasyonunuzu yaparak ödeme geçmişinizi oluşturmaya başlayın</p>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">HenÃ¼z Ã¶deme kaydÄ± bulunmuyor</h3>
+                <p class="text-gray-600 mb-4">Ä°lk rezervasyonunuzu yaparak Ã¶deme geÃ§miÅŸinizi oluÅŸturmaya baÅŸlayÄ±n</p>
                 <a href="/carwash_project/frontend/search.html" 
                    class="inline-flex items-center px-4 py-2 bg-carwash-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-carwash-primary focus:ring-offset-2 transition-colors duration-200">
                     <i class="fas fa-search mr-2" aria-hidden="true"></i>
-                    Araç Yıkama Bul
+                    AraÃ§ YÄ±kama Bul
                 </a>
             </div>
         </section>
@@ -378,7 +379,7 @@
         <!-- Pagination -->
         <nav class="flex justify-between items-center mt-6" aria-label="Sayfalama">
             <div class="text-sm text-gray-700">
-                <span id="showingCount">0</span> / <span id="totalCount">0</span> ödeme gösteriliyor
+                <span id="showingCount">0</span> / <span id="totalCount">0</span> Ã¶deme gÃ¶steriliyor
             </div>
             <div class="flex space-x-2" id="pagination">
                 <!-- Pagination buttons will be rendered here -->
@@ -397,11 +398,11 @@
                 <!-- Modal Header -->
                 <div class="flex items-center justify-between p-6 border-b border-gray-200">
                     <h3 id="modal-title" class="text-xl font-semibold text-gray-900">
-                        Ödeme Detayları
+                        Ã–deme DetaylarÄ±
                     </h3>
                     <button onclick="closePaymentModal()" 
                             class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-carwash-primary rounded-md p-2"
-                            aria-label="Modalı kapat">
+                            aria-label="ModalÄ± kapat">
                         <i class="fas fa-times text-xl" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -424,7 +425,7 @@
                         <span class="text-xl font-bold">CarWash</span>
                     </div>
                     <p class="text-gray-400">
-                        Türkiye'nin en güvenilir araç yıkama rezervasyon platformu
+                        TÃ¼rkiye'nin en gÃ¼venilir araÃ§ yÄ±kama rezervasyon platformu
                     </p>
                 </div>
                 
@@ -443,23 +444,23 @@
                 </div>
                 
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Hızlı Linkler</h3>
+                    <h3 class="text-lg font-semibold mb-4">HÄ±zlÄ± Linkler</h3>
                     <ul class="space-y-2 text-gray-400">
                         <li>
-                            <a href="/carwash_project/frontend/privacy.html" class="hover:text-white transition-colors">Gizlilik Politikası</a>
+                            <a href="/carwash_project/frontend/privacy.html" class="hover:text-white transition-colors">Gizlilik PolitikasÄ±</a>
                         </li>
                         <li>
-                            <a href="/carwash_project/frontend/terms.html" class="hover:text-white transition-colors">Kullanım Şartları</a>
+                            <a href="/carwash_project/frontend/terms.html" class="hover:text-white transition-colors">KullanÄ±m ÅžartlarÄ±</a>
                         </li>
                         <li>
-                            <a href="/carwash_project/backend/dashboard/Customer_Dashboard.php" class="hover:text-white transition-colors">Hesabım</a>
+                            <a href="/carwash_project/backend/dashboard/Customer_Dashboard.php" class="hover:text-white transition-colors">HesabÄ±m</a>
                         </li>
                     </ul>
                 </div>
             </div>
             
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 CarWash. Tüm hakları saklıdır.</p>
+                <p>&copy; 2024 CarWash. TÃ¼m haklarÄ± saklÄ±dÄ±r.</p>
             </div>
         </div>
     </footer>

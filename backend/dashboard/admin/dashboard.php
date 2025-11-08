@@ -1,4 +1,4 @@
-@<?php
+﻿@<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -17,7 +17,7 @@ $currentUser = getCurrentUser();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - CarWash</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="/carwash_project/frontend/js/admin/analytics/metrics-dashboard.js"></script>
@@ -39,7 +39,7 @@ $currentUser = getCurrentUser();
             </div>
             <nav class="p-4">
                 <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50 bg-blue-50 text-blue-600 font-medium mb-2">
-                    <i class="fas fa-chart-line mr-2"></i> Genel Bakış
+                    <i class="fas fa-chart-line mr-2"></i> Genel BakÄ±ÅŸ
                 </a>
                 <a href="reports.php" class="block py-2 px-4 rounded hover:bg-blue-50 mb-2">
                     <i class="fas fa-file-alt mr-2"></i> Raporlar
@@ -50,7 +50,7 @@ $currentUser = getCurrentUser();
                 
                 <div class="border-t mt-4 pt-4">
                     <a href="../../auth/logout.php" class="block py-2 px-4 rounded hover:bg-red-50 text-red-600">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap
+                        <i class="fas fa-sign-out-alt mr-2"></i> Ã‡Ä±kÄ±ÅŸ Yap
                     </a>
                 </div>
             </nav>
@@ -64,11 +64,11 @@ $currentUser = getCurrentUser();
                     <div class="text-sm text-gray-500 mb-1">Toplam Ciro</div>
                     <div class="text-2xl font-bold" id="totalRevenue">...</div>
                     <div class="text-xs text-green-500 mt-2">
-                        <i class="fas fa-arrow-up"></i> 12% geçen aya göre
+                        <i class="fas fa-arrow-up"></i> 12% geÃ§en aya gÃ¶re
                     </div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
-                    <div class="text-sm text-gray-500 mb-1">Aktif İşletmeler</div>
+                    <div class="text-sm text-gray-500 mb-1">Aktif Ä°ÅŸletmeler</div>
                     <div class="text-2xl font-bold" id="activeBusinesses">...</div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
@@ -76,7 +76,7 @@ $currentUser = getCurrentUser();
                     <div class="text-2xl font-bold" id="totalBookings">...</div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
-                    <div class="text-sm text-gray-500 mb-1">Yeni Üyeler</div>
+                    <div class="text-sm text-gray-500 mb-1">Yeni Ãœyeler</div>
                     <div class="text-2xl font-bold" id="newUsers">...</div>
                 </div>
             </div>
@@ -84,11 +84,11 @@ $currentUser = getCurrentUser();
             <!-- Charts -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold mb-4">Aylık Gelir</h3>
+                    <h3 class="text-lg font-semibold mb-4">AylÄ±k Gelir</h3>
                     <canvas id="revenueChart"></canvas>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold mb-4">Popüler Hizmetler</h3>
+                    <h3 class="text-lg font-semibold mb-4">PopÃ¼ler Hizmetler</h3>
                     <canvas id="servicesChart"></canvas>
                 </div>
             </div>
@@ -103,8 +103,8 @@ $currentUser = getCurrentUser();
                         <thead class="text-left text-sm text-gray-500">
                             <tr>
                                 <th class="pb-3">Tarih</th>
-                                <th class="pb-3">İşlem</th>
-                                <th class="pb-3">Kullanıcı</th>
+                                <th class="pb-3">Ä°ÅŸlem</th>
+                                <th class="pb-3">KullanÄ±cÄ±</th>
                                 <th class="pb-3">Durum</th>
                             </tr>
                         </thead>
@@ -119,3 +119,4 @@ $currentUser = getCurrentUser();
 </body>
 
 </html>
+

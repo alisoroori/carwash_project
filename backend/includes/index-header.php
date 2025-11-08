@@ -79,8 +79,8 @@ if ($is_logged_in) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?php echo htmlspecialchars($page_title); ?></title>
   
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS (local build) -->
+  <link rel="stylesheet" href="<?php echo $base_url; ?>/frontend/css/tailwind.css">
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -166,6 +166,22 @@ if ($is_logged_in) {
       -webkit-text-fill-color: transparent;
       font-weight: 800;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Inline logo image sizing used on homepage header */
+    .logo-image {
+      width: 150px; /* Preferred width */
+      height: auto;
+      max-height: 64px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .logo-text-inline {
+      line-height: 1;
+      display: inline-block;
+      margin-left: 0.25rem;
+      vertical-align: middle;
     }
     
     .logo-container:hover .logo-text {
@@ -374,6 +390,24 @@ if ($is_logged_in) {
       font-weight: 600;
       box-shadow: var(--shadow-subtle);
     }
+
+    /* Header avatar image sizing for index header (overrides inline defaults) */
+    #indexUserAvatar {
+      width: 60px !important;
+      height: 60px !important;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    #indexAvatarFallback {
+      width: 60px;
+      height: 60px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
     
     /* Dropdown Menu */
     .dropdown-menu {
@@ -509,6 +543,29 @@ if ($is_logged_in) {
         width: 2rem;
         height: 2rem;
         font-size: 0.75rem;
+      }
+    }
+
+    /* Responsive adjustments for inline logo and header avatar */
+    @media (max-width: 480px) {
+      .logo-image {
+        width: 100px;
+        max-height: 48px;
+      }
+      #indexUserAvatar, #indexAvatarFallback {
+        width: 40px !important;
+        height: 40px !important;
+      }
+    }
+
+    @media (min-width: 481px) and (max-width: 1024px) {
+      .logo-image {
+        width: 120px;
+        max-height: 56px;
+      }
+      #indexUserAvatar, #indexAvatarFallback {
+        width: 48px !important;
+        height: 48px !important;
       }
     }
     
@@ -711,6 +768,112 @@ if ($is_logged_in) {
         color: #000 !important;
       }
     }
+    /* -------------------------
+       Additional layout tweaks for index page
+       - Only adjust alignment/spacing/positioning (no color/font changes)
+       - Targets: hero (#home), services (#services), and hero-gradient info blocks
+       ------------------------- */
+
+    /* Ensure hero columns align vertically and buttons align with text */
+    #home .container > .grid {
+      align-items: center; /* keep text vertically centered with image */
+    }
+
+    /* Make hero image and text area center vertically and respect available space */
+    @media (min-width: 1024px) {
+      #home .container > .grid > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      /* Ensure the image block doesn't overflow and is centered in its column */
+      #home .container > .grid > div.animate-slide-in {
+        align-items: center;
+      }
+
+      /* Slightly tighten the button group spacing on desktop */
+      #home .container .flex.flex-col.sm\:flex-row,
+      #home .container .flex.flex-col.sm\:flex-row > * {
+        gap: 0.9rem !important;
+      }
+    }
+
+    /* SERVICES: lay out items in a single centered row on desktop and place icons on the right */
+    @media (min-width: 1024px) {
+      #services .grid {
+        display: flex !important;
+        flex-wrap: nowrap;
+        gap: 1.5rem;
+        justify-content: center;
+        align-items: stretch;
+      }
+
+      /* Give each service a stable width so spacing is equal */
+      #services .grid > div {
+        flex: 0 0 320px;
+        max-width: 320px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      /* Move the first child (icon container) to the right column and let text flow in the left column */
+      #services .grid > div > :first-child {
+        grid-column: 2;
+        grid-row: 1 / 4;
+        justify-self: center;
+        margin: 0;
+      }
+
+      /* Ensure heading, description and price occupy the left column */
+      #services .grid > div > h3,
+      #services .grid > div > p,
+      #services .grid > div > div.text-price,
+      #services .grid > div > .text-xl {
+        grid-column: 1;
+      }
+
+      /* Slight vertical nudge to visually center the first service for balance */
+      #services .grid > div:first-child {
+        transform: translateY(8px);
+      }
+    }
+
+    /* CARWASH INFO / TARGET blocks: place icons on the right and text on the left in a single row */
+    @media (min-width: 1024px) {
+      /* Targets sections that use hero-gradient and contain small icon+text blocks */
+      .hero-gradient .grid.grid-cols-2 .grid.grid-cols-2,
+      .hero-gradient .grid.grid-cols-2 .grid-cols-2 {
+        display: flex !important;
+        gap: 1.25rem;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* For the small feature blocks that are currently column-oriented, switch to row with icon on right */
+      .hero-gradient .grid.grid-cols-2 .flex.flex-col,
+      .hero-gradient .grid.grid-cols-2 .flex.flex-col > * {
+        display: flex !important;
+        flex-direction: row-reverse !important;
+        align-items: center !important;
+        gap: 0.9rem !important;
+        text-align: left !important;
+      }
+
+      .hero-gradient .grid.grid-cols-2 .flex.flex-col i {
+        font-size: 1.6rem !important;
+      }
+    }
+
+    /* Mobile: ensure stacking remains natural and readable (no layout overrides below 1024px) */
+    @media (max-width: 1023px) {
+      #services .grid > div { display: block; grid-template-columns: none; flex: 1 1 auto; transform: none; }
+      #services .grid > div > :first-child { grid-column: auto; grid-row: auto; justify-self: auto; }
+      .hero-gradient .grid.grid-cols-2 .flex.flex-col { flex-direction: column !important; text-align: center !important; }
+      #home .container > .grid > div { display: block; }
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -721,10 +884,11 @@ if ($is_logged_in) {
     <div class="flex justify-between items-center h-16 sm:h-18 md:h-20">
       
       <!-- Logo Section -->
-      <div class="site-logo" style="display: flex; align-items: center;">
+      <div class="site-logo" style="display: flex; align-items: center; gap: 0.5rem;">
         <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
-          <img src="../frontend/assets/images/default-car.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
-          <span style="font-size: 1.5rem; font-weight: 400; font-family: 'Momo Signature', cursive; color: #019be5;">MYCAR</span>
+          <!-- Use same logo as dashboard headers to ensure consistent branding -->
+          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image">
+          <span class="logo-text-inline" style="font-size: 1.5rem; font-weight: 400; font-family: 'Momo Signature', cursive; color: #019be5;">MYCAR</span>
         </a>
       </div>
 

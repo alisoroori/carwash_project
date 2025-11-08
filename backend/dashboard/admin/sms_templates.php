@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/sms_template_manager.php';
@@ -19,8 +19,8 @@ $templates = $templateManager->getAllTemplates();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMS Şablonları - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>SMS ÅžablonlarÄ± - Admin Panel</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -38,7 +38,7 @@ $templates = $templateManager->getAllTemplates();
     </nav>
 
     <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-3xl font-bold mb-6">SMS Şablonları</h1>
+        <h1 class="text-3xl font-bold mb-6">SMS ÅžablonlarÄ±</h1>
 
         <div class="bg-white shadow rounded-lg">
             <div class="p-6">
@@ -46,11 +46,11 @@ $templates = $templateManager->getAllTemplates();
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Şablon Adı</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Åžablon AdÄ±</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kod</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İçerik</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ä°Ã§erik</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">İşlemler</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ä°ÅŸlemler</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
@@ -86,15 +86,15 @@ $templates = $templateManager->getAllTemplates();
     <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div class="mt-3">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Şablon Düzenle</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Åžablon DÃ¼zenle</h3>
                 <form id="templateForm">
                     <input type="hidden" id="templateId">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Şablon Adı</label>
+                        <label class="block text-sm font-medium text-gray-700">Åžablon AdÄ±</label>
                         <input type="text" id="templateName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">İçerik</label>
+                        <label class="block text-sm font-medium text-gray-700">Ä°Ã§erik</label>
                         <textarea id="templateContent" rows="4"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
                     </div>
@@ -108,7 +108,7 @@ $templates = $templateManager->getAllTemplates();
                     <div class="mt-5 flex justify-end space-x-2">
                         <button type="button" onclick="closeModal()"
                             class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
-                            İptal
+                            Ä°ptal
                         </button>
                         <button type="submit"
                             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">
@@ -164,3 +164,4 @@ $templates = $templateManager->getAllTemplates();
 </body>
 
 </html>
+

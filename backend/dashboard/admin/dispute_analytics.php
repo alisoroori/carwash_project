@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
@@ -15,7 +15,7 @@ if ($_SESSION['user_role'] !== 'admin') {
 <head>
     <meta charset="UTF-8">
     <title>Dispute Analytics Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -52,3 +52,4 @@ if ($_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Enhanced Customer Dashboard Header
  * Clean, Professional, Fully Responsive Design with TailwindCSS
@@ -44,32 +44,34 @@ $logout_url = $base_url . '/backend/includes/logout.php';
     <title><?php echo htmlspecialchars($page_title); ?></title>
     
     <!-- TailwindCSS CDN (for development - replace with compiled CSS in production) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Custom TailwindCSS Configuration -->
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: {
+                                50: '#f0f9ff',
+                                100: '#e0f2fe',
+                                500: '#3b82f6',
+                                600: '#2563eb',
+                                700: '#1d4ed8',
+                            },
+                            secondary: {
+                                500: '#8b5cf6',
+                                600: '#7c3aed',
+                            }
                         },
-                        secondary: {
-                            500: '#8b5cf6',
-                            600: '#7c3aed',
+                        boxShadow: {
+                            'header': '0 4px 12px rgba(0, 0, 0, 0.08)',
+                            'dropdown': '0 8px 24px rgba(0, 0, 0, 0.15)',
                         }
-                    },
-                    boxShadow: {
-                        'header': '0 4px 12px rgba(0, 0, 0, 0.08)',
-                        'dropdown': '0 8px 24px rgba(0, 0, 0, 0.15)',
                     }
                 }
             }
@@ -88,16 +90,7 @@ $logout_url = $base_url . '/backend/includes/logout.php';
                 transform: translateY(0);
             }
         }
-        
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-100%);
-            }
-            to {
-                transform: translateX(0);
-            }
-        }
-        
+
         .dropdown-menu {
             animation: slideDown 0.2s ease-out;
         }
@@ -415,5 +408,5 @@ window.addEventListener('resize', () => {
     }
 });
 
-console.log('✅ Enhanced Dashboard Header loaded successfully');
+console.log('âœ… Enhanced Dashboard Header loaded successfully');
 </script>

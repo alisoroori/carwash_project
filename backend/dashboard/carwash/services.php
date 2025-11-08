@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -19,7 +19,7 @@ $carwashId = $_SESSION['carwash_id'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hizmet Paketleri - CarWash Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -48,13 +48,13 @@ $carwashId = $_SESSION['carwash_id'];
                     <input type="hidden" name="serviceId" id="serviceId">
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Paket Adı</label>
+                        <label class="block text-sm font-medium text-gray-700">Paket AdÄ±</label>
                         <input type="text" name="name" id="serviceName" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Açıklama</label>
+                        <label class="block text-sm font-medium text-gray-700">AÃ§Ä±klama</label>
                         <textarea name="description" id="serviceDescription" rows="3"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
                     </div>
@@ -66,7 +66,7 @@ $carwashId = $_SESSION['carwash_id'];
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Süre (Dakika)</label>
+                        <label class="block text-sm font-medium text-gray-700">SÃ¼re (Dakika)</label>
                         <input type="number" name="duration" id="serviceDuration" required min="0"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
@@ -74,7 +74,7 @@ $carwashId = $_SESSION['carwash_id'];
                     <div class="flex justify-end space-x-2">
                         <button type="button" onclick="closeServiceModal()"
                             class="px-4 py-2 text-gray-500 hover:text-gray-700">
-                            İptal
+                            Ä°ptal
                         </button>
                         <button type="submit"
                             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
@@ -90,3 +90,4 @@ $carwashId = $_SESSION['carwash_id'];
 </body>
 
 </html>
+

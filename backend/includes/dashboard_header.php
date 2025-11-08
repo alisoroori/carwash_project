@@ -588,7 +588,7 @@ $navigation_menu = array();
                     </div>
                     <div class="flex flex-col">
                         
-                       <img src="../logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+                       <img src="../logo01.png" alt="Site Logo" class="logo-image">
                          <span class="dashboard-badge">
                             <span class="logo-text">MYCAR</span> <?php echo $dashboard_label; ?>
                         </span>

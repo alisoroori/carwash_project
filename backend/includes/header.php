@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Universal Header Component for CarWash Website
  * Hybrid header that works for both website pages and customer dashboard
@@ -45,7 +45,7 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
 $logout_url = $base_url . '/backend/includes/logout.php';
 
 // Set defaults
-$page_title = isset($page_title) ? $page_title : 'CarWash - Araç Yıkama Rezervasyon Sistemi';
+$page_title = isset($page_title) ? $page_title : 'CarWash - AraÃ§ YÄ±kama Rezervasyon Sistemi';
 $current_page = isset($current_page) ? $current_page : '';
 
 // Check if user is logged in
@@ -74,9 +74,9 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
     For production it's recommended to build Tailwind with the CLI/PostCSS
     and include a compiled, minified CSS file to enable purging of unused
     styles and better performance. -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
   <script>
-    console.warn("cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation");
+    console.info("Tailwind CDN removed — serving compiled /frontend/css/tailwind.css for production.");
   </script>
   
   <!-- Font Awesome -->
@@ -801,7 +801,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
         <!-- Logo -->
         <div class="site-logo" style="display: flex; align-items: center;">
           <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
-            <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+            <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image">
             <span style=" font-size: 2rem; font-weight: 400; font-family: 'momo-signature-regular'; color: #194bb6ff;">MYCAR</span>
           </a>
         </div>
@@ -814,11 +814,11 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
           </a>
           <a href="<?php echo $about_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2">
             <i class="fas fa-info-circle text-xs lg:text-sm"></i>
-            <span>Hakkımızda</span>
+            <span>HakkÄ±mÄ±zda</span>
           </a>
           <a href="<?php echo $contact_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2">
             <i class="fas fa-envelope text-xs lg:text-sm"></i>
-            <span>İletişim</span>
+            <span>Ä°letiÅŸim</span>
           </a>
         </nav>
 
@@ -846,7 +846,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
                     <i class="fas fa-tachometer-alt mr-2 text-blue-600"></i>Dashboard
                   </a>
                   <a href="<?php echo $logout_url; ?>" class="block px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">
-                    <i class="fas fa-sign-out-alt mr-2"></i>Çıkış Yap
+                    <i class="fas fa-sign-out-alt mr-2"></i>Ã‡Ä±kÄ±ÅŸ Yap
                   </a>
                 </div>
               </div>
@@ -854,7 +854,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
           <?php endif; ?>
 
           <!-- Mobile Menu Button -->
-          <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg p-1.5" aria-label="Menüyü Aç/Kapat" aria-expanded="false">
+          <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg p-1.5" aria-label="MenÃ¼yÃ¼ AÃ§/Kapat" aria-expanded="false">
             <svg class="hamburger-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
@@ -877,11 +877,11 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
           </a>
           <a href="<?php echo $about_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
             <i class="fas fa-info-circle mr-3 text-white w-5 opacity-90"></i>
-            <span>Hakkımızda</span>
+            <span>HakkÄ±mÄ±zda</span>
           </a>
           <a href="<?php echo $contact_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
             <i class="fas fa-envelope mr-3 text-white w-5 opacity-90"></i>
-            <span>İletişim</span>
+            <span>Ä°letiÅŸim</span>
           </a>
           <?php if ($is_logged_in): ?>
             <div class="border-t border-white border-opacity-30 pt-4 mt-4 space-y-2">
@@ -891,7 +891,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
               </a>
               <a href="<?php echo $logout_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-red-500 hover:bg-opacity-30 font-medium rounded-xl transition-all duration-200">
                 <i class="fas fa-sign-out-alt mr-3 text-white w-5 opacity-90"></i>
-                <span>Çıkış Yap</span>
+                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
               </a>
             </div>
           <?php endif; ?>
@@ -908,7 +908,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
       <!-- Logo Section -->
       <div class="site-logo" style="display: flex; align-items: center;">
         <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
-          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image" style="width: 120px; height: auto;">
+          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image">
           <span style="font-size: 1.5rem; font-weight: 400; font-family: 'Momo Signature', cursive; color: #019be5;">MYCAR</span>
         </a>
       </div>
@@ -921,11 +921,11 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
           </a>
           <a href="<?php echo $about_url; ?>" class="nav-link <?php echo $current_page === 'about' ? 'active' : ''; ?> text-white font-medium text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 hover:text-blue-200 transition-all duration-200 flex items-center gap-2">
             <i class="fas fa-info-circle text-xs lg:text-sm"></i>
-            <span>Hakkımızda</span>
+            <span>HakkÄ±mÄ±zda</span>
           </a>
           <a href="<?php echo $contact_url; ?>" class="nav-link <?php echo $current_page === 'contact' ? 'active' : ''; ?> text-white font-medium text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 hover:text-blue-200 transition-all duration-200 flex items-center gap-2">
             <i class="fas fa-envelope text-xs lg:text-sm"></i>
-            <span>İletişim</span>
+            <span>Ä°letiÅŸim</span>
           </a>
           <?php if ($is_logged_in): ?>
             <a href="<?php echo $dashboard_url; ?>" class="nav-link <?php echo $current_page === 'dashboard' ? 'active' : ''; ?> text-white font-medium text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 hover:text-blue-200 transition-all duration-200 flex items-center gap-2">
@@ -959,7 +959,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
                     <i class="fas fa-tachometer-alt mr-2 text-blue-600 w-4"></i>Dashboard
                   </a>
                   <a href="<?php echo $logout_url; ?>" class="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">
-                    <i class="fas fa-sign-out-alt mr-2 w-4"></i>Çıkış Yap
+                    <i class="fas fa-sign-out-alt mr-2 w-4"></i>Ã‡Ä±kÄ±ÅŸ Yap
                   </a>
                 </div>
               </div>
@@ -967,7 +967,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
           <?php endif; ?>
 
           <!-- Mobile Menu Button -->
-          <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 rounded-lg p-1.5" aria-label="Menüyü Aç/Kapat" aria-expanded="false">
+          <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 rounded-lg p-1.5" aria-label="MenÃ¼yÃ¼ AÃ§/Kapat" aria-expanded="false">
             <svg class="hamburger-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
@@ -990,11 +990,11 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
           </a>
           <a href="<?php echo $about_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
             <i class="fas fa-info-circle mr-3 text-white w-5 opacity-90"></i>
-            <span>Hakkımızda</span>
+            <span>HakkÄ±mÄ±zda</span>
           </a>
           <a href="<?php echo $contact_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
             <i class="fas fa-envelope mr-3 text-white w-5 opacity-90"></i>
-            <span>İletişim</span>
+            <span>Ä°letiÅŸim</span>
           </a>
           
           <?php if ($is_logged_in): ?>
@@ -1005,7 +1005,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
               </a>
               <a href="<?php echo $logout_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-red-500 hover:bg-opacity-30 font-medium rounded-xl transition-all duration-200">
                 <i class="fas fa-sign-out-alt mr-3 text-white w-5 opacity-90"></i>
-                <span>Çıkış Yap</span>
+                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
               </a>
             </div>
           <?php endif; ?>
@@ -1238,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const skipLink = document.createElement('a');
       skipLink.href = '#main-content';
       skipLink.className = 'skip-link sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded z-50';
-      skipLink.textContent = 'Ana içeriğe geç';
+      skipLink.textContent = 'Ana iÃ§eriÄŸe geÃ§';
       document.body.insertBefore(skipLink, document.body.firstChild);
     }
     
@@ -1281,7 +1281,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty('--vh', `${vh}px`);
   
-  console.log('🎉 Universal Header: Enhanced responsive functionality loaded successfully!');
+  console.log('ðŸŽ‰ Universal Header: Enhanced responsive functionality loaded successfully!');
 });
 
 // Legacy support for older toggle function calls
@@ -1291,3 +1291,4 @@ function toggleMobileMenu() {
   }
 }
 </script>
+

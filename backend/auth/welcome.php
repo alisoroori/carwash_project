@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // CarWash Welcome Page - Shown only once after successful registration
 session_start();
 
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['registration_success'])) {
 }
 
 // Get user information
-$user_name = $_SESSION['user_name'] ?? 'Değerli Üye';
+$user_name = $_SESSION['user_name'] ?? 'DeÄŸerli Ãœye';
 $user_role = $_SESSION['role'] ?? 'customer';
 
 // Clear the registration success flag so this page only shows once
@@ -29,8 +29,8 @@ $dashboard_url = match($user_role) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hoş Geldiniz - CarWash</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>HoÅŸ Geldiniz - CarWash</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Welcome page animations */
@@ -185,10 +185,10 @@ $dashboard_url = match($user_role) {
         <!-- Welcome Message -->
         <div class="animate-fadeInUp">
             <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-                🎉 Hoş Geldiniz!
+                ðŸŽ‰ HoÅŸ Geldiniz!
             </h1>
             <h2 class="text-lg md:text-xl text-gray-700 mb-6">
-                Sayın <span class="text-blue-600 font-semibold"><?php echo htmlspecialchars($user_name); ?></span>
+                SayÄ±n <span class="text-blue-600 font-semibold"><?php echo htmlspecialchars($user_name); ?></span>
             </h2>
         </div>
 
@@ -197,10 +197,10 @@ $dashboard_url = match($user_role) {
             <div class="bg-green-50 border border-green-200 rounded-xl p-4 md:p-6 mb-6">
                 <div class="flex items-center justify-center mb-3">
                     <i class="fas fa-user-check text-green-600 text-xl mr-2"></i>
-                    <span class="text-green-800 font-semibold">Kayıt Başarılı!</span>
+                    <span class="text-green-800 font-semibold">KayÄ±t BaÅŸarÄ±lÄ±!</span>
                 </div>
                 <p class="text-green-700 text-sm md:text-base">
-                    CarWash ailesine katıldığınız için teşekkürler! Hesabınız başarıyla oluşturuldu ve artık tüm hizmetlerimizden yararlanabilirsiniz.
+                    CarWash ailesine katÄ±ldÄ±ÄŸÄ±nÄ±z iÃ§in teÅŸekkÃ¼rler! HesabÄ±nÄ±z baÅŸarÄ±yla oluÅŸturuldu ve artÄ±k tÃ¼m hizmetlerimizden yararlanabilirsiniz.
                 </p>
             </div>
         </div>
@@ -218,11 +218,11 @@ $dashboard_url = match($user_role) {
                 </div>
                 <div class="bg-green-50 rounded-lg p-3 md:p-4">
                     <i class="fas fa-shield-alt text-green-600 text-lg md:text-xl mb-2"></i>
-                    <p class="text-xs md:text-sm text-green-800 font-medium">Güvenli Ödeme</p>
+                    <p class="text-xs md:text-sm text-green-800 font-medium">GÃ¼venli Ã–deme</p>
                 </div>
                 <div class="bg-orange-50 rounded-lg p-3 md:p-4">
                     <i class="fas fa-clock text-orange-600 text-lg md:text-xl mb-2"></i>
-                    <p class="text-xs md:text-sm text-orange-800 font-medium">Hızlı Hizmet</p>
+                    <p class="text-xs md:text-sm text-orange-800 font-medium">HÄ±zlÄ± Hizmet</p>
                 </div>
             </div>
         </div>
@@ -230,7 +230,7 @@ $dashboard_url = match($user_role) {
         <!-- Auto Redirect Message -->
         <div class="animate-pulse-slow" style="animation-delay: 0.9s;">
             <p class="text-gray-600 text-sm md:text-base mb-4">
-                <span id="countdown">20</span> saniye sonra panelinize yönlendirileceksiniz...
+                <span id="countdown">20</span> saniye sonra panelinize yÃ¶nlendirileceksiniz...
             </p>
             
             <!-- Progress Bar -->
@@ -285,7 +285,7 @@ $dashboard_url = match($user_role) {
                 autoRedirectCanceled = true;
                 clearInterval(countdown);
                 countdownElement.parentElement.innerHTML = 
-                    '<p class="text-gray-600 text-sm md:text-base">Otomatik yönlendirme iptal edildi. Panelinize gitmek için butona tıklayın.</p>';
+                    '<p class="text-gray-600 text-sm md:text-base">Otomatik yÃ¶nlendirme iptal edildi. Panelinize gitmek iÃ§in butona tÄ±klayÄ±n.</p>';
             }
         });
 
@@ -303,3 +303,4 @@ $dashboard_url = match($user_role) {
     </script>
 </body>
 </html>
+

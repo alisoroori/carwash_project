@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../../backend/includes/auth_check.php';
 require_once '../../backend/includes/maps_config.php';
 
@@ -11,7 +11,7 @@ $mapsConfig = new MapsConfig();
 <head>
     <meta charset="UTF-8">
     <title>Find CarWash Services</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= $mapsConfig->getApiKey() ?>&libraries=places"></script>
 </head>
 
@@ -40,3 +40,4 @@ $mapsConfig = new MapsConfig();
 </body>
 
 </html>
+

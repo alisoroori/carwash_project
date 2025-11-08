@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -16,8 +16,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İçerik Yönetimi - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Ä°Ã§erik YÃ¶netimi - Admin Panel</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tiny.cloud/1/YOUR_TINY_MCE_KEY/tinymce/6/tinymce.min.js"></script>
 </head>
@@ -27,7 +27,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
         <!-- Sidebar -->
         <div class="bg-white w-64 shadow-lg">
             <div class="p-4 border-b">
-                <h1 class="text-xl font-bold">İçerik Yönetimi</h1>
+                <h1 class="text-xl font-bold">Ä°Ã§erik YÃ¶netimi</h1>
             </div>
             <nav class="p-4">
                 <a href="#pages" class="block py-2 px-4 rounded hover:bg-blue-50" data-section="pages">
@@ -62,7 +62,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                 <input type="hidden" name="id" id="pageId">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Başlık</label>
+                        <label class="block text-sm font-medium text-gray-700">BaÅŸlÄ±k</label>
                         <input type="text" name="title" id="pageTitle" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
@@ -73,14 +73,14 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">İçerik</label>
+                    <label class="block text-sm font-medium text-gray-700">Ä°Ã§erik</label>
                     <textarea name="content" id="pageContent" rows="10"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
                 </div>
                 <div class="flex justify-end space-x-2">
                     <button type="button" onclick="closeModal('pageModal')"
                         class="px-4 py-2 text-gray-600 hover:text-gray-800">
-                        İptal
+                        Ä°ptal
                     </button>
                     <button type="submit"
                         class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
@@ -95,3 +95,4 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+

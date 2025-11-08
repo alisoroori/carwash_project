@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../../includes/db.php';
 
@@ -37,8 +37,8 @@ while ($row = $working_hours->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Çalışma Saatleri - AquaTR</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Ã‡alÄ±ÅŸma Saatleri - AquaTR</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -48,14 +48,14 @@ while ($row = $working_hours->fetch_assoc()) {
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <a href="index.php" class="text-xl font-bold text-blue-600">
-                    <i class="fas fa-arrow-left"></i> Panele Dön
+                    <i class="fas fa-arrow-left"></i> Panele DÃ¶n
                 </a>
             </div>
         </div>
     </nav>
 
     <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">Çalışma Saatleri</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Ã‡alÄ±ÅŸma Saatleri</h1>
 
         <?php if (isset($_SESSION['success'])): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6">
@@ -71,9 +71,9 @@ while ($row = $working_hours->fetch_assoc()) {
             $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
             $dayNames = [
                 'Monday' => 'Pazartesi',
-                'Tuesday' => 'Salı',
-                'Wednesday' => 'Çarşamba',
-                'Thursday' => 'Perşembe',
+                'Tuesday' => 'SalÄ±',
+                'Wednesday' => 'Ã‡arÅŸamba',
+                'Thursday' => 'PerÅŸembe',
                 'Friday' => 'Cuma',
                 'Saturday' => 'Cumartesi',
                 'Sunday' => 'Pazar'
@@ -98,20 +98,20 @@ while ($row = $working_hours->fetch_assoc()) {
                                      after:left-[2px] after:bg-white after:border-gray-300 after:border 
                                      after:rounded-full after:h-5 after:w-5 after:transition-all 
                                      peer-checked:bg-blue-600"></div>
-                            <span class="ml-3 text-sm font-medium text-gray-700">Açık</span>
+                            <span class="ml-3 text-sm font-medium text-gray-700">AÃ§Ä±k</span>
                         </label>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Açılış</label>
+                            <label class="block text-sm font-medium text-gray-700">AÃ§Ä±lÄ±ÅŸ</label>
                             <input type="time" name="open_time[<?php echo $day; ?>]"
                                 value="<?php echo $openTime; ?>"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
                                           focus:border-blue-500 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Kapanış</label>
+                            <label class="block text-sm font-medium text-gray-700">KapanÄ±ÅŸ</label>
                             <input type="time" name="close_time[<?php echo $day; ?>]"
                                 value="<?php echo $closeTime; ?>"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
@@ -146,15 +146,16 @@ while ($row = $working_hours->fetch_assoc()) {
                     if (data.success) {
                         location.reload();
                     } else {
-                        alert(data.error || 'Bir hata oluştu.');
+                        alert(data.error || 'Bir hata oluÅŸtu.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Bir hata oluştu.');
+                    alert('Bir hata oluÅŸtu.');
                 });
         });
     </script>
 </body>
 
 </html>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../../backend/includes/auth_required.php';
 require_once '../../backend/includes/auth_check.php';
 require_once '../../backend/includes/db.php';
@@ -33,7 +33,7 @@ if (!$booking) {
 <head>
     <meta charset="UTF-8">
     <title>Add Review - <?= htmlspecialchars($booking['carwash_name']) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -84,3 +84,4 @@ if (!$booking) {
 </body>
 
 </html>
+

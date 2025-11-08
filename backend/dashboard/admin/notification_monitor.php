@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
 
@@ -37,7 +37,7 @@ class NotificationDashboard
 <head>
     <meta charset="UTF-8">
     <title>Notification Monitor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -62,3 +62,4 @@ class NotificationDashboard
 </body>
 
 </html>
+

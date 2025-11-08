@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ödeme - CarWash</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Ã–deme - CarWash</title>
+    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50">
@@ -12,7 +12,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Order Summary -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-6">Sipariş Özeti</h2>
+                <h2 class="text-2xl font-bold mb-6">SipariÅŸ Ã–zeti</h2>
                 <div id="orderSummary" class="space-y-4">
                     <!-- Order items will be loaded here -->
                 </div>
@@ -21,7 +21,7 @@
                 <div class="mt-6 pt-6 border-t">
                     <div class="flex space-x-2">
                         <input type="text" id="couponCode" 
-                               placeholder="İndirim Kodu"
+                               placeholder="Ä°ndirim Kodu"
                                class="flex-1 rounded-md border-gray-300 shadow-sm">
                         <button onclick="applyCoupon()"
                                 class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
@@ -41,7 +41,7 @@
                         <span id="tax">0.00 TL</span>
                     </div>
                     <div class="flex justify-between text-green-600" id="discountRow" style="display: none;">
-                        <span>İndirim</span>
+                        <span>Ä°ndirim</span>
                         <span id="discount">0.00 TL</span>
                     </div>
                     <div class="flex justify-between font-bold text-lg pt-2 border-t">
@@ -53,11 +53,11 @@
 
             <!-- Payment Form -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-6">Ödeme Bilgileri</h2>
+                <h2 class="text-2xl font-bold mb-6">Ã–deme Bilgileri</h2>
                 <form id="paymentForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Kart Üzerindeki İsim
+                            Kart Ãœzerindeki Ä°sim
                         </label>
                         <input type="text" name="cardName" required
                                class="w-full rounded-md border-gray-300 shadow-sm">
@@ -65,7 +65,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Kart Numarası
+                            Kart NumarasÄ±
                         </label>
                         <input type="text" name="cardNumber" required
                                pattern="\d{16}" maxlength="16"
@@ -87,7 +87,7 @@
                                 </select>
                                 <select name="expYear" required
                                         class="rounded-md border-gray-300 shadow-sm">
-                                    <option value="">Yıl</option>
+                                    <option value="">YÄ±l</option>
                                     <option value="2023">2023</option>
                                     <option value="2024">2024</option>
                                     <option value="2025">2025</option>
@@ -107,7 +107,7 @@
 
                     <button type="submit" 
                             class="w-full bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 mt-6">
-                        Ödemeyi Tamamla
+                        Ã–demeyi Tamamla
                     </button>
                 </form>
             </div>
