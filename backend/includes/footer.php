@@ -30,7 +30,7 @@ $current_year = date('Y');
 ?>
 
 <!-- Footer -->
-<footer class="bg-gray-900 text-white py-12 flex-none">
+<footer id="site-footer" class="bg-gray-900 text-white py-12 flex-none">
   <div class="container mx-auto px-4">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       

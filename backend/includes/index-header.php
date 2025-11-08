@@ -39,6 +39,38 @@ $page_title = isset($page_title) ? $page_title : 'CarWash - En İyi Online Araç
 // Check if user is logged in
 $is_logged_in = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 $user_name = $is_logged_in ? ($_SESSION['name'] ?? $_SESSION['full_name'] ?? 'User') : '';
+// Fetch user's profile image if logged in (legacy DB helper is available)
+$profile_img = '/carwash_project/frontend/assets/img/default-user.png';
+if ($is_logged_in) {
+  // Try to include legacy DB helper which provides $pdo/$conn
+  try {
+    if (!function_exists('getDBConnection') && file_exists(__DIR__ . '/db.php')) {
+      require_once __DIR__ . '/db.php';
+    }
+
+    $uid = intval($_SESSION['user_id']);
+
+    // Prefer PDO if available
+    if (isset($pdo) && $pdo instanceof PDO) {
+      $stmt = $pdo->prepare("SELECT up.profile_image AS profile_img, u.profile_image AS profile_img2 FROM users u LEFT JOIN user_profiles up ON up.user_id = u.id WHERE u.id = :uid LIMIT 1");
+      $stmt->execute([':uid' => $uid]);
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($row) {
+        if (!empty($row['profile_img'])) $profile_img = $row['profile_img'];
+        elseif (!empty($row['profile_img2'])) $profile_img = $row['profile_img2'];
+      }
+    } elseif (isset($conn)) {
+      $q = mysqli_query($conn, "SELECT up.profile_image AS profile_img, u.profile_image AS profile_img2 FROM users u LEFT JOIN user_profiles up ON up.user_id = u.id WHERE u.id = $uid LIMIT 1");
+      if ($q && $r = mysqli_fetch_assoc($q)) {
+        if (!empty($r['profile_img'])) $profile_img = $r['profile_img'];
+        elseif (!empty($r['profile_img2'])) $profile_img = $r['profile_img2'];
+      }
+    }
+  } catch (Exception $e) {
+    // Ignore DB errors here; fall back to default image
+    error_log('index-header: could not fetch profile image: ' . $e->getMessage());
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -725,9 +757,12 @@ $user_name = $is_logged_in ? ($_SESSION['name'] ?? $_SESSION['full_name'] ?? 'Us
         <?php if ($is_logged_in): ?>
           <!-- Logged In User Menu -->
           <div class="user-menu relative">
-            <button class="user-menu-button">
-              <div class="user-avatar">
-                <?php echo strtoupper(substr($user_name, 0, 1)); ?>
+            <button class="user-menu-button" id="indexUserMenuBtn">
+              <div class="user-avatar" style="position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center;">
+                <img id="indexUserAvatar" src="<?php echo htmlspecialchars($profile_img); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:2.5rem;height:2.5rem;border-radius:50%;object-fit:cover;display:block;" onerror="this.style.display='none'; document.getElementById('indexAvatarFallback') && (document.getElementById('indexAvatarFallback').style.display='flex');">
+                <div id="indexAvatarFallback" style="display: none; width:2.5rem; height:2.5rem; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; font-weight:700;">
+                  <?php echo strtoupper(substr($user_name, 0, 1)); ?>
+                </div>
               </div>
               <div class="hidden lg:block xl:block">
                 <p class="text-xs sm:text-sm font-medium text-gray-700 truncate max-w-24 lg:max-w-32"><?php echo htmlspecialchars($user_name); ?></p>
@@ -1172,6 +1207,37 @@ $user_name = $is_logged_in ? ($_SESSION['name'] ?? $_SESSION['full_name'] ?? 'Us
     console.log('Device type:', isMobile ? 'Mobile' : isTablet ? 'Tablet' : 'Desktop');
     console.log('Touch device:', touchDevice);
   });
+
+  // Keep header avatar in sync with localStorage updates (set by dashboard on profile change)
+  (function() {
+    function updateHeaderAvatarFromStorage() {
+      try {
+        const imgUrl = localStorage.getItem('carwash_profile_image');
+        if (!imgUrl) return;
+        const img = document.getElementById('indexUserAvatar');
+        const fallback = document.getElementById('indexAvatarFallback');
+        if (img) {
+          img.src = imgUrl;
+          img.style.display = 'block';
+          if (fallback) fallback.style.display = 'none';
+        }
+      } catch (e) {
+        console.warn('Could not read profile image from localStorage', e);
+      }
+    }
+
+    // Initial update on load (if localStorage has a more recent image)
+    document.addEventListener('DOMContentLoaded', function() {
+      updateHeaderAvatarFromStorage();
+    });
+
+    // Listen for storage events (cross-tab updates)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'carwash_profile_image' || e.key === 'carwash_profile_image_ts') {
+        updateHeaderAvatarFromStorage();
+      }
+    });
+  })();
 
   // Prevent zoom on double tap for better mobile UX
   if (touchDevice) {

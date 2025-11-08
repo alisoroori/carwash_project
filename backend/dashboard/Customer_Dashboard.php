@@ -63,6 +63,11 @@ $current_page = 'dashboard';
            CSS CUSTOM PROPERTIES (Theme Variables)
            ================================ */
         :root {
+            /* Layout Dynamic Heights (computed by JS) */
+            --header-height: 80px;           /* Fixed header height */
+            --footer-height: 0px;            /* Default, updated by JS */
+            --sidebar-width: 250px;          /* Fixed sidebar width (desktop) */
+            
             /* Primary Colors */
             --color-primary: #2563eb;        /* Blue-600 */
             --color-primary-light: #3b82f6; /* Blue-500 */
@@ -343,34 +348,196 @@ $current_page = 'dashboard';
             background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
         }
         
-        /* Layout Fixes for Sidebar & Content */
+        /* ================================
+           COMPLETE FIXED SIDEBAR LAYOUT
+           ================================ */
+        
+        /* === 1. Fixed Header (80px height) === */
+        header {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px !important;        /* Fixed header height */
+            z-index: 50 !important;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        /* === 2. Fixed Sidebar (Left Side) === */
         #customer-sidebar {
-            /* Sidebar spans from header to footer, always below header */
-            z-index: 30; /* Below header (z-50) */
+            position: fixed !important;
+            top: 80px;                      /* Start below 80px header */
+            bottom: 0;                      /* Extend to page bottom */
+            left: 0;
+            width: 250px;                   /* Fixed width on desktop */
+            overflow: hidden !important;     /* NO internal scrolling */
+            z-index: 30 !important;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to bottom, #2563eb, #7c3aed);
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.12);
+            padding: 0;
         }
         
-        @media (min-width: 1024px) {
+        /* Sidebar Profile Section */
+        #customer-sidebar .flex-shrink-0:first-of-type {
+            padding: 1rem;
+        }
+        
+        /* Sidebar Profile Image - 80x80px on desktop */
+        #customer-sidebar img#sidebarProfileImage {
+            width: 80px !important;
+            height: 80px !important;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Header profile image - reduced size (header-only) */
+        #userAvatarTop {
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Header profile container sizing (matches image sizes) */
+        #headerProfileContainer {
+            width: 60px;
+            height: 60px;
+        }
+
+        /* Site logo sizing (desktop default) */
+        #siteLogo {
+            width: 150px;
+            height: auto;
+            max-height: 64px;
+            object-fit: contain;
+        }
+        
+        /* Sidebar Navigation Menu */
+        #customer-sidebar nav {
+            flex: 1;
+            padding: 0.75rem;
+            overflow: visible;
+        }
+        
+        /* === 3. Main Content Area === */
+        #main-content {
+            position: relative;              /* Normal document flow */
+            margin-left: 250px;             /* Offset by sidebar width */
+            margin-top: 80px;               /* Start below 80px header */
+            min-height: calc(100vh - 80px); /* Full viewport minus header */
+            z-index: 1;
+            background: #f9fafb;
+        }
+        
+        /* === 4. Footer (Full Width) === */
+        footer, #site-footer {
+            position: relative;              /* Normal document flow */
+            z-index: 40 !important;
+            width: 100%;
+            margin-left: 250px;             /* Align with main content */
+            background: #111827;
+        }
+        
+        /* ================================
+           RESPONSIVE BREAKPOINTS
+           ================================ */
+        
+        /* === Small Screens (<900px): Reduce sidebar to 200px === */
+        @media (max-width: 899px) and (min-width: 768px) {
+            :root {
+                --sidebar-width: 200px;     /* Narrower sidebar */
+            }
+            
             #customer-sidebar {
-                /* Sticky position on desktop - stretches to fill flex container */
-                position: sticky !important;
-                top: 4rem; /* 64px below fixed header */
-                height: auto; /* Auto height to fill flex container */
-                align-self: stretch; /* Stretch to match tallest flex item (main content) */
-                overflow-y: auto; /* Allow scroll if content overflows */
+                width: 200px;
+            }
+            
+            #customer-sidebar img#sidebarProfileImage {
+                width: 64px !important;     /* Smaller profile image */
+                height: 64px !important;
+            }
+
+            #userAvatarTop {
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            #headerProfileContainer {
+                width: 48px;
+                height: 48px;
+            }
+
+            /* Logo smaller on small screens */
+            #siteLogo {
+                width: 120px;
+                max-height: 48px;
+            }
+            
+            #main-content {
+                margin-left: 200px;
+            }
+            
+            footer, #site-footer {
+                margin-left: 200px;
             }
         }
         
-        @media (max-width: 1023px) {
+        /* === Desktop Layout (≥900px) === */
+        @media (min-width: 900px) {
             #customer-sidebar {
-                /* Fixed position on mobile - below header */
-                position: fixed !important;
-                top: 4rem; /* 64px below header */
-                bottom: 0;
-                height: calc(100vh - 4rem);
-                overflow-y: auto; /* Allow scroll on mobile */
+                transform: translateX(0) !important;  /* Always visible */
             }
         }
         
+        /* === Mobile Layout (<768px) === */
+        @media (max-width: 767px) {
+            #customer-sidebar {
+                width: 250px;
+                transform: translateX(-100%);    /* Hidden by default */
+                overflow-y: auto !important;     /* Allow scroll on mobile */
+                bottom: 0;                       /* Full height */
+                top: 80px;
+                z-index: 45;                    /* Above other content */
+            }
+            
+            #customer-sidebar img#sidebarProfileImage {
+                width: 64px !important;         /* Smaller on mobile */
+                height: 64px !important;
+            }
+
+            /* Header avatar smaller on mobile */
+            #userAvatarTop {
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            #headerProfileContainer {
+                width: 48px;
+                height: 48px;
+            }
+
+            /* Logo smaller on mobile */
+            #siteLogo {
+                width: 100px;
+                max-height: 40px;
+            }
+            
+            #main-content {
+                margin-left: 0;                 /* Full width content */
+                margin-top: 80px;
+            }
+            
+            footer, #site-footer {
+                margin-left: 0 !important;      /* Full width footer */
+            }
+        }
+        }
         /* Hide scrollbar but keep scroll functionality if needed */
         #customer-sidebar::-webkit-scrollbar {
             width: 0;
@@ -409,10 +576,10 @@ $current_page = 'dashboard';
 >
 
 <!-- ================================
-     HEADER - Fixed at Top
+     HEADER - Fixed at Top (80px height)
      ================================ -->
-<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm h-16 flex-none">
-    <div class="flex items-center justify-between h-16 px-4 lg:px-6">
+<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm flex-none" style="height: 80px;">
+    <div class="flex items-center justify-between h-full px-4 lg:px-6">
         
         <!-- Mobile Menu Button -->
         <button 
@@ -429,10 +596,10 @@ $current_page = 'dashboard';
         </button>
         
         <!-- Logo -->
-        <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-3">
             <!-- Main header logo placed before the site title -->
             <div>
-                <img src="/carwash_project/backend/logo01.png" alt="MyCar logo" class="w-10 h-10 object-cover rounded-xl shadow-md" />
+                <img id="siteLogo" src="/carwash_project/backend/logo01.png" alt="MyCar logo" class="object-contain rounded-xl shadow-md" />
             </div>
             <div class="hidden sm:block">
                 <h1 class="text-lg font-bold text-gray-900 leading-tight">MyCar</h1>
@@ -449,8 +616,12 @@ $current_page = 'dashboard';
                 aria-expanded="false"
                 aria-haspopup="true"
             >
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                    <?php echo strtoupper(substr($user_name, 0, 1)); ?>
+                <!-- Header profile image (updates when user uploads new image) -->
+                <div id="headerProfileContainer" class="rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                    <img id="userAvatarTop" src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div id="userAvatarFallback" class="text-white font-semibold text-sm" style="display: none;">
+                        <?php echo strtoupper(substr($user_name, 0, 1)); ?>
+                    </div>
                 </div>
 
                 <!-- Small company logo placed before the user name for quick branding -->
@@ -535,21 +706,15 @@ $current_page = 'dashboard';
 <div class="flex flex-1">
     
     <!-- ================================
-         SIDEBAR - Stretches from header to footer
-         Desktop: Sticky position, full height
-         Mobile: Fixed position with overlay
-         NO internal scroll - overflow-hidden
+         SIDEBAR - Fixed below header, extends to above footer
+         Desktop: No internal scroll, uses CSS variables for positioning
+         Mobile: Overlay with internal scroll
          ================================ -->
     <aside 
         id="customer-sidebar"
-        class="w-64 bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
-               fixed top-16 left-0 bottom-0
-               lg:sticky lg:top-16
-               lg:self-stretch lg:h-auto
+        class="bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
                transform transition-transform duration-300 ease-in-out
-               -translate-x-full lg:translate-x-0
-               flex flex-col overflow-y-auto
-               z-30"
+               flex flex-col"
         :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
         x-transition:enter="transition-transform ease-out duration-300"
         x-transition:enter-start="transform -translate-x-full"
@@ -562,10 +727,16 @@ $current_page = 'dashboard';
         :inert="!mobileMenuOpen && window.innerWidth < 1024"
     >
         <!-- User Profile Section (Better readability, always visible at top) -->
-        <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30 sticky top-0 z-10">
+        <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30">
             <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-2 bg-white bg-opacity-20 rounded-full flex items-center justify-center shadow-lg ring-2 ring-white ring-opacity-10">
-                    <i class="fas fa-user text-2xl text-white"></i>
+                <div class="w-20 h-20 mx-auto mb-2 rounded-full overflow-hidden shadow-lg ring-2 ring-white ring-opacity-30">
+                    <img 
+                        id="sidebarProfileImage" 
+                        src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" 
+                        alt="<?php echo htmlspecialchars($user_name); ?>"
+                        class="w-full h-full object-cover"
+                        onerror="this.src='/carwash_project/frontend/assets/img/default-user.png'"
+                    >
                 </div>
                 <h3 class="text-sm font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
                 <p class="text-xs text-blue-100 opacity-90 truncate mt-1"><?php echo htmlspecialchars($user_email); ?></p>
@@ -573,7 +744,7 @@ $current_page = 'dashboard';
         </div>
         
         <!-- Navigation Menu (Better spacing and readability) -->
-        <nav class="flex-1 px-3 py-3 space-y-1 flex flex-col overflow-y-auto" 
+        <nav class="flex-1 px-3 py-3 space-y-1 flex flex-col" 
              aria-label="Primary navigation"
         >
             
@@ -686,11 +857,11 @@ $current_page = 'dashboard';
     </aside>
 
     <!-- ================================
-         MAIN CONTENT AREA - Takes remaining space beside sidebar
-         Desktop: Sits next to sidebar with flex-1, pt-16 for fixed header
-         Mobile: Takes full width, pt-16 for fixed header
+         MAIN CONTENT AREA - Uses CSS variables for offset
+         Desktop: margin-left and margin-top from CSS
+         Mobile: Full width with mt-20 for fixed header
          ================================ -->
-    <main class="flex-1 bg-gray-50 overflow-y-auto pt-16" id="main-content">
+    <main class="flex-1 bg-gray-50" id="main-content">
         <div class="p-6 lg:p-8 max-w-7xl mx-auto">
         
         <!-- ========== DASHBOARD SECTION ========== -->
@@ -1447,6 +1618,69 @@ $current_page = 'dashboard';
 <!-- Footer -->
 <?php include __DIR__ . '/../includes/footer.php'; ?>
 
+<!-- Dynamic Layout Height Calculator -->
+<script>
+// ================================
+// Layout Height Manager
+// Sets header to fixed 80px and computes footer height
+// Updates CSS variables on load, resize, and content changes
+// ================================
+(function() {
+    'use strict';
+    
+    function updateLayoutHeights() {
+        const root = document.documentElement;
+        
+        // Set fixed header height
+        root.style.setProperty('--header-height', '80px');
+        
+        // Update footer height if needed (for mobile calculations)
+        const footer = document.querySelector('#site-footer');
+        if (footer) {
+            const footerHeight = Math.round(footer.getBoundingClientRect().height);
+            if (footerHeight > 0) {
+                root.style.setProperty('--footer-height', `${footerHeight}px`);
+            }
+        }
+        
+        // Ensure sidebar width consistency
+        const viewportWidth = window.innerWidth;
+        let sidebarWidth = 250;
+        
+        if (viewportWidth < 768) {
+            sidebarWidth = 250; // Mobile
+        } else if (viewportWidth < 900) {
+            sidebarWidth = 200; // Small screens
+        } else {
+            sidebarWidth = 250; // Desktop
+        }
+        
+        root.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
+        
+        console.log('✅ Layout updated - Header: 80px, Footer:', root.style.getPropertyValue('--footer-height'), 'Sidebar:', sidebarWidth + 'px');
+    }
+    
+    // Update on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateLayoutHeights);
+    } else {
+        updateLayoutHeights();
+    }
+    
+    // Update on resize (debounced)
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateLayoutHeights, 250);
+    });
+    
+    // Update after images load (footer might change height)
+    window.addEventListener('load', function() {
+        setTimeout(updateLayoutHeights, 100);
+    });
+})();
+</script>
+
 <!-- Profile Form JavaScript -->
 <script>
 // ================================
@@ -1551,6 +1785,27 @@ $current_page = 'dashboard';
                     const topAvatar = document.getElementById('userAvatarTop');
                     if (topAvatar) {
                         topAvatar.src = result.data.image;
+                        topAvatar.style.display = 'block';
+                        // Hide fallback initial if present
+                        const fallback = document.getElementById('userAvatarFallback');
+                        if (fallback) fallback.style.display = 'none';
+                    }
+                    
+                    // Update sidebar profile image
+                    const sidebarImg = document.getElementById('sidebarProfileImage');
+                    if (sidebarImg) {
+                        sidebarImg.src = result.data.image;
+                        sidebarImg.style.display = 'block';
+                        console.log('✅ Sidebar image updated:', result.data.image);
+                    }
+                    // Persist new profile image to localStorage so other pages (like the homepage)
+                    // can update their header avatars in real-time (or across tabs).
+                    try {
+                        localStorage.setItem('carwash_profile_image', result.data.image);
+                        // Optionally store a timestamp for cache-busting listeners
+                        localStorage.setItem('carwash_profile_image_ts', Date.now().toString());
+                    } catch (lsErr) {
+                        console.warn('Could not write profile image to localStorage:', lsErr);
                     }
                 }
                 
@@ -1842,6 +2097,7 @@ console.log('✅ Customer Dashboard loaded successfully');
 <script>
 // ================================
 // Mobile Sidebar Toggle - Enhanced Behavior
+// Handles sidebar visibility on mobile devices (<768px)
 // ================================
 (function() {
     'use strict';
@@ -1851,7 +2107,7 @@ console.log('✅ Customer Dashboard loaded successfully');
         const sidebar = document.getElementById('customer-sidebar');
         if (!sidebar) return;
         
-        if (window.innerWidth < 1024) {
+        if (window.innerWidth < 768) {
             // Mobile: hidden by default
             const body = document.body;
             if (body && body.__x && body.__x.$data) {
@@ -1864,7 +2120,7 @@ console.log('✅ Customer Dashboard loaded successfully');
     
     // Keyboard: ESC closes mobile sidebar
     document.addEventListener('keydown', function(e) {
-        if ((e.key === 'Escape' || e.keyCode === 27) && window.innerWidth < 1024) {
+        if ((e.key === 'Escape' || e.keyCode === 27) && window.innerWidth < 768) {
             const body = document.body;
             if (body && body.__x && body.__x.$data && body.__x.$data.mobileMenuOpen) {
                 body.__x.$data.mobileMenuOpen = false;
@@ -1875,7 +2131,7 @@ console.log('✅ Customer Dashboard loaded successfully');
     
     // Close sidebar when clicking menu links on mobile
     document.addEventListener('click', function(e) {
-        if (window.innerWidth < 1024) {
+        if (window.innerWidth < 768) {
             const link = e.target.closest('#customer-sidebar a[href^="#"]');
             if (link) {
                 const body = document.body;
@@ -1896,7 +2152,7 @@ console.log('✅ Customer Dashboard loaded successfully');
                     const data = body.__x.$data;
                     
                     // Only on mobile
-                    if (window.innerWidth < 1024) {
+                    if (window.innerWidth < 768) {
                         if (data.mobileMenuOpen) {
                             // Save scroll position
                             const scrollY = window.scrollY;
@@ -1937,7 +2193,7 @@ console.log('✅ Customer Dashboard loaded successfully');
         ensureSidebarState();
         
         // Close sidebar if resizing to desktop width
-        if (window.innerWidth >= 1024) {
+        if (window.innerWidth >= 768) {
             const body = document.body;
             if (body && body.__x && body.__x.$data && body.__x.$data.mobileMenuOpen) {
                 body.__x.$data.mobileMenuOpen = false;

@@ -278,7 +278,7 @@ try {
                     exit;
                 }
                 
-                $uploadDir = __DIR__ . '/../uploads/profiles/';
+                $uploadDir = __DIR__ . '/../uploads/profile_images/';
                 if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
                 $ext = pathinfo($uploaded['name'] ?? '', PATHINFO_EXTENSION);
                 $filename = 'profile_' . $user_id . '_' . time() . ($ext ? '.' . $ext : '');
@@ -302,7 +302,7 @@ try {
                     
                     if (@move_uploaded_file($uploaded['tmp_name'], $dest)) {
                         // Store with /carwash_project prefix for consistency
-                        $webPath = '/carwash_project/backend/uploads/profiles/' . $filename;
+                        $webPath = '/carwash_project/backend/uploads/profile_images/' . $filename;
                     } else {
                         error_log('profile upload move failed for user ' . $user_id);
                     }
