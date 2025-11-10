@@ -20,6 +20,25 @@ if (in_array($method, ['POST','PUT','PATCH'], true) && stripos($contentType, 'ap
     if (is_array($parsed)) foreach ($parsed as $k => $v) if (!isset($_POST[$k])) $_POST[$k] = $v;
 }
 
+// CSRF protection: after JSON->POST merge and before auth checks
+$csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (file_exists($csrf_helper)) {
+    require_once $csrf_helper;
+    if (function_exists('require_valid_csrf')) {
+        // require_valid_csrf will return 403 JSON and exit if invalid
+        require_valid_csrf();
+    }
+} else {
+    $csrfToken = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+    if (empty($_SESSION['csrf_token']) || empty($csrfToken) || !hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$csrfToken)) {
+        error_log('CSRF: missing or invalid token in booking_process.php');
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+        exit;
+    }
+}
+
 if (class_exists(Auth::class) && method_exists(Auth::class, 'isAuthenticated')) {
     if (!Auth::isAuthenticated()) {
         http_response_code(403);

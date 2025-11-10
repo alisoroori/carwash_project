@@ -516,6 +516,26 @@ $current_page = 'dashboard';
             
             <div class="card">
                 <form class="space-y-6">
+                    <?php
+                    // Ensure session and CSRF token for profile form (idempotent)
+                    if (session_status() !== PHP_SESSION_ACTIVE) {
+                        \App\Classes\Session::start();
+                    }
+                    if (empty($_SESSION['csrf_token'])) {
+                        $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+                        if (file_exists($csrf_helper)) {
+                            require_once $csrf_helper;
+                            if (function_exists('generate_csrf_token')) {
+                                generate_csrf_token();
+                            } else {
+                                $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+                            }
+                        } else {
+                            $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+                        }
+                    }
+                    ?>
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="input-label">Ad Soyad</label>
@@ -575,142 +595,7 @@ $current_page = 'dashboard';
     </div>
 </main>
 
-<!-- Vehicle Manager JavaScript -->
-<script>
-function vehicleManager() {
-    return {
-        vehicles: [],
-        showVehicleForm: false,
-        editingVehicle: null,
-        loading: false,
-        message: '',
-        messageType: '',
-        imagePreview: '',
-        csrfToken: '<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>',
-        formData: { brand: '', model: '', license_plate: '', year: '', color: '' },
-        
-        init() {
-            this.loadVehicles();
-        },
-        
-        async loadVehicles() {
-            try {
-                const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', { credentials: 'same-origin' });
-                const data = await res.json();
-                this.vehicles = data.vehicles || data.data?.vehicles || [];
-                const statEl = document.getElementById('vehicleStatCount');
-                if (statEl) statEl.textContent = this.vehicles.length;
-            } catch (error) {
-                console.error('Load vehicles error:', error);
-                this.showMessage('Araçlar yüklenemedi', 'error');
-            }
-        },
-        
-        openVehicleForm(vehicle = null) {
-            this.editingVehicle = vehicle;
-            if (vehicle) {
-                this.formData = {
-                    brand: vehicle.brand || '',
-                    model: vehicle.model || '',
-                    license_plate: vehicle.license_plate || '',
-                    year: vehicle.year || '',
-                    color: vehicle.color || ''
-                };
-                this.imagePreview = vehicle.image_path || '';
-            } else {
-                this.resetForm();
-            }
-            this.showVehicleForm = true;
-            document.body.classList.add('menu-open');
-        },
-        
-        closeVehicleForm() {
-            this.showVehicleForm = false;
-            this.resetForm();
-            document.body.classList.remove('menu-open');
-        },
-        
-        resetForm() {
-            this.editingVehicle = null;
-            this.formData = { brand: '', model: '', license_plate: '', year: '', color: '' };
-            this.imagePreview = '';
-            this.message = '';
-        },
-        
-        async saveVehicle() {
-            this.loading = true;
-            this.message = '';
-            try {
-                const form = document.querySelector('section[x-show="currentSection === \'vehicles\'"] form');
-                const formData = new FormData(form);
-                const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.success || data.status === 'success') {
-                    this.showMessage(this.editingVehicle ? 'Araç güncellendi' : 'Araç eklendi', 'success');
-                    await this.loadVehicles();
-                    setTimeout(() => this.closeVehicleForm(), 1500);
-                } else {
-                    this.showMessage(data.message || 'İşlem başarısız', 'error');
-                }
-            } catch (error) {
-                console.error('Save vehicle error:', error);
-                this.showMessage('Bir hata oluştu', 'error');
-            } finally {
-                this.loading = false;
-            }
-        },
-        
-        editVehicle(vehicle) {
-            this.openVehicleForm(vehicle);
-        },
-        
-        async deleteVehicle(id) {
-            if (!confirm('Bu aracı silmek istediğinizden emin misiniz?')) return;
-            try {
-                const formData = new FormData();
-                formData.append('action', 'delete');
-                formData.append('id', id);
-                formData.append('csrf_token', this.csrfToken);
-                const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.success || data.status === 'success') {
-                    await this.loadVehicles();
-                } else {
-                    alert(data.message || 'Silme işlemi başarısız');
-                }
-            } catch (error) {
-                console.error('Delete vehicle error:', error);
-                alert('Bir hata oluştu');
-            }
-        },
-        
-        previewImage(event) {
-            const file = event.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => { this.imagePreview = e.target.result; };
-                reader.readAsDataURL(file);
-            }
-        },
-        
-        showMessage(msg, type) {
-            this.message = msg;
-            this.messageType = type;
-            setTimeout(() => { this.message = ''; }, 5000);
-        }
-    }
-}
-
-console.log('✅ Customer Dashboard loaded successfully');
-</script>
+<script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
 
 </body>
 </html>

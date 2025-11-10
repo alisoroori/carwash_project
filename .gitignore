@@ -26,7 +26,8 @@ Thumbs.db
 
 # Node / build artifacts (if present)
 node_modules/
-dist/
+frontend/css/tailwind.css
+/.reports
 build/
 
 # PHPStorm / other caches

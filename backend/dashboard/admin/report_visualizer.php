@@ -10,7 +10,7 @@ require_once '../../includes/auth_check.php';
 <head>
     <meta charset="UTF-8">
     <title>Advanced Reports</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 </head>
@@ -48,4 +48,6 @@ require_once '../../includes/auth_check.php';
 </body>
 
 </html>
+
+
 

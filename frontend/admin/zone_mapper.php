@@ -11,7 +11,7 @@ require_once '../../backend/includes/maps_config.php';
 <head>
     <meta charset="UTF-8">
     <title>Zone Mapper</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars(getenv('GOOGLE_MAPS_API_KEY')) ?>&libraries=drawing"></script>
 </head>
 
@@ -42,4 +42,6 @@ require_once '../../backend/includes/maps_config.php';
 </body>
 
 </html>
+
+
 

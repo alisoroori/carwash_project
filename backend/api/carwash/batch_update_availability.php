@@ -11,7 +11,32 @@ try {
         throw new Exception('Unauthorized');
     }
 
-    $data = json_decode(file_get_contents('php://input'), true);
+    $raw = file_get_contents('php://input');
+    $data = json_decode($raw, true);
+    // Idempotent merge: ensure tokens sent in JSON are available in $_POST for legacy checks
+    if (is_array($data)) {
+        foreach ($data as $k => $v) {
+            if (!isset($_POST[$k])) $_POST[$k] = $v;
+        }
+    }
+
+    // CSRF protection: prefer centralized helper; keep inline fallback during rollout
+    $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+    if (file_exists($csrf_helper)) {
+        require_once $csrf_helper;
+        if (function_exists('require_valid_csrf')) {
+            // will emit 403 JSON and exit if invalid
+            require_valid_csrf();
+        }
+    } else {
+        $csrfToken = $data['csrf_token'] ?? ($_POST['csrf_token'] ?? null) ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+        if (empty($_SESSION['csrf_token']) || empty($csrfToken) || !hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$csrfToken)) {
+            error_log('CSRF: missing or invalid token in carwash/batch_update_availability.php');
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+            exit;
+        }
+    }
 
     if (!isset($data['services']) || !isset($data['schedules'])) {
         throw new Exception('Missing required data');

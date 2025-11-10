@@ -4,6 +4,9 @@ require_once '../includes/db.php';
 
 header('Content-Type: application/json');
 
+// CSRF protection: authenticated GET/POST endpoints should verify token on state-changing requests.
+// This endpoint is read-only (returns reservations). No CSRF check required for GET read.
+
 try {
     if (!isset($_SESSION['user_id'])) {
         throw new Exception('Unauthorized');

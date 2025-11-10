@@ -26,7 +26,7 @@ $package = $stmt->get_result()->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <title>Book Package - <?= htmlspecialchars($package['name']) ?></title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
 </head>
 
 <body class="bg-gray-50">
@@ -70,4 +70,6 @@ $package = $stmt->get_result()->fetch_assoc();
 </body>
 
 </html>
+
+
 

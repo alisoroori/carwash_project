@@ -17,7 +17,7 @@ header("Refresh: 2; url=login.php");
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CarWash - Ã‡Ä±kÄ±ÅŸ YapÄ±lÄ±yor</title>
-  <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+  <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* FarsÃ§a: Ø§Ù†ÛŒÙ…ÛŒØ´Ù† Ø¨Ø±Ø§ÛŒ Ø¸Ø§Ù‡Ø± Ø´Ø¯Ù† ØªØ¯Ø±ÛŒØ¬ÛŒ Ø¹Ù†Ø§ØµØ± Ø§Ø² Ù¾Ø§ÛŒÛŒÙ† Ø¨Ù‡ Ø¨Ø§Ù„Ø§. */
@@ -134,4 +134,6 @@ header("Refresh: 2; url=login.php");
 
 </body>
 </html>
+
+
 

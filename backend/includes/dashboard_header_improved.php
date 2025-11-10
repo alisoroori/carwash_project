@@ -44,7 +44,7 @@ $logout_url = $base_url . '/backend/includes/logout.php';
     <title><?php echo htmlspecialchars($page_title); ?></title>
     
     <!-- TailwindCSS CDN (for development - replace with compiled CSS in production) -->
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -410,3 +410,5 @@ window.addEventListener('resize', () => {
 
 console.log('âœ… Enhanced Dashboard Header loaded successfully');
 </script>
+
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Index Page Header Component for CarWash Website
  * Specialized header designed specifically for the homepage
@@ -34,7 +34,7 @@ $signup_url = $base_url . '/backend/auth/Customer_Registration.php';
 $login_url = $base_url . '/backend/auth/login.php';
 
 // Set defaults
-$page_title = isset($page_title) ? $page_title : 'CarWash - En İyi Online Araç Yıkama Rezervasyon Platformu';
+$page_title = isset($page_title) ? $page_title : 'CarWash - En Ä°yi Online AraÃ§ YÄ±kama Rezervasyon Platformu';
 
 // Check if user is logged in
 $is_logged_in = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
@@ -80,7 +80,7 @@ if ($is_logged_in) {
   <title><?php echo htmlspecialchars($page_title); ?></title>
   
   <!-- Tailwind CSS (local build) -->
-  <link rel="stylesheet" href="<?php echo $base_url; ?>/frontend/css/tailwind.css">
+  <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -168,9 +168,9 @@ if ($is_logged_in) {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Inline logo image sizing used on homepage header */
+    /* Inline logo image sizing used on homepage header (override to avoid header overlap) */
     .logo-image {
-      width: 150px; /* Preferred width */
+      width: 80px; /* fixed width to avoid layout overlap */
       height: auto;
       max-height: 64px;
       object-fit: contain;
@@ -183,6 +183,19 @@ if ($is_logged_in) {
       margin-left: 0.25rem;
       vertical-align: middle;
     }
+    /* Ensure logo text container allows truncation and prevents flex overflow */
+    .logo-text-container { min-width: 0; }
+
+    /* Dropdown visible state when toggled by JS */
+    .dropdown-menu.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Allow dropdown item text to wrap and be fully readable */
+    .dropdown-item { white-space: normal; }
     
     .logo-container:hover .logo-text {
       transform: scale(1.05);
@@ -884,11 +897,13 @@ if ($is_logged_in) {
     <div class="flex justify-between items-center h-16 sm:h-18 md:h-20">
       
       <!-- Logo Section -->
-      <div class="site-logo" style="display: flex; align-items: center; gap: 0.5rem;">
-        <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
+      <div class="site-logo" style="display: flex; align-items: center; gap: 0.5rem; min-width:0;">
+        <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none; min-width:0;" class="flex items-center">
           <!-- Use same logo as dashboard headers to ensure consistent branding -->
-          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image">
-          <span class="logo-text-inline" style="font-size: 1.5rem; font-weight: 400; font-family: 'Momo Signature', cursive; color: #019be5;">MYCAR</span>
+          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image flex-shrink-0">
+          <div class="logo-text-container min-w-0 ml-2">
+            <span class="logo-text-inline block truncate" style="font-size: 1.5rem; font-weight: 400; font-family: 'Momo Signature', cursive; color: #019be5;">MYCAR</span>
+          </div>
         </a>
       </div>
 
@@ -906,13 +921,13 @@ if ($is_logged_in) {
         </a>
         <a href="#about" class="nav-link">
           <i class="fas fa-info-circle mr-1 md:mr-2"></i>
-          <span class="hidden lg:inline">Hakkımızda</span>
-          <span class="lg:hidden">Hakkında</span>
+          <span class="hidden lg:inline">HakkÄ±mÄ±zda</span>
+          <span class="lg:hidden">HakkÄ±nda</span>
         </a>
         <a href="#contact" class="nav-link">
           <i class="fas fa-envelope mr-1 md:mr-2"></i>
-          <span class="hidden lg:inline">İletişim</span>
-          <span class="lg:hidden">İletişim</span>
+          <span class="hidden lg:inline">Ä°letiÅŸim</span>
+          <span class="lg:hidden">Ä°letiÅŸim</span>
         </a>
       </nav>
 
@@ -930,13 +945,13 @@ if ($is_logged_in) {
               </div>
               <div class="hidden lg:block xl:block">
                 <p class="text-xs sm:text-sm font-medium text-gray-700 truncate max-w-24 lg:max-w-32"><?php echo htmlspecialchars($user_name); ?></p>
-                <p class="text-xs text-gray-500">Hoş geldiniz</p>
+                <p class="text-xs text-gray-500">HoÅŸ geldiniz</p>
               </div>
               <i class="fas fa-chevron-down text-gray-400 hidden lg:block xl:block text-xs"></i>
             </button>
             
             <!-- Dropdown Menu -->
-            <div class="dropdown-menu absolute right-0 mt-2 w-40 md:w-44 lg:w-48">
+            <div id="indexDropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-40 md:w-44 lg:w-48" role="menu" aria-labelledby="indexUserMenuBtn" aria-hidden="true">
               <div class="py-2">
                 <div class="px-3 md:px-4 py-2 border-b border-gray-100">
                   <p class="text-xs md:text-sm font-medium text-gray-900 truncate"><?php echo htmlspecialchars($user_name); ?></p>
@@ -948,7 +963,7 @@ if ($is_logged_in) {
                 </a>
                 <a href="<?php echo $base_url; ?>/backend/auth/logout.php" class="dropdown-item text-red-600">
                   <i class="fas fa-sign-out-alt text-xs md:text-sm"></i>
-                  <span class="text-xs md:text-sm">Çıkış Yap</span>
+                  <span class="text-xs md:text-sm">Ã‡Ä±kÄ±ÅŸ Yap</span>
                 </a>
               </div>
             </div>
@@ -957,19 +972,19 @@ if ($is_logged_in) {
           <!-- Auth Buttons for Non-logged Users -->
           <a href="<?php echo $login_url; ?>" class="secondary-button text-xs sm:text-sm md:text-base">
             <i class="fas fa-sign-in-alt text-xs sm:text-sm"></i>
-            <span class="hidden md:inline">Giriş</span>
-            <span class="md:hidden">Giriş</span>
+            <span class="hidden md:inline">GiriÅŸ</span>
+            <span class="md:hidden">GiriÅŸ</span>
           </a>
           <a href="<?php echo $signup_url; ?>" class="cta-button text-xs sm:text-sm md:text-base">
             <i class="fas fa-rocket text-xs sm:text-sm"></i>
-            <span class="hidden sm:inline">Başla</span>
+            <span class="hidden sm:inline">BaÅŸla</span>
             <span class="sm:hidden">+</span>
           </a>
         <?php endif; ?>
       </div>
 
       <!-- Mobile Menu Button -->
-      <button onclick="toggleMobileMenu()" class="mobile-menu-button md:hidden" id="mobileMenuBtn" aria-label="Menüyü Aç/Kapat" aria-expanded="false">
+      <button onclick="toggleMobileMenu()" class="mobile-menu-button md:hidden" id="mobileMenuBtn" aria-label="MenÃ¼yÃ¼ AÃ§/Kapat" aria-expanded="false">
         <i class="fas fa-bars text-sm sm:text-base" id="menuIcon"></i>
       </button>
     </div>
@@ -991,11 +1006,11 @@ if ($is_logged_in) {
           </a>
           <a href="#about" class="mobile-nav-link" onclick="closeMobileMenu()">
             <i class="fas fa-info-circle mr-3 flex-shrink-0"></i>
-            <span>Hakkımızda</span>
+            <span>HakkÄ±mÄ±zda</span>
           </a>
           <a href="#contact" class="mobile-nav-link" onclick="closeMobileMenu()">
             <i class="fas fa-envelope mr-3 flex-shrink-0"></i>
-            <span>İletişim</span>
+            <span>Ä°letiÅŸim</span>
           </a>
           
           <?php if ($is_logged_in): ?>
@@ -1006,7 +1021,7 @@ if ($is_logged_in) {
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="font-medium text-gray-900 text-sm sm:text-base truncate"><?php echo htmlspecialchars($user_name); ?></p>
-                  <p class="text-xs sm:text-sm text-gray-500">Hoş geldiniz</p>
+                  <p class="text-xs sm:text-sm text-gray-500">HoÅŸ geldiniz</p>
                 </div>
               </div>
               <a href="<?php echo $base_url; ?>/backend/dashboard/Customer_Dashboard.php" class="mobile-nav-link">
@@ -1015,16 +1030,16 @@ if ($is_logged_in) {
               </a>
               <a href="<?php echo $base_url; ?>/backend/auth/logout.php" class="mobile-nav-link text-red-600">
                 <i class="fas fa-sign-out-alt mr-3 flex-shrink-0"></i>
-                <span>Çıkış Yap</span>
+                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
               </a>
             </div>
           <?php else: ?>
             <div class="border-t border-gray-200 pt-3 sm:pt-4 mt-3 sm:mt-4 space-y-2 sm:space-y-3">
               <a href="<?php echo $login_url; ?>" class="block w-full text-center py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg sm:rounded-xl font-medium hover:bg-blue-50 transition-colors text-sm sm:text-base">
-                <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
+                <i class="fas fa-sign-in-alt mr-2"></i>GiriÅŸ Yap
               </a>
               <a href="<?php echo $signup_url; ?>" class="cta-button w-full justify-center text-sm sm:text-base">
-                <i class="fas fa-rocket"></i>Başla
+                <i class="fas fa-rocket"></i>BaÅŸla
               </a>
             </div>
           <?php endif; ?>
@@ -1303,7 +1318,7 @@ if ($is_logged_in) {
       if (this.href && !this.href.includes('#')) {
         const originalContent = this.innerHTML;
         const spinner = '<i class="fas fa-spinner fa-spin mr-2"></i>';
-        const loadingText = isMobile ? 'Yükleniyor...' : 'Yükleniyor...';
+        const loadingText = isMobile ? 'YÃ¼kleniyor...' : 'YÃ¼kleniyor...';
         
         this.innerHTML = spinner + loadingText;
         this.style.pointerEvents = 'none';
@@ -1323,27 +1338,104 @@ if ($is_logged_in) {
   if (touchDevice) {
     const userMenuButton = document.querySelector('.user-menu-button');
     const userMenu = document.querySelector('.user-menu');
+    const indexDropdownMenuTouch = document.getElementById('indexDropdownMenu') || document.querySelector('.dropdown-menu');
     
     if (userMenuButton && userMenu) {
       userMenuButton.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         userMenu.classList.toggle('active');
+        if (indexDropdownMenuTouch) {
+          const isOpen = indexDropdownMenuTouch.classList.toggle('open');
+          indexDropdownMenuTouch.dataset.clickOpen = isOpen ? 'true' : 'false';
+          indexDropdownMenuTouch.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+          userMenuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
       });
       
       document.addEventListener('click', function(event) {
         if (!userMenu.contains(event.target)) {
           userMenu.classList.remove('active');
+          if (indexDropdownMenuTouch) {
+            indexDropdownMenuTouch.classList.remove('open');
+            indexDropdownMenuTouch.dataset.clickOpen = 'false';
+            indexDropdownMenuTouch.setAttribute('aria-hidden', 'true');
+          }
         }
       });
     }
   } else {
-    // For desktop devices, prevent default button behavior
-    const userMenuButton = document.querySelector('.user-menu-button');
-    if (userMenuButton) {
-      userMenuButton.addEventListener('click', function(e) {
-        e.preventDefault();
+    // For desktop devices: allow click to toggle the dropdown (in addition to hover)
+    const userMenuButtonDesktop = document.getElementById('indexUserMenuBtn') || document.querySelector('.user-menu-button');
+    const indexDropdown = document.getElementById('indexDropdownMenu') || document.querySelector('.dropdown-menu');
+
+    if (userMenuButtonDesktop && indexDropdown) {
+      // Ensure ARIA initial state
+      userMenuButtonDesktop.setAttribute('aria-haspopup', 'true');
+      userMenuButtonDesktop.setAttribute('aria-expanded', 'false');
+
+      // Toggle function (marks click-open state so hover doesn't immediately close it)
+      function toggleIndexDropdown(ev) {
+        ev && ev.stopPropagation();
+        const isOpen = indexDropdown.classList.contains('open');
+        if (isOpen) {
+          indexDropdown.classList.remove('open');
+          indexDropdown.dataset.clickOpen = 'false';
+          userMenuButtonDesktop.setAttribute('aria-expanded', 'false');
+          indexDropdown.setAttribute('aria-hidden', 'true');
+        } else {
+          indexDropdown.classList.add('open');
+          indexDropdown.dataset.clickOpen = 'true';
+          userMenuButtonDesktop.setAttribute('aria-expanded', 'true');
+          indexDropdown.setAttribute('aria-hidden', 'false');
+        }
+      }
+
+      // Click toggles
+      userMenuButtonDesktop.addEventListener('click', function(ev) {
+        ev.preventDefault();
+        toggleIndexDropdown(ev);
       });
+
+      // Close when clicking outside
+      document.addEventListener('click', function(ev) {
+        if (!indexDropdown.contains(ev.target) && !userMenuButtonDesktop.contains(ev.target)) {
+          if (indexDropdown.classList.contains('open')) {
+            indexDropdown.classList.remove('open');
+            indexDropdown.dataset.clickOpen = 'false';
+            userMenuButtonDesktop.setAttribute('aria-expanded', 'false');
+            indexDropdown.setAttribute('aria-hidden', 'true');
+          }
+        }
+      });
+
+      // Close on Escape key
+      document.addEventListener('keydown', function(ev) {
+        if (ev.key === 'Escape' && indexDropdown.classList.contains('open')) {
+          indexDropdown.classList.remove('open');
+          indexDropdown.dataset.clickOpen = 'false';
+          userMenuButtonDesktop.setAttribute('aria-expanded', 'false');
+          indexDropdown.setAttribute('aria-hidden', 'true');
+          userMenuButtonDesktop.focus();
+        }
+      });
+
+      // Also keep hover behavior consistent by adding/removing 'open' on enter/leave
+      const userMenuRoot = userMenuButtonDesktop.closest('.user-menu');
+      if (userMenuRoot) {
+        userMenuRoot.addEventListener('mouseenter', function() {
+          indexDropdown.classList.add('open');
+          indexDropdown.setAttribute('aria-hidden', 'false');
+          userMenuButtonDesktop.setAttribute('aria-expanded', 'true');
+        });
+        userMenuRoot.addEventListener('mouseleave', function() {
+          // only close on hover-leave if it wasn't opened explicitly by click
+          if (indexDropdown.dataset.clickOpen === 'true') return; // keep open when user clicked to open
+          indexDropdown.classList.remove('open');
+          indexDropdown.setAttribute('aria-hidden', 'true');
+          userMenuButtonDesktop.setAttribute('aria-expanded', 'false');
+        });
+      }
     }
   }
 
@@ -1429,3 +1521,5 @@ if ($is_logged_in) {
     }, 10);
   }, { passive: true });
 </script>
+
+

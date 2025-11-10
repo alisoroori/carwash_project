@@ -12,6 +12,27 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);
+    // Merge JSON body into $_POST so tokens sent in JSON are validated
+    if (is_array($data)) foreach ($data as $k => $v) if (!isset($_POST[$k])) $_POST[$k] = $v;
+
+    // CSRF protection: prefer centralized helper; fallback kept during rollout
+    $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (file_exists($csrf_helper)) {
+        require_once $csrf_helper;
+        if (function_exists('require_valid_csrf')) {
+            // will emit 403 JSON and exit if invalid
+            require_valid_csrf();
+        }
+    } else {
+        $csrfToken = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+        if (empty($_SESSION['csrf_token']) || empty($csrfToken) || !hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$csrfToken)) {
+            error_log('CSRF: missing or invalid token in payment/process.php');
+            http_response_code(403);
+            echo json_encode(['error' => 'Invalid CSRF token']);
+            exit;
+        }
+    }
 
     if (!isset($data['booking_id']) || !isset($data['payment_details'])) {
         throw new Exception('Missing required parameters');

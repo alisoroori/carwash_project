@@ -61,26 +61,43 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
   <title><?php echo htmlspecialchars($page_title); ?></title>
 
   <!-- CSRF token for JS (server-side meta) -->
-  <?php if (class_exists(\App\Classes\Session::class) && method_exists(\App\Classes\Session::class, 'get')): ?>
-    <meta name="csrf-token" content="<?php echo htmlspecialchars(\App\Classes\Session::get('csrf_token'), ENT_QUOTES, 'UTF-8'); ?>">
-  <?php else: ?>
-    <?php if (!empty($_SESSION['csrf_token'])): ?>
-      <meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
-    <?php endif; ?>
-  <?php endif; ?>
+  <?php
+  // Ensure CSRF helper is available and a token is generated for JavaScript
+  if (file_exists(__DIR__ . '/csrf_protect.php')) {
+      require_once __DIR__ . '/csrf_protect.php';
+      $csrf_for_meta = generate_csrf_token();
+      echo '<meta name="csrf-token" content="' . htmlspecialchars($csrf_for_meta, ENT_QUOTES, "UTF-8") . '">';
+  } else {
+      // Fallbacks: try Session helper or existing session value
+      if (class_exists(\App\Classes\Session::class) && method_exists(\App\Classes\Session::class, 'get')) {
+          echo '<meta name="csrf-token" content="' . htmlspecialchars(\App\Classes\Session::get('csrf_token'), ENT_QUOTES, 'UTF-8') . '">';
+      } else {
+          if (!empty($_SESSION['csrf_token'])) {
+              echo '<meta name="csrf-token" content="' . htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') . '">';
+          }
+      }
+  }
+  ?>
 
   <!-- Tailwind CSS (CDN) - development convenience. -->
   <!-- Note: Using the CDN is convenient for development and quick demos.
     For production it's recommended to build Tailwind with the CLI/PostCSS
     and include a compiled, minified CSS file to enable purging of unused
     styles and better performance. -->
-  <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+  <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
   <script>
-    console.info("Tailwind CDN removed — serving compiled /frontend/css/tailwind.css for production.");
+    console.info("Tailwind CDN removed — serving compiled <?php echo $base_url; ?>/dist/output.css for production.");
   </script>
   
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Alpine.js (deferred) for reactive components -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Local Alpine components (registers customerDashboard, etc.) -->
+  <script defer src="<?php echo $base_url; ?>/frontend/js/alpine-components.js"></script>
+  <!-- CSRF helper: reads meta token and appends to fetch/XHR and forms -->
+  <script defer src="<?php echo $base_url; ?>/frontend/js/csrf-helper.js"></script>
   
   <?php 
   // Include Universal CSS Styles for entire website
@@ -1291,4 +1308,6 @@ function toggleMobileMenu() {
   }
 }
 </script>
+
+
 

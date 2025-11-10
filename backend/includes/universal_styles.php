@@ -606,4 +606,19 @@ img[src*="logo"] {
     max-width: 100% !important;
     object-fit: contain !important;
 }
+
+/* Dashboard header specific: reinforce 80px rule for header logo variants
+   without changing layout or alignment. Targets header elements used in
+   Customer/Admin dashboards and header includes. */
+header.dashboard-header .logo-image,
+header.dashboard-header img#siteLogo,
+header.dashboard-header .dashboard-logo img,
+header.dashboard-header .site-logo img,
+.dashboard-header .logo-image,
+.dashboard-header img#siteLogo {
+    width: 80px !important;
+    height: auto !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+}
 </style>

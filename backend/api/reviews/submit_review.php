@@ -52,11 +52,19 @@ if (stripos($contentType, 'application/json') !== false) {
     $inputData = $_POST;
 }
 
-// CSRF validation
-$csrfTokenSent = $inputData['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
-if (!empty($_SESSION['csrf_token'])) {
-    if (!$csrfTokenSent || !hash_equals((string)$_SESSION['csrf_token'], (string)$csrfTokenSent)) {
-        json_exit(['success' => false, 'message' => 'Invalid CSRF token'], 401);
+// CSRF validation using helper (preferred) with fallback
+if (file_exists(__DIR__ . '/../../includes/csrf_protect.php')) {
+    require_once __DIR__ . '/../../includes/csrf_protect.php';
+    // ensure session token exists
+    generate_csrf_token();
+    // require_valid_csrf() will send 403 JSON and exit on failure
+    require_valid_csrf();
+} else {
+    $csrfTokenSent = $inputData['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+    if (!empty($_SESSION['csrf_token'])) {
+        if (!$csrfTokenSent || !hash_equals((string)$_SESSION['csrf_token'], (string)$csrfTokenSent)) {
+            json_exit(['success' => false, 'message' => 'Invalid CSRF token'], 401);
+        }
     }
 }
 

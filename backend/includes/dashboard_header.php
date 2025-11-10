@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Universal Dashboard Header Component for CarWash System
  * Multi-purpose header that works for ALL dashboard types:
@@ -77,13 +77,13 @@ switch ($dashboard_type) {
     case 'carwash':
         $current_dashboard_url = $carwash_dashboard_url;
         $dashboard_icon = 'fa-car-wash';
-        $dashboard_label = 'İşletme Paneli';
+        $dashboard_label = 'Ä°ÅŸletme Paneli';
         break;
     case 'customer':
     default:
         $current_dashboard_url = $customer_dashboard_url;
         $dashboard_icon = 'fa-tachometer-alt';
-        $dashboard_label = 'Müşteri Paneli';
+        $dashboard_label = 'MÃ¼ÅŸteri Paneli';
         break;
 }
 
@@ -98,7 +98,7 @@ $navigation_menu = array();
     <title><?php echo htmlspecialchars($page_title); ?></title>
     
     <!-- Tailwind CSS - Local Production Build -->
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -646,16 +646,16 @@ $navigation_menu = array();
                             <?php elseif ($dashboard_type === 'admin'): ?>
                                 <a href="#settings" class="dropdown-item">
                                     <i class="fas fa-cog"></i>
-                                    <span>Sistem Ayarları</span>
+                                    <span>Sistem AyarlarÄ±</span>
                                 </a>
                                 <a href="#logs" class="dropdown-item">
                                     <i class="fas fa-list"></i>
-                                    <span>Sistem Logları</span>
+                                    <span>Sistem LoglarÄ±</span>
                                 </a>
                             <?php elseif ($dashboard_type === 'carwash'): ?>
                                 <a href="#profile" class="dropdown-item">
                                     <i class="fas fa-building"></i>
-                                    <span>İşletme Profili</span>
+                                    <span>Ä°ÅŸletme Profili</span>
                                 </a>
                                 <a href="#settings" class="dropdown-item">
                                     <i class="fas fa-cog"></i>
@@ -674,7 +674,7 @@ $navigation_menu = array();
                             
                             <a href="<?php echo $logout_url; ?>" class="dropdown-item dropdown-logout">
                                 <i class="fas fa-sign-out-alt"></i>
-                                <span>Çıkış Yap</span>
+                                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
                             </a>
                         </div>
                     </div>
@@ -730,19 +730,19 @@ $navigation_menu = array();
             
             <a href="<?php echo $about_url; ?>" class="mobile-nav-item" onclick="toggleMobileMenu()">
                 <i class="fas fa-info-circle"></i>
-                <span>Hakkımızda</span>
+                <span>HakkÄ±mÄ±zda</span>
             </a>
             
             <a href="<?php echo $contact_url; ?>" class="mobile-nav-item" onclick="toggleMobileMenu()">
                 <i class="fas fa-envelope"></i>
-                <span>İletişim</span>
+                <span>Ä°letiÅŸim</span>
             </a>
             
             <div class="mobile-nav-divider"></div>
             
             <a href="<?php echo $logout_url; ?>" class="mobile-nav-item" style="color: #dc2626;">
                 <i class="fas fa-sign-out-alt"></i>
-                <span>Çıkış Yap</span>
+                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
             </a>
         </nav>
         
@@ -828,5 +828,7 @@ document.querySelectorAll('.user-menu-button').forEach(button => {
     });
 });
 
-console.log('✅ Dashboard Header: Loaded successfully for <?php echo strtoupper($dashboard_type); ?> dashboard');
+console.log('âœ… Dashboard Header: Loaded successfully for <?php echo strtoupper($dashboard_type); ?> dashboard');
 </script>
+
+

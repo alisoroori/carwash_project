@@ -2,6 +2,12 @@
 session_start();
 require_once '../includes/db.php';
 
+// NOTE: READ-ONLY GET endpoint
+// This endpoint returns user orders via GET and does not mutate state.
+// Per CSRF rollout policy, read-only GET endpoints are intentionally
+// excluded from CSRF verification. If this endpoint is later changed to
+// perform state-changing actions (POST/PUT/DELETE), add require_valid_csrf()
+// from backend/includes/csrf_protect.php and remove this exemption.
 header('Content-Type: application/json');
 
 try {

@@ -8,6 +8,25 @@ $page_title = 'Şifre Sıfırlama - CarWash';
 $current_page = 'forgot_password';
 $show_login = false; // Don't show login button on forgot password page
 
+// Start session and ensure CSRF token (idempotent)
+if (session_status() !== PHP_SESSION_ACTIVE) {
+  session_start();
+}
+if (empty($_SESSION['csrf_token'])) {
+  $csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
+  if (file_exists($csrf_helper)) {
+    require_once $csrf_helper;
+    if (function_exists('generate_csrf_token')) {
+      generate_csrf_token(); // sets $_SESSION['csrf_token']
+    } else {
+      $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+    }
+  } else {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+  }
+}
+$csrf_token = $_SESSION['csrf_token'];
+
 // Include header
 include '../includes/header.php';
 ?>
@@ -113,6 +132,8 @@ include '../includes/header.php';
       </div>
 
       <form id="resetForm" action="forgot_password.php" method="POST" class="space-y-6">
+        <!-- CSRF token (idempotent, centrally generated when available) -->
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
         <!-- Email Tab Content -->
         <!-- Farsça: محتوای تب ایمیل برای بازنشانی رمز عبور. -->
         <!-- Türkçe: Şifre sıfırlama için e-posta sekmesi içeriği. -->

@@ -10,6 +10,9 @@ try {
         throw new Exception('Unauthorized');
     }
 
+    // Read-only endpoint (GET). CSRF is not required for safe GET requests.
+    // If this endpoint later accepts POST/PUT/DELETE, add CSRF validation after session_start().
+
     $status = isset($_GET['status']) ? $_GET['status'] : '';
     $reason = isset($_GET['reason']) ? $_GET['reason'] : '';
 

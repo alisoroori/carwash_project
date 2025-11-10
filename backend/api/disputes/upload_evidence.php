@@ -51,3 +51,9 @@ class DisputeEvidenceHandler
         }
     }
 }
+
+// Note: This file defines the DisputeEvidenceHandler class used for handling
+// uploads. It does not itself handle the HTTP request here. Any procedural
+// endpoint that invokes this handler and accepts multipart POST uploads must
+// validate CSRF tokens (e.g., via backend/includes/csrf_protect.php) before
+// processing the upload.

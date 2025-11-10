@@ -15,7 +15,7 @@ if ($_SESSION['user_role'] !== 'admin') {
 <head>
     <meta charset="UTF-8">
     <title>Pricing Analytics</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -53,4 +53,6 @@ if ($_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+
+
 

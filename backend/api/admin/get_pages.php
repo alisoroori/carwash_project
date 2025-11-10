@@ -10,6 +10,9 @@ try {
         throw new Exception('Unauthorized');
     }
 
+    // Read-only endpoint (GET). No CSRF check required for safe, idempotent GET requests.
+    // Keep this as GET-only; if state-changing verbs are added later, validate CSRF after session_start().
+
     $stmt = $conn->prepare("
         SELECT id, title, slug, status, created_at, updated_at
         FROM pages

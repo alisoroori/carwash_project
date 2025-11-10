@@ -37,7 +37,7 @@ class NotificationDashboard
 <head>
     <meta charset="UTF-8">
     <title>Notification Monitor</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -62,4 +62,6 @@ class NotificationDashboard
 </body>
 
 </html>
+
+
 

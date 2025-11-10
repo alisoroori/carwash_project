@@ -283,6 +283,27 @@ $page_title = 'Create User - CarWash Admin';
         <?php endif; ?>
         
         <form method="POST" action="">
+            <?php
+            // Ensure session and CSRF token (idempotent)
+            if (session_status() !== PHP_SESSION_ACTIVE) {
+                \App\Classes\Session::start();
+            }
+            if (empty($_SESSION['csrf_token'])) {
+                $csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
+                if (file_exists($csrf_helper)) {
+                    require_once $csrf_helper;
+                    if (function_exists('generate_csrf_token')) {
+                        // generate_csrf_token() sets $_SESSION['csrf_token']
+                        generate_csrf_token();
+                    } else {
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+                    }
+                } else {
+                    $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+                }
+            }
+            ?>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
             <div class="form-group">
                 <label for="full_name">Full Name</label>
                 <input 

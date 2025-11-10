@@ -99,6 +99,14 @@
     }
 }
 
+/* Global logo helper to ensure consistent sizing across headers */
+.logo-image {
+    width: 80px;
+    height: auto;
+    display: inline-block;
+    vertical-align: middle;
+}
+
 /* ================================================
    ANIMATIONS
    ================================================ */

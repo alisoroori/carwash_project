@@ -10,6 +10,33 @@ if (file_exists(__DIR__ . '/../includes/request_helpers.php')) {
 
 header('Content-Type: application/json');
 
+// Idempotent JSON body merge: if request_helpers already handled this, this will be a no-op.
+$raw = file_get_contents('php://input');
+$parsed = json_decode($raw, true);
+if (is_array($parsed)) {
+    foreach ($parsed as $k => $v) {
+        if (!isset($_POST[$k])) $_POST[$k] = $v;
+    }
+}
+
+// CSRF protection: use centralized helper if available; keep inline fallback during rollout
+$csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (file_exists($csrf_helper)) {
+    require_once $csrf_helper;
+    if (function_exists('require_valid_csrf')) {
+        require_valid_csrf();
+    }
+} else {
+    $csrfToken = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+    if (empty($_SESSION['csrf_token']) || empty($csrfToken) || !hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$csrfToken)) {
+        error_log('CSRF: missing or invalid token in create_booking.php');
+        header('HTTP/1.1 403 Forbidden');
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit;
+    }
+}
+
 try {
     // Check if user is logged in
     if (!isset($_SESSION['user_id'])) {

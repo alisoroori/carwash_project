@@ -11,7 +11,7 @@ $mapsConfig = new MapsConfig();
 <head>
     <meta charset="UTF-8">
     <title>Find CarWash Services</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= $mapsConfig->getApiKey() ?>&libraries=places"></script>
 </head>
 
@@ -40,4 +40,6 @@ $mapsConfig = new MapsConfig();
 </body>
 
 </html>
+
+
 

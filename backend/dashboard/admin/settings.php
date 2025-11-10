@@ -24,7 +24,7 @@ $config = array_column($settings, 'value', 'key');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Settings - AquaTR</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -56,6 +56,16 @@ $config = array_column($settings, 'value', 'key');
                 <h2 class="text-xl font-bold text-gray-800 mb-6">Genel Ayarlar</h2>
                 <form action="update_settings.php" method="POST" class="space-y-6">
                     <input type="hidden" name="section" value="general">
+                    <?php
+                    // Ensure CSRF token is available and include hidden input for server-rendered forms.
+                    if (session_status() === PHP_SESSION_NONE) session_start();
+                    if (empty($_SESSION['csrf_token'])) {
+                        $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+                        if (file_exists($csrf_helper)) { require_once $csrf_helper; if (function_exists('generate_csrf_token')) generate_csrf_token(); }
+                        else { try { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); } catch (Exception $e) { $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32)); } }
+                    }
+                    ?>
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Site BaÅŸlÄ±ÄŸÄ±</label>
@@ -89,6 +99,15 @@ $config = array_column($settings, 'value', 'key');
                 <h2 class="text-xl font-bold text-gray-800 mb-6">Randevu AyarlarÄ±</h2>
                 <form action="update_settings.php" method="POST" class="space-y-6">
                     <input type="hidden" name="section" value="booking">
+                    <?php
+                    if (session_status() === PHP_SESSION_NONE) session_start();
+                    if (empty($_SESSION['csrf_token'])) {
+                        $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+                        if (file_exists($csrf_helper)) { require_once $csrf_helper; if (function_exists('generate_csrf_token')) generate_csrf_token(); }
+                        else { try { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); } catch (Exception $e) { $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32)); } }
+                    }
+                    ?>
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Minimum Randevu SÃ¼resi (dakika)</label>
@@ -122,6 +141,15 @@ $config = array_column($settings, 'value', 'key');
                 <h2 class="text-xl font-bold text-gray-800 mb-6">Email AyarlarÄ±</h2>
                 <form action="update_settings.php" method="POST" class="space-y-6">
                     <input type="hidden" name="section" value="email">
+                    <?php
+                    if (session_status() === PHP_SESSION_NONE) session_start();
+                    if (empty($_SESSION['csrf_token'])) {
+                        $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+                        if (file_exists($csrf_helper)) { require_once $csrf_helper; if (function_exists('generate_csrf_token')) generate_csrf_token(); }
+                        else { try { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); } catch (Exception $e) { $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32)); } }
+                    }
+                    ?>
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">SMTP Sunucu</label>
@@ -244,4 +272,6 @@ $config = array_column($settings, 'value', 'key');
 </body>
 
 </html>
+
+
 

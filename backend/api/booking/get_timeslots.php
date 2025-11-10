@@ -3,6 +3,8 @@ require_once '../../includes/db.php';
 require_once '../../includes/config.php';
 
 header('Content-Type: application/json');
+// This endpoint is query-based (GET); CSRF is not required for safe GETs.
+// Ensure only GET is used for read-only requests. No CSRF check added.
 
 try {
     if (!isset($_GET['service_id']) || !isset($_GET['date'])) {

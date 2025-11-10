@@ -7,9 +7,9 @@
   <!-- Tailwind CSS (CDN) - development convenience. -->
   <!-- For production, generate a compiled Tailwind CSS file (tailwind CLI / PostCSS) and include that instead. -->
 
-  <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+  <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <script>
-    console.info("Tailwind CDN removed — local compiled CSS is used: /frontend/css/tailwind.css");
+    console.info("Tailwind CDN removed — local compiled CSS is used: <?php echo $base_url; ?>/dist/output.css");
   </script>
 
   <!-- Inline CSS: dashboard-friendly, compact -->
@@ -331,3 +331,5 @@
   </script>
 </body>
 </html>
+
+

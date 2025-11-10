@@ -43,16 +43,25 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendJson($response);
 }
 
-// CSRF validation: accept token in POST body (csrf_token) or X-CSRF-Token header
-$csrfToken = $_POST['csrf_token'] ?? null;
-if (empty($csrfToken) && !empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
-    $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'];
-}
-$sessionCsrf = $_SESSION['csrf_token'] ?? null;
-if (empty($csrfToken) || empty($sessionCsrf) || !hash_equals($sessionCsrf, $csrfToken)) {
-    http_response_code(403);
-    $response['errors'][] = 'Invalid CSRF token';
-    sendJson($response);
+// CSRF validation via helper
+if (file_exists(__DIR__ . '/../../includes/csrf_protect.php')) {
+    require_once __DIR__ . '/../../includes/csrf_protect.php';
+    // ensure token exists for session-based flows
+    generate_csrf_token();
+    // will emit 403 and exit on failure
+    require_valid_csrf();
+} else {
+    // Fallback: inline check (legacy)
+    $csrfToken = $_POST['csrf_token'] ?? null;
+    if (empty($csrfToken) && !empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+        $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'];
+    }
+    $sessionCsrf = $_SESSION['csrf_token'] ?? null;
+    if (empty($csrfToken) || empty($sessionCsrf) || !hash_equals($sessionCsrf, $csrfToken)) {
+        http_response_code(403);
+        $response['errors'][] = 'Invalid CSRF token';
+        sendJson($response);
+    }
 }
 
 $carwashId = isset($_POST['carwash_id']) ? (int)$_POST['carwash_id'] : null;

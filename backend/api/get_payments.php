@@ -2,6 +2,11 @@
 session_start();
 require_once '../includes/db.php';
 
+// NOTE: READ-ONLY GET endpoint
+// This endpoint returns payment/order records via GET parameters and does
+// not perform state mutation. It's excluded from CSRF checks by design.
+// If you add mutating behavior later, call require_valid_csrf() from
+// backend/includes/csrf_protect.php and remove this exemption.
 header('Content-Type: application/json');
 
 try {

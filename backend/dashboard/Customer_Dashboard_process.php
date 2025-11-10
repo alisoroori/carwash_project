@@ -93,6 +93,48 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
+// === CSRF protection for state-changing requests ===
+$reqMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if (in_array($reqMethod, ['POST', 'PUT', 'PATCH'], true)) {
+    // Prefer centralized helper
+    $csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
+    $csrf_ok = false;
+
+    // Merge JSON body into POST already happened above, so token may be in $_POST
+    $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+
+    if (file_exists($csrf_helper)) {
+        require_once $csrf_helper;
+        if (function_exists('require_valid_csrf')) {
+            // require_valid_csrf() will emit error/exit on failure; call it safely
+            try {
+                require_valid_csrf();
+                $csrf_ok = true;
+            } catch (Throwable $e) {
+                // allow fallback to inline check below
+            }
+        } elseif (function_exists('verify_csrf_token') && verify_csrf_token($token)) {
+            $csrf_ok = true;
+        }
+    }
+
+    if (!$csrf_ok) {
+        // Inline fallback: simple session compare
+        if (!empty($_SESSION['csrf_token']) && !empty($token) && function_exists('hash_equals')) {
+            if (hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$token)) {
+                $csrf_ok = true;
+            }
+        }
+    }
+
+    if (!$csrf_ok) {
+        ob_end_clean();
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+        exit;
+    }
+}
+
 try {
     // --- Begin: ensure DB connection available for vehicle/reservation handlers ---
     $dbConn = null;

@@ -15,13 +15,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// CSRF check
-$csrfToken = $_POST['csrf_token'] ?? null;
-$sessionCsrf = $_SESSION['csrf_token'] ?? null;
-if (empty($csrfToken) || empty($sessionCsrf) || !hash_equals($sessionCsrf, $csrfToken)) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'errors' => ['Invalid CSRF token']]);
-    exit;
+// CSRF validation using helper (preferred) with fallback to inline check
+if (file_exists(__DIR__ . '/../../includes/csrf_protect.php')) {
+    require_once __DIR__ . '/../../includes/csrf_protect.php';
+    // Ensure token exists for the session
+    generate_csrf_token();
+    // Will emit 403 JSON and exit on failure
+    require_valid_csrf();
+} else {
+    // Legacy inline check
+    $csrfToken = $_POST['csrf_token'] ?? null;
+    $sessionCsrf = $_SESSION['csrf_token'] ?? null;
+    if (empty($csrfToken) || empty($sessionCsrf) || !hash_equals($sessionCsrf, $csrfToken)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'errors' => ['Invalid CSRF token']]);
+        exit;
+    }
 }
 
 $userId = $_SESSION['user_id'] ?? null;

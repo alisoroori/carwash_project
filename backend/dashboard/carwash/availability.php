@@ -9,7 +9,7 @@ require_once '../../includes/auth_check.php';
 <head>
     <meta charset="UTF-8">
     <title>Ã‡alÄ±ÅŸma Saatleri - CarWash Panel</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -102,4 +102,6 @@ require_once '../../includes/auth_check.php';
 </body>
 
 </html>
+
+
 

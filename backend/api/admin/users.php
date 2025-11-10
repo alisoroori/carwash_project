@@ -75,3 +75,8 @@ use App\Classes\Response;
 Auth::requireRole('admin');
 
 // perform admin-only API actions, return JSON via Response::success / Response::error
+
+// Note: This file primarily defines helper classes and bootstraps admin utilities.
+// It does not directly handle HTTP request bodies in this location, so CSRF checks
+// are not added here. Any procedural endpoints that accept POST/PUT/DELETE under
+// the admin namespace should be patched individually to validate CSRF tokens.

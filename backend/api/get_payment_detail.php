@@ -1,4 +1,6 @@
 <?php
+// Read-only endpoint: returns payment details for the authenticated user.
+// This endpoint does not modify server state, so CSRF enforcement is not required here.
 session_start();
 require_once '../includes/db.php';
 

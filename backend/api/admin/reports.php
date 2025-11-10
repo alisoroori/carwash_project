@@ -23,6 +23,9 @@ try {
         throw new Exception('Invalid period specified');
     }
 
+    // Read-only reporting endpoint (GET). CSRF is not required for safe GET requests.
+    // If this endpoint is extended to accept POST/PUT/DELETE, add CSRF validation after session_start().
+
     $endDate = new DateTime();
     $startDate = new DateTime();
 

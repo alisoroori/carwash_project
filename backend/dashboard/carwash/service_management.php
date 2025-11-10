@@ -17,7 +17,7 @@ $carwash_id = $_SESSION['carwash_id'];
 <head>
     <meta charset="UTF-8">
     <title>Service Management</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -121,4 +121,6 @@ $carwash_id = $_SESSION['carwash_id'];
 </body>
 
 </html>
+
+
 

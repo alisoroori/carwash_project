@@ -15,7 +15,7 @@ if ($_SESSION['user_role'] !== 'admin') {
 <head>
     <meta charset="UTF-8">
     <title>Dispute Management</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
 </head>
 
 <body class="bg-gray-50">
@@ -46,4 +46,6 @@ if ($_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+
+
 

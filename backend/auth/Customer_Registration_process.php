@@ -21,6 +21,31 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
+// === CSRF protection (idempotent) ===
+// Prefer centralized helper if available, otherwise perform inline check and redirect with error message
+$csrf_token_in = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+$csrf_ok = false;
+if (!empty($csrf_token_in) && !empty($_SESSION['csrf_token']) && function_exists('hash_equals')) {
+    if (hash_equals($_SESSION['csrf_token'], $csrf_token_in)) {
+        $csrf_ok = true;
+    }
+}
+if (!$csrf_ok) {
+    $csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
+    if (file_exists($csrf_helper)) {
+        require_once $csrf_helper;
+        if (function_exists('verify_csrf_token') && verify_csrf_token($csrf_token_in)) {
+            $csrf_ok = true;
+        }
+    }
+}
+if (!$csrf_ok) {
+    // Follow project UX: set session error and redirect back to form
+    $_SESSION['error_message'] = 'Invalid request (CSRF). Please try again.';
+    header('Location: Customer_Registration.php');
+    exit();
+}
+
 try {
     // Get database connection using project's DB pattern
     $conn = getDBConnection();

@@ -11,6 +11,29 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     die(json_encode(['success' => false, 'error' => 'Unauthorized access']));
 }
 
+// CSRF protection: merge JSON body into $_POST and validate for state-changing requests
+$raw = file_get_contents('php://input');
+$parsed = json_decode($raw, true);
+if (is_array($parsed)) foreach ($parsed as $k => $v) if (!isset($_POST[$k])) $_POST[$k] = $v;
+
+$csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+if (in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST','PUT','DELETE'], true)) {
+    if (file_exists($csrf_helper)) {
+        require_once $csrf_helper;
+        if (function_exists('require_valid_csrf')) {
+            require_valid_csrf();
+        }
+    } else {
+        $csrfToken = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+        if (empty($_SESSION['csrf_token']) || empty($csrfToken) || !hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$csrfToken)) {
+            error_log('CSRF: missing or invalid token in admin/content.php');
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+            exit;
+        }
+    }
+}
+
 try {
     $pdo = getDBConnection();
     if (!$pdo) {

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once __DIR__ . '/../includes/bootstrap.php';
 
@@ -38,8 +38,18 @@ if (empty($_SESSION['csrf_token'])) {
 
 // Dashboard header variables
 $dashboard_type = 'customer';
-$page_title = 'Müşteri Paneli - CarWash';
+$page_title = 'MÃ¼ÅŸteri Paneli - CarWash';
 $current_page = 'dashboard';
+
+// Ensure $base_url is available (some templates expect this variable)
+if (!isset($base_url)) {
+    if (defined('BASE_URL')) {
+        $base_url = BASE_URL;
+    } else {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $base_url = $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/carwash_project';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -50,7 +60,7 @@ $current_page = 'dashboard';
     <title><?php echo htmlspecialchars($page_title); ?></title>
     
     <!-- TailwindCSS - Production Build -->
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -480,7 +490,7 @@ $current_page = 'dashboard';
             }
         }
         
-        /* === Desktop Layout (≥900px) === */
+        /* === Desktop Layout (â‰¥900px) === */
         @media (min-width: 900px) {
             #customer-sidebar {
                 transform: translateX(0) !important;  /* Always visible */
@@ -607,7 +617,7 @@ $current_page = 'dashboard';
 
 <body 
     class="bg-gray-50 overflow-x-hidden flex flex-col min-h-screen" 
-    x-data="{ mobileMenuOpen: false, currentSection: 'dashboard' }"
+    x-data="customerDashboard()"
     x-effect="mobileMenuOpen ? document.body.classList.add('menu-open') : document.body.classList.remove('menu-open')"
 >
 
@@ -636,7 +646,7 @@ $current_page = 'dashboard';
             <div class="flex items-center space-x-3">
             <!-- Main header logo placed before the site title -->
             <div>
-                <img id="siteLogo" src="/carwash_project/backend/logo01.png" alt="MyCar logo" class="object-contain rounded-xl shadow-md" />
+                <img id="siteLogo" src="/carwash_project/backend/logo01.png" alt="MyCar logo" class="logo-image object-contain rounded-xl shadow-md" />
             </div>
             <div class="hidden sm:block">
                 <h1 class="text-lg font-bold text-gray-900 leading-tight">MyCar</h1>
@@ -706,7 +716,7 @@ $current_page = 'dashboard';
                 <div class="border-t border-gray-200">
                     <a href="/carwash_project/backend/includes/logout.php" class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium">
                         <i class="fas fa-sign-out-alt w-5 mr-3"></i>
-                        <span>Çıkış Yap</span>
+                        <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
                     </a>
                 </div>
             </div>
@@ -795,7 +805,7 @@ $current_page = 'dashboard';
                 tabindex="0"
             >
                 <i class="fas fa-tachometer-alt text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">Genel Bakış</span>
+                <span class="text-sm font-medium">Genel BakÄ±ÅŸ</span>
             </a>
             
             <!-- Car Wash Selection -->
@@ -808,7 +818,7 @@ $current_page = 'dashboard';
                 tabindex="0"
             >
                 <i class="fas fa-hand-pointer text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">Oto Yıkama Seçimi</span>
+                <span class="text-sm font-medium">Oto YÄ±kama SeÃ§imi</span>
             </a>
             
             <!-- Reservations -->
@@ -821,7 +831,7 @@ $current_page = 'dashboard';
                 tabindex="0"
             >
                 <i class="fas fa-calendar-check text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">Rezervasyonlarım</span>
+                <span class="text-sm font-medium">RezervasyonlarÄ±m</span>
             </a>
             
             <!-- Vehicles -->
@@ -834,7 +844,7 @@ $current_page = 'dashboard';
                 tabindex="0"
             >
                 <i class="fas fa-car text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">Araçlarım</span>
+                <span class="text-sm font-medium">AraÃ§larÄ±m</span>
             </a>
             
             <!-- History -->
@@ -847,7 +857,7 @@ $current_page = 'dashboard';
                 tabindex="0"
             >
                 <i class="fas fa-history text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">Geçmiş</span>
+                <span class="text-sm font-medium">GeÃ§miÅŸ</span>
             </a>
             
             <!-- Profile -->
@@ -905,7 +915,7 @@ $current_page = 'dashboard';
         <section x-show="currentSection === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
-                <p class="text-gray-600">Hoş geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
+                <p class="text-gray-600">HoÅŸ geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
             </div>
             
             <!-- Stats Grid - Responsive with consistent spacing -->
@@ -921,7 +931,7 @@ $current_page = 'dashboard';
                     <p class="text-3xl font-bold text-gray-900 mb-2">24</p>
                     <p class="text-sm text-gray-500 flex items-center">
                         <i class="fas fa-arrow-up text-green-500 mr-1.5 text-xs"></i>
-                        <span>12% artış</span>
+                        <span>12% artÄ±ÅŸ</span>
                     </p>
                 </div>
                 
@@ -952,7 +962,7 @@ $current_page = 'dashboard';
                 <!-- Stat Card 4 - Vehicles -->
                 <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                     <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-sm font-semibold text-gray-700">Araç</h4>
+                        <h4 class="text-sm font-semibold text-gray-700">AraÃ§</h4>
                         <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-car text-purple-600 text-xl"></i>
                         </div>
@@ -964,13 +974,13 @@ $current_page = 'dashboard';
             
             <!-- Quick Actions - Responsive Grid -->
             <div class="mt-8">
-                <h3 class="text-xl font-bold text-gray-900 mb-6">Hızlı İşlemler</h3>
+                <h3 class="text-xl font-bold text-gray-900 mb-6">HÄ±zlÄ± Ä°ÅŸlemler</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                     <!-- New Reservation Card -->
                     <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-6 lg:p-8 text-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                         <i class="fas fa-plus-circle text-4xl lg:text-5xl mb-4 opacity-90"></i>
                         <h4 class="text-xl font-bold mb-2">Yeni Rezervasyon</h4>
-                        <p class="text-blue-100 mb-6 text-sm lg:text-base">Araç yıkama hizmeti rezervasyonu oluşturun</p>
+                        <p class="text-blue-100 mb-6 text-sm lg:text-base">AraÃ§ yÄ±kama hizmeti rezervasyonu oluÅŸturun</p>
                         <button 
                             @click="currentSection = 'carWashSelection'"
                             class="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 active:bg-blue-100 transition-colors inline-flex items-center gap-2 shadow-md"
@@ -983,13 +993,13 @@ $current_page = 'dashboard';
                     <!-- Add Vehicle Card -->
                     <div class="bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl p-6 lg:p-8 text-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                         <i class="fas fa-car text-4xl lg:text-5xl mb-4 opacity-90"></i>
-                        <h4 class="text-xl font-bold mb-2">Araç Ekle</h4>
-                        <p class="text-green-100 mb-6 text-sm lg:text-base">Yeni araç bilgisi kaydedin</p>
+                        <h4 class="text-xl font-bold mb-2">AraÃ§ Ekle</h4>
+                        <p class="text-green-100 mb-6 text-sm lg:text-base">Yeni araÃ§ bilgisi kaydedin</p>
                         <button 
                             @click="currentSection = 'vehicles'"
                             class="bg-white text-green-600 px-6 py-3 rounded-xl font-semibold hover:bg-green-50 active:bg-green-100 transition-colors inline-flex items-center gap-2 shadow-md"
                         >
-                            <span>Araç Ekle</span>
+                            <span>AraÃ§ Ekle</span>
                             <i class="fas fa-arrow-right text-sm"></i>
                         </button>
                     </div>
@@ -1000,13 +1010,13 @@ $current_page = 'dashboard';
         <!-- ========== VEHICLES SECTION ========== -->
         <section x-show="currentSection === 'vehicles'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" x-data="vehicleManager()" style="display: none;">
             <div class="mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Araçlarım</h2>
-                <p class="text-gray-600">Araçlarınızı yönetin</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">AraÃ§larÄ±m</h2>
+                <p class="text-gray-600">AraÃ§larÄ±nÄ±zÄ± yÃ¶netin</p>
             </div>
             
             <!-- Action Buttons - Responsive -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <p class="text-sm text-gray-600" x-text="vehicles.length + ' araç kayıtlı'"></p>
+                <p class="text-sm text-gray-600" x-text="vehicles.length + ' araÃ§ kayÄ±tlÄ±'"></p>
                 <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     <button 
                         @click="loadVehicles()"
@@ -1020,7 +1030,7 @@ $current_page = 'dashboard';
                         class="w-full sm:w-auto h-11 px-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg active:shadow-md transition-all inline-flex items-center justify-center gap-2"
                     >
                         <i class="fas fa-plus text-sm"></i>
-                        <span>Araç Ekle</span>
+                        <span>AraÃ§ Ekle</span>
                     </button>
                 </div>
             </div>
@@ -1060,7 +1070,7 @@ $current_page = 'dashboard';
                                 class="flex-1 h-10 text-blue-600 hover:bg-blue-50 active:bg-blue-100 rounded-lg transition-colors font-medium text-sm inline-flex items-center justify-center gap-1.5"
                             >
                                 <i class="fas fa-edit text-xs"></i>
-                                <span>Düzenle</span>
+                                <span>DÃ¼zenle</span>
                             </button>
                             <button 
                                 @click="deleteVehicle(vehicle.id)"
@@ -1077,13 +1087,13 @@ $current_page = 'dashboard';
                 <template x-if="vehicles.length === 0">
                     <div class="col-span-full text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-300">
                         <i class="fas fa-car text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg mb-4">Henüz araç yok</p>
+                        <p class="text-gray-500 text-lg mb-4">HenÃ¼z araÃ§ yok</p>
                         <button 
                             @click="openVehicleForm()"
                             class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center space-x-2"
                         >
                             <i class="fas fa-plus"></i>
-                            <span>İlk Aracınızı Ekleyin</span>
+                            <span>Ä°lk AracÄ±nÄ±zÄ± Ekleyin</span>
                         </button>
                     </div>
                 </template>
@@ -1113,7 +1123,7 @@ $current_page = 'dashboard';
                 >
                     <div class="sticky top-0 bg-white p-6 border-b border-gray-200 z-10">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-2xl font-bold text-gray-900" x-text="editingVehicle ? 'Araç Düzenle' : 'Yeni Araç Ekle'"></h3>
+                            <h3 class="text-2xl font-bold text-gray-900" x-text="editingVehicle ? 'AraÃ§ DÃ¼zenle' : 'Yeni AraÃ§ Ekle'"></h3>
                             <button @click="closeVehicleForm()" class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100">
                                 <i class="fas fa-times text-2xl"></i>
                             </button>
@@ -1183,7 +1193,7 @@ $current_page = 'dashboard';
                             
                             <!-- Year -->
                             <div class="mb-4">
-                                <label for="vehicle_year" class="block text-sm font-semibold text-gray-700 mb-2">Yıl</label>
+                                <label for="vehicle_year" class="block text-sm font-semibold text-gray-700 mb-2">YÄ±l</label>
                                 <input 
                                     type="number"
                                     id="vehicle_year"
@@ -1213,7 +1223,7 @@ $current_page = 'dashboard';
                             
                             <!-- Vehicle Image -->
                             <div class="mb-4">
-                                <label for="vehicle_image" class="block text-sm font-semibold text-gray-700 mb-2">Araç Fotoğrafı</label>
+                                <label for="vehicle_image" class="block text-sm font-semibold text-gray-700 mb-2">AraÃ§ FotoÄŸrafÄ±</label>
                                 <input 
                                     type="file"
                                     id="vehicle_image"
@@ -1227,7 +1237,7 @@ $current_page = 'dashboard';
                         
                         <!-- Image Preview -->
                         <div class="mb-4">
-                            <p class="block text-sm font-semibold text-gray-700 mb-2">Önizleme</p>
+                            <p class="block text-sm font-semibold text-gray-700 mb-2">Ã–nizleme</p>
                             <img 
                                 :src="imagePreview || '/carwash_project/frontend/assets/images/default-car.png'"
                                 alt="Preview"
@@ -1242,7 +1252,7 @@ $current_page = 'dashboard';
                                 @click="closeVehicleForm()"
                                 class="w-full sm:w-auto px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
                             >
-                                İptal
+                                Ä°ptal
                             </button>
                             <button 
                                 type="submit"
@@ -1268,15 +1278,35 @@ $current_page = 'dashboard';
         <!-- ========== PROFILE SECTION ========== -->
         <section x-show="currentSection === 'profile'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
             <div class="mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Profil Ayarları</h2>
-                <p class="text-gray-600">Hesap bilgilerinizi güncelleyin</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Profil AyarlarÄ±</h2>
+                <p class="text-gray-600">Hesap bilgilerinizi gÃ¼ncelleyin</p>
             </div>
             
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
                 <form id="profileForm" class="space-y-6" enctype="multipart/form-data">
+                    <?php
+                    // Idempotent ensure session and CSRF token for profile & password change forms
+                    if (session_status() !== PHP_SESSION_ACTIVE) {
+                        \App\Classes\Session::start();
+                    }
+                    if (empty($_SESSION['csrf_token'])) {
+                        $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+                        if (file_exists($csrf_helper)) {
+                            require_once $csrf_helper;
+                            if (function_exists('generate_csrf_token')) {
+                                generate_csrf_token();
+                            } else {
+                                $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+                            }
+                        } else {
+                            $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+                        }
+                    }
+                    ?>
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
                     <!-- Profile Image Upload Section -->
                     <div class="mb-6 pb-6 border-b border-gray-200">
-                        <h4 class="text-lg font-bold text-gray-900 mb-4">Profil Fotoğrafı</h4>
+                        <h4 class="text-lg font-bold text-gray-900 mb-4">Profil FotoÄŸrafÄ±</h4>
                         <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
                             <!-- Current Profile Image -->
                             <div class="flex-shrink-0">
@@ -1294,7 +1324,7 @@ $current_page = 'dashboard';
                             <!-- Upload Controls -->
                             <div class="flex-1">
                                 <label for="profile_image" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Yeni Fotoğraf Yükle
+                                    Yeni FotoÄŸraf YÃ¼kle
                                 </label>
                                 <input 
                                     type="file" 
@@ -1303,7 +1333,7 @@ $current_page = 'dashboard';
                                     accept="image/jpeg,image/png,image/jpg,image/webp"
                                     class="block w-full text-sm text-gray-900 border-2 border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 >
-                                <p class="mt-2 text-xs text-gray-500">JPG, PNG veya WEBP formatında. Maksimum 2MB.</p>
+                                <p class="mt-2 text-xs text-gray-500">JPG, PNG veya WEBP formatÄ±nda. Maksimum 2MB.</p>
                             </div>
                         </div>
                     </div>
@@ -1322,7 +1352,7 @@ $current_page = 'dashboard';
                                 required
                                 autocomplete="name"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                placeholder="Adınız Soyadınız"
+                                placeholder="AdÄ±nÄ±z SoyadÄ±nÄ±z"
                             >
                         </div>
                         
@@ -1390,13 +1420,13 @@ $current_page = 'dashboard';
                                 placeholder="12345678901"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                             >
-                            <p class="mt-1 text-xs text-gray-500">11 haneli T.C. Kimlik numaranızı girin</p>
+                            <p class="mt-1 text-xs text-gray-500">11 haneli T.C. Kimlik numaranÄ±zÄ± girin</p>
                         </div>
                         
                         <!-- Driver License (Optional) -->
                         <div class="mb-4">
                             <label for="profile_driver_license" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Sürücü Belgesi No
+                                SÃ¼rÃ¼cÃ¼ Belgesi No
                             </label>
                             <input 
                                 type="text"
@@ -1406,18 +1436,18 @@ $current_page = 'dashboard';
                                 placeholder="A1234567"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                             >
-                            <p class="mt-1 text-xs text-gray-500">İsteğe bağlı alan</p>
+                            <p class="mt-1 text-xs text-gray-500">Ä°steÄŸe baÄŸlÄ± alan</p>
                         </div>
                         
                         <!-- City -->
                         <div class="mb-4">
-                            <label for="profile_city" class="block text-sm font-semibold text-gray-700 mb-2">Şehir</label>
+                            <label for="profile_city" class="block text-sm font-semibold text-gray-700 mb-2">Åžehir</label>
                             <input 
                                 type="text"
                                 id="profile_city"
                                 name="city"
                                 value="<?php echo htmlspecialchars($user_city); ?>"
-                                placeholder="İstanbul"
+                                placeholder="Ä°stanbul"
                                 autocomplete="address-level2"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                             >
@@ -1439,31 +1469,31 @@ $current_page = 'dashboard';
                     
                     <!-- Password Change Section -->
                     <div class="pt-6 border-t border-gray-200">
-                        <h4 class="text-lg font-bold text-gray-900 mb-4">Şifre Değiştir</h4>
+                        <h4 class="text-lg font-bold text-gray-900 mb-4">Åžifre DeÄŸiÅŸtir</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                             <!-- Current Password -->
                             <div class="mb-4">
-                                <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Şifre</label>
+                                <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Åžifre</label>
                                 <input 
                                     type="password"
                                     id="current_password"
                                     name="current_password"
                                     autocomplete="current-password"
                                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                    placeholder="••••••••"
+                                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                 >
                             </div>
                             
                             <!-- New Password -->
                             <div class="mb-4">
-                                <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre</label>
+                                <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Åžifre</label>
                                 <input 
                                     type="password"
                                     id="new_password"
                                     name="new_password"
                                     autocomplete="new-password"
                                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                    placeholder="••••••••"
+                                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                 >
                             </div>
                         </div>
@@ -1473,14 +1503,14 @@ $current_page = 'dashboard';
                     <div class="hidden mb-4 p-4 border-2 border-green-500 bg-green-50 text-green-700 rounded-lg" id="profile-success">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-check-circle"></i>
-                            <span>Profil başarıyla güncellendi!</span>
+                            <span>Profil baÅŸarÄ±yla gÃ¼ncellendi!</span>
                         </div>
                     </div>
                     
                     <div class="hidden mb-4 p-4 border-2 border-red-500 bg-red-50 text-red-600 rounded-lg" id="profile-error">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-exclamation-circle"></i>
-                            <span>Bir hata oluştu. Lütfen tekrar deneyin.</span>
+                            <span>Bir hata oluÅŸtu. LÃ¼tfen tekrar deneyin.</span>
                         </div>
                     </div>
                     
@@ -1490,7 +1520,7 @@ $current_page = 'dashboard';
                             type="button"
                             class="w-full sm:w-auto h-11 px-6 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:bg-gray-100 transition-colors"
                         >
-                            İptal
+                            Ä°ptal
                         </button>
                         <button 
                             type="submit"
@@ -1508,7 +1538,7 @@ $current_page = 'dashboard';
         <section x-show="currentSection === 'support'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Destek</h2>
-                <p class="text-gray-600">Yardıma mı ihtiyacınız var? Bize ulaşın</p>
+                <p class="text-gray-600">YardÄ±ma mÄ± ihtiyacÄ±nÄ±z var? Bize ulaÅŸÄ±n</p>
             </div>
             
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
@@ -1523,7 +1553,7 @@ $current_page = 'dashboard';
                             id="support_subject"
                             name="subject"
                             required
-                            placeholder="Sorununuzun kısa açıklaması"
+                            placeholder="Sorununuzun kÄ±sa aÃ§Ä±klamasÄ±"
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                         >
                     </div>
@@ -1539,12 +1569,12 @@ $current_page = 'dashboard';
                             required
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                         >
-                            <option value="">Kategori seçin</option>
+                            <option value="">Kategori seÃ§in</option>
                             <option value="reservation">Rezervasyon</option>
-                            <option value="payment">Ödeme</option>
-                            <option value="vehicle">Araç Bilgileri</option>
-                            <option value="account">Hesap Ayarları</option>
-                            <option value="other">Diğer</option>
+                            <option value="payment">Ã–deme</option>
+                            <option value="vehicle">AraÃ§ Bilgileri</option>
+                            <option value="account">Hesap AyarlarÄ±</option>
+                            <option value="other">DiÄŸer</option>
                         </select>
                     </div>
                     
@@ -1558,7 +1588,7 @@ $current_page = 'dashboard';
                             name="message"
                             rows="6"
                             required
-                            placeholder="Sorununuzu detaylı olarak açıklayın"
+                            placeholder="Sorununuzu detaylÄ± olarak aÃ§Ä±klayÄ±n"
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
                         ></textarea>
                         <p class="mt-2 text-xs text-gray-500">Minimum 20 karakter</p>
@@ -1568,14 +1598,14 @@ $current_page = 'dashboard';
                     <div class="hidden mb-4 p-4 border-2 border-green-500 bg-green-50 text-green-700 rounded-lg" id="support-success">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-check-circle"></i>
-                            <span>Mesajınız başarıyla gönderildi!</span>
+                            <span>MesajÄ±nÄ±z baÅŸarÄ±yla gÃ¶nderildi!</span>
                         </div>
                     </div>
                     
                     <div class="hidden mb-4 p-4 border-2 border-red-500 bg-red-50 text-red-600 rounded-lg" id="support-error">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-exclamation-circle"></i>
-                            <span>Mesaj gönderilemedi. Lütfen tüm alanları doldurun.</span>
+                            <span>Mesaj gÃ¶nderilemedi. LÃ¼tfen tÃ¼m alanlarÄ± doldurun.</span>
                         </div>
                     </div>
                     
@@ -1586,7 +1616,7 @@ $current_page = 'dashboard';
                             class="w-full sm:w-auto h-11 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg active:shadow-md transition-all inline-flex items-center justify-center gap-2"
                         >
                             <i class="fas fa-paper-plane text-sm"></i>
-                            <span>Gönder</span>
+                            <span>GÃ¶nder</span>
                         </button>
                     </div>
                 </form>
@@ -1597,7 +1627,7 @@ $current_page = 'dashboard';
         <section x-show="currentSection === 'settings'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Ayarlar</h2>
-                <p class="text-gray-600">Hesap ayarlarınızı yönetin</p>
+                <p class="text-gray-600">Hesap ayarlarÄ±nÄ±zÄ± yÃ¶netin</p>
             </div>
             
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
@@ -1606,7 +1636,7 @@ $current_page = 'dashboard';
                     <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                         <div>
                             <h4 class="font-bold">E-posta Bildirimleri</h4>
-                            <p class="text-sm text-gray-600">Rezervasyon onayları ve güncellemeler</p>
+                            <p class="text-sm text-gray-600">Rezervasyon onaylarÄ± ve gÃ¼ncellemeler</p>
                         </div>
                         <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
                     </label>
@@ -1614,7 +1644,7 @@ $current_page = 'dashboard';
                     <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                         <div>
                             <h4 class="font-bold">SMS Bildirimleri</h4>
-                            <p class="text-sm text-gray-600">Acil durumlar için SMS</p>
+                            <p class="text-sm text-gray-600">Acil durumlar iÃ§in SMS</p>
                         </div>
                         <input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
                     </label>
@@ -1622,23 +1652,23 @@ $current_page = 'dashboard';
                     <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                         <div>
                             <h4 class="font-bold">Promosyon Bildirimleri</h4>
-                            <p class="text-sm text-gray-600">İndirim ve kampanya duyuruları</p>
+                            <p class="text-sm text-gray-600">Ä°ndirim ve kampanya duyurularÄ±</p>
                         </div>
                         <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
                     </label>
                 </div>
 
                 <div class="mt-8 pt-6 border-t">
-                    <h3 class="text-xl font-bold mb-6">Güvenlik</h3>
+                    <h3 class="text-xl font-bold mb-6">GÃ¼venlik</h3>
                     <div class="space-y-4">
                         <button class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                            <h4 class="font-bold">Şifre Değiştir</h4>
-                            <p class="text-sm text-gray-600">Hesap güvenliğiniz için şifrenizi güncelleyin</p>
+                            <h4 class="font-bold">Åžifre DeÄŸiÅŸtir</h4>
+                            <p class="text-sm text-gray-600">Hesap gÃ¼venliÄŸiniz iÃ§in ÅŸifrenizi gÃ¼ncelleyin</p>
                         </button>
 
                         <button class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                            <h4 class="font-bold">İki Faktörlü Doğrulama</h4>
-                            <p class="text-sm text-gray-600">Ek güvenlik katmanı ekleyin</p>
+                            <h4 class="font-bold">Ä°ki FaktÃ¶rlÃ¼ DoÄŸrulama</h4>
+                            <p class="text-sm text-gray-600">Ek gÃ¼venlik katmanÄ± ekleyin</p>
                         </button>
                     </div>
                 </div>
@@ -1694,7 +1724,7 @@ $current_page = 'dashboard';
         
         root.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
         
-        console.log('✅ Layout updated - Header: 80px, Footer:', root.style.getPropertyValue('--footer-height'), 'Sidebar:', sidebarWidth + 'px');
+        console.log('âœ… Layout updated - Header: 80px, Footer:', root.style.getPropertyValue('--footer-height'), 'Sidebar:', sidebarWidth + 'px');
     }
     
     // Update on load
@@ -1737,14 +1767,14 @@ $current_page = 'dashboard';
                 // Validate file type
                 const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
                 if (!validTypes.includes(file.type)) {
-                    alert('Lütfen geçerli bir resim dosyası seçin (JPG, PNG veya WEBP)');
+                    alert('LÃ¼tfen geÃ§erli bir resim dosyasÄ± seÃ§in (JPG, PNG veya WEBP)');
                     e.target.value = '';
                     return;
                 }
                 
                 // Validate file size (2MB max)
                 if (file.size > 2 * 1024 * 1024) {
-                    alert('Resim boyutu 2MB\'dan küçük olmalıdır');
+                    alert('Resim boyutu 2MB\'dan kÃ¼Ã§Ã¼k olmalÄ±dÄ±r');
                     e.target.value = '';
                     return;
                 }
@@ -1814,7 +1844,7 @@ $current_page = 'dashboard';
                 // Show success message
                 if (successMsg) {
                     successMsg.classList.remove('hidden');
-                    successMsg.querySelector('span').textContent = result.message || 'Profil başarıyla güncellendi!';
+                    successMsg.querySelector('span').textContent = result.message || 'Profil baÅŸarÄ±yla gÃ¼ncellendi!';
                 }
                 
                 // Update session if needed
@@ -1833,7 +1863,7 @@ $current_page = 'dashboard';
                     if (sidebarImg) {
                         sidebarImg.src = result.data.image;
                         sidebarImg.style.display = 'block';
-                        console.log('✅ Sidebar image updated:', result.data.image);
+                        console.log('âœ… Sidebar image updated:', result.data.image);
                     }
                     // Persist new profile image to localStorage so other pages (like the homepage)
                     // can update their header avatars in real-time (or across tabs).
@@ -1850,7 +1880,7 @@ $current_page = 'dashboard';
                 profileForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 
             } else {
-                throw new Error(result.message || 'Profil güncellenirken bir hata oluştu');
+                throw new Error(result.message || 'Profil gÃ¼ncellenirken bir hata oluÅŸtu');
             }
             
         } catch (error) {
@@ -1859,7 +1889,7 @@ $current_page = 'dashboard';
             // Show error message
             if (errorMsg) {
                 errorMsg.classList.remove('hidden');
-                errorMsg.querySelector('span').textContent = error.message || 'Bir hata oluştu. Lütfen tekrar deneyin.';
+                errorMsg.querySelector('span').textContent = error.message || 'Bir hata oluÅŸtu. LÃ¼tfen tekrar deneyin.';
             }
             
             // Scroll to error message
@@ -1877,259 +1907,7 @@ $current_page = 'dashboard';
 })();
 </script>
 
-<!-- Vehicle Manager JavaScript -->
-<script>
-function vehicleManager() {
-    return {
-        vehicles: [],
-        showVehicleForm: false,
-        editingVehicle: null,
-        loading: false,
-        message: '',
-        messageType: '',
-        imagePreview: '',
-        csrfToken: '<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>',
-        formData: {
-            brand: '',
-            model: '',
-            license_plate: '',
-            year: '',
-            color: ''
-        },
-        
-        init() {
-            this.loadVehicles();
-        },
-        
-        /**
-         * Load vehicles from API with proper error handling
-         */
-        async loadVehicles() {
-            try {
-                const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', {
-                    method: 'GET',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // Handle different response formats
-                this.vehicles = data.vehicles || data.data?.vehicles || [];
-                
-                // Update stat count
-                const statEl = document.getElementById('vehicleStatCount');
-                if (statEl) {
-                    statEl.textContent = this.vehicles.length;
-                }
-                
-                console.log('✅ Vehicles loaded:', this.vehicles.length);
-                
-            } catch (error) {
-                console.error('❌ Load vehicles error:', error);
-                this.vehicles = [];
-                this.showMessage('Araçlar yüklenemedi', 'error');
-            }
-        },
-        
-        /**
-         * Open vehicle form (create or edit)
-         */
-        openVehicleForm(vehicle = null) {
-            this.editingVehicle = vehicle;
-            
-            if (vehicle) {
-                this.formData = {
-                    brand: vehicle.brand || '',
-                    model: vehicle.model || '',
-                    license_plate: vehicle.license_plate || '',
-                    year: vehicle.year || '',
-                    color: vehicle.color || ''
-                };
-                this.imagePreview = vehicle.image_path || '';
-            } else {
-                this.resetForm();
-            }
-            
-            this.showVehicleForm = true;
-            document.body.classList.add('menu-open');
-        },
-        
-        /**
-         * Close vehicle form
-         */
-        closeVehicleForm() {
-            this.showVehicleForm = false;
-            this.resetForm();
-            document.body.classList.remove('menu-open');
-        },
-        
-        /**
-         * Reset form data
-         */
-        resetForm() {
-            this.editingVehicle = null;
-            this.formData = { 
-                brand: '', 
-                model: '', 
-                license_plate: '', 
-                year: '', 
-                color: '' 
-            };
-            this.imagePreview = '';
-            this.message = '';
-            this.messageType = '';
-        },
-        
-        /**
-         * Save vehicle (create or update) with proper async/await
-         */
-        async saveVehicle() {
-            this.loading = true;
-            this.message = '';
-            
-            try {
-                // Get the vehicle form by ID
-                const form = document.getElementById('vehicleForm');
-                
-                if (!form) {
-                    throw new Error('Form not found');
-                }
-                
-                const formData = new FormData(form);
-                
-                const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.success || data.status === 'success') {
-                    this.showMessage(
-                        this.editingVehicle ? 'Araç güncellendi' : 'Araç eklendi', 
-                        'success'
-                    );
-                    
-                    // Reload vehicles list
-                    await this.loadVehicles();
-                    
-                    // Close form after short delay
-                    setTimeout(() => this.closeVehicleForm(), 1500);
-                } else {
-                    throw new Error(data.message || 'İşlem başarısız');
-                }
-                
-            } catch (error) {
-                console.error('❌ Save vehicle error:', error);
-                this.showMessage(error.message || 'Kaydetme işlemi başarısız', 'error');
-            } finally {
-                this.loading = false;
-            }
-        },
-        
-        /**
-         * Edit existing vehicle
-         */
-        editVehicle(vehicle) {
-            this.openVehicleForm(vehicle);
-        },
-        
-        /**
-         * Delete vehicle with confirmation
-         */
-        async deleteVehicle(id) {
-            if (!confirm('Bu aracı silmek istediğinizden emin misiniz?')) {
-                return;
-            }
-            
-            this.loading = true;
-            
-            try {
-                const formData = new FormData();
-                formData.append('action', 'delete');
-                formData.append('id', id);
-                formData.append('csrf_token', this.csrfToken);
-                
-                const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.success || data.status === 'success') {
-                    this.showMessage('Araç başarıyla silindi', 'success');
-                    await this.loadVehicles();
-                } else {
-                    throw new Error(data.message || 'Silme işlemi başarısız');
-                }
-                
-            } catch (error) {
-                console.error('❌ Delete vehicle error:', error);
-                this.showMessage(error.message || 'Silme işlemi başarısız', 'error');
-            } finally {
-                this.loading = false;
-            }
-        },
-        
-        /**
-         * Preview image before upload
-         */
-        previewImage(event) {
-            const file = event.target.files[0];
-            
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                
-                reader.onload = (e) => {
-                    this.imagePreview = e.target.result;
-                };
-                
-                reader.onerror = () => {
-                    this.showMessage('Resim yüklenirken hata oluştu', 'error');
-                };
-                
-                reader.readAsDataURL(file);
-            } else if (file) {
-                this.showMessage('Lütfen geçerli bir resim dosyası seçin', 'error');
-            }
-        },
-        
-        /**
-         * Show message with auto-hide
-         */
-        showMessage(msg, type = 'success') {
-            this.message = msg;
-            this.messageType = type;
-            
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                this.message = '';
-                this.messageType = '';
-            }, 5000);
-        }
-    }
-}
-
-console.log('✅ Customer Dashboard loaded successfully');
-</script>
+<script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
 
 <script>
 // ================================
@@ -2161,7 +1939,7 @@ console.log('✅ Customer Dashboard loaded successfully');
             const body = document.body;
             if (body && body.__x && body.__x.$data && body.__x.$data.mobileMenuOpen) {
                 body.__x.$data.mobileMenuOpen = false;
-                console.log('🔐 Sidebar closed via ESC key');
+                console.log('ðŸ” Sidebar closed via ESC key');
             }
         }
     });
@@ -2174,7 +1952,7 @@ console.log('✅ Customer Dashboard loaded successfully');
                 const body = document.body;
                 if (body && body.__x && body.__x.$data) {
                     body.__x.$data.mobileMenuOpen = false;
-                    console.log('🔗 Sidebar closed after link click');
+                    console.log('ðŸ”— Sidebar closed after link click');
                 }
             }
         }
@@ -2197,7 +1975,7 @@ console.log('✅ Customer Dashboard loaded successfully');
                             document.body.style.top = `-${scrollY}px`;
                             document.body.style.width = '100%';
                             document.body.style.overflow = 'hidden';
-                            console.log('📱 Mobile sidebar opened, body scroll prevented');
+                            console.log('ðŸ“± Mobile sidebar opened, body scroll prevented');
                         } else {
                             // Restore scroll position
                             const scrollY = document.body.style.top;
@@ -2208,7 +1986,7 @@ console.log('✅ Customer Dashboard loaded successfully');
                             if (scrollY) {
                                 window.scrollTo(0, parseInt(scrollY || '0') * -1);
                             }
-                            console.log('📱 Mobile sidebar closed, body scroll restored');
+                            console.log('ðŸ“± Mobile sidebar closed, body scroll restored');
                         }
                     } else {
                         // Desktop: ensure body scroll is enabled
@@ -2234,12 +2012,12 @@ console.log('✅ Customer Dashboard loaded successfully');
             const body = document.body;
             if (body && body.__x && body.__x.$data && body.__x.$data.mobileMenuOpen) {
                 body.__x.$data.mobileMenuOpen = false;
-                console.log('💻 Resized to desktop, sidebar auto-closed');
+                console.log('ðŸ’» Resized to desktop, sidebar auto-closed');
             }
         }
     });
     
-    console.log('✅ Mobile sidebar toggle initialized');
+    console.log('âœ… Mobile sidebar toggle initialized');
     
 })();
 
@@ -2336,7 +2114,7 @@ console.log('✅ Customer Dashboard loaded successfully');
             }
         });
         
-        console.log(`♿ Sidebar focusability: ${isVisible ? 'enabled' : 'disabled'} (mobile: ${isMobile})`);
+        console.log(`â™¿ Sidebar focusability: ${isVisible ? 'enabled' : 'disabled'} (mobile: ${isMobile})`);
     }
     
     /**
@@ -2383,7 +2161,7 @@ console.log('✅ Customer Dashboard loaded successfully');
         }
     });
     
-    console.log('✅ Sidebar accessibility manager initialized');
+    console.log('âœ… Sidebar accessibility manager initialized');
     
 })();
 
@@ -2394,7 +2172,7 @@ console.log('✅ Customer Dashboard loaded successfully');
 (function() {
     'use strict';
     
-    console.log('✅ Dashboard layout initialized with proper flex structure');
+    console.log('âœ… Dashboard layout initialized with proper flex structure');
     
 })();
 
@@ -2501,7 +2279,7 @@ console.log('✅ Customer Dashboard loaded successfully');
             });
         });
         
-        console.log('✅ Form validation initialized');
+        console.log('âœ… Form validation initialized');
     });
     
 })();
@@ -2509,4 +2287,6 @@ console.log('✅ Customer Dashboard loaded successfully');
 
 </body>
 </html>
+
+
 

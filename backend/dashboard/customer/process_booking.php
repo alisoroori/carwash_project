@@ -28,7 +28,7 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yeni Randevu - AquaTR</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -48,6 +48,23 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
         <h1 class="text-3xl font-bold text-gray-800 mb-8">Yeni Randevu OluÅŸtur</h1>
 
         <form id="bookingForm" action="process_booking.php" method="POST" class="bg-white rounded-lg shadow-md p-6">
+            <?php
+            // Ensure CSRF token is available in session and emit hidden input for non-AJAX form submissions.
+            if (session_status() === PHP_SESSION_NONE) session_start();
+            if (empty($_SESSION['csrf_token'])) {
+                $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+                if (file_exists($csrf_helper)) {
+                    require_once $csrf_helper;
+                    if (function_exists('generate_csrf_token')) {
+                        generate_csrf_token();
+                    }
+                } else {
+                    try { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
+                    catch (Exception $e) { $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32)); }
+                }
+            }
+            ?>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
             <!-- Step 1: Select CarWash -->
             <div class="booking-step" id="step1">
                 <h2 class="text-xl font-semibold mb-4">1. AraÃ§ YÄ±kama Merkezi SeÃ§in</h2>
@@ -215,4 +232,6 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
 </body>
 
 </html>
+
+
 

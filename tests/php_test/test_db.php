@@ -8,7 +8,7 @@ require_once 'backend/includes/test_db.php';
 <head>
     <meta charset="UTF-8">
     <title>CarWash - Database Test</title>
-    <link rel="stylesheet" href="/carwash_project/frontend/css/tailwind.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
 </head>
 
 <body class="bg-gray-50">
@@ -79,4 +79,6 @@ require_once 'backend/includes/test_db.php';
 </body>
 
 </html>
+
+
 
