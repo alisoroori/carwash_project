@@ -126,12 +126,12 @@ include 'includes/index-header.php';
             Yakınınızdaki En İyi Araç Yıkama Hizmetleri
           </p>
           <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start max-w-lg mx-auto lg:mx-0">
-            <a href="auth/Customer_Registration.php" class="bg-white text-blue-600 px-4 sm:px-6 md:px-8 py-3 sm:py-3 md:py-4 rounded-lg font-bold hover:bg-gray-100 transition-all text-center animate-pulse-slow text-sm sm:text-base">
-              <i class="fas fa-user-plus mr-2"></i>
+            <a href="auth/Customer_Registration.php" class="inline-flex items-center justify-center bg-white text-blue-600 px-4 sm:px-6 md:px-8 py-3 sm:py-3 md:py-4 rounded-lg font-bold hover:bg-gray-100 transition-all text-center animate-pulse-slow text-sm sm:text-base">
+              <i class="fas fa-user-plus mr-2" aria-hidden="true"></i>
               <span class="hidden sm:inline">Müşteri Olarak</span> Kayıt Ol
             </a>
-            <a href="auth/Car_Wash_Registration.php" class="border-2 border-white text-white px-4 sm:px-6 md:px-8 py-3 sm:py-3 md:py-4 rounded-lg font-bold hover:bg-white hover:text-blue-600 transition-all text-center text-sm sm:text-base">
-              <i class="fas fa-store mr-2"></i>
+            <a href="auth/Car_Wash_Registration.php" class="inline-flex items-center justify-center border-2 border-white text-white px-4 sm:px-6 md:px-8 py-3 sm:py-3 md:py-4 rounded-lg font-bold hover:bg-white hover:text-blue-600 transition-all text-center text-sm sm:text-base">
+              <i class="fas fa-store mr-2" aria-hidden="true"></i>
               <span class="hidden sm:inline">Hizmet Sağlayıcı Olarak</span> Kayıt Ol
             </a>
           </div>
@@ -142,21 +142,21 @@ include 'includes/index-header.php';
             <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 md:mb-6 text-center">Neden CarWash?</h3>
             <div class="space-y-2 sm:space-y-3 md:space-y-4">
               <div class="flex items-center">
-                <i class="fas fa-clock text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0"></i>
+                <i class="fas fa-clock text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0" aria-hidden="true"></i>
                 <div>
                   <h4 class="font-bold text-gray-800 text-sm sm:text-base">Yüksek Hız</h4>
                   <p class="text-gray-600 text-xs sm:text-sm">2 Dakikadan Az Sürede Rezervasyon</p>
                 </div>
               </div>
               <div class="flex items-center">
-                <i class="fas fa-shield-alt text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0"></i>
+                <i class="fas fa-shield-alt text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0" aria-hidden="true"></i>
                 <div>
                   <h4 class="font-bold text-gray-800 text-sm sm:text-base">Tam Güvenlik</h4>
                   <p class="text-gray-600 text-xs sm:text-sm">Güvenli ve Garantili Ödeme</p>
                 </div>
               </div>
               <div class="flex items-center">
-                <i class="fas fa-star text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0"></i>
+                <i class="fas fa-star text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0" aria-hidden="true"></i>
                 <div>
                   <h4 class="font-bold text-gray-800 text-sm sm:text-base">Üstün Kalite</h4>
                   <p class="text-gray-600 text-xs sm:text-sm">Şehrin En İyi Uzmanları</p>
@@ -173,10 +173,10 @@ include 'includes/index-header.php';
     <!-- Türkçe: Dekoratif öğeler. -->
     <!-- English: Decorative elements. -->
     <div class="absolute top-16 sm:top-20 left-4 sm:left-10 text-white opacity-10 animate-pulse">
-      <i class="fas fa-car text-3xl sm:text-4xl md:text-5xl lg:text-6xl"></i>
+      <i class="fas fa-car text-3xl sm:text-4xl md:text-5xl lg:text-6xl" aria-hidden="true"></i>
     </div>
     <div class="absolute bottom-16 sm:bottom-20 right-4 sm:right-10 text-white opacity-10 animate-pulse">
-      <i class="fas fa-water text-3xl sm:text-4xl md:text-5xl lg:text-6xl"></i>
+      <i class="fas fa-water text-3xl sm:text-4xl md:text-5xl lg:text-6xl" aria-hidden="true"></i>
     </div>
   </section>
 
@@ -221,7 +221,7 @@ include 'includes/index-header.php';
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         <div class="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 card-hover shadow-lg h-full flex flex-col">
           <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-blue-100 rounded-full flex items-center justify-center mb-3 sm:mb-4 md:mb-6 mx-auto sm:mx-0">
-            <i class="fas fa-car text-lg sm:text-xl md:text-2xl text-blue-600"></i>
+            <i class="fas fa-car text-lg sm:text-xl md:text-2xl text-blue-600" aria-hidden="true"></i>
           </div>
           <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4 text-center sm:text-left">Dış Yıkama</h3>
           <p class="text-gray-600 mb-3 sm:mb-4 md:mb-6 text-sm sm:text-base flex-grow text-center sm:text-left leading-relaxed">Modern Ekipman ve En İyi Temizlik Malzemeleri ile Tam Gövde Yıkama</p>
@@ -230,7 +230,7 @@ include 'includes/index-header.php';
 
         <div class="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 card-hover shadow-lg h-full flex flex-col">
           <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-green-100 rounded-full flex items-center justify-center mb-3 sm:mb-4 md:mb-6 mx-auto sm:mx-0">
-            <i class="fas fa-chair text-lg sm:text-xl md:text-2xl text-green-600"></i>
+            <i class="fas fa-chair text-lg sm:text-xl md:text-2xl text-green-600" aria-hidden="true"></i>
           </div>
           <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4 text-center sm:text-left">İç Temizlik</h3>
           <p class="text-gray-600 mb-3 sm:mb-4 md:mb-6 text-sm sm:text-base flex-grow text-center sm:text-left leading-relaxed">Otomobilin İç Mekanı, Koltuklar, Torpido ve Konsolunun Tam Temizliği</p>
@@ -239,7 +239,7 @@ include 'includes/index-header.php';
 
         <div class="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 card-hover shadow-lg h-full flex flex-col sm:col-span-2 lg:col-span-1">
           <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-purple-100 rounded-full flex items-center justify-center mb-3 sm:mb-4 md:mb-6 mx-auto sm:mx-0">
-            <i class="fas fa-gem text-lg sm:text-xl md:text-2xl text-purple-600"></i>
+            <i class="fas fa-gem text-lg sm:text-xl md:text-2xl text-purple-600" aria-hidden="true"></i>
           </div>
           <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4 text-center sm:text-left">Tam Detaylandırma</h3>
           <p class="text-gray-600 mb-3 sm:mb-4 md:mb-6 text-sm sm:text-base flex-grow text-center sm:text-left leading-relaxed">Dış Yıkama, İç Temizlik ve Gövde Cilası Dahil Tam Hizmet</p>
@@ -283,11 +283,11 @@ include 'includes/index-header.php';
         <div class="space-y-3 sm:space-y-4 md:space-y-6 animate-fade-in-up" style="animation-delay: 0.4s;">
           <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">Değerlerimiz</h3>
           <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base md:text-lg text-gray-700">
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0"></i> Müşteri Memnuniyeti</li>
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0"></i> Kalite ve Güvenilirlik</li>
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0"></i> Yenilikçilik</li>
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0"></i> Çevreye Duyarlılık</li>
-            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0"></i> Profesyonellik</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0" aria-hidden="true"></i> Müşteri Memnuniyeti</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0" aria-hidden="true"></i> Kalite ve Güvenilirlik</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0" aria-hidden="true"></i> Yenilikçilik</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0" aria-hidden="true"></i> Çevreye Duyarlılık</li>
+            <li class="flex items-center"><i class="fas fa-check-circle text-blue-600 mr-2 sm:mr-3 text-base sm:text-lg md:text-xl flex-shrink-0" aria-hidden="true"></i> Profesyonellik</li>
           </ul>
         </div>
         <div class="animate-fade-in-up" style="animation-delay: 0.6s;">
@@ -302,19 +302,19 @@ include 'includes/index-header.php';
         </p>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
           <div class="flex flex-col items-center">
-            <i class="fas fa-clock text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3"></i>
+            <i class="fas fa-clock text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3" aria-hidden="true"></i>
             <p class="font-bold text-xs sm:text-sm md:text-base lg:text-lg">Hızlı Rezervasyon</p>
           </div>
           <div class="flex flex-col items-center">
-            <i class="fas fa-shield-alt text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3"></i>
+            <i class="fas fa-shield-alt text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3" aria-hidden="true"></i>
             <p class="font-bold text-xs sm:text-sm md:text-base lg:text-lg">Güvenli Ödeme</p>
           </div>
           <div class="flex flex-col items-center">
-            <i class="fas fa-star text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3"></i>
+            <i class="fas fa-star text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3" aria-hidden="true"></i>
             <p class="font-bold text-xs sm:text-sm md:text-base lg:text-lg">Üstün Kalite</p>
           </div>
           <div class="flex flex-col items-center">
-            <i class="fas fa-map-marker-alt text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3"></i>
+            <i class="fas fa-map-marker-alt text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 md:mb-3" aria-hidden="true"></i>
             <p class="font-bold text-xs sm:text-sm md:text-base lg:text-lg">Yaygın Ağ</p>
           </div>
         </div>
@@ -342,11 +342,11 @@ include 'includes/index-header.php';
             <div class="ml-2 sm:ml-3 md:ml-4">
               <h4 class="font-bold text-gray-800 text-sm sm:text-base">Ali Yılmaz</h4>
               <div class="flex text-yellow-400 text-xs sm:text-sm">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
               </div>
             </div>
           </div>
@@ -361,11 +361,11 @@ include 'includes/index-header.php';
             <div class="ml-2 sm:ml-3 md:ml-4">
               <h4 class="font-bold text-gray-800 text-sm sm:text-base">Merve Kaya</h4>
               <div class="flex text-yellow-400 text-xs sm:text-sm">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
               </div>
             </div>
           </div>
@@ -380,11 +380,11 @@ include 'includes/index-header.php';
             <div class="ml-2 sm:ml-3 md:ml-4">
               <h4 class="font-bold text-gray-800 text-sm sm:text-base">Recep Demir</h4>
               <div class="flex text-yellow-400 text-xs sm:text-sm">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <i class="fas fa-star" aria-hidden="true"></i>
               </div>
             </div>
           </div>
@@ -418,28 +418,28 @@ include 'includes/index-header.php';
           <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4 md:mb-6">İletişim Bilgileri</h3>
           <div class="space-y-3 sm:space-y-4 md:space-y-6">
             <div class="flex items-start">
-              <i class="fas fa-map-marker-alt text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 mt-1 flex-shrink-0"></i>
+              <i class="fas fa-map-marker-alt text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 mt-1 flex-shrink-0" aria-hidden="true"></i>
               <div>
                 <h4 class="font-bold text-gray-800 text-sm sm:text-base">Adres</h4>
                 <p class="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed">Örnek Mah. Örnek Cad. No: 123, İstanbul, Türkiye</p>
               </div>
             </div>
             <div class="flex items-center">
-              <i class="fas fa-phone text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0"></i>
+              <i class="fas fa-phone text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0" aria-hidden="true"></i>
               <div>
                 <h4 class="font-bold text-gray-800 text-sm sm:text-base">Telefon</h4>
                 <p class="text-gray-600 text-xs sm:text-sm md:text-base">0212-12345678</p>
               </div>
             </div>
             <div class="flex items-center">
-              <i class="fas fa-envelope text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0"></i>
+              <i class="fas fa-envelope text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 flex-shrink-0" aria-hidden="true"></i>
               <div>
                 <h4 class="font-bold text-gray-800 text-sm sm:text-base">E-posta</h4>
                 <p class="text-gray-600 text-xs sm:text-sm md:text-base">info@carwash.com</p>
               </div>
             </div>
             <div class="flex items-start">
-              <i class="fas fa-clock text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 mt-1 flex-shrink-0"></i>
+              <i class="fas fa-clock text-blue-600 text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3 md:mr-4 mt-1 flex-shrink-0" aria-hidden="true"></i>
               <div>
                 <h4 class="font-bold text-gray-800 text-sm sm:text-base">Çalışma Saatleri</h4>
                 <p class="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed">Pazartesi - Cumartesi: 09:00 - 18:00</p>
@@ -457,22 +457,22 @@ include 'includes/index-header.php';
           <form class="space-y-3 sm:space-y-4 md:space-y-6">
             <div>
               <label for="contactName" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">Adınız Soyadınız</label>
-              <input type="text" id="contactName" placeholder="Adınız Soyadınız" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
+              <input type="text" id="contactName" name="contactName" placeholder="Adınız Soyadınız" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
             </div>
             <div>
               <label for="contactEmail" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">E-posta Adresiniz</label>
-              <input type="email" id="contactEmail" placeholder="email@example.com" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
+              <input type="email" id="contactEmail" name="contactEmail" placeholder="email@example.com" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
             </div>
             <div>
               <label for="contactSubject" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">Konu</label>
-              <input type="text" id="contactSubject" placeholder="Konu" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
+              <input type="text" id="contactSubject" name="contactSubject" placeholder="Konu" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
             </div>
             <div>
               <label for="contactMessage" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">Mesajınız</label>
-              <textarea id="contactMessage" rows="3" placeholder="Mesajınızı buraya yazın..." class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base resize-none md:rows-4"></textarea>
+              <textarea id="contactMessage" name="contactMessage" rows="3" placeholder="Mesajınızı buraya yazın..." required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base resize-none md:rows-4"></textarea>
             </div>
             <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all text-sm sm:text-base">
-              <i class="fas fa-paper-plane mr-2"></i>Mesajı Gönder
+              <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i>Mesajı Gönder
             </button>
           </form>
         </div>
