@@ -21,6 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
+// CSRF protection: verify token exists and matches session
+$token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+if (empty($_SESSION['csrf_token']) || !is_string($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
+    $_SESSION['error_message'] = 'Geçersiz CSRF tokeni. Lütfen sayfayı yenileyin ve tekrar deneyin.';
+    header('Location: Car_Wash_Registration.php');
+    exit();
+}
+
 try {
     // Get database connection using project's DB pattern
     $conn = getDBConnection();

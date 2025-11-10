@@ -88,7 +88,8 @@ include '../includes/header.php';
       ?>
     </div>
 
-    <form action="Car_Wash_Registration_process.php" method="POST" enctype="multipart/form-data" class="space-y-8">
+  <form action="Car_Wash_Registration_process.php" method="POST" enctype="multipart/form-data" class="space-y-8">
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
         <!-- Business Information Section -->
         <!-- Farsça: بخش اطلاعات کسب و کار. -->
         <!-- Türkçe: İşletme Bilgileri bölümü. -->

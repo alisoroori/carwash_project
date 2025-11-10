@@ -93,6 +93,12 @@ if ($is_logged_in) {
   include_once(__DIR__ . '/universal_styles.php');
   ?>
   
+  <?php
+  // Ensure the client-side CSRF helper is available for AJAX/fetch calls
+  $csrf_js_path = $base_url . '/frontend/js/csrf-helper.js';
+  echo "\n  <script defer src=\"{$csrf_js_path}\"></script>\n";
+  ?>
+  
   <style>
     /* Index Page Specific Header Styles */
     :root {

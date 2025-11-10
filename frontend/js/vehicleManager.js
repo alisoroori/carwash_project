@@ -172,13 +172,24 @@ function createVehicleManagerFactory() {
 }
 
 // Register with Alpine when it's available and also expose a window factory for backward compatibility
-document.addEventListener('alpine:init', function() {
-    if (typeof Alpine !== 'undefined' && Alpine.data) {
+// If Alpine is already present, register immediately. Otherwise listen for alpine:init.
+if (typeof Alpine !== 'undefined' && Alpine.data) {
+    try {
         Alpine.data('vehicleManager', function() {
             return createVehicleManagerFactory();
         });
+    } catch (e) {
+        console.error('vehicleManager: immediate Alpine.data registration failed', e);
     }
-});
+} else {
+    document.addEventListener('alpine:init', function() {
+        if (typeof Alpine !== 'undefined' && Alpine.data) {
+            Alpine.data('vehicleManager', function() {
+                return createVehicleManagerFactory();
+            });
+        }
+    });
+}
 
 // Backward-compatible factory for x-data="vehicleManager()" usage
 window.vehicleManager = function() {

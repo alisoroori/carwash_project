@@ -65,6 +65,9 @@ if (!isset($base_url)) {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Vehicle manager & local Alpine factories (load before Alpine so factories can register) -->
+    <script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
+    <script defer src="<?php echo $base_url; ?>/frontend/js/alpine-components.js"></script>
     <!-- Alpine.js for interactive components -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
@@ -617,7 +620,7 @@ if (!isset($base_url)) {
 
 <body 
     class="bg-gray-50 overflow-x-hidden flex flex-col min-h-screen" 
-    x-data="customerDashboard()"
+    x-data="(typeof customerDashboard !== 'undefined') ? customerDashboard() : { mobileMenuOpen: false, currentSection: 'dashboard', init(){} }"
     x-effect="mobileMenuOpen ? document.body.classList.add('menu-open') : document.body.classList.remove('menu-open')"
 >
 
@@ -910,6 +913,13 @@ if (!isset($base_url)) {
          ================================ -->
     <main class="flex-1 bg-gray-50" id="main-content">
         <div class="p-6 lg:p-8 max-w-7xl mx-auto">
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="mb-6">
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                        <?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         
         <!-- ========== DASHBOARD SECTION ========== -->
         <section x-show="currentSection === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6">
@@ -1008,7 +1018,7 @@ if (!isset($base_url)) {
         </section>
         
         <!-- ========== VEHICLES SECTION ========== -->
-        <section x-show="currentSection === 'vehicles'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" x-data="vehicleManager()" style="display: none;">
+    <section x-show="currentSection === 'vehicles'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing — using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">AraÃ§larÄ±m</h2>
                 <p class="text-gray-600">AraÃ§larÄ±nÄ±zÄ± yÃ¶netin</p>
@@ -1906,8 +1916,6 @@ if (!isset($base_url)) {
     });
 })();
 </script>
-
-<script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
 
 <script>
 // ================================

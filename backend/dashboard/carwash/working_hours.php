@@ -66,6 +66,7 @@ while ($row = $working_hours->fetch_assoc()) {
 
         <form id="workingHoursForm" action="process_working_hours.php" method="POST"
             class="bg-white rounded-lg shadow-md p-6">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
 
             <?php
             $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];

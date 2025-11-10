@@ -16,6 +16,16 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'carwash') {
     exit();
 }
 
+// CSRF protection: ensure POST requests include a valid token
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (empty($_SESSION['csrf_token']) || !is_string($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Geçersiz CSRF tokeni. Lütfen sayfayı yenileyin ve tekrar deneyin.']);
+        exit();
+    }
+}
+
 try {
     // Start transaction
     $conn->begin_transaction();

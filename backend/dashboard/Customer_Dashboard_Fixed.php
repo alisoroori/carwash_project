@@ -251,6 +251,13 @@ $current_page = 'dashboard';
      ================================ -->
 <main class="pt-16 lg:ml-72 min-h-screen bg-gray-50">
     <div class="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="mb-6">
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                    <?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?>
+                </div>
+            </div>
+        <?php endif; ?>
         
         <!-- ========== DASHBOARD SECTION ========== -->
         <section 
@@ -353,7 +360,7 @@ $current_page = 'dashboard';
             x-show="currentSection === 'vehicles'" 
             x-transition 
             class="space-y-6" 
-            x-data="vehicleManager()" 
+            x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing — using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" 
             style="display: none;"
         >
             <div class="mb-8">
@@ -538,20 +545,20 @@ $current_page = 'dashboard';
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="input-label">Ad Soyad</label>
-                            <input type="text" value="<?php echo htmlspecialchars($user_name); ?>" class="input-field">
+                            <label for="profile_name_fixed" class="input-label">Ad Soyad</label>
+                            <input id="profile_name_fixed" name="name" type="text" value="<?php echo htmlspecialchars($user_name); ?>" class="input-field">
                         </div>
                         <div>
-                            <label class="input-label">E-posta</label>
-                            <input type="email" value="<?php echo htmlspecialchars($user_email); ?>" class="input-field">
+                            <label for="profile_email_fixed" class="input-label">E-posta</label>
+                            <input id="profile_email_fixed" name="email" type="email" value="<?php echo htmlspecialchars($user_email); ?>" class="input-field">
                         </div>
                         <div>
-                            <label class="input-label">Telefon</label>
-                            <input type="tel" placeholder="+90 555 123 45 67" class="input-field">
+                            <label for="profile_phone_fixed" class="input-label">Telefon</label>
+                            <input id="profile_phone_fixed" name="phone" type="tel" placeholder="+90 555 123 45 67" class="input-field">
                         </div>
                         <div>
-                            <label class="input-label">Şehir</label>
-                            <input type="text" placeholder="İstanbul" class="input-field">
+                            <label for="profile_city_fixed" class="input-label">Şehir</label>
+                            <input id="profile_city_fixed" name="city" type="text" placeholder="İstanbul" class="input-field">
                         </div>
                     </div>
                     <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
@@ -594,8 +601,6 @@ $current_page = 'dashboard';
         
     </div>
 </main>
-
-<script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
 
 </body>
 </html>

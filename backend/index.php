@@ -3,6 +3,62 @@
 // Set page-specific variables for the index header
 $page_title = 'CarWash - En İyi Online Araç Yıkama Rezervasyon Platformu';
 $current_page = 'home';
+// Start session and ensure CSRF token exists (idempotent)
+if (session_status() !== PHP_SESSION_ACTIVE) {
+  session_start();
+}
+if (empty($_SESSION['csrf_token'])) {
+  try {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+  } catch (Exception $e) {
+    // Fallback when random_bytes is not available
+    $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
+  }
+}
+
+// Handle contact form submission (POST) securely
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['__form']) && $_POST['__form'] === 'contact') {
+  // Merge JSON body if necessary (idempotent)
+  $raw = @file_get_contents('php://input');
+  $data = json_decode($raw, true);
+  if (is_array($data)) {
+    foreach ($data as $k => $v) {
+      if (!isset($_POST[$k])) $_POST[$k] = $v;
+    }
+  }
+
+  $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+  if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+    $_SESSION['flash_error'] = 'CSRF doğrulaması başarısız. Lütfen sayfayı yenileyip tekrar deneyin.';
+    header('Location: ' . $_SERVER['REQUEST_URI']);
+    exit;
+  }
+
+  // Sanitize inputs
+  $name = trim($_POST['contactName'] ?? '');
+  $email = trim($_POST['contactEmail'] ?? '');
+  $subject = trim($_POST['contactSubject'] ?? '');
+  $message = trim($_POST['contactMessage'] ?? '');
+
+  $errors = [];
+  if ($name === '') $errors[] = 'Adınızı girin.';
+  if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Geçerli bir e-posta adresi girin.';
+  if ($subject === '') $errors[] = 'Konu girin.';
+  if ($message === '') $errors[] = 'Mesajınızı yazın.';
+
+  if (!empty($errors)) {
+    $_SESSION['flash_error'] = implode(' ', $errors);
+    header('Location: ' . $_SERVER['REQUEST_URI']);
+    exit;
+  }
+
+  // At this point you would typically send an email or save to DB.
+  // For now we store a success flash message.
+  $_SESSION['flash_success'] = 'Mesajınız alındı. En kısa sürede sizinle iletişime geçeceğiz.';
+  // Redirect to avoid form resubmission
+  header('Location: ' . $_SERVER['REQUEST_URI']);
+  exit;
+}
 
 // Include the specialized index header
 include 'includes/index-header.php';
@@ -398,6 +454,25 @@ include 'includes/index-header.php';
   <!-- Farsça: بخش تماس. -->
   <!-- Türkçe: İletişim Bölümü. -->
   <!-- English: Contact Section. -->
+  <?php
+  // Display flash messages set by form handlers (if any)
+  if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+  if (!empty($_SESSION['flash_success']) || !empty($_SESSION['flash_error'])):
+  ?>
+  <div class="container mx-auto px-4 mt-6">
+    <?php if (!empty($_SESSION['flash_success'])): ?>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <?php echo htmlspecialchars($_SESSION['flash_success']); unset($_SESSION['flash_success']); ?>
+      </div>
+    <?php endif; ?>
+    <?php if (!empty($_SESSION['flash_error'])): ?>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <?php echo htmlspecialchars($_SESSION['flash_error']); unset($_SESSION['flash_error']); ?>
+      </div>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
+
   <section id="contact" class="py-12 sm:py-16 md:py-20 bg-white">
     <div class="container mx-auto px-4">
       <section class="text-center mb-8 sm:mb-12 md:mb-16 animate-fade-in-up">
@@ -452,24 +527,26 @@ include 'includes/index-header.php';
         <!-- Farsça: فرم تماس. -->
         <!-- Türkçe: İletişim Formu. -->
         <!-- English: Contact Form. -->
-        <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg animate-fade-in-up" style="animation-delay: 0.2s;">
+  <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg animate-fade-in-up">
           <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4 md:mb-6">Mesaj Gönderin</h3>
-          <form class="space-y-3 sm:space-y-4 md:space-y-6">
+          <form class="space-y-3 sm:space-y-4 md:space-y-6" method="post" action="" name="contactForm">
+            <input type="hidden" name="__form" value="contact">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
             <div>
               <label for="contactName" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">Adınız Soyadınız</label>
-              <input type="text" id="contactName" placeholder="Adınız Soyadınız" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
+              <input type="text" id="contactName" name="contactName" placeholder="Adınız Soyadınız" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
             </div>
             <div>
               <label for="contactEmail" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">E-posta Adresiniz</label>
-              <input type="email" id="contactEmail" placeholder="email@example.com" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
+              <input type="email" id="contactEmail" name="contactEmail" placeholder="email@example.com" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
             </div>
             <div>
               <label for="contactSubject" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">Konu</label>
-              <input type="text" id="contactSubject" placeholder="Konu" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
+              <input type="text" id="contactSubject" name="contactSubject" placeholder="Konu" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
             </div>
             <div>
               <label for="contactMessage" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">Mesajınız</label>
-              <textarea id="contactMessage" rows="3" placeholder="Mesajınızı buraya yazın..." class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base resize-none md:rows-4"></textarea>
+              <textarea id="contactMessage" name="contactMessage" rows="3" placeholder="Mesajınızı buraya yazın..." class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base resize-none md:rows-4"></textarea>
             </div>
             <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all text-sm sm:text-base">
               <i class="fas fa-paper-plane mr-2"></i>Mesajı Gönder
