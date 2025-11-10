@@ -649,7 +649,7 @@ if (!isset($base_url)) {
             <div class="flex items-center space-x-3">
             <!-- Main header logo placed before the site title -->
             <div>
-                <img id="siteLogo" src="/carwash_project/backend/logo01.png" alt="MyCar logo" class="logo-image object-contain rounded-xl shadow-md" />
+                <img id="siteLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="MyCar logo" class="logo-image object-contain rounded-xl shadow-md header-logo sidebar-logo" />
             </div>
             <div class="hidden sm:block">
                 <h1 class="text-lg font-bold text-gray-900 leading-tight">MyCar</h1>

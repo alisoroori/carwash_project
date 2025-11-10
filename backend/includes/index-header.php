@@ -906,7 +906,7 @@ if ($is_logged_in) {
       <div class="site-logo" style="display: flex; align-items: center; gap: 0.5rem; min-width:0;">
         <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none; min-width:0;" class="flex items-center">
           <!-- Use same logo as dashboard headers to ensure consistent branding -->
-          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image flex-shrink-0">
+          <img src="<?php echo htmlspecialchars($logo_src ?? ($base_url . '/backend/logo01.png'), ENT_QUOTES, 'UTF-8'); ?>" alt="Site Logo" class="logo-image flex-shrink-0 header-logo">
           <div class="logo-text-container min-w-0 ml-2">
             <span class="logo-text-inline block truncate" style="font-size: 1.5rem; font-weight: 400; font-family: 'Momo Signature', cursive; color: #019be5;">MYCAR</span>
           </div>

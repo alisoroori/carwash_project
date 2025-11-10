@@ -306,6 +306,11 @@ try {
         $_SESSION['user_email'] = $email;
         $_SESSION['role'] = 'carwash';
         $_SESSION['carwash_id'] = $carwash_id;
+        // If a logo was uploaded, expose its web path in the session so headers/sidebars can use it
+        if (!empty($logo_image)) {
+            // Store web-accessible path (keeps behaviour consistent with other handlers)
+            $_SESSION['logo_path'] = '/carwash_project/backend/uploads/' . $logo_image;
+        }
         
         // Set success message following project messaging patterns
         $_SESSION['registration_success'] = true;

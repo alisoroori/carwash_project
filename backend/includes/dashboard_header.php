@@ -89,6 +89,33 @@ switch ($dashboard_type) {
 
 // Navigation menu removed - header now displays only logo and user menu
 $navigation_menu = array();
+
+// Determine shared logo path (prefer session, then DB lookup, otherwise default)
+$default_logo = $base_url . '/backend/logo01.png';
+$logo_src = $default_logo;
+if (!empty($_SESSION['logo_path'])) {
+    $logo_src = $_SESSION['logo_path'];
+} else {
+    $cwId = $_SESSION['carwash_id'] ?? null;
+    $uid = $_SESSION['user_id'] ?? null;
+    if ($cwId || $uid) {
+        try {
+            if (class_exists(\App\Classes\Database::class)) {
+                $db = \App\Classes\Database::getInstance();
+                $pdo = method_exists($db, 'getPdo') ? $db->getPdo() : $db;
+                $stmt = $pdo->prepare('SELECT logo_image FROM carwash_profiles WHERE id = :id OR user_id = :uid LIMIT 1');
+                $stmt->execute([':id' => $cwId ?: 0, ':uid' => $uid ?: 0]);
+                $logoName = $stmt->fetchColumn();
+                if ($logoName) {
+                    $logo_src = '/carwash_project/backend/uploads/' . $logoName;
+                    $_SESSION['logo_path'] = $logo_src;
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('Dashboard header logo lookup failed: ' . $e->getMessage());
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -588,7 +615,7 @@ $navigation_menu = array();
                     </div>
                     <div class="flex flex-col">
                         
-                       <img src="../logo01.png" alt="Site Logo" class="logo-image">
+                       <img src="<?php echo htmlspecialchars($logo_src, ENT_QUOTES, 'UTF-8'); ?>" alt="Site Logo" class="logo-image header-logo">
                          <span class="dashboard-badge">
                             <span class="logo-text">MYCAR</span> <?php echo $dashboard_label; ?>
                         </span>

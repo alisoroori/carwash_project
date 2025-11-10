@@ -1107,8 +1107,8 @@ include '../includes/dashboard_header.php';
                         <input type="number" id="carwashPrice" required>
                     </div>
                     <div class="form-group">
-                        <label>Durum</label>
-                        <select id="carwashStatus" required>
+                        <label for="carwashStatus">Durum</label>
+                        <select id="carwashStatus" required title="Durum">
                             <option value="active">Aktif</option>
                             <option value="inactive">Pasif</option>
                             <option value="maintenance">Bakımda</option>

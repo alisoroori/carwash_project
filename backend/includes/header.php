@@ -52,6 +52,37 @@ $current_page = isset($current_page) ? $current_page : '';
 $is_logged_in = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 $user_name = $is_logged_in ? ($_SESSION['name'] ?? $_SESSION['full_name'] ?? 'User') : '';
 $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
+
+// Determine site logo source (shared): prefer session value, then DB lookup by carwash_id/user_id, otherwise fallback
+$default_logo = $base_url . '/backend/logo01.png';
+$logo_src = $default_logo;
+if (!empty($_SESSION['logo_path'])) {
+  $logo_src = $_SESSION['logo_path'];
+} else {
+  // Try to read from DB if carwash_id or user_id present
+  $cwId = $_SESSION['carwash_id'] ?? null;
+  $uid = $_SESSION['user_id'] ?? null;
+  if ($cwId || $uid) {
+    try {
+      if (class_exists(\App\Classes\Database::class)) {
+        $db = \App\Classes\Database::getInstance();
+        $pdo = method_exists($db, 'getPdo') ? $db->getPdo() : $db;
+        $stmt = $pdo->prepare('SELECT logo_image FROM carwash_profiles WHERE id = :id OR user_id = :uid LIMIT 1');
+        $stmt->execute([':id' => $cwId ?: 0, ':uid' => $uid ?: 0]);
+        $logoName = $stmt->fetchColumn();
+        if ($logoName) {
+          $logo_src = '/carwash_project/backend/uploads/' . $logoName;
+          // cache in session for subsequent requests
+          $_SESSION['logo_path'] = $logo_src;
+        }
+      }
+    } catch (Throwable $e) {
+      // don't break the page; fall back to default logo
+      error_log('Logo lookup failed: ' . $e->getMessage());
+      $logo_src = $default_logo;
+    }
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -100,6 +131,10 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
   <script defer src="<?php echo $base_url; ?>/frontend/js/alpine-components.js"></script>
   <!-- CSRF helper: reads meta token and appends to fetch/XHR and forms -->
   <script defer src="<?php echo $base_url; ?>/frontend/js/csrf-helper.js"></script>
+  <!-- Accessibility: add titles/aria-labels to icon-only buttons at runtime -->
+  <script defer src="<?php echo $base_url; ?>/frontend/js/accessible-button-labels.js"></script>
+  <!-- Accessibility: add titles/aria-labels to selects missing accessible names -->
+  <script defer src="<?php echo $base_url; ?>/frontend/js/accessible-select-labels.js"></script>
   
   <?php 
   // Include Universal CSS Styles for entire website
@@ -820,7 +855,7 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
         <!-- Logo -->
         <div class="site-logo" style="display: flex; align-items: center;">
           <a href="<?php echo $home_url; ?>" style="display: flex; align-items: center; text-decoration: none;">
-            <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="Site Logo" class="logo-image">
+            <img src="<?php echo htmlspecialchars($logo_src, ENT_QUOTES, 'UTF-8'); ?>" alt="Site Logo" class="logo-image header-logo">
             <span style=" font-size: 2rem; font-weight: 400; font-family: 'momo-signature-regular'; color: #194bb6ff;">MYCAR</span>
           </a>
         </div>

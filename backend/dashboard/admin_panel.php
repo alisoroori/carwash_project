@@ -5216,8 +5216,8 @@ include '../includes/dashboard_header.php';
                         <input type="number" id="carwashPrice" required>
                     </div>
                     <div class="form-group">
-                        <label>Durum</label>
-                        <select id="carwashStatus" required>
+                        <label for="carwashStatus">Durum</label>
+                        <select id="carwashStatus" required title="Durum">
                             <option value="active">Aktif</option>
                             <option value="inactive">Pasif</option>
                             <option value="maintenance">Bakımda</option>
@@ -5463,8 +5463,8 @@ include '../includes/dashboard_header.php';
                     </div>
                     
                     <div class="form-group">
-                        <label>Rol *</label>
-                        <select name="role_id" id="userRole" required>
+                        <label for="userRole">Rol *</label>
+                        <select name="role_id" id="userRole" required title="Rol">
                             <option value="">Rol Seçin</option>
                             <option value="1">SuperAdmin - Tam Yetki</option>
                             <option value="2">Admin - Yönetici</option>
@@ -5476,8 +5476,8 @@ include '../includes/dashboard_header.php';
                     </div>
                     
                     <div class="form-group">
-                        <label>Durum</label>
-                        <select name="status" id="userStatus">
+                        <label for="userStatus">Durum</label>
+                        <select name="status" id="userStatus" title="Durum">
                             <option value="active">Aktif</option>
                             <option value="inactive">Pasif</option>
                             <option value="suspended">Askıya Alınmış</option>

@@ -1785,7 +1785,7 @@ include '../includes/dashboard_header.php';
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Logosu</label>
                   <div class="flex items-center space-x-4">
-                    <img id="currentLogo" src="https://via.placeholder.com/80x80?text=Logo" alt="Current Logo" class="w-20 h-20 rounded-lg object-cover border">
+                    <img id="currentLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Current Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
                     <input type="file" id="logoUpload" class="hidden" accept="image/*" onchange="previewLogo(event)">
                     <button type="button" onclick="document.getElementById('logoUpload').click()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
                       <i class="fas fa-upload mr-2"></i>Logo Yükle
@@ -2276,6 +2276,14 @@ include '../includes/dashboard_header.php';
         reader.onload = function() {
           const output = document.getElementById('currentLogo');
           output.src = reader.result;
+          // Update header and sidebar logos in-place so preview reflects across UI
+          try {
+            document.querySelectorAll('.header-logo, .sidebar-logo, img#siteLogo').forEach(function(img) {
+              img.src = reader.result;
+            });
+          } catch (e) {
+            console.warn('Could not update header/sidebar logos during preview:', e);
+          }
         };
         reader.readAsDataURL(event.target.files[0]);
       }
