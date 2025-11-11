@@ -33,6 +33,27 @@ $contact_url = $base_url . '/backend/contact.php';
 $signup_url = $base_url . '/backend/auth/Customer_Registration.php';
 $login_url = $base_url . '/backend/auth/login.php';
 
+// Dashboard URL resolution (role-aware)
+$customer_dashboard = $base_url . '/backend/dashboard/Customer_Dashboard.php';
+$carwash_dashboard = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
+$admin_dashboard = $base_url . '/backend/dashboard/admin_panel.php';
+$dashboard_url = $customer_dashboard;
+if ($is_logged_in) {
+  $sessRole = $_SESSION['role'] ?? strtolower($_SESSION['user_type'] ?? '');
+  if (class_exists(\App\Classes\Auth::class) && method_exists(\App\Classes\Auth::class, 'hasRole')) {
+    try {
+      if (\App\Classes\Auth::hasRole('carwash')) $dashboard_url = $carwash_dashboard;
+      elseif (\App\Classes\Auth::hasRole('admin')) $dashboard_url = $admin_dashboard;
+    } catch (Throwable $e) {
+      if ($sessRole === 'carwash') $dashboard_url = $carwash_dashboard;
+      elseif ($sessRole === 'admin') $dashboard_url = $admin_dashboard;
+    }
+  } else {
+    if ($sessRole === 'carwash') $dashboard_url = $carwash_dashboard;
+    elseif ($sessRole === 'admin') $dashboard_url = $admin_dashboard;
+  }
+}
+
 // Set defaults
 $page_title = isset($page_title) ? $page_title : 'CarWash - En Ä°yi Online AraÃ§ YÄ±kama Rezervasyon Platformu';
 
@@ -963,7 +984,7 @@ if ($is_logged_in) {
                   <p class="text-xs md:text-sm font-medium text-gray-900 truncate"><?php echo htmlspecialchars($user_name); ?></p>
                   <p class="text-xs text-gray-500 truncate"><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></p>
                 </div>
-                <a href="<?php echo $base_url; ?>/backend/dashboard/Customer_Dashboard.php" class="dropdown-item">
+                <a href="<?php echo $dashboard_url; ?>" class="dropdown-item">
                   <i class="fas fa-tachometer-alt text-blue-600 text-xs md:text-sm"></i>
                   <span class="text-xs md:text-sm">Dashboard</span>
                 </a>
@@ -1030,7 +1051,7 @@ if ($is_logged_in) {
                   <p class="text-xs sm:text-sm text-gray-500">HoÅŸ geldiniz</p>
                 </div>
               </div>
-              <a href="<?php echo $base_url; ?>/backend/dashboard/Customer_Dashboard.php" class="mobile-nav-link">
+              <a href="<?php echo $dashboard_url; ?>" class="mobile-nav-link">
                 <i class="fas fa-tachometer-alt mr-3 flex-shrink-0"></i>
                 <span>Dashboard</span>
               </a>
