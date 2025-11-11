@@ -862,15 +862,15 @@ if (!empty($_SESSION['logo_path'])) {
 
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center space-x-2 lg:space-x-4">
-          <a href="<?php echo $home_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2">
+          <a href="<?php echo $home_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2" title="Ana Sayfa" aria-label="Ana Sayfa">
             <i class="fas fa-home text-xs lg:text-sm"></i>
             <span>Ana Sayfa</span>
           </a>
-          <a href="<?php echo $about_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2">
+          <a href="<?php echo $about_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2" title="Hakkımızda" aria-label="Hakkımızda">
             <i class="fas fa-info-circle text-xs lg:text-sm"></i>
             <span>HakkÄ±mÄ±zda</span>
           </a>
-          <a href="<?php echo $contact_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2">
+          <a href="<?php echo $contact_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2" title="İletişim" aria-label="İletişim">
             <i class="fas fa-envelope text-xs lg:text-sm"></i>
             <span>Ä°letiÅŸim</span>
           </a>
@@ -896,10 +896,10 @@ if (!empty($_SESSION['logo_path'])) {
                     <p class="text-sm font-medium text-gray-900 truncate"><?php echo htmlspecialchars($user_name); ?></p>
                     <p class="text-xs text-gray-500 truncate"><?php echo htmlspecialchars($user_email); ?></p>
                   </div>
-                  <a href="<?php echo $dashboard_url; ?>" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                  <a href="<?php echo $dashboard_url; ?>" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" title="Dashboard" aria-label="Dashboard">
                     <i class="fas fa-tachometer-alt mr-2 text-blue-600"></i>Dashboard
                   </a>
-                  <a href="<?php echo $logout_url; ?>" class="block px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">
+                  <a href="<?php echo $logout_url; ?>" class="block px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200" title="Çıkış Yap" aria-label="Çıkış Yap">
                     <i class="fas fa-sign-out-alt mr-2"></i>Ã‡Ä±kÄ±ÅŸ Yap
                   </a>
                 </div>

@@ -37,14 +37,14 @@ $currentUser = getCurrentUser();
                 </p>
                 <?php endif; ?>
             </div>
-            <nav class="p-4">
-                <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50 bg-blue-50 text-blue-600 font-medium mb-2">
+                <nav class="p-4">
+                <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50 bg-blue-50 text-blue-600 font-medium mb-2" title="Genel Bakış" aria-label="Genel Bakış">
                     <i class="fas fa-chart-line mr-2"></i> Genel BakÄ±ÅŸ
                 </a>
-                <a href="reports.php" class="block py-2 px-4 rounded hover:bg-blue-50 mb-2">
+                <a href="reports.php" class="block py-2 px-4 rounded hover:bg-blue-50 mb-2" title="Raporlar" aria-label="Raporlar">
                     <i class="fas fa-file-alt mr-2"></i> Raporlar
                 </a>
-                <a href="analytics.php" class="block py-2 px-4 rounded hover:bg-blue-50 mb-2">
+                <a href="analytics.php" class="block py-2 px-4 rounded hover:bg-blue-50 mb-2" title="Analizler" aria-label="Analizler">
                     <i class="fas fa-chart-bar mr-2"></i> Analizler
                 </a>
                 

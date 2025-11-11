@@ -55,9 +55,9 @@ try {
         <nav class="dashboard-nav">
             <h1>My Dashboard</h1>
             <ul>
-                <li><a href="#bookings">My Bookings</a></li>
-                <li><a href="#profile">Profile</a></li>
-                <li><a href="#reviews">My Reviews</a></li>
+                <li><a href="#bookings" title="My Bookings" aria-label="My Bookings">My Bookings</a></li>
+                <li><a href="#profile" title="Profile" aria-label="Profile">Profile</a></li>
+                <li><a href="#reviews" title="My Reviews" aria-label="My Reviews">My Reviews</a></li>
             </ul>
         </nav>
 
@@ -69,7 +69,7 @@ try {
                     <?php if (empty($bookings)): ?>
                         <div class="bg-white rounded-lg shadow-md p-6 text-center">
                             <p class="text-gray-600">You have no bookings yet.</p>
-                            <a href="new_booking.php" class="inline-block mt-4 text-blue-600 hover:text-blue-800">
+                            <a href="new_booking.php" class="inline-block mt-4 text-blue-600 hover:text-blue-800" title="Create a booking" aria-label="Create a booking">
                                 <i class="fas fa-plus"></i> Create a booking
                             </a>
                         </div>
@@ -109,7 +109,7 @@ try {
                         <label for="phone">Phone</label>
                         <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($userProfile['phone'] ?? '') ?>">
                     </div>
-                    <button type="submit" class="btn-primary">Update Profile</button>
+                    <button type="submit" class="btn-primary" title="Update Profile" aria-label="Update Profile">Update Profile</button>
                 </form>
             </section>
         </main>

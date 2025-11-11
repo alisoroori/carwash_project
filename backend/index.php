@@ -182,11 +182,11 @@ include 'includes/index-header.php';
             Yakınınızdaki En İyi Araç Yıkama Hizmetleri
           </p>
           <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start max-w-lg mx-auto lg:mx-0">
-            <a href="auth/Customer_Registration.php" class="bg-white text-blue-600 px-4 sm:px-6 md:px-8 py-3 sm:py-3 md:py-4 rounded-lg font-bold hover:bg-gray-100 transition-all text-center animate-pulse-slow text-sm sm:text-base">
+            <a href="auth/Customer_Registration.php" class="bg-white text-blue-600 px-4 sm:px-6 md:px-8 py-3 sm:py-3 md:py-4 rounded-lg font-bold hover:bg-gray-100 transition-all text-center animate-pulse-slow text-sm sm:text-base" title="Müşteri Olarak Kayıt Ol" aria-label="Müşteri Olarak Kayıt Ol">
               <i class="fas fa-user-plus mr-2"></i>
               <span class="hidden sm:inline">Müşteri Olarak</span> Kayıt Ol
             </a>
-            <a href="auth/Car_Wash_Registration.php" class="border-2 border-white text-white px-4 sm:px-6 md:px-8 py-3 sm:py-3 md:py-4 rounded-lg font-bold hover:bg-white hover:text-blue-600 transition-all text-center text-sm sm:text-base">
+            <a href="auth/Car_Wash_Registration.php" class="border-2 border-white text-white px-4 sm:px-6 md:px-8 py-3 sm:py-3 md:py-4 rounded-lg font-bold hover:bg-white hover:text-blue-600 transition-all text-center text-sm sm:text-base" title="Hizmet Sağlayıcı Olarak Kayıt Ol" aria-label="Hizmet Sağlayıcı Olarak Kayıt Ol">
               <i class="fas fa-store mr-2"></i>
               <span class="hidden sm:inline">Hizmet Sağlayıcı Olarak</span> Kayıt Ol
             </a>
