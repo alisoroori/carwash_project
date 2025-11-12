@@ -35,6 +35,10 @@ $current_dir = dirname($_SERVER['PHP_SELF']);
 // Determine if this is a dashboard page
 $is_dashboard = isset($is_dashboard) ? $is_dashboard : (strpos($current_dir, '/dashboard') !== false);
 
+// Ensure $is_logged_in is defined to avoid PHP notices when header is included
+// Pages may set $is_logged_in before including this file; default to session check.
+$is_logged_in = isset($is_logged_in) ? $is_logged_in : (isset($_SESSION['user_id']) && !empty($_SESSION['user_id']));
+
 // Build navigation URLs
 $home_url = $base_url . '/backend/index.php';
 $about_url = $base_url . '/backend/about.php';
@@ -72,7 +76,7 @@ if ($is_logged_in) {
 }
 
 // Set defaults
-$page_title = isset($page_title) ? $page_title : 'CarWash - AraÃ§ YÄ±kama Rezervasyon Sistemi';
+$page_title = isset($page_title) ? $page_title : 'CarWash - Araç Yıkama Rezervasyon Sistemi';
 $current_page = isset($current_page) ? $current_page : '';
 
 // Check if user is logged in
@@ -297,6 +301,22 @@ if (!empty($_SESSION['logo_path'])) {
       -webkit-backdrop-filter: blur(20px);
     }
     
+    /* Hide mobile menu on desktop (md breakpoint and above) */
+    @media (min-width: 768px) {
+      .mobile-menu {
+        display: none !important;
+      }
+      
+      .mobile-menu-overlay {
+        display: none !important;
+      }
+      
+      /* Ensure desktop navigation is visible */
+      nav.hidden.md\:flex {
+        display: flex !important;
+      }
+    }
+    
     .mobile-menu.hiding {
       animation: slideUp 0.3s ease-in forwards;
     }
@@ -366,6 +386,13 @@ if (!empty($_SESSION['logo_path'])) {
       justify-content: center;
       border-radius: 8px;
       transition: all 0.2s ease;
+    }
+    
+    /* Hide mobile menu button on desktop (md breakpoint and above) */
+    @media (min-width: 768px) {
+      .mobile-menu-btn {
+        display: none !important;
+      }
     }
     
     .mobile-menu-btn:hover {
@@ -890,16 +917,16 @@ if (!empty($_SESSION['logo_path'])) {
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center space-x-2 lg:space-x-4">
           <a href="<?php echo $home_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2" title="Ana Sayfa" aria-label="Ana Sayfa">
-            <i class="fas fa-home text-xs lg:text-sm"></i>
+            <i class="fas fa-home text-blue-300 text-xs lg:text-sm"></i>
             <span>Ana Sayfa</span>
           </a>
           <a href="<?php echo $about_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2" title="Hakkımızda" aria-label="Hakkımızda">
-            <i class="fas fa-info-circle text-xs lg:text-sm"></i>
-            <span>HakkÄ±mÄ±zda</span>
+            <i class="fas fa-info-circle text-green-300 text-xs lg:text-sm"></i>
+            <span>Hakkımızda</span>
           </a>
           <a href="<?php echo $contact_url; ?>" class="nav-link text-white hover:text-blue-200 text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 flex items-center gap-2" title="İletişim" aria-label="İletişim">
-            <i class="fas fa-envelope text-xs lg:text-sm"></i>
-            <span>Ä°letiÅŸim</span>
+            <i class="fas fa-envelope text-red-300 text-xs lg:text-sm"></i>
+            <span>İletişim</span>
           </a>
         </nav>
 
@@ -924,10 +951,10 @@ if (!empty($_SESSION['logo_path'])) {
                     <p class="text-xs text-gray-500 truncate"><?php echo htmlspecialchars($user_email); ?></p>
                   </div>
                   <a href="<?php echo $dashboard_url; ?>" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" title="Dashboard" aria-label="Dashboard">
-                    <i class="fas fa-tachometer-alt mr-2 text-blue-600"></i>Dashboard
+                    <i class="fas fa-tachometer-alt mr-2 text-blue-500"></i>Gösterge Paneli
                   </a>
                   <a href="<?php echo $logout_url; ?>" class="block px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200" title="Çıkış Yap" aria-label="Çıkış Yap">
-                    <i class="fas fa-sign-out-alt mr-2"></i>Ã‡Ä±kÄ±ÅŸ Yap
+                    <i class="fas fa-sign-out-alt mr-2 text-red-500"></i>Çıkış Yap
                   </a>
                 </div>
               </div>
@@ -935,7 +962,7 @@ if (!empty($_SESSION['logo_path'])) {
           <?php endif; ?>
 
           <!-- Mobile Menu Button -->
-          <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg p-1.5" aria-label="MenÃ¼yÃ¼ AÃ§/Kapat" aria-expanded="false">
+          <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg p-1.5" aria-label="Menüyü Aç/Kapat" aria-expanded="false">
             <svg class="hamburger-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
@@ -953,26 +980,26 @@ if (!empty($_SESSION['logo_path'])) {
       <div class="container mx-auto px-4 py-5">
         <nav class="space-y-2">
           <a href="<?php echo $home_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
-            <i class="fas fa-home mr-3 text-white w-5 opacity-90"></i>
+            <i class="fas fa-home mr-3 text-blue-300 w-5 opacity-90"></i>
             <span>Ana Sayfa</span>
           </a>
           <a href="<?php echo $about_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
-            <i class="fas fa-info-circle mr-3 text-white w-5 opacity-90"></i>
-            <span>HakkÄ±mÄ±zda</span>
+            <i class="fas fa-info-circle mr-3 text-green-300 w-5 opacity-90"></i>
+            <span>Hakkımızda</span>
           </a>
           <a href="<?php echo $contact_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
-            <i class="fas fa-envelope mr-3 text-white w-5 opacity-90"></i>
-            <span>Ä°letiÅŸim</span>
+            <i class="fas fa-envelope mr-3 text-red-300 w-5 opacity-90"></i>
+            <span>İletişim</span>
           </a>
           <?php if ($is_logged_in): ?>
             <div class="border-t border-white border-opacity-30 pt-4 mt-4 space-y-2">
               <a href="<?php echo $dashboard_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-green-500 hover:bg-opacity-30 font-medium rounded-xl transition-all duration-200">
-                <i class="fas fa-tachometer-alt mr-3 text-white w-5 opacity-90"></i>
-                <span>Dashboard</span>
+                <i class="fas fa-tachometer-alt mr-3 text-blue-300 w-5 opacity-90"></i>
+                <span>Gösterge Paneli</span>
               </a>
               <a href="<?php echo $logout_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-red-500 hover:bg-opacity-30 font-medium rounded-xl transition-all duration-200">
-                <i class="fas fa-sign-out-alt mr-3 text-white w-5 opacity-90"></i>
-                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                <i class="fas fa-sign-out-alt mr-3 text-red-300 w-5 opacity-90"></i>
+                <span>Çıkış Yap</span>
               </a>
             </div>
           <?php endif; ?>
@@ -997,21 +1024,21 @@ if (!empty($_SESSION['logo_path'])) {
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center space-x-2 lg:space-x-4">
           <a href="<?php echo $home_url; ?>" class="nav-link <?php echo $current_page === 'home' ? 'active' : ''; ?> text-white font-medium text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 hover:text-blue-200 transition-all duration-200 flex items-center gap-2">
-            <i class="fas fa-home text-xs lg:text-sm"></i>
+            <i class="fas fa-home text-blue-300 text-xs lg:text-sm"></i>
             <span>Ana Sayfa</span>
           </a>
           <a href="<?php echo $about_url; ?>" class="nav-link <?php echo $current_page === 'about' ? 'active' : ''; ?> text-white font-medium text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 hover:text-blue-200 transition-all duration-200 flex items-center gap-2">
-            <i class="fas fa-info-circle text-xs lg:text-sm"></i>
-            <span>HakkÄ±mÄ±zda</span>
+            <i class="fas fa-info-circle text-green-300 text-xs lg:text-sm"></i>
+            <span>Hakkımızda</span>
           </a>
           <a href="<?php echo $contact_url; ?>" class="nav-link <?php echo $current_page === 'contact' ? 'active' : ''; ?> text-white font-medium text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 hover:text-blue-200 transition-all duration-200 flex items-center gap-2">
-            <i class="fas fa-envelope text-xs lg:text-sm"></i>
-            <span>Ä°letiÅŸim</span>
+            <i class="fas fa-envelope text-red-300 text-xs lg:text-sm"></i>
+            <span>İletişim</span>
           </a>
           <?php if ($is_logged_in): ?>
             <a href="<?php echo $dashboard_url; ?>" class="nav-link <?php echo $current_page === 'dashboard' ? 'active' : ''; ?> text-white font-medium text-sm lg:text-base px-2 lg:px-3 py-1.5 rounded-lg hover:bg-white hover:bg-opacity-10 hover:text-blue-200 transition-all duration-200 flex items-center gap-2">
-              <i class="fas fa-tachometer-alt text-xs lg:text-sm"></i>
-              <span>Dashboard</span>
+              <i class="fas fa-tachometer-alt text-purple-300 text-xs lg:text-sm"></i>
+              <span>Gösterge Paneli</span>
             </a>
           <?php endif; ?>
         </nav>
@@ -1037,10 +1064,10 @@ if (!empty($_SESSION['logo_path'])) {
                     <p class="text-xs text-gray-500 truncate"><?php echo htmlspecialchars($user_email); ?></p>
                   </div>
                   <a href="<?php echo $dashboard_url; ?>" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                    <i class="fas fa-tachometer-alt mr-2 text-blue-600 w-4"></i>Dashboard
+                    <i class="fas fa-tachometer-alt mr-2 text-blue-500 w-4"></i>Gösterge Paneli
                   </a>
                   <a href="<?php echo $logout_url; ?>" class="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">
-                    <i class="fas fa-sign-out-alt mr-2 w-4"></i>Ã‡Ä±kÄ±ÅŸ Yap
+                    <i class="fas fa-sign-out-alt mr-2 text-red-500 w-4"></i>Çıkış Yap
                   </a>
                 </div>
               </div>
@@ -1048,7 +1075,7 @@ if (!empty($_SESSION['logo_path'])) {
           <?php endif; ?>
 
           <!-- Mobile Menu Button -->
-          <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 rounded-lg p-1.5" aria-label="MenÃ¼yÃ¼ AÃ§/Kapat" aria-expanded="false">
+          <button onclick="toggleMobileMenu()" class="mobile-menu-btn md:hidden text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 rounded-lg p-1.5" aria-label="Menüyü Aç/Kapat" aria-expanded="false">
             <svg class="hamburger-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
@@ -1066,27 +1093,27 @@ if (!empty($_SESSION['logo_path'])) {
       <div class="container mx-auto px-4 py-5">
         <nav class="space-y-2">
           <a href="<?php echo $home_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
-            <i class="fas fa-home mr-3 text-white w-5 opacity-90"></i>
+            <i class="fas fa-home mr-3 text-blue-300 w-5 opacity-90"></i>
             <span>Ana Sayfa</span>
           </a>
           <a href="<?php echo $about_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
-            <i class="fas fa-info-circle mr-3 text-white w-5 opacity-90"></i>
-            <span>HakkÄ±mÄ±zda</span>
+            <i class="fas fa-info-circle mr-3 text-green-300 w-5 opacity-90"></i>
+            <span>Hakkımızda</span>
           </a>
           <a href="<?php echo $contact_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-white hover:bg-opacity-20 font-medium rounded-xl transition-all duration-200">
-            <i class="fas fa-envelope mr-3 text-white w-5 opacity-90"></i>
-            <span>Ä°letiÅŸim</span>
+            <i class="fas fa-envelope mr-3 text-red-300 w-5 opacity-90"></i>
+            <span>İletişim</span>
           </a>
           
           <?php if ($is_logged_in): ?>
             <div class="border-t border-white border-opacity-30 pt-4 mt-4 space-y-2">
               <a href="<?php echo $dashboard_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-green-500 hover:bg-opacity-30 font-medium rounded-xl transition-all duration-200">
-                <i class="fas fa-tachometer-alt mr-3 text-white w-5 opacity-90"></i>
-                <span>Dashboard</span>
+                <i class="fas fa-tachometer-alt mr-3 text-purple-300 w-5 opacity-90"></i>
+                <span>Gösterge Paneli</span>
               </a>
               <a href="<?php echo $logout_url; ?>" class="mobile-nav-item block text-white hover:text-white hover:bg-red-500 hover:bg-opacity-30 font-medium rounded-xl transition-all duration-200">
-                <i class="fas fa-sign-out-alt mr-3 text-white w-5 opacity-90"></i>
-                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                <i class="fas fa-sign-out-alt mr-3 text-red-300 w-5 opacity-90"></i>
+                <span>Çıkış Yap</span>
               </a>
             </div>
           <?php endif; ?>
@@ -1319,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const skipLink = document.createElement('a');
       skipLink.href = '#main-content';
       skipLink.className = 'skip-link sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded z-50';
-      skipLink.textContent = 'Ana iÃ§eriÄŸe geÃ§';
+      skipLink.textContent = 'Ana içeriğe geç';
       document.body.insertBefore(skipLink, document.body.firstChild);
     }
     
@@ -1362,7 +1389,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty('--vh', `${vh}px`);
   
-  console.log('ðŸŽ‰ Universal Header: Enhanced responsive functionality loaded successfully!');
+  console.log('🎉 Universal Header: Enhanced responsive functionality loaded successfully!');
 });
 
 // Legacy support for older toggle function calls

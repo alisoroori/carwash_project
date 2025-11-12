@@ -366,10 +366,11 @@ include '../includes/header.php';
         <p class="text-sm sm:text-base text-gray-600 px-4">Hesabınızı oluşturun ve araç yıkama hizmetlerimizden yararlanın</p>
       </div>
 
-    <!-- Fixed form action path and added CSRF token -->
-    <form action="Customer_Registration_process.php" method="POST" class="space-y-8">
-        <!-- Add CSRF Token -->
-        <label for="auto_label_56" class="sr-only">Csrf token</label><label for="auto_label_56" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ? id="auto_label_56">">
+  <!-- Fixed form action path and added CSRF token -->
+  <form action="Customer_Registration_process.php" method="POST" class="space-y-8">
+    <!-- Add CSRF Token -->
+    <label for="auto_label_56" class="sr-only">Csrf token</label>
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>" id="auto_label_56">
         
         <!-- Personal Information Section -->
         <!-- Farsça: بخش اطلاعات شخصی. -->

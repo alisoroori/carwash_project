@@ -937,24 +937,24 @@ if ($is_logged_in) {
       <!-- Desktop Navigation -->
       <nav class="hidden md:flex lg:flex items-center gap-1 md:gap-2 lg:gap-3 xl:gap-4">
         <a href="#home" class="nav-link active">
-          <i class="fas fa-home mr-1 md:mr-2"></i>
+          <i class="fas fa-home mr-1 md:mr-2 text-blue-500"></i>
           <span class="hidden lg:inline">Ana Sayfa</span>
           <span class="lg:hidden">Ana</span>
         </a>
         <a href="#services" class="nav-link">
-          <i class="fas fa-cogs mr-1 md:mr-2"></i>
+          <i class="fas fa-cogs mr-1 md:mr-2 text-purple-500"></i>
           <span class="hidden lg:inline">Hizmetlerimiz</span>
           <span class="lg:hidden">Hizmet</span>
         </a>
         <a href="#about" class="nav-link">
-          <i class="fas fa-info-circle mr-1 md:mr-2"></i>
-          <span class="hidden lg:inline">HakkÄ±mÄ±zda</span>
-          <span class="lg:hidden">HakkÄ±nda</span>
+          <i class="fas fa-info-circle mr-1 md:mr-2 text-green-500"></i>
+          <span class="hidden lg:inline">Hakkımızda</span>
+          <span class="lg:hidden">Hakkında</span>
         </a>
         <a href="#contact" class="nav-link">
-          <i class="fas fa-envelope mr-1 md:mr-2"></i>
-          <span class="hidden lg:inline">Ä°letiÅŸim</span>
-          <span class="lg:hidden">Ä°letiÅŸim</span>
+          <i class="fas fa-envelope mr-1 md:mr-2 text-red-500"></i>
+          <span class="hidden lg:inline">İletişim</span>
+          <span class="lg:hidden">İletişim</span>
         </a>
       </nav>
 
@@ -972,7 +972,7 @@ if ($is_logged_in) {
               </div>
               <div class="hidden lg:block xl:block">
                 <p class="text-xs sm:text-sm font-medium text-gray-700 truncate max-w-24 lg:max-w-32"><?php echo htmlspecialchars($user_name); ?></p>
-                <p class="text-xs text-gray-500">HoÅŸ geldiniz</p>
+                <p class="text-xs text-gray-500">Hoş geldiniz</p>
               </div>
               <i class="fas fa-chevron-down text-gray-400 hidden lg:block xl:block text-xs"></i>
             </button>
@@ -985,12 +985,12 @@ if ($is_logged_in) {
                   <p class="text-xs text-gray-500 truncate"><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></p>
                 </div>
                 <a href="<?php echo $dashboard_url; ?>" class="dropdown-item">
-                  <i class="fas fa-tachometer-alt text-blue-600 text-xs md:text-sm"></i>
-                  <span class="text-xs md:text-sm">Dashboard</span>
+                  <i class="fas fa-tachometer-alt text-blue-500 text-xs md:text-sm"></i>
+                  <span class="text-xs md:text-sm">Gösterge Paneli</span>
                 </a>
                 <a href="<?php echo $base_url; ?>/backend/auth/logout.php" class="dropdown-item text-red-600">
-                  <i class="fas fa-sign-out-alt text-xs md:text-sm"></i>
-                  <span class="text-xs md:text-sm">Ã‡Ä±kÄ±ÅŸ Yap</span>
+                  <i class="fas fa-sign-out-alt text-red-500 text-xs md:text-sm"></i>
+                  <span class="text-xs md:text-sm">Çıkış Yap</span>
                 </a>
               </div>
             </div>
@@ -998,21 +998,21 @@ if ($is_logged_in) {
         <?php else: ?>
           <!-- Auth Buttons for Non-logged Users -->
           <a href="<?php echo $login_url; ?>" class="secondary-button text-xs sm:text-sm md:text-base">
-            <i class="fas fa-sign-in-alt text-xs sm:text-sm"></i>
-            <span class="hidden md:inline">GiriÅŸ</span>
-            <span class="md:hidden">GiriÅŸ</span>
+            <i class="fas fa-sign-in-alt text-blue-500 text-xs sm:text-sm"></i>
+            <span class="hidden md:inline">Giriş</span>
+            <span class="md:hidden">Giriş</span>
           </a>
           <a href="<?php echo $signup_url; ?>" class="cta-button text-xs sm:text-sm md:text-base">
-            <i class="fas fa-rocket text-xs sm:text-sm"></i>
-            <span class="hidden sm:inline">BaÅŸla</span>
+            <i class="fas fa-rocket text-yellow-300 text-xs sm:text-sm"></i>
+            <span class="hidden sm:inline">Başla</span>
             <span class="sm:hidden">+</span>
           </a>
         <?php endif; ?>
       </div>
 
       <!-- Mobile Menu Button -->
-      <button onclick="toggleMobileMenu()" class="mobile-menu-button md:hidden" id="mobileMenuBtn" aria-label="MenÃ¼yÃ¼ AÃ§/Kapat" aria-expanded="false">
-        <i class="fas fa-bars text-sm sm:text-base" id="menuIcon"></i>
+      <button onclick="toggleMobileMenu()" class="mobile-menu-button md:hidden" id="mobileMenuBtn" aria-label="Menüyü Aç/Kapat" aria-expanded="false">
+        <i class="fas fa-bars text-white text-sm sm:text-base" id="menuIcon"></i>
       </button>
     </div>
 
@@ -1024,20 +1024,20 @@ if ($is_logged_in) {
       <div class="container mx-auto px-4 py-4 sm:py-6">
         <nav class="space-y-1 sm:space-y-2">
           <a href="#home" class="mobile-nav-link" onclick="closeMobileMenu()">
-            <i class="fas fa-home mr-3 flex-shrink-0"></i>
+            <i class="fas fa-home mr-3 flex-shrink-0 text-blue-500"></i>
             <span>Ana Sayfa</span>
           </a>
           <a href="#services" class="mobile-nav-link" onclick="closeMobileMenu()">
-            <i class="fas fa-cogs mr-3 flex-shrink-0"></i>
+            <i class="fas fa-cogs mr-3 flex-shrink-0 text-purple-500"></i>
             <span>Hizmetlerimiz</span>
           </a>
           <a href="#about" class="mobile-nav-link" onclick="closeMobileMenu()">
-            <i class="fas fa-info-circle mr-3 flex-shrink-0"></i>
-            <span>HakkÄ±mÄ±zda</span>
+            <i class="fas fa-info-circle mr-3 flex-shrink-0 text-green-500"></i>
+            <span>Hakkımızda</span>
           </a>
           <a href="#contact" class="mobile-nav-link" onclick="closeMobileMenu()">
-            <i class="fas fa-envelope mr-3 flex-shrink-0"></i>
-            <span>Ä°letiÅŸim</span>
+            <i class="fas fa-envelope mr-3 flex-shrink-0 text-red-500"></i>
+            <span>İletişim</span>
           </a>
           
           <?php if ($is_logged_in): ?>
@@ -1048,25 +1048,25 @@ if ($is_logged_in) {
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="font-medium text-gray-900 text-sm sm:text-base truncate"><?php echo htmlspecialchars($user_name); ?></p>
-                  <p class="text-xs sm:text-sm text-gray-500">HoÅŸ geldiniz</p>
+                  <p class="text-xs sm:text-sm text-gray-500">Hoş geldiniz</p>
                 </div>
               </div>
               <a href="<?php echo $dashboard_url; ?>" class="mobile-nav-link">
-                <i class="fas fa-tachometer-alt mr-3 flex-shrink-0"></i>
-                <span>Dashboard</span>
+                <i class="fas fa-tachometer-alt mr-3 flex-shrink-0 text-blue-500"></i>
+                <span>Gösterge Paneli</span>
               </a>
               <a href="<?php echo $base_url; ?>/backend/auth/logout.php" class="mobile-nav-link text-red-600">
-                <i class="fas fa-sign-out-alt mr-3 flex-shrink-0"></i>
-                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                <i class="fas fa-sign-out-alt mr-3 flex-shrink-0 text-red-500"></i>
+                <span>Çıkış Yap</span>
               </a>
             </div>
           <?php else: ?>
             <div class="border-t border-gray-200 pt-3 sm:pt-4 mt-3 sm:mt-4 space-y-2 sm:space-y-3">
               <a href="<?php echo $login_url; ?>" class="block w-full text-center py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg sm:rounded-xl font-medium hover:bg-blue-50 transition-colors text-sm sm:text-base">
-                <i class="fas fa-sign-in-alt mr-2"></i>GiriÅŸ Yap
+                <i class="fas fa-sign-in-alt mr-2 text-blue-500"></i>Giriş Yap
               </a>
               <a href="<?php echo $signup_url; ?>" class="cta-button w-full justify-center text-sm sm:text-base">
-                <i class="fas fa-rocket"></i>BaÅŸla
+                <i class="fas fa-rocket text-yellow-300"></i>Başla
               </a>
             </div>
           <?php endif; ?>
@@ -1100,7 +1100,7 @@ if ($is_logged_in) {
     btn.setAttribute('aria-expanded', !isActive);
     
     if (!isActive) {
-      icon.className = 'fas fa-times text-sm sm:text-base';
+      icon.className = 'fas fa-times text-white text-sm sm:text-base';
       document.body.style.overflow = 'hidden';
       
       // Add focus trap for accessibility
@@ -1109,7 +1109,7 @@ if ($is_logged_in) {
         setTimeout(() => focusableElements[0].focus(), 100);
       }
     } else {
-      icon.className = 'fas fa-bars text-sm sm:text-base';
+      icon.className = 'fas fa-bars text-white text-sm sm:text-base';
       document.body.style.overflow = '';
       btn.focus();
     }
@@ -1129,7 +1129,7 @@ if ($is_logged_in) {
       btn.classList.remove('active');
       if (backdrop) backdrop.classList.remove('active');
       btn.setAttribute('aria-expanded', 'false');
-      icon.className = 'fas fa-bars text-sm sm:text-base';
+      icon.className = 'fas fa-bars text-white text-sm sm:text-base';
       document.body.style.overflow = '';
     }
   }
@@ -1169,7 +1169,7 @@ if ($is_logged_in) {
         menu.classList.remove('active');
         btn.classList.remove('active');
         btn.setAttribute('aria-expanded', 'false');
-        icon.className = 'fas fa-bars text-sm sm:text-base';
+        icon.className = 'fas fa-bars text-white text-sm sm:text-base';
         document.body.style.overflow = '';
       }
     }
@@ -1345,7 +1345,7 @@ if ($is_logged_in) {
       if (this.href && !this.href.includes('#')) {
         const originalContent = this.innerHTML;
         const spinner = '<i class="fas fa-spinner fa-spin mr-2"></i>';
-        const loadingText = isMobile ? 'YÃ¼kleniyor...' : 'YÃ¼kleniyor...';
+        const loadingText = isMobile ? 'Yükleniyor...' : 'Yükleniyor...';
         
         this.innerHTML = spinner + loadingText;
         this.style.pointerEvents = 'none';

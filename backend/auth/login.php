@@ -40,6 +40,9 @@ $success_message = $_SESSION['success_message'] ?? '';
 if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
 if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
 
+// Define variables expected by header.php
+$is_logged_in = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+
 // Set header configuration
 $page_title = 'CarWash - Giriş Yap';
 $show_login = false; // Don't show login button on login page
@@ -263,7 +266,7 @@ include '../includes/header.php';
         <!-- Login Form - File-based routing to process file -->
         <form action="login_process.php" method="POST" class="space-y-6">
           <!-- Added CSRF token for security -->
-          <label for="auto_label_72" class="sr-only">Csrf token</label><label for="auto_label_72" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ? id="auto_label_72">">
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>" id="auto_label_72">
 
           <!-- User Type Selection - Moved to top -->
           <div>

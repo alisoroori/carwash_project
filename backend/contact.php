@@ -4,6 +4,14 @@
  * Uses standard header similar to login page
  */
 
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Define variables expected by header.php
+$is_logged_in = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+
 // Set page-specific variables
 $page_title = 'İletişim - CarWash';
 $current_page = 'contact';
@@ -21,7 +29,7 @@ include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Main Content -->
-<main class="container mx-auto px-4 py-8">
+<main class="container mx-auto px-4 pt-16 md:pt-20 lg:pt-24 pb-8">
   <div class="max-w-7xl mx-auto">
     
     <!-- Page Header -->
@@ -35,10 +43,10 @@ include __DIR__ . '/includes/header.php';
       </p>
     </div>
     
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
       
-      <!-- Contact Information -->
-      <div>
+  <!-- Contact Information -->
+  <div class="lg:col-span-1">
         <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 lg:mb-8">İletişim Bilgileri</h2>
         
         <!-- Contact Cards -->
@@ -126,25 +134,25 @@ include __DIR__ . '/includes/header.php';
         </div>
       </div>
       
-      <!-- Contact Form -->
-      <div>
+  <!-- Contact Form -->
+  <div class="lg:col-span-2">
         <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 lg:mb-8">Bize Yazın</h2>
         
-        <form action="#" method="POST" class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+        <form action="#" method="POST" class="bg-white p-8 md:p-10 rounded-lg shadow-lg">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <label for="name" class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-user mr-2 text-blue-600"></i>Ad Soyad
               </label>
               <input type="text" id="name" name="name" required
-                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                     class="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
             </div>
             <div>
               <label for="email" class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta
               </label>
               <input type="email" id="email" name="email" required
-                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                     class="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
             </div>
           </div>
           
@@ -154,7 +162,7 @@ include __DIR__ . '/includes/header.php';
                 <i class="fas fa-phone mr-2 text-blue-600"></i>Telefon
               </label>
               <input type="tel" id="phone" name="phone"
-                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                     class="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
             </div>
             <div>
               <label for="subject" class="block text-sm font-bold text-gray-700 mb-2">
@@ -172,13 +180,13 @@ include __DIR__ . '/includes/header.php';
             </div>
           </div>
           
-          <div class="mb-6">
+            <div class="mb-6">
             <label for="message" class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-comment mr-2 text-blue-600"></i>Mesaj
             </label>
             <textarea id="message" name="message" rows="6" required
                       placeholder="Mesajınızı buraya yazın..."
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"></textarea>
+                      class="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"></textarea>
           </div>
           
           <div class="flex items-center justify-between">
@@ -194,7 +202,7 @@ include __DIR__ . '/includes/header.php';
           
           <div class="mt-6">
             <button type="submit" 
-                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium flex items-center justify-center">
+                    class="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium flex items-center justify-center">
               <i class="fas fa-paper-plane mr-2"></i>
               Mesajı Gönder
             </button>
@@ -204,14 +212,14 @@ include __DIR__ . '/includes/header.php';
     </div>
     
     <!-- Map Section -->
-    <div class="mt-12 lg:mt-16">
+      <div class="mt-12 lg:mt-16">
       <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 lg:mb-8 text-center">Konum</h2>
       <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="relative w-full" style="height: 450px;">
+        <div class="relative w-full h-64 md:h-96 lg:h-[450px]">
           <!-- Google Maps Embed - Ankara/Çankaya Location -->
           <iframe 
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3060.0827793676866!2d32.85384!3d39.91987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f190a9c6d33%3A0x5e8e8f0e8e8e8e8e!2s%C3%87ankaya%2C%20Ankara!5e0!3m2!1str!2str!4v1234567890123!5m2!1str!2str"
-            style="border:0; display:block; margin:0; padding:0; position:absolute; top:0; left:0; width:100%; height:100%;" 
+            class="absolute inset-0 w-full h-full border-0"
             allowfullscreen="" 
             loading="lazy" 
             referrerpolicy="no-referrer-when-downgrade">

@@ -35,51 +35,59 @@ include __DIR__ . '/includes/header.php';
       </p>
     </div>
     
-    <!-- About Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-      <div>
-        <h2 class="text-3xl font-bold text-gray-800 mb-6">Misyonumuz</h2>
-        <p class="text-gray-600 mb-4 leading-relaxed">
-          CarWash olarak amacımız, müşterilerimizin araçlarını en kaliteli şekilde temizleyerek 
-          onlara güvenli ve konforlu bir sürüş deneyimi sunmaktır. Modern ekipmanlarımız ve 
-          deneyimli personelimizle her zaman en iyi hizmeti vermeye odaklanıyoruz.
-        </p>
-        <p class="text-gray-600 leading-relaxed">
-          Çevre dostu ürünler kullanarak doğaya zarar vermeden aracınızı temizliyoruz. 
-          Su tasarrufu sağlayan teknolojilerimizle hem çevreyi koruyor hem de kaynaklarımızı 
-          verimli kullanıyoruz.
-        </p>
-      </div>
-      <div class="bg-blue-50 p-8 rounded-lg">
-        <h3 class="text-2xl font-bold text-blue-800 mb-4">Neden CarWash?</h3>
-        <ul class="space-y-3">
-          <li class="flex items-center">
-            <i class="fas fa-check-circle text-green-500 mr-3"></i>
-            <span>7/24 online rezervasyon sistemi</span>
-          </li>
-          <li class="flex items-center">
-            <i class="fas fa-check-circle text-green-500 mr-3"></i>
-            <span>Profesyonel ve deneyimli ekip</span>
-          </li>
-          <li class="flex items-center">
-            <i class="fas fa-check-circle text-green-500 mr-3"></i>
-            <span>Çevre dostu temizlik ürünleri</span>
-          </li>
-          <li class="flex items-center">
-            <i class="fas fa-check-circle text-green-500 mr-3"></i>
-            <span>Modern teknoloji ve ekipman</span>
-          </li>
-          <li class="flex items-center">
-            <i class="fas fa-check-circle text-green-500 mr-3"></i>
-            <span>Uygun fiyat garantisi</span>
-          </li>
-          <li class="flex items-center">
-            <i class="fas fa-check-circle text-green-500 mr-3"></i>
-            <span>Müşteri memnuniyeti odaklı hizmet</span>
-          </li>
-        </ul>
+    <!-- About Section (full-width) -->
+  </div> <!-- /.max-w container (closed to allow full-width section) -->
+
+  <section class="w-full bg-white">
+    <div class="max-w-screen-xl mx-auto px-4 lg:px-8 py-12">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16 items-center">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-800 mb-6">Misyonumuz</h2>
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            CarWash olarak amacımız, müşterilerimizin araçlarını en kaliteli şekilde temizleyerek 
+            onlara güvenli ve konforlu bir sürüş deneyimi sunmaktır. Modern ekipmanlarımız ve 
+            deneyimli personelimizle her zaman en iyi hizmeti vermeye odaklanıyoruz.
+          </p>
+          <p class="text-gray-600 leading-relaxed">
+            Çevre dostu ürünler kullanarak doğaya zarar vermeden aracınızı temizliyoruz. 
+            Su tasarrufu sağlayan teknolojilerimizle hem çevreyi koruyor hem de kaynaklarımızı 
+            verimli kullanıyoruz.
+          </p>
+        </div>
+        <div class="bg-blue-50 p-8 md:p-10 lg:p-12 rounded-lg shadow-sm">
+          <h3 class="text-2xl font-bold text-blue-800 mb-4">Neden CarWash?</h3>
+          <ul class="space-y-4 leading-relaxed">
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+              <span>7/24 online rezervasyon sistemi</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+              <span>Profesyonel ve deneyimli ekip</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+              <span>Çevre dostu temizlik ürünleri</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+              <span>Modern teknoloji ve ekipman</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+              <span>Uygun fiyat garantisi</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+              <span>Müşteri memnuniyeti odaklı hizmet</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
+  </section>
+
+  <div class="max-w-4xl mx-auto"> <!-- reopen container for remaining content -->
     
     <!-- Team Section -->
     <div class="text-center mb-12">
@@ -114,8 +122,8 @@ include __DIR__ . '/includes/header.php';
       </div>
     </div>
     
-    <!-- History Section -->
-    <div class="bg-gray-50 p-8 rounded-lg mb-12">
+  <!-- History Section -->
+  <div class="bg-gray-50 p-8 rounded-lg mt-8 mb-12">
       <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Hikayemiz</h2>
       <div class="max-w-3xl mx-auto">
         <p class="text-gray-600 mb-4 leading-relaxed">
@@ -142,7 +150,7 @@ include __DIR__ . '/includes/header.php';
       <p class="text-gray-600 mb-6">
         Aracınız için en iyi bakımı almaya hazır mısınız?
       </p>
-      <a href="<?php echo $home_url; ?>" 
+      <a href="<?php echo $login_url; ?>" 
          class="inline-flex items-center bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg mr-4">
         <i class="fas fa-calendar-alt mr-2"></i>
         Rezervasyon Yap
