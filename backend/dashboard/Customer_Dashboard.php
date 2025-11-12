@@ -280,6 +280,19 @@ if (!isset($base_url)) {
            ================================ */
         #customer-sidebar {
             background: var(--bg-sidebar);
+            position: fixed !important;
+            top: 80px;                      /* Start below header */
+            bottom: 0;                      /* Extend to bottom of viewport */
+            left: 0;
+            width: 250px;                   /* Fixed width on desktop */
+            overflow: hidden;               /* Remove internal scrolling */
+            z-index: 30 !important;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to bottom, #2563eb, #7c3aed);
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.12);
+            padding: 0;
         }
         
         /* Ensure sidebar is hidden off-screen on mobile by default */
@@ -287,6 +300,24 @@ if (!isset($base_url)) {
             #customer-sidebar {
                 transition: transform var(--transition-slow);
             }
+        }
+        
+        /* Ensure all menu items fit within the sidebar */
+        #customer-sidebar nav {
+            flex: 1;                          /* Allow menu to grow and shrink */
+            padding: 1rem;                    /* Add spacing for better readability */
+        }
+
+        #customer-sidebar nav a {
+            display: block;                   /* Ensure links take full width */
+            padding: 0.5rem 1rem;             /* Add padding for better touch targets */
+            color: white;                     /* Ensure text is visible */
+            text-decoration: none;            /* Remove underline */
+            border-radius: 0.25rem;           /* Add slight rounding for aesthetics */
+        }
+
+        #customer-sidebar nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Highlight on hover */
         }
         
         /* ================================
@@ -380,11 +411,11 @@ if (!isset($base_url)) {
         /* === 2. Fixed Sidebar (Left Side) === */
         #customer-sidebar {
             position: fixed !important;
-            top: 80px;                      /* Start below 80px header */
-            bottom: 0;                      /* Extend to page bottom */
+            top: 80px;                      /* Start below header */
+            bottom: 0;                      /* Extend to bottom of viewport */
             left: 0;
             width: 250px;                   /* Fixed width on desktop */
-            overflow: hidden !important;     /* NO internal scrolling */
+            overflow: hidden;               /* Remove internal scrolling */
             z-index: 30 !important;
             display: flex;
             flex-direction: column;
@@ -429,9 +460,20 @@ if (!isset($base_url)) {
         
         /* Sidebar Navigation Menu */
         #customer-sidebar nav {
-            flex: 1;
-            padding: 0.75rem;
-            overflow: visible;
+            flex: 1;                          /* Allow menu to grow and shrink */
+            padding: 1rem;                    /* Add spacing for better readability */
+        }
+
+        #customer-sidebar nav a {
+            display: block;                   /* Ensure links take full width */
+            padding: 0.5rem 1rem;             /* Add padding for better touch targets */
+            color: white;                     /* Ensure text is visible */
+            text-decoration: none;            /* Remove underline */
+            border-radius: 0.25rem;           /* Add slight rounding for aesthetics */
+        }
+
+        #customer-sidebar nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Highlight on hover */
         }
         
         /* === 3. Main Content Area === */
@@ -444,13 +486,13 @@ if (!isset($base_url)) {
             background: #f9fafb;
         }
         
-        /* === 4. Footer (Full Width) === */
+        /* === 4. Footer (Full Width - Standard Implementation) === */
         footer, #site-footer {
             position: relative;              /* Normal document flow */
             z-index: 40 !important;
             width: 100%;
-            margin-left: 250px;             /* Align with main content */
-            background: #111827;
+            margin-left: 0 !important;       /* Full width - no sidebar offset */
+            background: #111827;             /* bg-gray-900 */
         }
         
         /* ================================
@@ -489,14 +531,35 @@ if (!isset($base_url)) {
             }
             
             footer, #site-footer {
-                margin-left: 200px;
+                margin-left: 0 !important;       /* Full width footer */
             }
         }
         
         /* === Desktop Layout (≥900px) === */
         @media (min-width: 900px) {
+            /* Desktop: keep the sidebar in-flow so the document height grows
+               and the full menu is visible without internal scrolling. Use
+               sticky to keep it visible under the fixed header while still
+               occupying space so the footer attaches directly after it. */
             #customer-sidebar {
-                transform: translateX(0) !important;  /* Always visible */
+                position: -webkit-sticky !important;
+                position: sticky !important;
+                top: var(--header-height) !important;
+                height: auto !important;                /* Let content determine height */
+                overflow: visible !important;           /* Show all menu items */
+                transform: translateX(0) !important;    /* Always visible */
+                align-self: flex-start !important;      /* Prevent stretching in flex container */
+            }
+
+            /* Main content should offset using the sidebar width variable */
+            #main-content {
+                margin-left: var(--sidebar-width) !important;
+                margin-top: var(--header-height) !important;
+            }
+
+            /* Footer must sit below both columns with no left margin */
+            footer, #site-footer {
+                margin-left: 0 !important;
             }
         }
         
@@ -762,7 +825,7 @@ if (!isset($base_url)) {
          ================================ -->
     <aside 
         id="customer-sidebar"
-        class="bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
+        class="sidebar-fixed bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
                transform transition-transform duration-300 ease-in-out
                flex flex-col"
         :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
@@ -1476,71 +1539,70 @@ if (!isset($base_url)) {
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
                             ><?php echo htmlspecialchars($user_address); ?></textarea>
                         </div>
-                    </div>
-                    
-                    <!-- Password Change Section -->
-                    <div class="pt-6 border-t border-gray-200">
-                        <h4 class="text-lg font-bold text-gray-900 mb-4">Şifre Değiştir</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                            <!-- Current Password -->
-                            <div class="mb-4">
-                                <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Şifre</label>
-                                <input 
-                                    type="password"
-                                    id="current_password"
-                                    name="current_password"
-                                    autocomplete="current-password"
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                    placeholder="••••••••"
-                                >
+                        
+                        <!-- Password Change Section -->
+                        <div class="pt-6 border-t border-gray-200">
+                            <h4 class="text-lg font-bold text-gray-900 mb-4">Şifre Değiştir</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                <!-- Current Password -->
+                                <div class="mb-4">
+                                    <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Şifre</label>
+                                    <input 
+                                        type="password"
+                                        id="current_password"
+                                        name="current_password"
+                                        autocomplete="current-password"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                                        placeholder="••••••••"
+                                    >
+                                </div>
+                                
+                                <!-- New Password -->
+                                <div class="mb-4">
+                                    <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre</label>
+                                    <input 
+                                        type="password"
+                                        id="new_password"
+                                        name="new_password"
+                                        autocomplete="new-password"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                                        placeholder="••••••••"
+                                    >
+                                </div>
                             </div>
-                            
-                            <!-- New Password -->
-                            <div class="mb-4">
-                                <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre</label>
-                                <input 
-                                    type="password"
-                                    id="new_password"
-                                    name="new_password"
-                                    autocomplete="new-password"
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                    placeholder="••••••••"
-                                >
+                        </div>
+                        
+                        <!-- Success/Error Messages -->
+                        <div class="hidden mb-4 p-4 border-2 border-green-500 bg-green-50 text-green-700 rounded-lg" id="profile-success">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Profil başarıyla güncellendi!</span>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Success/Error Messages -->
-                    <div class="hidden mb-4 p-4 border-2 border-green-500 bg-green-50 text-green-700 rounded-lg" id="profile-success">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Profil başarıyla güncellendi!</span>
+                        
+                        <div class="hidden mb-4 p-4 border-2 border-red-500 bg-red-50 text-red-600 rounded-lg" id="profile-error">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Bir hata oluştu. Lütfen tekrar deneyin.</span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="hidden mb-4 p-4 border-2 border-red-500 bg-red-50 text-red-600 rounded-lg" id="profile-error">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <span>Bir hata oluştu. Lütfen tekrar deneyin.</span>
+                        
+                        <!-- Form Actions -->
+                        <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
+                            <button 
+                                type="button"
+                                class="w-full sm:w-auto h-11 px-6 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                            >
+                                İptal
+                            </button>
+                            <button 
+                                type="submit"
+                                class="w-full sm:w-auto h-11 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg active:shadow-md transition-all inline-flex items-center justify-center gap-2"
+                            >
+                                <i class="fas fa-save text-sm"></i>
+                                <span>Kaydet</span>
+                            </button>
                         </div>
-                    </div>
-                    
-                    <!-- Form Actions -->
-                    <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
-                        <button 
-                            type="button"
-                            class="w-full sm:w-auto h-11 px-6 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                        >
-                            İptal
-                        </button>
-                        <button 
-                            type="submit"
-                            class="w-full sm:w-auto h-11 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg active:shadow-md transition-all inline-flex items-center justify-center gap-2"
-                        >
-                            <i class="fas fa-save text-sm"></i>
-                            <span>Kaydet</span>
-                        </button>
-                    </div>
                 </form>
             </div>
         </section>
@@ -1657,7 +1719,7 @@ if (!isset($base_url)) {
                             <h4 class="font-bold">SMS Bildirimleri</h4>
                             <p class="text-sm text-gray-600">Acil durumlar için SMS</p>
                         </div>
-               <label for="auto_172" class="sr-only">Input</label><input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_172">lue-500">
+                        <input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="sms-notifications">
                     </label>
 
                     <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
@@ -1665,7 +1727,7 @@ if (!isset($base_url)) {
                             <h4 class="font-bold">Promosyon Bildirimleri</h4>
                             <p class="text-sm text-gray-600">İndirim ve kampanya duyuruları</p>
                         </div>
-      <label for="auto_173" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_173">us:ring-blue-500">
+                        <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="promo-notifications">
                     </label>
                 </div>
 
@@ -1692,9 +1754,6 @@ if (!isset($base_url)) {
     </main>
 
 </div> <!-- END: Flex Container (Sidebar + Content) -->
-
-<!-- Footer -->
-<?php include __DIR__ . '/../includes/footer.php'; ?>
 
 <!-- Dynamic Layout Height Calculator -->
 <script>
@@ -2294,10 +2353,170 @@ if (!isset($base_url)) {
 })();
 </script>
 
-</body>
-</html>
+<!-- ================================
+     SIDEBAR POSITIONING SCRIPT
+     Dynamically positions sidebar between header and footer
+     Prevents sidebar from overlapping footer during scroll
+     ================================ -->
+<script>
+(function() {
+    'use strict';
+    
+    /**
+     * Aligns sidebar between header and footer
+     * Sets inline styles: top, bottom, maxHeight
+     * Overrides CSS bottom: 0 to prevent footer overlap
+     */
+    function alignSidebarBetweenHeaderAndFooter() {
+        const sidebar = document.getElementById('customer-sidebar');
+        
+        // Only process if sidebar exists and has sidebar-fixed class
+        if (!sidebar || !sidebar.classList.contains('sidebar-fixed')) {
+            console.log('⚠️ Sidebar not found or missing sidebar-fixed class');
+            return;
+        }
+        
+        const header = document.querySelector('header');
+        const footer = document.querySelector('#site-footer');
+        
+        // Calculate heights (rounded to avoid subpixel issues)
+        const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 80;
+        const footerHeight = footer ? Math.round(footer.getBoundingClientRect().height) : 0;
 
+        // Only apply fixed/overlay sizing for small viewports. On desktop we
+        // prefer an in-flow (sticky) sidebar so the document can grow and show
+        // all menu items without internal scrolling.
+        const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+        if (viewportWidth >= 900) {
+            // Clear any inline styles that would make the sidebar fixed/clipped
+            sidebar.style.top = '';
+            sidebar.style.bottom = '';
+            sidebar.style.maxHeight = '';
+            sidebar.style.overflow = '';
+            console.log('ℹ️ Desktop viewport detected — using in-flow/sticky sidebar');
+            return;
+        }
 
+        // Apply inline styles to override CSS for small viewports (mobile/tablet)
+        sidebar.style.top = headerHeight + 'px';
+        sidebar.style.bottom = footerHeight + 'px';
+        sidebar.style.maxHeight = `calc(100vh - ${headerHeight}px - ${footerHeight}px)`;
+        sidebar.style.overflow = 'hidden';
+
+        console.log(`✅ Sidebar aligned - Header: ${headerHeight}px, Footer: ${footerHeight}px, Max Height: calc(100vh - ${headerHeight}px - ${footerHeight}px)`);
+    }
+    
+    /**
+     * Debounce function to limit resize event frequency
+     * Prevents excessive recalculations during window resize
+     */
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Initial alignment on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', alignSidebarBetweenHeaderAndFooter);
+    } else {
+        alignSidebarBetweenHeaderAndFooter();
+    }
+    
+    // Re-align after all resources loaded (images, etc.)
+    window.addEventListener('load', alignSidebarBetweenHeaderAndFooter);
+    
+    // Re-align on window resize (debounced to 120ms)
+    window.addEventListener('resize', debounce(alignSidebarBetweenHeaderAndFooter, 120));
+    
+    // Watch for footer content changes (e.g., dynamic content loading)
+    const footer = document.querySelector('#site-footer');
+    if (footer) {
+        const observer = new MutationObserver(debounce(alignSidebarBetweenHeaderAndFooter, 100));
+        observer.observe(footer, {
+            attributes: true,      // Watch for attribute changes (e.g., style)
+            childList: true,       // Watch for added/removed elements
+            subtree: true,         // Watch all descendants
+            characterData: true    // Watch for text changes
+        });
+        console.log('👀 MutationObserver watching footer for changes');
+    }
+    
+    // Compatibility with footer.php adjustSidebarsToFooter() function
+    // Call it after our alignment to ensure consistency
+    setTimeout(() => {
+        if (typeof adjustSidebarsToFooter === 'function') {
+            adjustSidebarsToFooter();
+            console.log('✅ Called footer.php adjustSidebarsToFooter() for compatibility');
+        }
+    }, 200);
+    
+    console.log('✅ Sidebar positioning script initialized');
+    
+})();
+</script>
+
+<script>
+// Ensure main content is at least as tall as the sidebar on desktop so the
+// footer sits directly under the sidebar without gaps.
+(function() {
+    'use strict';
+
+    function syncMainHeightWithSidebar() {
+        const sidebar = document.getElementById('customer-sidebar');
+        const main = document.getElementById('main-content');
+        if (!sidebar || !main) return;
+
+        const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+        // Only apply on desktop where sidebar is in-flow (>= 900px)
+        if (viewportWidth >= 900) {
+            // Use full sidebar height (including paddings)
+            const sidebarHeight = Math.ceil(sidebar.getBoundingClientRect().height);
+            // Set main min-height to sidebar height so footer is pushed below
+            main.style.minHeight = sidebarHeight + 'px';
+            console.log('🔧 Synced main min-height to sidebar:', sidebarHeight + 'px');
+        } else {
+            // Remove enforced min-height on smaller viewports
+            main.style.minHeight = '';
+            console.log('🔧 Cleared main min-height for mobile/tablet');
+        }
+    }
+
+    const debouncedSync = (function() {
+        let t;
+        return function() {
+            clearTimeout(t);
+            t = setTimeout(syncMainHeightWithSidebar, 120);
+        };
+    })();
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncMainHeightWithSidebar);
+    } else {
+        syncMainHeightWithSidebar();
+    }
+
+    window.addEventListener('load', syncMainHeightWithSidebar);
+    window.addEventListener('resize', debouncedSync);
+
+    // Watch for changes inside the sidebar (e.g., menu items toggling)
+    const sidebarEl = document.getElementById('customer-sidebar');
+    if (sidebarEl && 'MutationObserver' in window) {
+        const mo = new MutationObserver(debouncedSync);
+        mo.observe(sidebarEl, { childList: true, subtree: true, attributes: true });
+    }
+
+})();
+</script>
+
+<!-- Footer (includes closing </body></html> tags) -->
+<?php include __DIR__ . '/../includes/footer.php'; ?>
 
 
 

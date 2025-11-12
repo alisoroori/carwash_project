@@ -71,7 +71,7 @@ include '../includes/header.php';
     /* Fixed spacing between E-posta and Telefon buttons to prevent overlap */
     /* Override for Tailwind's px-4 when needed on this page */
     .px-4 {
-      margin: 0.1rem !important; /* ensures spacing between the buttons */
+      margin: 0.2rem !important; /* ensures spacing between the buttons */
       padding-left: 1rem !important;
       padding-right: 1rem !important;
     }
