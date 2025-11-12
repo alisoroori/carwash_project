@@ -263,19 +263,19 @@ include '../includes/header.php';
         <!-- Login Form - File-based routing to process file -->
         <form action="login_process.php" method="POST" class="space-y-6">
           <!-- Added CSRF token for security -->
-          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+          <label for="auto_label_74" class="sr-only">Csrf token</label><label for="auto_label_74" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ? id="auto_label_74">">
 
           <!-- Email Field -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi
             </label>
-            <input
+            <label for="auto_label_73" class="sr-only">Email</label><label for="auto_label_73" class="sr-only">Email</label><input
               type="email"
               name="email"
               placeholder="ornek@email.com"
               required
-              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none">
+              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_73">
           </div>
 
           <!-- Password Field -->
@@ -284,7 +284,7 @@ include '../includes/header.php';
               <i class="fas fa-lock mr-2 text-blue-600"></i>Şifre
             </label>
             <div class="relative">
-              <input
+              <label for="password" class="sr-only">Password</label><input
                 type="password"
                 name="password"
                 id="password"
@@ -430,3 +430,5 @@ include '../includes/header.php';
   </script>
 
 <?php include '../includes/footer.php'; ?>
+
+

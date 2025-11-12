@@ -117,11 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" class="space-y-4">
-          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ?>">
+          <label for="auto_label_37" class="sr-only">Csrf token</label><label for="auto_label_37" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ? id="auto_label_37">">
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
-            <select name="role" class="input-field w-full px-4 py-3 rounded-lg">
+            <label for="auto_label_36" class="sr-only">Role</label><label for="auto_label_36" class="sr-only">Role</label><select name="role" class="input-field w-full px-4 py-3 rounded-lg" id="auto_label_36">
               <?php foreach ($roles as $r): ?>
                 <option value="<?php echo $r; ?>" <?php echo (isset($_POST['role']) && $_POST['role']===$r) ? 'selected' : ($r==='customer' ? 'selected' : ''); ?>><?php echo ucfirst($r); ?></option>
               <?php endforeach; ?>
@@ -130,12 +130,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <input type="email" name="email" class="input-field w-full px-4 py-3 rounded-lg" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+            <label for="auto_label_35" class="sr-only">Email</label><label for="auto_label_35" class="sr-only">Email</label><input type="email" name="email" class="input-field w-full px-4 py-3 rounded-lg" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ? id="auto_label_35" placeholder="Email">">
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-            <input type="password" name="password" class="input-field w-full px-4 py-3 rounded-lg" required>
+            <label for="auto_label_34" class="sr-only">Password</label><label for="auto_label_34" class="sr-only">Password</label><input type="password" name="password" class="input-field w-full px-4 py-3 rounded-lg" required id="auto_label_34" placeholder="Password">
           </div>
 
           <button type="submit" class="btn-primary w-full py-3 rounded-lg font-bold">Create User</button>
@@ -146,3 +146,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
+
+

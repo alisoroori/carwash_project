@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../includes/db.php';
 
@@ -37,7 +37,7 @@ while ($row = $working_hours->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ã‡alÄ±ÅŸma Saatleri - AquaTR</title>
+    <title>Çalışma Saatleri - AquaTR</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -48,14 +48,14 @@ while ($row = $working_hours->fetch_assoc()) {
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <a href="index.php" class="text-xl font-bold text-blue-600">
-                    <i class="fas fa-arrow-left"></i> Panele DÃ¶n
+                    <i class="fas fa-arrow-left"></i> Panele Dön
                 </a>
             </div>
         </div>
     </nav>
 
     <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">Ã‡alÄ±ÅŸma Saatleri</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Çalışma Saatleri</h1>
 
         <?php if (isset($_SESSION['success'])): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6">
@@ -66,15 +66,15 @@ while ($row = $working_hours->fetch_assoc()) {
 
         <form id="workingHoursForm" action="process_working_hours.php" method="POST"
             class="bg-white rounded-lg shadow-md p-6">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+            <label for="auto_label_101" class="sr-only">Csrf token</label><label for="auto_label_101" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_101">">
 
             <?php
             $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
             $dayNames = [
                 'Monday' => 'Pazartesi',
-                'Tuesday' => 'SalÄ±',
-                'Wednesday' => 'Ã‡arÅŸamba',
-                'Thursday' => 'PerÅŸembe',
+                'Tuesday' => 'Salı',
+                'Wednesday' => 'Çarşamba',
+                'Thursday' => 'Perşembe',
                 'Friday' => 'Cuma',
                 'Saturday' => 'Cumartesi',
                 'Sunday' => 'Pazar'
@@ -91,7 +91,7 @@ while ($row = $working_hours->fetch_assoc()) {
                             <?php echo $dayNames[$day]; ?>
                         </label>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="is_open[<?php echo $day; ?>]"
+                            <label for="auto_label_100" class="sr-only">Input</label><label for="auto_label_100" class="sr-only">Input</label><input type="checkbox" name="is_open[<?php echo $day; ? id="auto_label_100">]"
                                 class="sr-only peer" <?php echo $isOpen ? 'checked' : ''; ?>>
                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 
                                      peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full 
@@ -99,21 +99,21 @@ while ($row = $working_hours->fetch_assoc()) {
                                      after:left-[2px] after:bg-white after:border-gray-300 after:border 
                                      after:rounded-full after:h-5 after:w-5 after:transition-all 
                                      peer-checked:bg-blue-600"></div>
-                            <span class="ml-3 text-sm font-medium text-gray-700">AÃ§Ä±k</span>
+                            <span class="ml-3 text-sm font-medium text-gray-700">Açık</span>
                         </label>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">AÃ§Ä±lÄ±ÅŸ</label>
-                            <input type="time" name="open_time[<?php echo $day; ?>]"
+                            <label class="block text-sm font-medium text-gray-700">Açılış</label>
+                            <label for="auto_label_99" class="sr-only">Time</label><label for="auto_label_99" class="sr-only">Time</label><input type="time" name="open_time[<?php echo $day; ? id="auto_label_99">]"
                                 value="<?php echo $openTime; ?>"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
                                           focus:border-blue-500 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">KapanÄ±ÅŸ</label>
-                            <input type="time" name="close_time[<?php echo $day; ?>]"
+                            <label class="block text-sm font-medium text-gray-700">Kapanış</label>
+                            <label for="auto_label_98" class="sr-only">Time</label><label for="auto_label_98" class="sr-only">Time</label><input type="time" name="close_time[<?php echo $day; ? id="auto_label_98">]"
                                 value="<?php echo $closeTime; ?>"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
                                           focus:border-blue-500 focus:ring-blue-500">
@@ -147,18 +147,20 @@ while ($row = $working_hours->fetch_assoc()) {
                     if (data.success) {
                         location.reload();
                     } else {
-                        alert(data.error || 'Bir hata oluÅŸtu.');
+                        alert(data.error || 'Bir hata oluştu.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Bir hata oluÅŸtu.');
+                    alert('Bir hata oluştu.');
                 });
         });
     </script>
 </body>
 
 </html>
+
+
 
 
 

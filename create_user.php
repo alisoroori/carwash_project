@@ -279,19 +279,19 @@ include 'backend/includes/header.php';
         <!-- Create User Form -->
         <form action="" method="POST" class="space-y-6" enctype="application/x-www-form-urlencoded">
           <!-- CSRF token -->
-          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+          <label for="auto_label_136" class="sr-only">Csrf token</label><label for="auto_label_136" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ? id="auto_label_136">">
 
           <!-- Full Name Field -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-user mr-2 text-blue-600"></i>Full Name
             </label>
-            <input
+            <label for="auto_label_135" class="sr-only">Full name</label><label for="auto_label_135" class="sr-only">Full name</label><input
               type="text"
               name="full_name"
               placeholder="Enter full name"
               required
-              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none">
+              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_135">
           </div>
 
           <!-- User Role Selection -->
@@ -299,7 +299,7 @@ include 'backend/includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-user-tag mr-2 text-blue-600"></i>User Role
             </label>
-            <select name="role" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none">
+            <label for="auto_label_134" class="sr-only">Role</label><label for="auto_label_134" class="sr-only">Role</label><select name="role" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none" id="auto_label_134">
               <option value="">Select user role</option>
               <option value="customer">Customer</option>
               <option value="carwash">Car Wash</option>
@@ -313,12 +313,12 @@ include 'backend/includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>Email Address
             </label>
-            <input
+            <label for="auto_label_133" class="sr-only">Email</label><label for="auto_label_133" class="sr-only">Email</label><input
               type="email"
               name="email"
               placeholder="user@example.com"
               required
-              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none">
+              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_133">
           </div>
 
           <!-- Password Field -->
@@ -327,7 +327,7 @@ include 'backend/includes/header.php';
               <i class="fas fa-lock mr-2 text-blue-600"></i>Password
             </label>
             <div class="relative">
-              <input
+              <label for="password" class="sr-only">Password</label><input
                 type="password"
                 name="password"
                 id="password"
@@ -464,3 +464,5 @@ include 'backend/includes/header.php';
   </script>
 
 <?php include 'backend/includes/footer.php'; ?>
+
+

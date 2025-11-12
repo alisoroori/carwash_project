@@ -1,0 +1,99 @@
+﻿C:\xampp\htdocs\carwash_project\backend\admin\create_user.php	344		<select id="role" name="role" class="form-control form-select">
+C:\xampp\htdocs\carwash_project\backend\admin\create_user_direct.php	122		<select name="role" class="input-field w-full">
+C:\xampp\htdocs\carwash_project\backend\admin\create_user_direct.php	331		<select id="role" name="role">
+C:\xampp\htdocs\carwash_project\backend\admin\create_user_direct.php	755		<select id="role" name="role" class="form-control form-select">
+C:\xampp\htdocs\carwash_project\backend\auth\create_user_quick.php	124		<select name="role" class="input-field w-full px-4 py-3 rounded-lg">
+C:\xampp\htdocs\carwash_project\backend\auth\debug_registration.php	71		echo '<select name="city"><option value="istanbul">İstanbul</option></select>';
+C:\xampp\htdocs\carwash_project\backend\auth\login.php	273		<select name="user_type" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none">
+C:\xampp\htdocs\carwash_project\backend\booking\new_booking.php	111		<select id="citySelect" name="city" class="w-full px-4 py-2 border rounded">
+C:\xampp\htdocs\carwash_project\backend\booking\new_booking.php	121		<select id="districtSelect" name="district" class="w-full px-4 py-2 border rounded">
+C:\xampp\htdocs\carwash_project\backend\booking\new_booking.php	131		<select id="carwashSelect" name="carwash_id" class="w-full px-4 py-2 border rounded">
+C:\xampp\htdocs\carwash_project\backend\booking\new_booking.php	143		<select id="serviceSelect" name="service_id" class="w-full px-4 py-2 border rounded">
+C:\xampp\htdocs\carwash_project\backend\booking\new_booking.php	159		<select id="timeSelect" name="time" class="w-full px-4 py-2 border rounded">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\logs.php	81		<select name="action" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\report_visualizer.php	23		<select id="chartType" class="rounded-md border-gray-300">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\report_visualizer.php	28		<select id="timeRange" class="rounded-md border-gray-300">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\review_moderation.php	28		<select id="statusFilter" class="rounded-md border-gray-300">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\review_reports.php	31		<select id="statusFilter" class="rounded-md border-gray-300 shadow-sm">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\review_reports.php	37		<select id="reasonFilter" class="rounded-md border-gray-300 shadow-sm">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\sms_templates.php	103		<select id="templateStatus" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\test_templates.php	53		<select id="templateSelect" class="w-full rounded-md border-gray-300 shadow-sm">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\upload_form.php	42		<select name="service_id" id="service_id" required>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin\upload_form.php	52		<select name="category" id="category">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	1775		<select id="statusFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	1934		<select id="orderStatusFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	1942		<select id="orderServiceFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2177		<select id="paymentTypeFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2184		<select id="paymentStatusFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2373		<select id="userTypeFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2482		<select id="serviceCategoryFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2490		<select id="serviceStatusFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2711		<select id="ticketStatusFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2721		<select id="ticketPriorityFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2729		<select id="ticketCategoryFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2903		<select id="reviewStatusFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	2911		<select id="reviewRatingFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	3220		<select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	3275		<select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	3432		<select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	3483		<select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	3544		<select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	3654		<select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	3701		<select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	3869		<select id="notificationTypeFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	3877		<select id="notificationStatusFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	4049		<select id="cmsStatusFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	4056		<select id="cmsTypeFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	4284		<select id="auditActionFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	4293		<select id="auditEntityFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	4621		<select>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	4629		<select>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	4637		<select>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	4766		<select>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5040		<select>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5257		<select id="serviceCategory" name="category" required>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5303		<select id="serviceStatus" name="status" required>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5340		<select id="ticketCustomer" name="customer_id" required>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5357		<select id="ticketCategory" name="category" required>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5369		<select id="ticketPriority" name="priority" required>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5387		<select id="ticketAssignedTo" name="assigned_to">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5397		<select id="ticketStatus" name="status">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5592		<select name="page_category" id="pageCategory" required>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5606		<select name="page_status" id="pageStatus" required>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5615		<select name="page_language" id="pageLanguage" required>
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5633		<select name="page_author" id="pageAuthor">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel.php	5658		<select name="robots_meta" id="robotsMeta">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel_backup.php	769		<select id="statusFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel_backup.php	876		<select id="userTypeFilter" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\admin_panel_backup.php	979		<select id="bookingStatus" class="filter-select">
+C:\xampp\htdocs\carwash_project\backend\dashboard\Car_Wash_Dashboard.php	881		<select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\backend\dashboard\Car_Wash_Dashboard.php	1962		<select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\backend\dashboard\Car_Wash_Dashboard.php	2071		<select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\backend\dashboard\customer\process_booking.php	106		<select id="booking_time_select" name="booking_time" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+C:\xampp\htdocs\carwash_project\backend\dashboard\new_booking.php	35		<select id="vehicle" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\backend\dashboard\new_booking.php	47		<select id="reservationTime" name="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
+C:\xampp\htdocs\carwash_project\backend\dashboard\new_booking.php	55		<select id="location" name="carwash_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" data-validate="required">
+C:\xampp\htdocs\carwash_project\create_user.php	302		<select name="role" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none">
+C:\xampp\htdocs\carwash_project\frontend\admin\content.html	22		<select id="typeFilter">
+C:\xampp\htdocs\carwash_project\frontend\admin\content.html	28		<select id="statusFilter">
+C:\xampp\htdocs\carwash_project\frontend\admin\content.html	65		<select id="type" required>
+C:\xampp\htdocs\carwash_project\frontend\admin\content.html	77		<select id="status">
+C:\xampp\htdocs\carwash_project\frontend\admin\notifications.html	64		<select id="type" required>
+C:\xampp\htdocs\carwash_project\frontend\admin\notifications.html	74		<select id="targetRole" required>
+C:\xampp\htdocs\carwash_project\frontend\admin\reports.html	19		<select id="dateRange">
+C:\xampp\htdocs\carwash_project\frontend\booking.html	70		<select id="vehicle" class="input">
+C:\xampp\htdocs\carwash_project\frontend\booking.html	83		<select id="reservationTime" class="input">
+C:\xampp\htdocs\carwash_project\frontend\booking.html	92		<select id="location" class="input">
+C:\xampp\htdocs\carwash_project\frontend\customer_profile.html	262		<select id="cityFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\customer_profile.html	271		<select id="districtFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\customer_profile.html	371		<select id="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\customer_profile.html	383		<select id="vehicle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\customer_profile.html	406		<select id="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\customer_profile.html	647		<select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\profile.html	261		<select id="cityFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\profile.html	270		<select id="districtFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\profile.html	370		<select id="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\profile.html	382		<select id="vehicle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\profile.html	405		<select id="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\frontend\profile.html	646		<select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+C:\xampp\htdocs\carwash_project\test_vehicle_update.html	140		<select id="vehicle-select" onchange="populateUpdateForm()">

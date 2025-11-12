@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../backend/includes/auth_required.php';
 require_once '../../backend/includes/auth_check.php';
 require_once '../../backend/includes/db.php';
@@ -51,7 +51,7 @@ if (!$booking) {
                 </div>
 
                 <form id="reviewForm" class="space-y-6">
-                    <input type="hidden" name="booking_id" value="<?= $booking_id ?>">
+                    <label for="auto_label_124" class="sr-only">Booking id</label><label for="auto_label_124" class="sr-only">Booking id</label><input type="hidden" name="booking_id" value="<?= $booking_id ? id="auto_label_124">">
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Rating</label>
@@ -67,8 +67,8 @@ if (!$booking) {
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Your Review</label>
-                        <textarea name="comment" rows="4" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                        <label for="auto_label_123" class="sr-only">Comment</label><label for="auto_label_123" class="sr-only">Comment</label><textarea name="comment" rows="4" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" id="auto_label_123"></textarea>
                     </div>
 
                     <button type="submit"
@@ -84,6 +84,8 @@ if (!$booking) {
 </body>
 
 </html>
+
+
 
 
 

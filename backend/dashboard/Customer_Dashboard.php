@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once __DIR__ . '/../includes/bootstrap.php';
 
@@ -38,7 +38,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 // Dashboard header variables
 $dashboard_type = 'customer';
-$page_title = 'MÃ¼ÅŸteri Paneli - CarWash';
+$page_title = 'Müşteri Paneli - CarWash';
 $current_page = 'dashboard';
 
 // Ensure $base_url is available (some templates expect this variable)
@@ -493,7 +493,7 @@ if (!isset($base_url)) {
             }
         }
         
-        /* === Desktop Layout (â‰¥900px) === */
+        /* === Desktop Layout (≥900px) === */
         @media (min-width: 900px) {
             #customer-sidebar {
                 transform: translateX(0) !important;  /* Always visible */
@@ -719,7 +719,7 @@ if (!isset($base_url)) {
                 <div class="border-t border-gray-200">
                     <a href="/carwash_project/backend/includes/logout.php" class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium">
                         <i class="fas fa-sign-out-alt w-5 mr-3"></i>
-                        <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                        <span>Çıkış Yap</span>
                     </a>
                 </div>
             </div>
@@ -808,7 +808,7 @@ if (!isset($base_url)) {
                 tabindex="0"
             >
                 <i class="fas fa-tachometer-alt text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">Genel BakÄ±ÅŸ</span>
+                <span class="text-sm font-medium">Genel Bakış</span>
             </a>
             
             <!-- Car Wash Selection -->
@@ -821,7 +821,7 @@ if (!isset($base_url)) {
                 tabindex="0"
             >
                 <i class="fas fa-hand-pointer text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">Oto YÄ±kama SeÃ§imi</span>
+                <span class="text-sm font-medium">Oto Yıkama Seçimi</span>
             </a>
             
             <!-- Reservations -->
@@ -834,7 +834,7 @@ if (!isset($base_url)) {
                 tabindex="0"
             >
                 <i class="fas fa-calendar-check text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">RezervasyonlarÄ±m</span>
+                <span class="text-sm font-medium">Rezervasyonlarım</span>
             </a>
             
             <!-- Vehicles -->
@@ -847,7 +847,7 @@ if (!isset($base_url)) {
                 tabindex="0"
             >
                 <i class="fas fa-car text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">AraÃ§larÄ±m</span>
+                <span class="text-sm font-medium">Araçlarım</span>
             </a>
             
             <!-- History -->
@@ -860,7 +860,7 @@ if (!isset($base_url)) {
                 tabindex="0"
             >
                 <i class="fas fa-history text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium">GeÃ§miÅŸ</span>
+                <span class="text-sm font-medium">Geçmiş</span>
             </a>
             
             <!-- Profile -->
@@ -925,7 +925,7 @@ if (!isset($base_url)) {
         <section x-show="currentSection === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
-                <p class="text-gray-600">HoÅŸ geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
+                <p class="text-gray-600">Hoş geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
             </div>
             
             <!-- Stats Grid - Responsive with consistent spacing -->
@@ -941,7 +941,7 @@ if (!isset($base_url)) {
                     <p class="text-3xl font-bold text-gray-900 mb-2">24</p>
                     <p class="text-sm text-gray-500 flex items-center">
                         <i class="fas fa-arrow-up text-green-500 mr-1.5 text-xs"></i>
-                        <span>12% artÄ±ÅŸ</span>
+                        <span>12% artış</span>
                     </p>
                 </div>
                 
@@ -972,7 +972,7 @@ if (!isset($base_url)) {
                 <!-- Stat Card 4 - Vehicles -->
                 <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                     <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-sm font-semibold text-gray-700">AraÃ§</h4>
+                        <h4 class="text-sm font-semibold text-gray-700">Araç</h4>
                         <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-car text-purple-600 text-xl"></i>
                         </div>
@@ -984,13 +984,13 @@ if (!isset($base_url)) {
             
             <!-- Quick Actions - Responsive Grid -->
             <div class="mt-8">
-                <h3 class="text-xl font-bold text-gray-900 mb-6">HÄ±zlÄ± Ä°ÅŸlemler</h3>
+                <h3 class="text-xl font-bold text-gray-900 mb-6">Hızlı İşlemler</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                     <!-- New Reservation Card -->
                     <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-6 lg:p-8 text-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                         <i class="fas fa-plus-circle text-4xl lg:text-5xl mb-4 opacity-90"></i>
                         <h4 class="text-xl font-bold mb-2">Yeni Rezervasyon</h4>
-                        <p class="text-blue-100 mb-6 text-sm lg:text-base">AraÃ§ yÄ±kama hizmeti rezervasyonu oluÅŸturun</p>
+                        <p class="text-blue-100 mb-6 text-sm lg:text-base">Araç yıkama hizmeti rezervasyonu oluşturun</p>
                         <button 
                             @click="currentSection = 'carWashSelection'"
                             class="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 active:bg-blue-100 transition-colors inline-flex items-center gap-2 shadow-md"
@@ -1003,13 +1003,13 @@ if (!isset($base_url)) {
                     <!-- Add Vehicle Card -->
                     <div class="bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl p-6 lg:p-8 text-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                         <i class="fas fa-car text-4xl lg:text-5xl mb-4 opacity-90"></i>
-                        <h4 class="text-xl font-bold mb-2">AraÃ§ Ekle</h4>
-                        <p class="text-green-100 mb-6 text-sm lg:text-base">Yeni araÃ§ bilgisi kaydedin</p>
+                        <h4 class="text-xl font-bold mb-2">Araç Ekle</h4>
+                        <p class="text-green-100 mb-6 text-sm lg:text-base">Yeni araç bilgisi kaydedin</p>
                         <button 
                             @click="currentSection = 'vehicles'"
                             class="bg-white text-green-600 px-6 py-3 rounded-xl font-semibold hover:bg-green-50 active:bg-green-100 transition-colors inline-flex items-center gap-2 shadow-md"
                         >
-                            <span>AraÃ§ Ekle</span>
+                            <span>Araç Ekle</span>
                             <i class="fas fa-arrow-right text-sm"></i>
                         </button>
                     </div>
@@ -1018,15 +1018,15 @@ if (!isset($base_url)) {
         </section>
         
         <!-- ========== VEHICLES SECTION ========== -->
-    <section x-show="currentSection === 'vehicles'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing — using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" style="display: none;">
+    <section x-show="currentSection === 'vehicles'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing � using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" style="display: none;">
             <div class="mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">AraÃ§larÄ±m</h2>
-                <p class="text-gray-600">AraÃ§larÄ±nÄ±zÄ± yÃ¶netin</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Araçlarım</h2>
+                <p class="text-gray-600">Araçlarınızı yönetin</p>
             </div>
             
             <!-- Action Buttons - Responsive -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <p class="text-sm text-gray-600" x-text="vehicles.length + ' araÃ§ kayÄ±tlÄ±'"></p>
+                <p class="text-sm text-gray-600" x-text="vehicles.length + ' araç kayıtlı'"></p>
                 <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     <button 
                         @click="loadVehicles()"
@@ -1040,7 +1040,7 @@ if (!isset($base_url)) {
                         class="w-full sm:w-auto h-11 px-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg active:shadow-md transition-all inline-flex items-center justify-center gap-2"
                     >
                         <i class="fas fa-plus text-sm"></i>
-                        <span>AraÃ§ Ekle</span>
+                        <span>Araç Ekle</span>
                     </button>
                 </div>
             </div>
@@ -1080,7 +1080,7 @@ if (!isset($base_url)) {
                                 class="flex-1 h-10 text-blue-600 hover:bg-blue-50 active:bg-blue-100 rounded-lg transition-colors font-medium text-sm inline-flex items-center justify-center gap-1.5"
                             >
                                 <i class="fas fa-edit text-xs"></i>
-                                <span>DÃ¼zenle</span>
+                                <span>Düzenle</span>
                             </button>
                             <button 
                                 @click="deleteVehicle(vehicle.id)"
@@ -1097,13 +1097,13 @@ if (!isset($base_url)) {
                 <template x-if="vehicles.length === 0">
                     <div class="col-span-full text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-300">
                         <i class="fas fa-car text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg mb-4">HenÃ¼z araÃ§ yok</p>
+                        <p class="text-gray-500 text-lg mb-4">Henüz araç yok</p>
                         <button 
                             @click="openVehicleForm()"
                             class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center space-x-2"
                         >
                             <i class="fas fa-plus"></i>
-                            <span>Ä°lk AracÄ±nÄ±zÄ± Ekleyin</span>
+                            <span>İlk Aracınızı Ekleyin</span>
                         </button>
                     </div>
                 </template>
@@ -1133,7 +1133,7 @@ if (!isset($base_url)) {
                 >
                     <div class="sticky top-0 bg-white p-6 border-b border-gray-200 z-10">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-2xl font-bold text-gray-900" x-text="editingVehicle ? 'AraÃ§ DÃ¼zenle' : 'Yeni AraÃ§ Ekle'"></h3>
+                            <h3 class="text-2xl font-bold text-gray-900" x-text="editingVehicle ? 'Araç Düzenle' : 'Yeni Araç Ekle'"></h3>
                             <button @click="closeVehicleForm()" class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100">
                                 <i class="fas fa-times text-2xl"></i>
                             </button>
@@ -1141,9 +1141,9 @@ if (!isset($base_url)) {
                     </div>
                     
                     <form id="vehicleForm" @submit.prevent="saveVehicle()" class="p-6" enctype="multipart/form-data">
-                        <input type="hidden" name="csrf_token" :value="csrfToken">
-                        <input type="hidden" name="action" :value="editingVehicle ? 'update' : 'create'">
-                        <input type="hidden" name="id" :value="editingVehicle?.id || ''">
+                        <label for="auto_label_108" class="sr-only">Csrf token</label><label for="auto_label_108" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" :value="csrfToken" id="auto_label_108">
+                        <label for="auto_label_107" class="sr-only">Action</label><label for="auto_label_107" class="sr-only">Action</label><input type="hidden" name="action" :value="editingVehicle ? 'update' : 'create'" id="auto_label_107">
+                        <label for="auto_label_106" class="sr-only">Id</label><label for="auto_label_106" class="sr-only">Id</label><input type="hidden" name="id" :value="editingVehicle?.id || ''" id="auto_label_106">
                         
                         <!-- Form Fields Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -1203,7 +1203,7 @@ if (!isset($base_url)) {
                             
                             <!-- Year -->
                             <div class="mb-4">
-                                <label for="vehicle_year" class="block text-sm font-semibold text-gray-700 mb-2">YÄ±l</label>
+                                <label for="vehicle_year" class="block text-sm font-semibold text-gray-700 mb-2">Yıl</label>
                                 <input 
                                     type="number"
                                     id="vehicle_year"
@@ -1233,7 +1233,7 @@ if (!isset($base_url)) {
                             
                             <!-- Vehicle Image -->
                             <div class="mb-4">
-                                <label for="vehicle_image" class="block text-sm font-semibold text-gray-700 mb-2">AraÃ§ FotoÄŸrafÄ±</label>
+                                <label for="vehicle_image" class="block text-sm font-semibold text-gray-700 mb-2">Araç Fotoğrafı</label>
                                 <input 
                                     type="file"
                                     id="vehicle_image"
@@ -1247,7 +1247,7 @@ if (!isset($base_url)) {
                         
                         <!-- Image Preview -->
                         <div class="mb-4">
-                            <p class="block text-sm font-semibold text-gray-700 mb-2">Ã–nizleme</p>
+                            <p class="block text-sm font-semibold text-gray-700 mb-2">Önizleme</p>
                             <img 
                                 :src="imagePreview || '/carwash_project/frontend/assets/images/default-car.png'"
                                 alt="Preview"
@@ -1262,7 +1262,7 @@ if (!isset($base_url)) {
                                 @click="closeVehicleForm()"
                                 class="w-full sm:w-auto px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
                             >
-                                Ä°ptal
+                                İptal
                             </button>
                             <button 
                                 type="submit"
@@ -1288,8 +1288,8 @@ if (!isset($base_url)) {
         <!-- ========== PROFILE SECTION ========== -->
         <section x-show="currentSection === 'profile'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
             <div class="mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Profil AyarlarÄ±</h2>
-                <p class="text-gray-600">Hesap bilgilerinizi gÃ¼ncelleyin</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Profil Ayarları</h2>
+                <p class="text-gray-600">Hesap bilgilerinizi güncelleyin</p>
             </div>
             
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
@@ -1313,10 +1313,11 @@ if (!isset($base_url)) {
                         }
                     }
                     ?>
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+                    <label for="auto_label_105" class="sr-only">Csrf token</label>
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>" id="auto_label_105">
                     <!-- Profile Image Upload Section -->
                     <div class="mb-6 pb-6 border-b border-gray-200">
-                        <h4 class="text-lg font-bold text-gray-900 mb-4">Profil FotoÄŸrafÄ±</h4>
+                        <h4 class="text-lg font-bold text-gray-900 mb-4">Profil Fotoğrafı</h4>
                         <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
                             <!-- Current Profile Image -->
                             <div class="flex-shrink-0">
@@ -1334,7 +1335,7 @@ if (!isset($base_url)) {
                             <!-- Upload Controls -->
                             <div class="flex-1">
                                 <label for="profile_image" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Yeni FotoÄŸraf YÃ¼kle
+                                    Yeni Fotoğraf Yükle
                                 </label>
                                 <input 
                                     type="file" 
@@ -1343,7 +1344,7 @@ if (!isset($base_url)) {
                                     accept="image/jpeg,image/png,image/jpg,image/webp"
                                     class="block w-full text-sm text-gray-900 border-2 border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 >
-                                <p class="mt-2 text-xs text-gray-500">JPG, PNG veya WEBP formatÄ±nda. Maksimum 2MB.</p>
+                                <p class="mt-2 text-xs text-gray-500">JPG, PNG veya WEBP formatında. Maksimum 2MB.</p>
                             </div>
                         </div>
                     </div>
@@ -1362,7 +1363,7 @@ if (!isset($base_url)) {
                                 required
                                 autocomplete="name"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                placeholder="AdÄ±nÄ±z SoyadÄ±nÄ±z"
+                                placeholder="Adınız Soyadınız"
                             >
                         </div>
                         
@@ -1430,13 +1431,13 @@ if (!isset($base_url)) {
                                 placeholder="12345678901"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                             >
-                            <p class="mt-1 text-xs text-gray-500">11 haneli T.C. Kimlik numaranÄ±zÄ± girin</p>
+                            <p class="mt-1 text-xs text-gray-500">11 haneli T.C. Kimlik numaranızı girin</p>
                         </div>
                         
                         <!-- Driver License (Optional) -->
                         <div class="mb-4">
                             <label for="profile_driver_license" class="block text-sm font-semibold text-gray-700 mb-2">
-                                SÃ¼rÃ¼cÃ¼ Belgesi No
+                                Sürücü Belgesi No
                             </label>
                             <input 
                                 type="text"
@@ -1446,18 +1447,18 @@ if (!isset($base_url)) {
                                 placeholder="A1234567"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                             >
-                            <p class="mt-1 text-xs text-gray-500">Ä°steÄŸe baÄŸlÄ± alan</p>
+                            <p class="mt-1 text-xs text-gray-500">İsteğe bağlı alan</p>
                         </div>
                         
                         <!-- City -->
                         <div class="mb-4">
-                            <label for="profile_city" class="block text-sm font-semibold text-gray-700 mb-2">Åžehir</label>
+                            <label for="profile_city" class="block text-sm font-semibold text-gray-700 mb-2">Şehir</label>
                             <input 
                                 type="text"
                                 id="profile_city"
                                 name="city"
                                 value="<?php echo htmlspecialchars($user_city); ?>"
-                                placeholder="Ä°stanbul"
+                                placeholder="İstanbul"
                                 autocomplete="address-level2"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                             >
@@ -1479,31 +1480,31 @@ if (!isset($base_url)) {
                     
                     <!-- Password Change Section -->
                     <div class="pt-6 border-t border-gray-200">
-                        <h4 class="text-lg font-bold text-gray-900 mb-4">Åžifre DeÄŸiÅŸtir</h4>
+                        <h4 class="text-lg font-bold text-gray-900 mb-4">Şifre Değiştir</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                             <!-- Current Password -->
                             <div class="mb-4">
-                                <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Åžifre</label>
+                                <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Şifre</label>
                                 <input 
                                     type="password"
                                     id="current_password"
                                     name="current_password"
                                     autocomplete="current-password"
                                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                                    placeholder="••••••••"
                                 >
                             </div>
                             
                             <!-- New Password -->
                             <div class="mb-4">
-                                <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Åžifre</label>
+                                <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre</label>
                                 <input 
                                     type="password"
                                     id="new_password"
                                     name="new_password"
                                     autocomplete="new-password"
                                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                                    placeholder="••••••••"
                                 >
                             </div>
                         </div>
@@ -1513,14 +1514,14 @@ if (!isset($base_url)) {
                     <div class="hidden mb-4 p-4 border-2 border-green-500 bg-green-50 text-green-700 rounded-lg" id="profile-success">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-check-circle"></i>
-                            <span>Profil baÅŸarÄ±yla gÃ¼ncellendi!</span>
+                            <span>Profil başarıyla güncellendi!</span>
                         </div>
                     </div>
                     
                     <div class="hidden mb-4 p-4 border-2 border-red-500 bg-red-50 text-red-600 rounded-lg" id="profile-error">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-exclamation-circle"></i>
-                            <span>Bir hata oluÅŸtu. LÃ¼tfen tekrar deneyin.</span>
+                            <span>Bir hata oluştu. Lütfen tekrar deneyin.</span>
                         </div>
                     </div>
                     
@@ -1530,7 +1531,7 @@ if (!isset($base_url)) {
                             type="button"
                             class="w-full sm:w-auto h-11 px-6 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:bg-gray-100 transition-colors"
                         >
-                            Ä°ptal
+                            İptal
                         </button>
                         <button 
                             type="submit"
@@ -1548,7 +1549,7 @@ if (!isset($base_url)) {
         <section x-show="currentSection === 'support'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Destek</h2>
-                <p class="text-gray-600">YardÄ±ma mÄ± ihtiyacÄ±nÄ±z var? Bize ulaÅŸÄ±n</p>
+                <p class="text-gray-600">Yardıma mı ihtiyacınız var? Bize ulaşın</p>
             </div>
             
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
@@ -1563,7 +1564,7 @@ if (!isset($base_url)) {
                             id="support_subject"
                             name="subject"
                             required
-                            placeholder="Sorununuzun kÄ±sa aÃ§Ä±klamasÄ±"
+                            placeholder="Sorununuzun kısa açıklaması"
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                         >
                     </div>
@@ -1579,12 +1580,12 @@ if (!isset($base_url)) {
                             required
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
                         >
-                            <option value="">Kategori seÃ§in</option>
+                            <option value="">Kategori seçin</option>
                             <option value="reservation">Rezervasyon</option>
-                            <option value="payment">Ã–deme</option>
-                            <option value="vehicle">AraÃ§ Bilgileri</option>
-                            <option value="account">Hesap AyarlarÄ±</option>
-                            <option value="other">DiÄŸer</option>
+                            <option value="payment">Ödeme</option>
+                            <option value="vehicle">Araç Bilgileri</option>
+                            <option value="account">Hesap Ayarları</option>
+                            <option value="other">Diğer</option>
                         </select>
                     </div>
                     
@@ -1598,7 +1599,7 @@ if (!isset($base_url)) {
                             name="message"
                             rows="6"
                             required
-                            placeholder="Sorununuzu detaylÄ± olarak aÃ§Ä±klayÄ±n"
+                            placeholder="Sorununuzu detaylı olarak açıklayın"
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
                         ></textarea>
                         <p class="mt-2 text-xs text-gray-500">Minimum 20 karakter</p>
@@ -1608,14 +1609,14 @@ if (!isset($base_url)) {
                     <div class="hidden mb-4 p-4 border-2 border-green-500 bg-green-50 text-green-700 rounded-lg" id="support-success">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-check-circle"></i>
-                            <span>MesajÄ±nÄ±z baÅŸarÄ±yla gÃ¶nderildi!</span>
+                            <span>Mesajınız başarıyla gönderildi!</span>
                         </div>
                     </div>
                     
                     <div class="hidden mb-4 p-4 border-2 border-red-500 bg-red-50 text-red-600 rounded-lg" id="support-error">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-exclamation-circle"></i>
-                            <span>Mesaj gÃ¶nderilemedi. LÃ¼tfen tÃ¼m alanlarÄ± doldurun.</span>
+                            <span>Mesaj gönderilemedi. Lütfen tüm alanları doldurun.</span>
                         </div>
                     </div>
                     
@@ -1626,7 +1627,7 @@ if (!isset($base_url)) {
                             class="w-full sm:w-auto h-11 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg active:shadow-md transition-all inline-flex items-center justify-center gap-2"
                         >
                             <i class="fas fa-paper-plane text-sm"></i>
-                            <span>GÃ¶nder</span>
+                            <span>Gönder</span>
                         </button>
                     </div>
                 </form>
@@ -1637,7 +1638,7 @@ if (!isset($base_url)) {
         <section x-show="currentSection === 'settings'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Ayarlar</h2>
-                <p class="text-gray-600">Hesap ayarlarÄ±nÄ±zÄ± yÃ¶netin</p>
+                <p class="text-gray-600">Hesap ayarlarınızı yönetin</p>
             </div>
             
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
@@ -1646,39 +1647,39 @@ if (!isset($base_url)) {
                     <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                         <div>
                             <h4 class="font-bold">E-posta Bildirimleri</h4>
-                            <p class="text-sm text-gray-600">Rezervasyon onaylarÄ± ve gÃ¼ncellemeler</p>
+                            <p class="text-sm text-gray-600">Rezervasyon onayları ve güncellemeler</p>
                         </div>
-                        <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
+                        <label for="auto_171" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_171">
                     </label>
 
                     <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                         <div>
                             <h4 class="font-bold">SMS Bildirimleri</h4>
-                            <p class="text-sm text-gray-600">Acil durumlar iÃ§in SMS</p>
+                            <p class="text-sm text-gray-600">Acil durumlar için SMS</p>
                         </div>
-                        <input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
+               <label for="auto_172" class="sr-only">Input</label><input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_172">lue-500">
                     </label>
 
                     <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                         <div>
                             <h4 class="font-bold">Promosyon Bildirimleri</h4>
-                            <p class="text-sm text-gray-600">Ä°ndirim ve kampanya duyurularÄ±</p>
+                            <p class="text-sm text-gray-600">İndirim ve kampanya duyuruları</p>
                         </div>
-                        <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
+      <label for="auto_173" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_173">us:ring-blue-500">
                     </label>
                 </div>
 
                 <div class="mt-8 pt-6 border-t">
-                    <h3 class="text-xl font-bold mb-6">GÃ¼venlik</h3>
+                    <h3 class="text-xl font-bold mb-6">Güvenlik</h3>
                     <div class="space-y-4">
                         <button class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                            <h4 class="font-bold">Åžifre DeÄŸiÅŸtir</h4>
-                            <p class="text-sm text-gray-600">Hesap gÃ¼venliÄŸiniz iÃ§in ÅŸifrenizi gÃ¼ncelleyin</p>
+                            <h4 class="font-bold">Şifre Değiştir</h4>
+                            <p class="text-sm text-gray-600">Hesap güvenliğiniz için şifrenizi güncelleyin</p>
                         </button>
 
                         <button class="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                            <h4 class="font-bold">Ä°ki FaktÃ¶rlÃ¼ DoÄŸrulama</h4>
-                            <p class="text-sm text-gray-600">Ek gÃ¼venlik katmanÄ± ekleyin</p>
+                            <h4 class="font-bold">İki Faktörlü Doğrulama</h4>
+                            <p class="text-sm text-gray-600">Ek güvenlik katmanı ekleyin</p>
                         </button>
                     </div>
                 </div>
@@ -1734,7 +1735,7 @@ if (!isset($base_url)) {
         
         root.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
         
-        console.log('âœ… Layout updated - Header: 80px, Footer:', root.style.getPropertyValue('--footer-height'), 'Sidebar:', sidebarWidth + 'px');
+        console.log('✅ Layout updated - Header: 80px, Footer:', root.style.getPropertyValue('--footer-height'), 'Sidebar:', sidebarWidth + 'px');
     }
     
     // Update on load
@@ -1777,14 +1778,14 @@ if (!isset($base_url)) {
                 // Validate file type
                 const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
                 if (!validTypes.includes(file.type)) {
-                    alert('LÃ¼tfen geÃ§erli bir resim dosyasÄ± seÃ§in (JPG, PNG veya WEBP)');
+                    alert('Lütfen geçerli bir resim dosyası seçin (JPG, PNG veya WEBP)');
                     e.target.value = '';
                     return;
                 }
                 
                 // Validate file size (2MB max)
                 if (file.size > 2 * 1024 * 1024) {
-                    alert('Resim boyutu 2MB\'dan kÃ¼Ã§Ã¼k olmalÄ±dÄ±r');
+                    alert('Resim boyutu 2MB\'dan küçük olmalıdır');
                     e.target.value = '';
                     return;
                 }
@@ -1854,7 +1855,7 @@ if (!isset($base_url)) {
                 // Show success message
                 if (successMsg) {
                     successMsg.classList.remove('hidden');
-                    successMsg.querySelector('span').textContent = result.message || 'Profil baÅŸarÄ±yla gÃ¼ncellendi!';
+                    successMsg.querySelector('span').textContent = result.message || 'Profil başarıyla güncellendi!';
                 }
                 
                 // Update session if needed
@@ -1873,7 +1874,7 @@ if (!isset($base_url)) {
                     if (sidebarImg) {
                         sidebarImg.src = result.data.image;
                         sidebarImg.style.display = 'block';
-                        console.log('âœ… Sidebar image updated:', result.data.image);
+                        console.log('✅ Sidebar image updated:', result.data.image);
                     }
                     // Persist new profile image to localStorage so other pages (like the homepage)
                     // can update their header avatars in real-time (or across tabs).
@@ -1890,7 +1891,7 @@ if (!isset($base_url)) {
                 profileForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 
             } else {
-                throw new Error(result.message || 'Profil gÃ¼ncellenirken bir hata oluÅŸtu');
+                throw new Error(result.message || 'Profil güncellenirken bir hata oluştu');
             }
             
         } catch (error) {
@@ -1899,7 +1900,7 @@ if (!isset($base_url)) {
             // Show error message
             if (errorMsg) {
                 errorMsg.classList.remove('hidden');
-                errorMsg.querySelector('span').textContent = error.message || 'Bir hata oluÅŸtu. LÃ¼tfen tekrar deneyin.';
+                errorMsg.querySelector('span').textContent = error.message || 'Bir hata oluştu. Lütfen tekrar deneyin.';
             }
             
             // Scroll to error message
@@ -1947,7 +1948,7 @@ if (!isset($base_url)) {
             const body = document.body;
             if (body && body.__x && body.__x.$data && body.__x.$data.mobileMenuOpen) {
                 body.__x.$data.mobileMenuOpen = false;
-                console.log('ðŸ” Sidebar closed via ESC key');
+                console.log('🔐 Sidebar closed via ESC key');
             }
         }
     });
@@ -1960,7 +1961,7 @@ if (!isset($base_url)) {
                 const body = document.body;
                 if (body && body.__x && body.__x.$data) {
                     body.__x.$data.mobileMenuOpen = false;
-                    console.log('ðŸ”— Sidebar closed after link click');
+                    console.log('🔗 Sidebar closed after link click');
                 }
             }
         }
@@ -1983,7 +1984,7 @@ if (!isset($base_url)) {
                             document.body.style.top = `-${scrollY}px`;
                             document.body.style.width = '100%';
                             document.body.style.overflow = 'hidden';
-                            console.log('ðŸ“± Mobile sidebar opened, body scroll prevented');
+                            console.log('📱 Mobile sidebar opened, body scroll prevented');
                         } else {
                             // Restore scroll position
                             const scrollY = document.body.style.top;
@@ -1994,7 +1995,7 @@ if (!isset($base_url)) {
                             if (scrollY) {
                                 window.scrollTo(0, parseInt(scrollY || '0') * -1);
                             }
-                            console.log('ðŸ“± Mobile sidebar closed, body scroll restored');
+                            console.log('📱 Mobile sidebar closed, body scroll restored');
                         }
                     } else {
                         // Desktop: ensure body scroll is enabled
@@ -2020,12 +2021,12 @@ if (!isset($base_url)) {
             const body = document.body;
             if (body && body.__x && body.__x.$data && body.__x.$data.mobileMenuOpen) {
                 body.__x.$data.mobileMenuOpen = false;
-                console.log('ðŸ’» Resized to desktop, sidebar auto-closed');
+                console.log('💻 Resized to desktop, sidebar auto-closed');
             }
         }
     });
     
-    console.log('âœ… Mobile sidebar toggle initialized');
+    console.log('✅ Mobile sidebar toggle initialized');
     
 })();
 
@@ -2122,7 +2123,7 @@ if (!isset($base_url)) {
             }
         });
         
-        console.log(`â™¿ Sidebar focusability: ${isVisible ? 'enabled' : 'disabled'} (mobile: ${isMobile})`);
+        console.log(`♿ Sidebar focusability: ${isVisible ? 'enabled' : 'disabled'} (mobile: ${isMobile})`);
     }
     
     /**
@@ -2169,7 +2170,7 @@ if (!isset($base_url)) {
         }
     });
     
-    console.log('âœ… Sidebar accessibility manager initialized');
+    console.log('✅ Sidebar accessibility manager initialized');
     
 })();
 
@@ -2180,7 +2181,7 @@ if (!isset($base_url)) {
 (function() {
     'use strict';
     
-    console.log('âœ… Dashboard layout initialized with proper flex structure');
+    console.log('✅ Dashboard layout initialized with proper flex structure');
     
 })();
 
@@ -2287,7 +2288,7 @@ if (!isset($base_url)) {
             });
         });
         
-        console.log('âœ… Form validation initialized');
+        console.log('✅ Form validation initialized');
     });
     
 })();
@@ -2295,6 +2296,9 @@ if (!isset($base_url)) {
 
 </body>
 </html>
+
+
+
 
 
 

@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ã–deme - CarWash</title>
+    <title>Ödeme - CarWash</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -12,7 +12,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Order Summary -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-6">SipariÅŸ Ã–zeti</h2>
+                <h2 class="text-2xl font-bold mb-6">Sipariş Özeti</h2>
                 <div id="orderSummary" class="space-y-4">
                     <!-- Order items will be loaded here -->
                 </div>
@@ -20,8 +20,8 @@
                 <!-- Coupon Code -->
                 <div class="mt-6 pt-6 border-t">
                     <div class="flex space-x-2">
-                        <input type="text" id="couponCode" 
-                               placeholder="Ä°ndirim Kodu"
+                        <label for="couponCode" class="sr-only">İndirim Kodu</label><input type="text" id="couponCode" 
+                               placeholder="İndirim Kodu"
                                class="flex-1 rounded-md border-gray-300 shadow-sm">
                         <button onclick="applyCoupon()"
                                 class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
@@ -41,7 +41,7 @@
                         <span id="tax">0.00 TL</span>
                     </div>
                     <div class="flex justify-between text-green-600" id="discountRow" style="display: none;">
-                        <span>Ä°ndirim</span>
+                        <span>İndirim</span>
                         <span id="discount">0.00 TL</span>
                     </div>
                     <div class="flex justify-between font-bold text-lg pt-2 border-t">
@@ -53,23 +53,23 @@
 
             <!-- Payment Form -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-6">Ã–deme Bilgileri</h2>
+                <h2 class="text-2xl font-bold mb-6">Ödeme Bilgileri</h2>
                 <form id="paymentForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Kart Ãœzerindeki Ä°sim
+                            Kart Üzerindeki İsim
                         </label>
-                        <input type="text" name="cardName" required
-                               class="w-full rounded-md border-gray-300 shadow-sm">
+                        <label for="auto_label_129" class="sr-only">Card Name</label><label for="auto_label_129" class="sr-only">Card Name</label><input type="text" name="cardName" required
+                               class="w-full rounded-md border-gray-300 shadow-sm" id="auto_label_129" placeholder="Card Name">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Kart NumarasÄ±
+                            Kart Numarası
                         </label>
-                        <input type="text" name="cardNumber" required
+                        <label for="auto_label_128" class="sr-only">Card Number</label><label for="auto_label_128" class="sr-only">Card Number</label><input type="text" name="cardNumber" required
                                pattern="\d{16}" maxlength="16"
-                               class="w-full rounded-md border-gray-300 shadow-sm">
+                               class="w-full rounded-md border-gray-300 shadow-sm" id="auto_label_128" placeholder="Card Number">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -78,16 +78,16 @@
                                 Son Kullanma Tarihi
                             </label>
                             <div class="grid grid-cols-2 gap-2">
-                                <select name="expMonth" required
-                                        class="rounded-md border-gray-300 shadow-sm">
+                                <label for="auto_label_127" class="sr-only">Exp Month</label><label for="auto_label_127" class="sr-only">Exp Month</label><select name="expMonth" required
+                                        class="rounded-md border-gray-300 shadow-sm" id="auto_label_127">
                                     <option value="">Ay</option>
                                     <option value="01">01</option>
                                     <!-- ... months ... -->
                                     <option value="12">12</option>
                                 </select>
-                                <select name="expYear" required
-                                        class="rounded-md border-gray-300 shadow-sm">
-                                    <option value="">YÄ±l</option>
+                                <label for="auto_label_126" class="sr-only">Exp Year</label><label for="auto_label_126" class="sr-only">Exp Year</label><select name="expYear" required
+                                        class="rounded-md border-gray-300 shadow-sm" id="auto_label_126">
+                                    <option value="">Yıl</option>
                                     <option value="2023">2023</option>
                                     <option value="2024">2024</option>
                                     <option value="2025">2025</option>
@@ -99,15 +99,15 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 CVV
                             </label>
-                            <input type="text" name="cvv" required
+                            <label for="auto_label_125" class="sr-only">Cvv</label><label for="auto_label_125" class="sr-only">Cvv</label><input type="text" name="cvv" required
                                    pattern="\d{3}" maxlength="3"
-                                   class="w-full rounded-md border-gray-300 shadow-sm">
+                                   class="w-full rounded-md border-gray-300 shadow-sm" id="auto_label_125" placeholder="Cvv">
                         </div>
                     </div>
 
                     <button type="submit" 
                             class="w-full bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 mt-6">
-                        Ã–demeyi Tamamla
+                        Ödemeyi Tamamla
                     </button>
                 </form>
             </div>
@@ -120,5 +120,7 @@
     <script src="js/checkout.js"></script>
 </body>
 </html>
+
+
 
 

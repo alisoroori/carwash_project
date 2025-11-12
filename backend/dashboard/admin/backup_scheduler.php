@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -30,7 +30,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Frequency</label>
-                            <select id="frequency" name="frequency" required
+                            <label for="frequency" class="sr-only">Frequency</label><select id="frequency" name="frequency" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="daily">Daily</option>
                                 <option value="weekly">Weekly</option>
@@ -40,13 +40,13 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Time</label>
-                            <input type="time" id="backupTime" name="time" required
+                            <label for="backupTime" class="sr-only">Time</label><input type="time" id="backupTime" name="time" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Retention (days)</label>
-                            <input type="number" id="retention" name="retention" min="1" max="365" value="7"
+                            <label for="retention" class="sr-only">Retention</label><input type="number" id="retention" name="retention" min="1" max="365" value="7"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
                     </div>
@@ -86,6 +86,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+
 
 
 

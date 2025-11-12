@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -45,36 +45,36 @@ $carwashId = $_SESSION['carwash_id'];
             <div class="mt-3">
                 <h3 class="text-lg font-medium mb-4" id="modalTitle">Yeni Hizmet Paketi</h3>
                 <form id="serviceForm" class="space-y-4">
-                    <input type="hidden" name="serviceId" id="serviceId">
+                    <label for="serviceId" class="sr-only">Service Id</label><input type="hidden" name="serviceId" id="serviceId">
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Paket AdÄ±</label>
-                        <input type="text" name="name" id="serviceName" required
+                        <label class="block text-sm font-medium text-gray-700">Paket Adı</label>
+                        <label for="serviceName" class="sr-only">Name</label><input type="text" name="name" id="serviceName" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">AÃ§Ä±klama</label>
-                        <textarea name="description" id="serviceDescription" rows="3"
+                        <label class="block text-sm font-medium text-gray-700">Açıklama</label>
+                        <label for="serviceDescription" class="sr-only">Description</label><textarea name="description" id="serviceDescription" rows="3"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Fiyat (TL)</label>
-                        <input type="number" name="price" id="servicePrice" required min="0" step="0.01"
+                        <label for="servicePrice" class="sr-only">Price</label><input type="number" name="price" id="servicePrice" required min="0" step="0.01"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">SÃ¼re (Dakika)</label>
-                        <input type="number" name="duration" id="serviceDuration" required min="0"
+                        <label class="block text-sm font-medium text-gray-700">Süre (Dakika)</label>
+                        <label for="serviceDuration" class="sr-only">Duration</label><input type="number" name="duration" id="serviceDuration" required min="0"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
 
                     <div class="flex justify-end space-x-2">
                         <button type="button" onclick="closeServiceModal()"
                             class="px-4 py-2 text-gray-500 hover:text-gray-700">
-                            Ä°ptal
+                            İptal
                         </button>
                         <button type="submit"
                             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
@@ -90,6 +90,7 @@ $carwashId = $_SESSION['carwash_id'];
 </body>
 
 </html>
+
 
 
 

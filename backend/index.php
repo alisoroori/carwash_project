@@ -305,6 +305,8 @@ include 'includes/index-header.php';
     </div>
   </section>
 
+  <!-- Footer will be included at the bottom of the page -->
+
   <!-- About Us Section -->
   <!-- Farsça: بخش درباره ما. -->
   <!-- Türkçe: Hakkımızda Bölümü. -->
@@ -530,8 +532,8 @@ include 'includes/index-header.php';
   <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg animate-fade-in-up">
           <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4 md:mb-6">Mesaj Gönderin</h3>
           <form class="space-y-3 sm:space-y-4 md:space-y-6" method="post" action="" name="contactForm">
-            <input type="hidden" name="__form" value="contact">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+            <label for="auto_label_120" class="sr-only">Form</label><label for="auto_label_120" class="sr-only">Form</label><input type="hidden" name="__form" value="contact" id="auto_label_120">
+            <label for="auto_label_119" class="sr-only">Csrf token</label><label for="auto_label_119" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>" id="auto_label_119">
             <div>
               <label for="contactName" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">Adınız Soyadınız</label>
               <input type="text" id="contactName" name="contactName" placeholder="Adınız Soyadınız" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
@@ -582,3 +584,5 @@ include 'includes/index-header.php';
   // Include the universal footer
   include 'includes/footer.php'; 
   ?>
+
+

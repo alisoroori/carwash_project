@@ -96,7 +96,7 @@ try {
             
             // Provide SQL to update the table
             echo "<h3>SQL to fix carwash table:</h3>";
-            echo "<textarea style='width: 100%; height: 200px; font-family: monospace;'>";
+            echo "<label for="auto_1" class="sr-only">Input</label><textarea style='width: 100%; height: 200px; font-family: monospace;' id="auto_1">";
             echo "-- Add missing columns to carwash table\n";
             
             $column_definitions = [
@@ -152,3 +152,5 @@ try {
 echo "<hr>";
 echo "<p><a href='Car_Wash_Registration.php'>← Back to Registration Form</a></p>";
 ?>
+
+

@@ -765,8 +765,8 @@ include '../includes/dashboard_header.php';
                 <!-- Türkçe: Otopark Filtreleri. -->
                 <!-- English: Car Wash Filters. -->
                 <div class="filters">
-                    <input type="text" id="carwashSearch" placeholder="Otopark ara..." class="search-input">
-                    <select id="statusFilter" class="filter-select">
+                    <label for="carwashSearch" class="sr-only">Otopark ara...</label><input type="text" id="carwashSearch" placeholder="Otopark ara..." class="search-input">
+                    <label for="statusFilter" class="sr-only">Input</label><select id="statusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="active">Aktif</option>
                         <option value="inactive">Pasif</option>
@@ -872,8 +872,8 @@ include '../includes/dashboard_header.php';
                 <!-- Türkçe: Kullanıcı Filtreleri. -->
                 <!-- English: User Filters. -->
                 <div class="filters">
-                    <input type="text" id="userSearch" placeholder="Kullanıcı ara..." class="search-input">
-                    <select id="userTypeFilter" class="filter-select">
+                    <label for="userSearch" class="sr-only">Kullanıcı ara...</label><input type="text" id="userSearch" placeholder="Kullanıcı ara..." class="search-input">
+                    <label for="userTypeFilter" class="sr-only">Input</label><select id="userTypeFilter" class="filter-select">
                         <option value="">Tüm Tipler</option>
                         <option value="admin">Yönetici</option>
                         <option value="user">Kullanıcı</option>
@@ -975,8 +975,8 @@ include '../includes/dashboard_header.php';
                 </div>
 
                 <div class="filters">
-                    <input type="date" id="bookingDate" class="search-input">
-                    <select id="bookingStatus" class="filter-select">
+                    <label for="bookingDate" class="sr-only">Date</label><input type="date" id="bookingDate" class="search-input">
+                    <label for="bookingStatus" class="sr-only">Input</label><select id="bookingStatus" class="filter-select">
                         <option value="">Tüm Rezervasyonlar</option>
                         <option value="confirmed">Onaylandı</option>
                         <option value="pending">Beklemede</option>
@@ -1061,15 +1061,15 @@ include '../includes/dashboard_header.php';
                 <div class="settings-form">
                     <div class="form-group">
                         <label>Site Adı</label>
-                        <input type="text" value="Otopark Yönetim Sistemi">
+                        <label for="auto_110" class="sr-only">Input</label><input type="text" value="Otopark Yönetim Sistemi" id="auto_110">
                     </div>
                     <div class="form-group">
                         <label>Admin Email</label>
-                        <input type="email" value="admin@otoparkdemotime.com">
+               <label for="auto_111" class="sr-only">Email</label><input type="email" value="admin@otoparkdemotime.com" id="auto_111">ime.com">
                     </div>
                     <div class="form-group">
                         <label>Varsayılan Saat Ücreti (₺)</label>
-                        <input type="number" value="25">
+      <label for="auto_112" class="sr-only">Input</label><input type="number" value="25" id="auto_112">umber" value="25">
                     </div>
                     <button class="save-btn">Ayarları Kaydet</button>
                 </div>
@@ -1092,19 +1092,19 @@ include '../includes/dashboard_header.php';
                 <form id="carwashForm">
                     <div class="form-group">
                         <label>Otopark Adı</label>
-                        <input type="text" id="carwashName" required>
+                        <label for="carwashName" class="sr-only">Input</label><input type="text" id="carwashName" required>
                     </div>
                     <div class="form-group">
                         <label>Adres</label>
-                        <textarea id="carwashAddress" required></textarea>
+                        <label for="carwashAddress" class="sr-only">Input</label><textarea id="carwashAddress" required></textarea>
                     </div>
                     <div class="form-group">
                         <label>Kapasite</label>
-                        <input type="number" id="carwashCapacity" required>
+                        <label for="carwashCapacity" class="sr-only">Input</label><input type="number" id="carwashCapacity" required>
                     </div>
                     <div class="form-group">
                         <label>Saat Ücreti (₺)</label>
-                        <input type="number" id="carwashPrice" required>
+                        <label for="carwashPrice" class="sr-only">Input</label><input type="number" id="carwashPrice" required>
                     </div>
                     <div class="form-group">
                         <label for="carwashStatus">Durum</label>
@@ -1206,3 +1206,5 @@ include '../includes/footer.php';
 ?>
 </body>
 </html>
+
+

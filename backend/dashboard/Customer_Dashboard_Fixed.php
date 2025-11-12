@@ -456,39 +456,39 @@ $current_page = 'dashboard';
                     </div>
                     
                     <form @submit.prevent="saveVehicle()" class="modal-body space-y-6">
-                        <input type="hidden" name="csrf_token" :value="csrfToken">
-                        <input type="hidden" name="action" :value="editingVehicle ? 'update' : 'create'">
-                        <input type="hidden" name="id" :value="editingVehicle?.id || ''">
+                        <label for="auto_label_118" class="sr-only">Csrf token</label><label for="auto_label_118" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" :value="csrfToken" id="auto_label_118">
+                        <label for="auto_label_117" class="sr-only">Action</label><label for="auto_label_117" class="sr-only">Action</label><input type="hidden" name="action" :value="editingVehicle ? 'update' : 'create'" id="auto_label_117">
+                        <label for="auto_label_116" class="sr-only">Id</label><label for="auto_label_116" class="sr-only">Id</label><input type="hidden" name="id" :value="editingVehicle?.id || ''" id="auto_label_116">
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="input-label">Marka <span class="text-red-500">*</span></label>
-                                <input type="text" name="car_brand" x-model="formData.brand" required class="input-field" placeholder="Toyota">
+                                <label for="auto_label_115" class="sr-only">Car brand</label><label for="auto_label_115" class="sr-only">Car brand</label><input type="text" name="car_brand" x-model="formData.brand" required class="input-field" placeholder="Toyota" id="auto_label_115">
                             </div>
                             
                             <div>
                                 <label class="input-label">Model <span class="text-red-500">*</span></label>
-                                <input type="text" name="car_model" x-model="formData.model" required class="input-field" placeholder="Corolla">
+                                <label for="auto_label_114" class="sr-only">Car model</label><label for="auto_label_114" class="sr-only">Car model</label><input type="text" name="car_model" x-model="formData.model" required class="input-field" placeholder="Corolla" id="auto_label_114">
                             </div>
                             
                             <div>
                                 <label class="input-label">Plaka <span class="text-red-500">*</span></label>
-                                <input type="text" name="license_plate" x-model="formData.license_plate" required class="input-field" placeholder="34 ABC 123">
+                                <label for="auto_label_113" class="sr-only">License plate</label><label for="auto_label_113" class="sr-only">License plate</label><input type="text" name="license_plate" x-model="formData.license_plate" required class="input-field" placeholder="34 ABC 123" id="auto_label_113">
                             </div>
                             
                             <div>
                                 <label class="input-label">Yıl</label>
-                                <input type="number" name="car_year" x-model="formData.year" :max="new Date().getFullYear()" class="input-field" placeholder="2020">
+                                <label for="auto_label_112" class="sr-only">Car year</label><label for="auto_label_112" class="sr-only">Car year</label><input type="number" name="car_year" x-model="formData.year" :max="new Date().getFullYear()" class="input-field" placeholder="2020" id="auto_label_112">
                             </div>
                             
                             <div>
                                 <label class="input-label">Renk</label>
-                                <input type="text" name="car_color" x-model="formData.color" class="input-field" placeholder="Beyaz">
+                                <label for="auto_label_111" class="sr-only">Car color</label><label for="auto_label_111" class="sr-only">Car color</label><input type="text" name="car_color" x-model="formData.color" class="input-field" placeholder="Beyaz" id="auto_label_111">
                             </div>
                             
                             <div>
                                 <label class="input-label">Araç Fotoğrafı</label>
-                                <input type="file" name="vehicle_image" @change="previewImage($event)" accept="image/*" class="input-field">
+                                <label for="auto_label_110" class="sr-only">Vehicle image</label><label for="auto_label_110" class="sr-only">Vehicle image</label><input type="file" name="vehicle_image" @change="previewImage($event)" accept="image/*" class="input-field" id="auto_label_110">
                             </div>
                         </div>
                         
@@ -542,7 +542,7 @@ $current_page = 'dashboard';
                         }
                     }
                     ?>
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+                    <label for="auto_label_109" class="sr-only">Csrf token</label><label for="auto_label_109" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_109">">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="profile_name_fixed" class="input-label">Ad Soyad</label>
@@ -583,11 +583,11 @@ $current_page = 'dashboard';
                 <form class="space-y-6">
                     <div>
                         <label class="input-label">Konu</label>
-                        <input type="text" placeholder="Sorununuzun kısa açıklaması" class="input-field">
+                        <label for="auto_174" class="sr-only">Sorununuzun kısa açıklaması</label><input type="text" placeholder="Sorununuzun kısa açıklaması" class="input-field" id="auto_174">
                     </div>
                     <div>
                         <label class="input-label">Mesaj</label>
-                        <textarea rows="6" placeholder="Sorununuzu detaylı olarak açıklayın" class="input-field resize-none"></textarea>
+                        <label for="auto_175" class="sr-only">Sorununuzu detaylı olarak açıklayın</label><textarea rows="6" placeholder="Sorununuzu detaylı olarak açıklayın" class="input-field resize-none" id="auto_175"></textarea>
                     </div>
                     <div class="flex justify-end">
                         <button type="submit" class="btn-primary gradient-bg border-0">
@@ -604,3 +604,6 @@ $current_page = 'dashboard';
 
 </body>
 </html>
+
+
+

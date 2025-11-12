@@ -134,7 +134,7 @@ $custom_header_content = '
 <div class="workplace-toggle-container">
     <span class="toggle-label" id="toggleLabel">İşletme Kapalı</span>
     <label class="toggle-switch" title="İşletme Durumu">
-        <input type="checkbox" id="workplaceStatus" checked onchange="toggleWorkplaceStatus()">
+        <label for="workplaceStatus" class="sr-only">Input</label><input type="checkbox" id="workplaceStatus" checked onchange="toggleWorkplaceStatus()">
         <span class="slider"></span>
     </label>
     <div class="status-indicator status-open" id="statusIndicator">
@@ -358,6 +358,19 @@ include '../includes/dashboard_header.php';
 
     .mobile-menu-btn.active {
       background: #e53e3e;
+    }
+
+    /* Accessibility: visually hidden text for screen readers */
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
     }
 
     /* Desktop Sidebar - Sticky position inside container */
@@ -588,8 +601,9 @@ include '../includes/dashboard_header.php';
   </style>
 
 <!-- Mobile Menu Button -->
-<button class="mobile-menu-btn" onclick="toggleMobileSidebar()" id="mobileMenuBtn">
-    <i class="fas fa-bars" id="menuIcon"></i>
+<button class="mobile-menu-btn" onclick="toggleMobileSidebar()" id="mobileMenuBtn" title="Menüyü aç veya kapat" aria-label="Menüyü aç veya kapat">
+  <i class="fas fa-bars" id="menuIcon" aria-hidden="true"></i>
+  <span class="sr-only">Menüyü aç veya kapat</span>
 </button>
 
 <!-- Mobile Overlay -->
@@ -878,7 +892,8 @@ include '../includes/dashboard_header.php';
         <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <div class="flex flex-wrap justify-between items-center gap-4">
             <div class="flex space-x-4">
-              <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <label for="filterStatus" class="sr-only">Durum</label>
+              <select id="filterStatus" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Durum filtresi" aria-label="Durum filtresi">
                 <option>Tüm Durumlar</option>
                 <option>Bekliyor</option>
                 <option>Onaylandı</option>
@@ -887,7 +902,7 @@ include '../includes/dashboard_header.php';
                 <option>İptal Edildi</option>
               </select>
 
-              <input type="date" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <label for="auto_113" class="sr-only">Date</label><input type="date" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_113">
             </div>
 
             <div class="flex space-x-2">
@@ -1153,11 +1168,13 @@ include '../includes/dashboard_header.php';
                   <div class="text-right">
                     <div class="font-bold text-lg">₺130</div>
                     <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-edit"></i>
+                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Hizmeti düzenle">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
+                        <span class="sr-only">Düzenle</span>
                       </button>
-                      <button class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-trash"></i>
+                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Hizmeti sil">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <span class="sr-only">Sil</span>
                       </button>
                     </div>
                   </div>
@@ -1176,11 +1193,13 @@ include '../includes/dashboard_header.php';
                   <div class="text-right">
                     <div class="font-bold text-lg">₺200</div>
                     <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-edit"></i>
+                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Hizmeti düzenle">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
+                        <span class="sr-only">Düzenle</span>
                       </button>
-                      <button class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-trash"></i>
+                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Hizmeti sil">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <span class="sr-only">Sil</span>
                       </button>
                     </div>
                   </div>
@@ -1199,11 +1218,13 @@ include '../includes/dashboard_header.php';
                   <div class="text-right">
                     <div class="font-bold text-lg">₺250</div>
                     <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-edit"></i>
+                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Düzenle">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
+                        <span class="sr-only">Düzenle</span>
                       </button>
-                      <button class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-trash"></i>
+                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Sil">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <span class="sr-only">Sil</span>
                       </button>
                     </div>
                   </div>
@@ -1289,11 +1310,13 @@ include '../includes/dashboard_header.php';
                   </div>
                   <div class="text-right">
                     <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-edit"></i>
+                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Personeli düzenle">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
+                        <span class="sr-only">Düzenle</span>
                       </button>
-                      <button class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-trash"></i>
+                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Personeli sil">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <span class="sr-only">Sil</span>
                       </button>
                     </div>
                   </div>
@@ -1311,11 +1334,13 @@ include '../includes/dashboard_header.php';
                   </div>
                   <div class="text-right">
                     <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-edit"></i>
+                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Personeli düzenle">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
+                        <span class="sr-only">Düzenle</span>
                       </button>
-                      <button class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-trash"></i>
+                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Personeli sil">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <span class="sr-only">Sil</span>
                       </button>
                     </div>
                   </div>
@@ -1333,11 +1358,13 @@ include '../includes/dashboard_header.php';
                   </div>
                   <div class="text-right">
                     <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-edit"></i>
+                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Personeli düzenle">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
+                        <span class="sr-only">Düzenle</span>
                       </button>
-                      <button class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-trash"></i>
+                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Personeli sil">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <span class="sr-only">Sil</span>
                       </button>
                     </div>
                   </div>
@@ -1355,11 +1382,13 @@ include '../includes/dashboard_header.php';
                   </div>
                   <div class="text-right">
                     <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-edit"></i>
+                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Personeli düzenle">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
+                        <span class="sr-only">Düzenle</span>
                       </button>
-                      <button class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-trash"></i>
+                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Personeli sil">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <span class="sr-only">Sil</span>
                       </button>
                     </div>
                   </div>
@@ -1753,30 +1782,28 @@ include '../includes/dashboard_header.php';
               <form class="space-y-4">
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Adı</label>
-                  <input type="text" value="CarWash Merkez" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+         <label for="auto_114" class="sr-only">Input</label><input type="text" value="CarWash Merkez" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_114">lue-500">
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
-                  <textarea rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">İstanbul, Kadıköy, Moda Mahallesi, No: 123</textarea>
+                  <label for="auto_115" class="sr-only">Input</label><textarea rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_115">İstanbul, Kadıköy, Moda Mahallesi, No: 123</textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
-                    <input type="tel" value="0216 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+  <label for="auto_116" class="sr-only">Phone</label><input type="tel" value="0216 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_116">:border-blue-500">
                   </div>
                   <!-- Farsça: فیلد شماره تلفن همراه. -->
                   <!-- Türkçe: Cep Telefonu Numarası Alanı. -->
                   <!-- English: Mobile Phone Number Field. -->
                   <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Cep Telefonu</label>
-                    <input type="tel" value="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Cep Telefonu</l<label for="auto_117" class="sr-only">Phone</label><input type="tel" value="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_117">one focus:border-blue-500">
                   </div>
                 </div>
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
-                  <input type="email" value="info@carwashmerkez.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                  <label class="block text-sm font-bold text-gray-700 mb-2"<label for="auto_118" class="sr-only">Email</label><input type="email" value="info@carwashmerkez.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_118">outline-none focus:border-blue-500">
                 </div>
 
                 <!-- Farsça: گزینه بارگذاری لوگو. -->
@@ -1786,7 +1813,7 @@ include '../includes/dashboard_header.php';
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Logosu</label>
                   <div class="flex items-center space-x-4">
                     <img id="currentLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Current Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
-                    <input type="file" id="logoUpload" class="hidden" accept="image/*" onchange="previewLogo(event)">
+                    <label for="logoUpload" class="sr-only">Choose file</label><input type="file" id="logoUpload" class="hidden" accept="image/*" onchange="previewLogo(event)">
                     <button type="button" onclick="document.getElementById('logoUpload').click()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
                       <i class="fas fa-upload mr-2"></i>Logo Yükle
                     </button>
@@ -1800,46 +1827,31 @@ include '../includes/dashboard_header.php';
                   <label class="block text-sm font-bold text-gray-700 mb-2">Çalışma Saatleri</label>
                   <div class="space-y-2">
                     <div class="flex items-center space-x-2">
-                      <span class="w-24 text-gray-600">Pazartesi:</span>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg">
-                      <span>-</span>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg">
+                      <span class="w-24 text-gray-6<label for="auto_119" class="sr-only">Time</label><input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_119">00" class="w-24 px-3 py-2 border rounded-lg">
+      <label for="auto_120" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_120">alue="20:00" class="w-24 px-3 py-2 border rounded-lg">
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="w-24 text-gray-600">Salı:</span>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg">
-                      <span>-</span>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg">
+                      <span c<label for="auto_121" class="sr-only">Time</label><input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_121">="time" value="08:00" class="w-24 px-3 py-2 border ro<label for="auto_122" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_122">nput type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg">
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="w-24 text-gray-600">Çarşamba:</span>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg">
-                      <span>-</span>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg">
+                <label for="auto_123" class="sr-only">Time</label><input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_123">       <label for="auto_124" class="sr-only">Time</label><input type="time" value="08:00" class="w-24 p<input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_124">                <label for="auto_125" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_125">
                     </div>
-                    <div class="flex items-center space-x-2">
-                      <span class="w-24 text-gray-600">Perşembe:</span>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg">
-                      <span>-</span>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg">
+                    <div class="flex items-center space-x-2"<label for="auto_126" class="sr-only">Time</label><input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_126">>
+                      <label for="auto_127" class="sr-only">Time</label><input type="time" value="08<input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_127">n>-</span>
+                      <label for="auto_128" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_128">
                     </div>
-                    <div class="flex items-center space-x-2">
-                      <span class="w-24 text-gray-600">Cuma:</span>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg">
-                      <span>-</span>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg">
+                    <div class="flex <label for="auto_129" class="sr-only">Time</label><input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_129">y-600">Cuma:</span>
+                      <label for="auto_130" class="sr-only">Time</label><input typ<input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_130">              <span>-</span>
+                      <label for="auto_131" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_131">
                     </div>
-                    <div class="flex items-center space-x-2">
-                      <span class="w-24 text-gray-600">Cumartesi:</span>
-                      <input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg">
+                    <div<label for="auto_132" class="sr-only">Time</label><input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_132">w-24 text-gray-600">Cumartesi:</span>
+              <label for="auto_133" class="sr-only">Time</label><input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_133">ded-lg">
                       <span>-</span>
-                      <input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg">
+                      <label for="auto_134" class="sr-only">Time</label><input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_134">
                     </div>
-                    <div class="flex items-center space-x-2">
-                      <span class="w-24 text-gray-600">Pazar:</span>
-                      <input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg">
+  <label for="auto_135" class="sr-only">Time</label><input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_135">         <span class="w-24 text-gray-600">Pazar:</spa<label for="auto_136" class="sr-only">Time</label><input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_136">3 py-2 border rounded-lg">
                       <span>-</span>
-                      <input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg">
+                      <label for="auto_137" class="sr-only">Time</label><input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_137">
                     </div>
                   </div>
                 </div>
@@ -1855,34 +1867,30 @@ include '../includes/dashboard_header.php';
               <div class="space-y-4">
                 <label class="flex items-center justify-between p-4 border rounded-lg">
                   <div>
-                    <h4 class="font-bold">Otomatik Faturalandırma</h4>
-                    <p class="text-sm text-gray-600">Hizmet tamamlandıktan sonra otomatik fatura oluştur</p>
+                    <h4 class="font-bold">Otomatik Fatural<label for="auto_138" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_138">n sonra otomatik fatura oluştur</p>
                   </div>
-                  <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
+                  <label for="auto_139" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_139">
                 </label>
 
                 <label class="flex items-center justify-between p-4 border rounded-lg">
                   <div>
-                    <h4 class="font-bold">SMS Bildirimleri</h4>
-                    <p class="text-sm text-gray-600">Müşterilere SMS ile hatırlatma gönder</p>
+                    <h4 class<label for="auto_140" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_140">Müşterilere SMS ile hatırlatma gönder</p>
                   </div>
-                  <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
+                  <label for="auto_141" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_141">
                 </label>
 
                 <label class="flex items-center justify-between p-4 border rounded-lg">
                   <div>
-                    <h4 class="font-bold">E-posta Bildirimleri</h4>
-                    <p class="text-sm text-gray-600">Rezervasyon onayları için e-posta gönder</p>
+                    <h4 cl<label for="auto_142" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_142">y-600">Rezervasyon onayları için e-posta gönder</p>
                   </div>
-                  <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
+                  <label for="auto_143" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_143">
                 </label>
 
                 <label class="flex items-center justify-between p-4 border rounded-lg">
                   <div>
-                    <h4 class="font-bold">Otomatik Yedekleme</h4>
-                    <p class="text-sm text-gray-600">Verileri günlük olarak yedekle</p>
+    <label for="auto_144" class="sr-only">Input</label><input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_144">  <p class="text-sm text-gray-600">Verileri günlük olarak yedekle</p>
                   </div>
-                  <input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500">
+                  <label for="auto_145" class="sr-only">Input</label><input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_145">
                 </label>
 
                 <div class="pt-4 border-t">
@@ -1913,8 +1921,9 @@ include '../includes/dashboard_header.php';
       <div class="p-4 border-b">
         <div class="flex justify-between items-center">
           <h3 class="font-bold">Bildirimler</h3>
-          <button onclick="closeNotifications()" class="text-gray-400 hover:text-gray-600">
-            <i class="fas fa-times"></i>
+          <button onclick="closeNotifications()" class="text-gray-400 hover:text-gray-600" title="Bildirimleri kapat" aria-label="Bildirimleri kapat">
+            <i class="fas fa-times" aria-hidden="true"></i>
+            <span class="sr-only">Bildirimleri kapat</span>
           </button>
         </div>
       </div>
@@ -1947,41 +1956,26 @@ include '../includes/dashboard_header.php';
     <!-- English: Manual Reservation Modal. -->
     <div id="manualReservationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
       <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-        <h3 class="text-xl font-bold mb-6">Manuel Rezervasyon Oluştur</h3>
-        <form class="space-y-4">
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Müşteri Adı Soyadı</label>
-            <input type="text" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+        <h3 class="text-xl font-bol<label for="auto_146" class="sr-only">Müşteri adını girin</label><input type="text" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_146">mb-2">Müşteri Adı Soyadı</label>
+            <label for="auto_147" class="sr-only">Müşteri adını girin</label><input type="text" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border <input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_147">ont-bold text-gray-700 mb-2">Müşteri Telefonu</label>
+            <label for="auto_148" class="sr-only">05XX XXX XX XX</label><input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_148">
           </div>
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Müşteri Telefonu</label>
-            <input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
-            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <label for="manualServiceSelect" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
+            <select id="manualServiceSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Hizmet seçin" aria-label="Hizmet seçin">
               <option>Dış Yıkama + İç Temizlik</option>
-              <option>Tam Detaylandırma</option>
-              <option>Premium Paket</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Araç Plakası</label>
-            <input type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
+              <option>Tam Detayland�<label for="auto_149" class="sr-only">34 ABC 123</label><input type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_149">"block text-sm font-bold text-gray-700 mb-2">Araç Plakası</label>
+            <label for="auto_150" class="sr-only">34 ABC 123</label><input type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded<input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_150">       <div>
               <label class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
-              <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
+              <label for="auto_151" class="sr-only">Input</label><input type="date<input type="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_151">iv>
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
-              <input type="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <label for="auto_152" class="sr-only">Time</label><input type="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_152">
             </div>
           </div>
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">Notlar (İsteğe Bağlı)</label>
-            <textarea rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+   <label for="auto_153" class="sr-only">Input</label><textarea rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_153">lue-500"></textarea>
           </div>
           <div class="flex space-x-3">
             <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Rezervasyon Oluştur</button>
@@ -1995,24 +1989,16 @@ include '../includes/dashboard_header.php';
     <!-- Türkçe: Müşteri Ekle Modalı. -->
     <!-- English: Customer Add Modal. -->
     <div id="customerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-        <h3 class="text-xl font-bold mb-6">Yeni Müşteri Ekle</h3>
-        <form class="space-y-4">
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Ad Soyad</label>
-            <input type="text" placeholder="Müşteri Adı Soyadı" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-          </div>
-          <div>
+      <div class="bg-white rounded-<label for="auto_154" class="sr-only">Müşteri Adı Soyadı</label><input type="text" placeholder="Müşteri Adı Soyadı" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_154">        <label class="block text-sm font-bold text-gray-700 mb-2">Ad Soyad</label>
+            <label for="auto_155" class="sr-only">email@example.com</label><input type="text" placeholder=<input type="email" placeholder="email@example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_155">   <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
-            <input type="email" placeholder="email@example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-          </div>
+            <label for="auto_156" class="sr-only">05XX XXX XX XX</label><input type="email<input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_156">/div>
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
-            <input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <label for="auto_157" class="sr-only">05XX XXX XX XX</label><input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_157">
           </div>
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Adres (İsteğe Bağlı)</label>
-            <textarea rows="2" placeholder="Müşteri Adresi" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Adres (İsteğe Bağlı)</la<label for="auto_158" class="sr-only">Müşteri Adresi</label><textarea rows="2" placeholder="Müşteri Adresi" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_158">:border-blue-500"></textarea>
           </div>
           <div class="flex space-x-3">
             <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Müşteri Ekle</button>
@@ -2026,25 +2012,21 @@ include '../includes/dashboard_header.php';
     <!-- Türkçe: Hizmet Modalı. -->
     <!-- English: Service Modal. -->
     <div id="serviceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-        <h3 class="text-xl font-bold mb-6">Yeni Hizmet Ekle</h3>
-        <form class="space-y-4">
+      <d<label for="auto_159" class="sr-only">Hizmet adını girin</label><input type="text" placeholder="Hizmet adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_159">4">
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">Hizmet Adı</label>
-            <input type="text" placeholder="Hizmet adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <label for="auto_160" class="sr-only">Hizmet adını girin</label><input type="text" placeholder="Hizmet adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_160">
           </div>
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">Açıklama</label>
-            <textarea rows="3" placeholder="Hizmet açıklaması" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
-          </div>
-          <div class="grid grid-cols-2 gap-4">
+            <label for="auto_161" class="sr-only">Hizmet açıklaması</label><textarea rows="3" placeholder="Hizmet açıklaması" class="w-full px<input type="number" placeholder="60" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_161">rid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-2">Süre (dk)</label>
-              <input type="number" placeholder="60" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+   <label for="auto_162" class="sr-only">150</label><input type="number" placeholder="150" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_162">blue-500">
             </div>
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-2">Fiyat (₺)</label>
-              <input type="number" placeholder="150" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <label for="auto_163" class="sr-only">150</label><input type="number" placeholder="150" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_163">
             </div>
           </div>
           <div class="flex space-x-3">
@@ -2058,42 +2040,33 @@ include '../includes/dashboard_header.php';
     <!-- Farsça: مودال پرسنل. -->
     <!-- Türkçe: Personel Modalı. -->
     <!-- English: Staff Modal. -->
-    <div id="staffModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-        <h3 class="text-xl font-bold mb-6">Personel Ekle</h3>
+    <div id="staffModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justi<label for="auto_164" class="sr-only">Ad soyad girin</label><input type="text" placeholder="Ad soyad girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_164"></h3>
         <form class="space-y-4">
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">Ad Soyad</label>
-            <input type="text" placeholder="Ad soyad girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <label for="auto_165" class="sr-only">Ad soyad girin</label><input type="text" placeholder="Ad soyad girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_165">
           </div>
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Pozisyon</label>
-            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <label for="staffPositionSelect" class="block text-sm font-bold text-gray-700 mb-2">Pozisyon</label>
+            <select id="staffPositionSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Pozisyon seçin" aria-label="Pozisyon seçin">
               <option>Teknisyen</option>
               <option>Senior Teknisyen</option>
               <option>Çırak</option>
               <option>Resepsiyonist</option>
               <option>Yönetici</option>
-              <!-- Farsça: موقعیت راننده اضافه شد. -->
-              <!-- Türkçe: Şoför Pozisyonu Eklendi. -->
-              <!-- English: Driver Position Added. -->
-              <option>Şoför</option>
+              <!-- Farsça: موقعیت راننده اضافه شد. --><label for="auto_166" class="sr-only">0555 123 4567</label><input type="tel" placeholder="0555 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_166">r</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
-            <input type="tel" placeholder="0555 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <label class="block text-sm font-bold text-gr<label for="auto_167" class="sr-only">email@domain.com</label><input type="email" placeholder="email@domain.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_167">:outline-none focus:border-blue-500">
           </div>
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">E-posta</label>
-            <input type="email" placeholder="email@domain.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-          </div>
-          <!-- Farsça: فیلد بارگذاری گواهی. -->
-          <!-- Türkçe: Sertifika Yükleme Alanı. -->
-          <!-- English: Upload Certificate Field. -->
+            <label for="auto_168" class="sr-only">email@domain.com</label><input type="email" placeholder="email@domain.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_168">
+        <label for="auto_169" class="sr-only">Choose file</label><input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" accept=".pdf,.doc,.docx,.jpg,.png" id="auto_169">sh: Upload Certificate Field. -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">Sertifika Yükle (İsteğe Bağlı)</label>
-            <input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" accept=".pdf,.doc,.docx,.jpg,.png">
+            <label for="auto_170" class="sr-only">Choose file</label><input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" accept=".pdf,.doc,.docx,.jpg,.png" id="auto_170">
           </div>
           <div class="flex space-x-3">
             <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
@@ -2323,3 +2296,6 @@ include '../includes/dashboard_header.php';
 // Include the universal footer
 include '../includes/footer.php'; 
 ?>
+
+
+

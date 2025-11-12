@@ -37,12 +37,12 @@
         <h2>Test 3: Simulate Vehicle Update</h2>
         <div id="vehicle-selector"></div>
         <div id="update-form" style="display:none;">
-            <label>Vehicle ID: <input type="text" id="update_id" readonly></label>
-            <label>Brand: <input type="text" id="update_brand"></label>
-            <label>Model: <input type="text" id="update_model"></label>
-            <label>License Plate: <input type="text" id="update_license"></label>
-            <label>Year: <input type="number" id="update_year"></label>
-            <label>Color: <input type="text" id="update_color"></label>
+            <label>Vehicle ID: <label for="update_id" class="sr-only">Input</label><input type="text" id="update_id" readonly></label>
+            <label>Brand: <label for="update_brand" class="sr-only">Input</label><input type="text" id="update_brand"></label>
+            <label>Model: <label for="update_model" class="sr-only">Input</label><input type="text" id="update_model"></label>
+            <label>License Plate: <label for="update_license" class="sr-only">Input</label><input type="text" id="update_license"></label>
+            <label>Year: <label for="update_year" class="sr-only">Input</label><input type="number" id="update_year"></label>
+            <label>Color: <label for="update_color" class="sr-only">Input</label><input type="text" id="update_color"></label>
             <br><br>
             <button onclick="testUpdateVehicle()">Update Vehicle</button>
         </div>
@@ -137,7 +137,7 @@
                         const selector = document.getElementById('vehicle-selector');
                         selector.innerHTML = `
                             <label>Select Vehicle to Update:
-                                <select id="vehicle-select" onchange="populateUpdateForm()">
+                                <label for="vehicle-select" class="sr-only">Input</label><select id="vehicle-select" onchange="populateUpdateForm()">
                                     <option value="">-- Select Vehicle --</option>
                                     ${vehicles.map(v => `<option value="${v.id}">${v.brand} ${v.model} (${v.license_plate})</option>`).join('')}
                                 </select>
@@ -279,3 +279,4 @@
     </script>
 </body>
 </html>
+

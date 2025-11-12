@@ -152,7 +152,7 @@ try {
             <span class="close">&times;</span>
             <h2>Add/Edit Service</h2>
             <form id="serviceForm">
-                <input type="hidden" name="id" id="serviceId">
+                <label for="serviceId" class="sr-only">Id</label><input type="hidden" name="id" id="serviceId">
                 <div class="form-group">
                     <label for="serviceName">Service Name</label>
                     <input type="text" id="serviceName" name="name" required>
@@ -174,3 +174,4 @@ try {
 </body>
 
 </html>
+

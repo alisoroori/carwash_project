@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -86,17 +86,14 @@
         <h2>General Setup</h2>
         <div class="grid">
           <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="general_browser_console">Browser console has no JS errors</label></div>
-            <div class="task"><label><input type="checkbox" data-key="general_fonts_css">All fonts and CSS load correctly</label></div>
-            <div class="task"><label><input type="checkbox" data-key="general_links">All header/footer links return 200 (no 404)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="general_responsive">Responsive layout on mobile/tablet</label></div>
+            <div class="task"><label><input type="checkbox" data-key="general_browser_console" id="$id">Browser console has no JS errors</label></div>
+            <div class="task<input type="checkbox" data-key="general_fonts_css" id="$id">nts_css">All fonts and CSS load correctly</label></div>
+            <div cl<input type="checkbox" data-key="general_links" id="$id">y="general_links">All header/footer links return 200 (no 404)</label></div>
+          <input type="checkbox" data-key="general_responsive" id="$id">a-key="general_responsive">Responsive layout on mobile/tablet</label></div>
           </div>
 
           <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="general_accessibility">Basic accessibility checks (labels, alt text)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="general_performance">Pages load quickly (no large blocking resources)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="general_print">Print view / PDF export looks OK</label></div>
-            <div class="task"><label><input type="checkbox" data-key="general_consistency">Colors and styles consistent across pages</label></div>
+ <input type="checkbox" data-key="general_accessibility" id="$id">x" data-key="general_accessibility">Basic accessibility checks (labels, alt text)</label><input type="checkbox" data-key="general_performance" id="$id">pe="checkbox" data-key="general_performance">Pages load quickly (no large blocking resources<input type="checkbox" data-key="general_print" id="$id">label><input type="checkbox" data-key="general_print">Print view / PDF expor<input type="checkbox" data-key="general_consistency" id="$id">"><label><input type="checkbox" data-key="general_consistency">Colors and styles consistent across pages</label></div>
           </div>
         </div>
       </section>
@@ -104,91 +101,61 @@
       <section>
         <h2>Authentication (Register / Login / Logout)</h2>
         <div class="grid">
-          <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="auth_register_success">Register: new user saved to database</label></div>
-            <div class="task"><label><input type="checkbox" data-key="auth_register_duplicate">Register: duplicate email shows proper error</label></div>
-            <div class="task"><label><input type="checkbox" data-key="auth_password_hash">Passwords stored hashed (not plain text)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="auth_register_validation">Register form validates required fields</label></div>
-          </div>
-
-          <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="auth_login_success">Login with correct credentials works</label></div>
-            <div class="task"><label><input type="checkbox" data-key="auth_login_failure">Wrong credentials show an error</label></div>
-            <div class="task"><label><input type="checkbox" data-key="auth_session_created">Session created after login</label></div>
+   <input type="checkbox" data-key="auth_register_success" id="$id">s="task"><label><input type="checkbox" data-key="auth_register_success">Register<input type="checkbox" data-key="auth_register_duplicate" id="$id">iv class="task"><label><input type="checkbox" data-key="auth_register_duplicate">Registe<input type="checkbox" data-key="auth_password_hash" id="$id">            <div class="task"><label><input type="checkbox" data-key="auth_password_<input type="checkbox" data-key="auth_register_validation" id="$id">>
+            <div class="task"><label><input type="checkbox" data-key="auth_register_validation">Register form validates required fields</l<input type="checkbox" data-key="auth_login_success" id="$id">="section-card">
+            <div class="task"><label><input type="checkbox" da<input type="checkbox" data-key="auth_login_failure" id="$id">tials works</label></div>
+            <div class="task"><label><input type<input type="checkbox" data-key="auth_session_created" id="$id">ials show an error</label></div>
+            <div class="task"><label><input type="checkbox" data-key="auth_logout" id="$id">created">Session created after login</label></div>
             <div class="task"><label><input type="checkbox" data-key="auth_logout">Logout clears session and redirects</label></div>
           </div>
         </div>
       </section>
 
-      <section>
-        <h2>Forget Password</h2>
-        <div class="grid">
+      <sec<input type="checkbox" data-key="fp_email_exists" id="$id">div class="grid">
           <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="fp_email_exists">Existing email triggers reset flow / email</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fp_email_notfound">Unknown email shows appropriate message</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fp_token_validity">Reset tokens expire and are single-use</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fp_frontend_msg">Frontend shows success/error messages properly</label></div>
+            <div class="task"<input type="checkbox" data-key="fp_email_notfound" id="$id">ists">Existing email triggers reset flow / email</label></div>
+            <div cl<input type="checkbox" data-key="fp_token_validity" id="$id">p_email_notfound">Unknown email shows appropriate message</label></div>
+         <input type="checkbox" data-key="fp_frontend_msg" id="$id"> data-key="fp_token_validity">Reset tokens expire and are single-use</label></div>
+            <div class="task"><label><input type="checkbox" data<input type="checkbox" data-key="fp_reset_flow" id="$id">ror messages properly</label></div>
           </div>
 
-          <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="fp_reset_flow">Reset link leads to secure reset form</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fp_password_update">Password is updated after reset (hashed)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fp_no_info_leak">No sensitive info leaked during reset (error messages)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fp_rate_limit">Rate limiting or abuse protection in place</label></div>
-          </div>
-        </div>
-      </section>
+          <div class="se<input type="checkbox" data-key="fp_password_update" id="$id">nput type="checkbox" data-key="fp_reset_flow">Reset link leads to secure reset form<<input type="checkbox" data-key="fp_no_info_leak" id="$id">l><input type="checkbox" data-key="fp_password_update">Password is updated after reset (hashed)</l<input type="checkbox" data-key="fp_rate_limit" id="$id">l><input type="checkbox" data-key="fp_no_info_leak">No sensitive info leaked during reset (error messages)</label></div>
+            <div class="task"><label><input type="checkbox" data-key="fp_rate_limit">Rate limiting or abuse protection in place</label></<input type="checkbox" data-key="dash_customer" id="$id">section>
 
       <section>
         <h2>Dashboard & Roles</h2>
-        <div class="grid">
-          <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="dash_customer">Customer dashboard loads after login</label></div>
-            <div class="task"><label><input type="checkbox" data-key="dash_carwash">Car wash dashboard loads and shows data</label></div>
-            <div class="task"><label><input type="checkbox" data-key="dash_protect_pages">Protected pages redirect non-logged-in users</label></div>
-            <div class="task"><label><input type="checkbox" data-key="dash_role_permissions">Role-based permissions are enforced</label></div>
-          </div>
-
-          <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="dash_ui_elements">UI elements (tables, buttons) behave correctly</label></div>
-            <div class="task"><label><input type="checkbox" data-key="dash_responsive">Dashboard responsive on small screens</label></div>
+        <div cl<input type="checkbox" data-key="dash_carwash" id="$id">">
+            <div class="task"><label><input type="checkbox" data-key="dash_cust<input type="checkbox" data-key="dash_protect_pages" id="$id">iv>
+            <div class="task"><label><input type="checkbox" data-key="dash_carwash"<input type="checkbox" data-key="dash_role_permissions" id="$id">            <div class="task"><label><input type="checkbox" data-key="dash_protect_pages">Protected pages redirect non-logged-in users</l<input type="checkbox" data-key="dash_ui_elements" id="$id">input type="checkbox" data-key="dash_role_permissions">Role-based permissions are enforced<input type="checkbox" data-key="dash_responsive" id="$id"> class="section-card">
+            <div class="task"><label><input type="checkbo<input type="checkbox" data-key="dash_performance" id="$id"> buttons) behave correctly</label></div>
+            <div class="task"><label><input type<input type="checkbox" data-key="dash_error_handling" id="$id">nsive on small screens</label></div>
             <div class="task"><label><input type="checkbox" data-key="dash_performance">Dashboard queries are efficient (no heavy lag)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="dash_error_handling">Server errors display friendly messages</label></div>
+            <div class="task"><label><input type="checkbox" data-key="das<input type="checkbox" data-key="fe_html_valid" id="$id"> messages</label></div>
           </div>
         </div>
       </section>
 
-      <section>
-        <h2>Front-end (HTML + CSS)</h2>
-        <div class="grid">
+      <<input type="checkbox" data-key="fe_css_consistency" id="$id">      <div class="grid">
           <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="fe_html_valid">HTML structure is valid (no unclosed tags)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fe_css_consistency">CSS consistent across pages (colors/typography)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fe_buttons_hover">Buttons have hover/focus states</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fe_images_alt">Images include alt attributes</label></div>
+            <div class="tas<input type="checkbox" data-key="fe_buttons_hover" id="$id">valid">HTML structure is valid (no unclosed tags)</label></div>
+          <input type="checkbox" data-key="fe_images_alt" id="$id">" data-key="fe_css_consistency">CSS consistent across pages (colors/typography)</label></div>
+            <div class="task"><label<input type="checkbox" data-key="fe_forms_responsive" id="$id">ttons have hover/focus states</label></div>
+            <div class="task"><label<input type="checkbox" data-key="fe_footer_header" id="$id">ages include alt attributes</label></div>
           </div>
 
-          <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="fe_forms_responsive">Forms look good on mobile and desktop</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fe_footer_header">Header & footer display correctly across pages</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fe_css_minified">Build includes minified CSS for production</label></div>
-            <div class="task"><label><input type="checkbox" data-key="fe_link_targets">Links open in same tab unless intentionally new</label></div>
-          </div>
+          <div class="secti<input type="checkbox" data-key="fe_css_minified" id="$id">nput type="checkbox" data-key="fe_forms_responsive">Forms look good on mobile and desk<input type="checkbox" data-key="fe_link_targets" id="$id">label><input type="checkbox" data-key="fe_footer_header">Header & footer display correctly across pages</label></div>
+            <div class="task"><label><input type="checkbox" data-key="fe_css_minified">Build includes minified CSS for production</label></div><input type="checkbox" data-key="sec_xss" id="$id">put type="checkbox" data-key="fe_link_targets">Links open in same tab unles<input type="checkbox" data-key="sec_sql" id="$id">   </div>
         </div>
       </section>
 
       <section>
-        <h2>Security & Misc</h2>
-        <div class="grid">
-          <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="sec_xss">Inputs sanitized to prevent XSS</label></div>
-            <div class="task"><label><input type="checkbox" data-key="sec_sql">Database queries use prepared statements</label></div>
-            <div class="task"><label><input type="checkbox" data-key="sec_session">Sessions handled securely (regenerate after login)</label></div>
-            <div class="task"><label><input type="checkbox" data-key="sec_https">HTTPS enforced in production</label></div>
-          </div>
+        <h2>Security<input type="checkbox" data-key="sec_session" id="$id">      <div class="section-card">
+            <div class="task"><label><input type="checkbox" <input type="checkbox" data-key="sec_https" id="$id">nt XSS</label></div>
+            <div class="task"><label><input type="checkbox" data-key="sec_sql">Database queries use prepared<input type="checkbox" data-key="misc_backup" id="$id">ass="task"><label><input type="checkbox" data-key="sec_session">Sessions hand<input type="checkbox" data-key="misc_logs" id="$id">></div>
+            <div class="task"><label><input type="checkbox" data-key="sec_https">HTT<input type="checkbox" data-key="misc_readme" id="$id">     </div>
 
           <div class="section-card">
-            <div class="task"><label><input type="checkbox" data-key="misc_backup">Database backup strategy in place</label></div>
+            <div class="task<input type="checkbox" data-key="misc_git" id="$id">isc_backup">Database backup strategy in place</label></div>
             <div class="task"><label><input type="checkbox" data-key="misc_logs">Error logs monitored (development and production)</label></div>
             <div class="task"><label><input type="checkbox" data-key="misc_readme">README and setup instructions updated</label></div>
             <div class="task"><label><input type="checkbox" data-key="misc_git">Project under version control (Git)</label></div>
@@ -197,8 +164,8 @@
       </section>
 
       <footer>
-        <div class="small">Created for: CarWash project — quick QA checklist</div>
-        <div class="small">Last saved: <span id="savedAt">—</span></div>
+        <div class="small">Created for: CarWash project â€” quick QA checklist</div>
+        <div class="small">Last saved: <span id="savedAt">â€”</span></div>
       </footer>
     </div>
   </div>
@@ -245,7 +212,7 @@
         if(!confirm('Reset checklist? This will clear saved progress.')) return;
         document.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
         localStorage.removeItem(stateKey);
-        savedAtEl.textContent = '—'; updateUI();
+        savedAtEl.textContent = 'â€”'; updateUI();
       });
 
       document.getElementById('exportBtn').addEventListener('click', ()=>{
@@ -263,3 +230,4 @@
   </script>
 </body>
 </html>
+

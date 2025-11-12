@@ -32,14 +32,15 @@ $current_year = date('Y');
 <!-- Footer -->
 <footer id="site-footer" class="bg-gray-900 text-white py-12 flex-none">
   <div class="container mx-auto px-4">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <!-- Flex layout: single row on desktop (lg), stacks on mobile -->
+    <div class="flex flex-col lg:flex-row lg:flex-nowrap gap-8 items-start justify-between">
       
       <!-- Brand Section (updated to use dashboard logo + MYCAR) -->
-      <div class="lg:col-span-1">
+      <div class="w-full lg:w-1/4 flex flex-col min-w-0">
         <div class="flex items-center space-x-3 mb-6">
-          <!-- Use same dashboard logo image and sizing to keep brand consistent -->
-          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="MYCAR logo" class="object-contain rounded-xl shadow-lg">
-          <h3 class="text-2xl font-bold">MYCAR</h3>
+          <!-- Constrain logo size to avoid forcing wrap -->
+          <img src="<?php echo $base_url; ?>/backend/logo01.png" alt="MYCAR logo" class="w-14 h-14 md:w-16 md:h-16 object-contain rounded-xl shadow-lg flex-shrink-0">
+          <h3 class="text-xl md:text-2xl font-bold">MYCAR</h3>
         </div>
         <p class="text-gray-300 text-sm leading-relaxed mb-6">
           Türkiye'nin en güvenilir araç yıkama rezervasyon platformu. Kaliteli hizmet, güvenilir işletmeler ve kolay rezervasyon sistemi.
@@ -63,7 +64,7 @@ $current_year = date('Y');
       </div>
       
       <!-- Quick Links -->
-      <div>
+      <div class="w-full lg:w-1/4 flex flex-col min-w-0">
         <h4 class="text-lg font-bold mb-6 text-white">Hızlı Bağlantılar</h4>
         <ul class="space-y-3">
           <li>
@@ -100,7 +101,7 @@ $current_year = date('Y');
       </div>
       
       <!-- Services -->
-      <div>
+      <div class="w-full lg:w-1/4 flex flex-col min-w-0">
         <h4 class="text-lg font-bold mb-6 text-white">Hizmetlerimiz</h4>
         <ul class="space-y-3">
           <li>
@@ -137,7 +138,7 @@ $current_year = date('Y');
       </div>
       
       <!-- Contact Info -->
-      <div>
+      <div class="w-full lg:w-1/4 flex flex-col min-w-0">
         <h4 class="text-lg font-bold mb-6 text-white">İletişim Bilgileri</h4>
         <div class="space-y-4">
           <div class="flex items-start space-x-3">

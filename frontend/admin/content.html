@@ -19,13 +19,13 @@
             </div>
 
             <div class="content-filters">
-                <select id="typeFilter">
+                <label for="typeFilter" class="sr-only">Input</label><select id="typeFilter">
                     <option value="">All Types</option>
                     <option value="news">News</option>
                     <option value="faq">FAQ</option>
                     <option value="page">Static Pages</option>
                 </select>
-                <select id="statusFilter">
+                <label for="statusFilter" class="sr-only">Input</label><select id="statusFilter">
                     <option value="">All Status</option>
                     <option value="published">Published</option>
                     <option value="draft">Draft</option>
@@ -55,7 +55,7 @@
             <span class="close">&times;</span>
             <h2 id="modalTitle">Add New Content</h2>
             <form id="contentForm">
-                <input type="hidden" id="contentId">
+                <label for="contentId" class="sr-only">Input</label><input type="hidden" id="contentId">
                 <div class="form-group">
                     <label for="title">Title</label>
                     <input type="text" id="title" required>

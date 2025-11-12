@@ -60,18 +60,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 echo "<hr>";
 echo "<h3>Test Form</h3>";
 echo '<form method="POST" action="debug_registration.php">';
-echo '<input type="text" name="business_name" value="Test Business" />';
-echo '<input type="email" name="email" value="test@example.com" />';
-echo '<input type="password" name="password" value="test123" />';
-echo '<input type="tel" name="phone" value="05551234567" />';
-echo '<input type="text" name="tax_number" value="1234567890" />';
-echo '<input type="text" name="license_number" value="LICENSE123" />';
-echo '<input type="text" name="owner_name" value="John Doe" />';
-echo '<input type="text" name="owner_id" value="12345678901" />';
-echo '<select name="city"><option value="istanbul">İstanbul</option></select>';
-echo '<input type="text" name="district" value="Kadıköy" />';
-echo '<textarea name="address">Test Address</textarea>';
-echo '<input type="checkbox" name="terms" checked />';
+echo '<label for="auto_label_68" class="sr-only">Business name</label><label for="auto_label_68" class="sr-only">Business name</label><input type="text" name="business_name" value="Test Business"  id="auto_label_68" / placeholder="Business name">';
+echo '<label for="auto_label_67" class="sr-only">Email</label><label for="auto_label_67" class="sr-only">Email</label><input type="email" name="email" value="test@example.com"  id="auto_label_67" / placeholder="Email">';
+echo '<label for="auto_label_66" class="sr-only">Password</label><label for="auto_label_66" class="sr-only">Password</label><input type="password" name="password" value="test123"  id="auto_label_66" / placeholder="Password">';
+echo '<label for="auto_label_65" class="sr-only">Phone</label><label for="auto_label_65" class="sr-only">Phone</label><input type="tel" name="phone" value="05551234567"  id="auto_label_65" / placeholder="Phone">';
+echo '<label for="auto_label_64" class="sr-only">Tax number</label><label for="auto_label_64" class="sr-only">Tax number</label><input type="text" name="tax_number" value="1234567890"  id="auto_label_64" / placeholder="Tax number">';
+echo '<label for="auto_label_63" class="sr-only">License number</label><label for="auto_label_63" class="sr-only">License number</label><input type="text" name="license_number" value="LICENSE123"  id="auto_label_63" / placeholder="License number">';
+echo '<label for="auto_label_62" class="sr-only">Owner name</label><label for="auto_label_62" class="sr-only">Owner name</label><input type="text" name="owner_name" value="John Doe"  id="auto_label_62" / placeholder="Owner name">';
+echo '<label for="auto_label_61" class="sr-only">Owner id</label><label for="auto_label_61" class="sr-only">Owner id</label><input type="text" name="owner_id" value="12345678901"  id="auto_label_61" / placeholder="Owner id">';
+echo '<label for="auto_label_60" class="sr-only">City</label><label for="auto_label_60" class="sr-only">City</label><select name="city" id="auto_label_60"><option value="istanbul">İstanbul</option></select>';
+echo '<label for="auto_label_59" class="sr-only">District</label><label for="auto_label_59" class="sr-only">District</label><input type="text" name="district" value="Kadıköy"  id="auto_label_59" / placeholder="District">';
+echo '<label for="auto_label_58" class="sr-only">Address</label><label for="auto_label_58" class="sr-only">Address</label><textarea name="address" id="auto_label_58">Test Address</textarea>';
+echo '<label for="auto_label_57" class="sr-only">Terms</label><label for="auto_label_57" class="sr-only">Terms</label><input type="checkbox" name="terms" checked  id="auto_label_57" />';
 echo '<button type="submit">Test Submit</button>';
 echo '</form>';
 ?>
+
+

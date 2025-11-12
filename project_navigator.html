@@ -209,7 +209,7 @@
     <div class="container">
         <div class="sidebar">
             <div class="header-bar">
-                <input type="text" class="search-box" placeholder="Search files..." id="searchBox">
+                <label for="searchBox" class="sr-only">Search files...</label><input type="text" class="search-box" placeholder="Search files..." id="searchBox">
                 <button id="downloadTreeJsonBtn" class="small-btn" title="Download detailed tree JSON with explanations">Download Tree JSON</button>
                 <button id="showTreeBtn" class="small-btn">Show Tree</button>
                 <button id="downloadTreeBtn" class="small-btn" title="Download simple tree summary">Download Tree</button>
@@ -602,7 +602,7 @@
 
         // Register New Page modal
         const modal = document.createElement('div'); modal.className = 'modal'; modal.id = 'registerModal';
-        modal.innerHTML = '<div class="modal-card"><h3>Register New Page</h3><div style="margin-top:8px"><label>URL path (relative)</label><input id="newPath" style="width:100%;padding:8px;margin-top:6px" placeholder="frontend/newpage.html"></div><div style="margin-top:8px"><label>Label</label><input id="newLabel" style="width:100%;padding:8px;margin-top:6px" placeholder="New Page"></div><div style="margin-top:12px;text-align:right"><button id="cancelReg" class="small-btn">Cancel</button> <button id="confirmReg" class="small-btn" style="background:#16a34a;color:#fff;border:none">Register</button></div></div>';
+        modal.innerHTML = '<div class="modal-card"><h3>Register New Page</h3><div style="margin-top:8px"><label>URL path (relative)</label><label for="newPath" class="sr-only">frontend/newpage.html</label><input id="newPath" style="width:100%;padding:8px;margin-top:6px" placeholder="frontend/newpage.html"></div><div style="margin-top:8px"><label>Label</label><label for="newLabel" class="sr-only">New Page</label><input id="newLabel" style="width:100%;padding:8px;margin-top:6px" placeholder="New Page"></div><div style="margin-top:12px;text-align:right"><button id="cancelReg" class="small-btn">Cancel</button> <button id="confirmReg" class="small-btn" style="background:#16a34a;color:#fff;border:none">Register</button></div></div>';
         document.body.appendChild(modal);
         document.getElementById('registerPageBtn').addEventListener('click', function() { modal.classList.add('open'); });
         modal.querySelector('#cancelReg').addEventListener('click', function(){ modal.classList.remove('open'); });

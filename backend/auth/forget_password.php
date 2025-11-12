@@ -133,7 +133,7 @@ include '../includes/header.php';
 
       <form id="resetForm" action="forgot_password.php" method="POST" class="space-y-6">
         <!-- CSRF token (idempotent, centrally generated when available) -->
-        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+        <label for="auto_label_69" class="sr-only">Csrf token</label><label for="auto_label_69" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ? id="auto_label_69">">
         <!-- Email Tab Content -->
         <!-- Farsça: محتوای تب ایمیل برای بازنشانی رمز عبور. -->
         <!-- Türkçe: Şifre sıfırlama için e-posta sekmesi içeriği. -->
@@ -149,7 +149,7 @@ include '../includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi *
             </label>
-            <input
+            <label for="emailInput" class="sr-only">Email</label><input
               type="email"
               name="email"
               id="emailInput"
@@ -175,7 +175,7 @@ include '../includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-mobile-alt mr-2 text-green-600"></i>Telefon Numarası *
             </label>
-            <input
+            <label for="phoneInput" class="sr-only">Phone</label><input
               type="tel"
               name="phone"
               id="phoneInput"
@@ -373,3 +373,5 @@ include '../includes/header.php';
   </script>
 
 <?php include '../includes/footer.php'; ?>
+
+

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/sms_template_manager.php';
@@ -19,7 +19,7 @@ $templates = $templateManager->getAllTemplates();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMS Åžablon Testi - Admin Panel</title>
+    <title>SMS Şablon Testi - Admin Panel</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -30,7 +30,7 @@ $templates = $templateManager->getAllTemplates();
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="sms_templates.php" class="text-gray-700">
-                        <i class="fas fa-arrow-left mr-2"></i> Åžablonlara DÃ¶n
+                        <i class="fas fa-arrow-left mr-2"></i> Şablonlara Dön
                     </a>
                 </div>
             </div>
@@ -38,7 +38,7 @@ $templates = $templateManager->getAllTemplates();
     </nav>
 
     <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-3xl font-bold mb-6">SMS Åžablon Test AracÄ±</h1>
+        <h1 class="text-3xl font-bold mb-6">SMS Şablon Test Aracı</h1>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Template Selection and Variables -->
@@ -48,10 +48,10 @@ $templates = $templateManager->getAllTemplates();
                 <form id="testForm" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Åžablon SeÃ§in
+                            Şablon Seçin
                         </label>
-                        <select id="templateSelect" class="w-full rounded-md border-gray-300 shadow-sm">
-                            <option value="">Åžablon seÃ§in...</option>
+                        <label for="templateSelect" class="sr-only">Input</label><select id="templateSelect" class="w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="">Şablon seçin...</option>
                             <?php foreach ($templates as $template): ?>
                                 <option value="<?= $template['id'] ?>"><?= htmlspecialchars($template['name']) ?></option>
                             <?php endforeach; ?>
@@ -64,9 +64,9 @@ $templates = $templateManager->getAllTemplates();
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Test Telefon NumarasÄ±
+                            Test Telefon Numarası
                         </label>
-                        <input type="tel" id="testPhone"
+                        <label for="testPhone" class="sr-only">5XX XXX XXXX</label><input type="tel" id="testPhone"
                             placeholder="5XX XXX XXXX"
                             class="w-full rounded-md border-gray-300 shadow-sm">
                     </div>
@@ -74,11 +74,11 @@ $templates = $templateManager->getAllTemplates();
                     <div class="flex space-x-2">
                         <button type="button" onclick="previewTemplate()"
                             class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                            Ã–nizle
+                            Önizle
                         </button>
                         <button type="button" onclick="sendTestSMS()"
                             class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
-                            Test SMS GÃ¶nder
+                            Test SMS Gönder
                         </button>
                     </div>
                 </form>
@@ -86,26 +86,26 @@ $templates = $templateManager->getAllTemplates();
 
             <!-- Preview Panel -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold mb-4">Ã–nizleme</h2>
+                <h2 class="text-xl font-semibold mb-4">Önizleme</h2>
                 <div class="border rounded-lg p-4 bg-gray-50 min-h-[200px]">
                     <div id="previewContent" class="whitespace-pre-wrap"></div>
                 </div>
                 <div class="mt-4 text-sm text-gray-500">
-                    <div id="characterCount">Karakter sayÄ±sÄ±: 0</div>
-                    <div id="smsCount">SMS sayÄ±sÄ±: 1</div>
+                    <div id="characterCount">Karakter sayısı: 0</div>
+                    <div id="smsCount">SMS sayısı: 1</div>
                 </div>
             </div>
         </div>
 
         <!-- Test History -->
         <div class="mt-8 bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Test GeÃ§miÅŸi</h2>
+            <h2 class="text-xl font-semibold mb-4">Test Geçmişi</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Åžablon</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Şablon</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Telefon</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
                         </tr>
@@ -145,9 +145,9 @@ $templates = $templateManager->getAllTemplates();
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         ${variable}
                     </label>
-                    <input type="text" name="${variable}"
+                    <label for="auto_label_95" class="sr-only">${variable}</label><label for="auto_label_95" class="sr-only">${variable}</label><input type="text" name="${variable}"
                            class="w-full rounded-md border-gray-300 shadow-sm"
-                           placeholder="DeÄŸer girin...">
+                           placeholder="Değer girin..." id="auto_label_95">
                 `;
                 container.appendChild(div);
             });
@@ -177,9 +177,9 @@ $templates = $templateManager->getAllTemplates();
                     if (data.success) {
                         document.getElementById('previewContent').textContent = data.preview;
                         document.getElementById('characterCount').textContent =
-                            `Karakter sayÄ±sÄ±: ${data.preview.length}`;
+                            `Karakter sayısı: ${data.preview.length}`;
                         document.getElementById('smsCount').textContent =
-                            `SMS sayÄ±sÄ±: ${Math.ceil(data.preview.length / 160)}`;
+                            `SMS sayısı: ${Math.ceil(data.preview.length / 160)}`;
                     }
                 });
         }
@@ -208,10 +208,10 @@ $templates = $templateManager->getAllTemplates();
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Test SMS gÃ¶nderildi!');
+                        alert('Test SMS gönderildi!');
                         loadTestHistory();
                     } else {
-                        alert(data.error || 'SMS gÃ¶nderilemedi.');
+                        alert(data.error || 'SMS gönderilemedi.');
                     }
                 });
         }
@@ -229,7 +229,7 @@ $templates = $templateManager->getAllTemplates();
                             <td class="px-6 py-4">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     ${test.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                    ${test.status === 'success' ? 'BaÅŸarÄ±lÄ±' : 'BaÅŸarÄ±sÄ±z'}
+                                    ${test.status === 'success' ? 'Başarılı' : 'Başarısız'}
                                 </span>
                             </td>
                         </tr>
@@ -243,6 +243,8 @@ $templates = $templateManager->getAllTemplates();
 </body>
 
 </html>
+
+
 
 
 

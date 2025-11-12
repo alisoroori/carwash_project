@@ -1771,8 +1771,8 @@ include '../includes/dashboard_header.php';
                 <!-- Türkçe: Otopark Filtreleri. -->
                 <!-- English: Car Wash Filters. -->
                 <div class="filters">
-                    <input type="text" id="carwashSearch" placeholder="Otopark ara..." class="search-input">
-                    <select id="statusFilter" class="filter-select">
+                    <label for="carwashSearch" class="sr-only">Otopark ara...</label><input type="text" id="carwashSearch" placeholder="Otopark ara..." class="search-input">
+                    <label for="statusFilter" class="sr-only">Input</label><select id="statusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="active">Aktif</option>
                         <option value="inactive">Pasif</option>
@@ -1929,9 +1929,9 @@ include '../includes/dashboard_header.php';
 
                 <!-- Order Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <input type="text" id="orderSearch" placeholder="Sipariş No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <label for="orderSearch" class="sr-only">Sipariş No, Müşteri Ara...</label><input type="text" id="orderSearch" placeholder="Sipariş No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <select id="orderStatusFilter" class="filter-select">
+                    <label for="orderStatusFilter" class="sr-only">Input</label><select id="orderStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="pending">Beklemede</option>
                         <option value="in-progress">Devam Ediyor</option>
@@ -1939,7 +1939,7 @@ include '../includes/dashboard_header.php';
                         <option value="cancelled">İptal Edildi</option>
                     </select>
                     
-                    <select id="orderServiceFilter" class="filter-select">
+                    <label for="orderServiceFilter" class="sr-only">Input</label><select id="orderServiceFilter" class="filter-select">
                         <option value="">Tüm Hizmetler</option>
                         <option value="wash">Dış Yıkama</option>
                         <option value="interior">İç Temizlik</option>
@@ -1947,8 +1947,8 @@ include '../includes/dashboard_header.php';
                         <option value="wax">Cilalama</option>
                     </select>
                     
-                    <input type="date" id="orderDateFrom" class="filter-select" placeholder="Başlangıç Tarihi">
-                    <input type="date" id="orderDateTo" class="filter-select" placeholder="Bitiş Tarihi">
+                    <label for="orderDateFrom" class="sr-only">Başlangıç Tarihi</label><input type="date" id="orderDateFrom" class="filter-select" placeholder="Başlangıç Tarihi">
+                    <label for="orderDateTo" class="sr-only">Bitiş Tarihi</label><input type="date" id="orderDateTo" class="filter-select" placeholder="Bitiş Tarihi">
                     
                     <button class="add-btn" style="padding: 10px 20px;">
                         <i class="fas fa-filter"></i> Filtrele
@@ -2172,16 +2172,16 @@ include '../includes/dashboard_header.php';
 
                 <!-- Payment Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <input type="text" id="paymentSearch" placeholder="İşlem No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <label for="paymentSearch" class="sr-only">İşlem No, Müşteri Ara...</label><input type="text" id="paymentSearch" placeholder="İşlem No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <select id="paymentTypeFilter" class="filter-select">
+                    <label for="paymentTypeFilter" class="sr-only">Input</label><select id="paymentTypeFilter" class="filter-select">
                         <option value="">Tüm Ödeme Tipleri</option>
                         <option value="online">Online (Kart)</option>
                         <option value="cash">Nakit</option>
                         <option value="bank">Banka Transferi</option>
                     </select>
                     
-                    <select id="paymentStatusFilter" class="filter-select">
+                    <label for="paymentStatusFilter" class="sr-only">Input</label><select id="paymentStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="success">Başarılı</option>
                         <option value="pending">Beklemede</option>
@@ -2189,8 +2189,8 @@ include '../includes/dashboard_header.php';
                         <option value="refunded">İade Edildi</option>
                     </select>
                     
-                    <input type="date" id="paymentDateFrom" class="filter-select">
-                    <input type="date" id="paymentDateTo" class="filter-select">
+                    <label for="paymentDateFrom" class="sr-only">Date</label><input type="date" id="paymentDateFrom" class="filter-select">
+                    <label for="paymentDateTo" class="sr-only">Date</label><input type="date" id="paymentDateTo" class="filter-select">
                     
                     <button class="add-btn">
                         <i class="fas fa-filter"></i> Filtrele
@@ -2369,8 +2369,8 @@ include '../includes/dashboard_header.php';
                 <!-- Türkçe: Kullanıcı Filtreleri. -->
                 <!-- English: User Filters. -->
                 <div class="filters">
-                    <input type="text" id="userSearch" placeholder="Kullanıcı ara..." class="search-input">
-                    <select id="userTypeFilter" class="filter-select">
+                    <label for="userSearch" class="sr-only">Kullanıcı ara...</label><input type="text" id="userSearch" placeholder="Kullanıcı ara..." class="search-input">
+                    <label for="userTypeFilter" class="sr-only">Input</label><select id="userTypeFilter" class="filter-select">
                         <option value="">Tüm Tipler</option>
                         <option value="admin">Yönetici</option>
                         <option value="user">Kullanıcı</option>
@@ -2477,9 +2477,9 @@ include '../includes/dashboard_header.php';
 
                 <!-- Service Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <input type="text" id="serviceSearch" placeholder="Hizmet Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <label for="serviceSearch" class="sr-only">Hizmet Ara...</label><input type="text" id="serviceSearch" placeholder="Hizmet Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <select id="serviceCategoryFilter" class="filter-select">
+                    <label for="serviceCategoryFilter" class="sr-only">Input</label><select id="serviceCategoryFilter" class="filter-select">
                         <option value="">Tüm Kategoriler</option>
                         <option value="wash">Yıkama</option>
                         <option value="detail">Detaylı Bakım</option>
@@ -2487,7 +2487,7 @@ include '../includes/dashboard_header.php';
                         <option value="interior">İç Temizlik</option>
                     </select>
                     
-                    <select id="serviceStatusFilter" class="filter-select">
+                    <label for="serviceStatusFilter" class="sr-only">Input</label><select id="serviceStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="active">Aktif</option>
                         <option value="inactive">Pasif</option>
@@ -2706,9 +2706,9 @@ include '../includes/dashboard_header.php';
 
                 <!-- Ticket Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <input type="text" id="ticketSearch" placeholder="Talep No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <label for="ticketSearch" class="sr-only">Talep No, Müşteri Ara...</label><input type="text" id="ticketSearch" placeholder="Talep No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <select id="ticketStatusFilter" class="filter-select">
+                    <label for="ticketStatusFilter" class="sr-only">Input</label><select id="ticketStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="new">Yeni</option>
                         <option value="open">Açık</option>
@@ -2718,7 +2718,7 @@ include '../includes/dashboard_header.php';
                         <option value="closed">Kapalı</option>
                     </select>
                     
-                    <select id="ticketPriorityFilter" class="filter-select">
+                    <label for="ticketPriorityFilter" class="sr-only">Input</label><select id="ticketPriorityFilter" class="filter-select">
                         <option value="">Tüm Öncelikler</option>
                         <option value="urgent">Acil</option>
                         <option value="high">Yüksek</option>
@@ -2726,7 +2726,7 @@ include '../includes/dashboard_header.php';
                         <option value="low">Düşük</option>
                     </select>
                     
-                    <select id="ticketCategoryFilter" class="filter-select">
+                    <label for="ticketCategoryFilter" class="sr-only">Input</label><select id="ticketCategoryFilter" class="filter-select">
                         <option value="">Tüm Kategoriler</option>
                         <option value="technical">Teknik</option>
                         <option value="billing">Fatura</option>
@@ -2898,9 +2898,9 @@ include '../includes/dashboard_header.php';
 
                 <!-- Review Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <input type="text" id="reviewSearch" placeholder="Müşteri, Sipariş Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <label for="reviewSearch" class="sr-only">Müşteri, Sipariş Ara...</label><input type="text" id="reviewSearch" placeholder="Müşteri, Sipariş Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <select id="reviewStatusFilter" class="filter-select">
+                    <label for="reviewStatusFilter" class="sr-only">Input</label><select id="reviewStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="pending">Beklemede</option>
                         <option value="approved">Onaylandı</option>
@@ -2908,7 +2908,7 @@ include '../includes/dashboard_header.php';
                         <option value="flagged">Raporlandı</option>
                     </select>
                     
-                    <select id="reviewRatingFilter" class="filter-select">
+                    <label for="reviewRatingFilter" class="sr-only">Input</label><select id="reviewRatingFilter" class="filter-select">
                         <option value="">Tüm Puanlar</option>
                         <option value="5">5 Yıldız</option>
                         <option value="4">4 Yıldız</option>
@@ -2917,7 +2917,7 @@ include '../includes/dashboard_header.php';
                         <option value="1">1 Yıldız</option>
                     </select>
                     
-                    <input type="date" id="reviewDateFrom" class="filter-select">
+                    <label for="reviewDateFrom" class="sr-only">Date</label><input type="date" id="reviewDateFrom" class="filter-select">
                     
                     <button class="add-btn">
                         <i class="fas fa-filter"></i> Filtrele
@@ -3166,8 +3166,8 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01">
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19">
+                                <label for="auto_2" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_2">
+                       <label for="auto_3" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_3">5-10-19">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3217,7 +3217,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                                <label for="auto_4" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_4">
                                     <option>Son 7 Gün</option>
                                     <option>Son 30 Gün</option>
                                     <option>Son 3 Ay</option>
@@ -3272,7 +3272,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                       <label for="auto_5" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_5">.85rem;">
                                     <option>Q3 2025</option>
                                     <option>Q2 2025</option>
                                     <option>Q1 2025</option>
@@ -3324,7 +3324,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <input type="month" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10">
+              <label for="auto_6" class="sr-only">Input</label><input type="month" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10" id="auto_6">" value="2025-10">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3381,8 +3381,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01">
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19">
+     <label for="auto_7" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_7">85rem;" value="2025-10-01<label for="auto_8" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_8">-size: 0.85rem;" value="2025-10-19">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3429,7 +3428,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+              <label for="auto_9" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_9">t-size: 0.85rem;">
                                     <option>Bu Ay</option>
                                     <option>Son 3 Ay</option>
                                     <option>Bu Yıl</option>
@@ -3480,7 +3479,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+     <label for="auto_10" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_10">x: 1; font-size: 0.85rem;">
                                     <option>Tüm Otoparklar</option>
                                     <option>En İyi 10</option>
                                     <option>En Düşük 10</option>
@@ -3540,8 +3539,7 @@ include '../includes/dashboard_header.php';
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;<label for="auto_11" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_11">tyle="flex: 1; font-size: 0.85rem;">
                                     <option>Tüm Müşteriler</option>
                                     <option>Premium</option>
                                     <option>Standart</option>
@@ -3592,9 +3590,7 @@ include '../includes/dashboard_header.php';
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01">
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19">
+                            <div style="display: flex; gap: 8px; margin-bott<label for="auto_12" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_12">: 1; font-size: 0.85rem;"<label for="auto_13" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_13">yle="flex: 1; font-size: 0.85rem;" value="2025-10-19">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3650,8 +3646,7 @@ include '../includes/dashboard_header.php';
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                            <div style="display: flex; gap: 8px; margin-bott<label for="auto_14" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_14">select" style="flex: 1; font-size: 0.85rem;">
                                     <option>Son 12 Ay</option>
                                     <option>Bu Yıl</option>
                                     <option>Geçen Yıl</option>
@@ -3697,8 +3692,7 @@ include '../includes/dashboard_header.php';
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
+                            <div style="display: flex; gap: 8px; ma<label for="auto_15" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_15">="filter-select" style="flex: 1; font-size: 0.85rem;">
                                     <option>Bu Çeyrek</option>
                                     <option>Geçen Çeyrek</option>
                                     <option>Yıllık</option>
@@ -3864,9 +3858,9 @@ include '../includes/dashboard_header.php';
 
                 <!-- Notification Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <input type="text" id="notificationSearch" placeholder="Konu, Mesaj Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <label for="notificationSearch" class="sr-only">Konu, Mesaj Ara...</label><input type="text" id="notificationSearch" placeholder="Konu, Mesaj Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <select id="notificationTypeFilter" class="filter-select">
+                    <label for="notificationTypeFilter" class="sr-only">Input</label><select id="notificationTypeFilter" class="filter-select">
                         <option value="">Tüm Tipler</option>
                         <option value="email">Email</option>
                         <option value="sms">SMS</option>
@@ -3874,7 +3868,7 @@ include '../includes/dashboard_header.php';
                         <option value="in_app">In-App</option>
                     </select>
                     
-                    <select id="notificationStatusFilter" class="filter-select">
+                    <label for="notificationStatusFilter" class="sr-only">Input</label><select id="notificationStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="sent">Gönderildi</option>
                         <option value="pending">Bekliyor</option>
@@ -3882,7 +3876,7 @@ include '../includes/dashboard_header.php';
                         <option value="scheduled">Zamanlanmış</option>
                     </select>
                     
-                    <input type="date" id="notificationDateFrom" class="filter-select">
+                    <label for="notificationDateFrom" class="sr-only">Date</label><input type="date" id="notificationDateFrom" class="filter-select">
                     
                     <button class="add-btn">
                         <i class="fas fa-filter"></i> Filtrele
@@ -4044,16 +4038,16 @@ include '../includes/dashboard_header.php';
 
                 <!-- CMS Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <input type="text" id="cmsSearch" placeholder="Sayfa Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <label for="cmsSearch" class="sr-only">Sayfa Ara...</label><input type="text" id="cmsSearch" placeholder="Sayfa Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <select id="cmsStatusFilter" class="filter-select">
+                    <label for="cmsStatusFilter" class="sr-only">Input</label><select id="cmsStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="published">Yayında</option>
                         <option value="draft">Taslak</option>
                         <option value="scheduled">Zamanlanmış</option>
                     </select>
                     
-                    <select id="cmsTypeFilter" class="filter-select">
+                    <label for="cmsTypeFilter" class="sr-only">Input</label><select id="cmsTypeFilter" class="filter-select">
                         <option value="">Tüm Tipler</option>
                         <option value="page">Sayfa</option>
                         <option value="post">Blog Yazısı</option>
@@ -4279,9 +4273,9 @@ include '../includes/dashboard_header.php';
                 <div id="audit-logs" class="tab-content active">
                     <!-- Audit Log Filters -->
                     <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                        <input type="text" id="auditSearch" placeholder="Kullanıcı, Aksiyon Ara..." class="search-input" style="grid-column: 1 / -1;">
+                        <label for="auditSearch" class="sr-only">Kullanıcı, Aksiyon Ara...</label><input type="text" id="auditSearch" placeholder="Kullanıcı, Aksiyon Ara..." class="search-input" style="grid-column: 1 / -1;">
                         
-                        <select id="auditActionFilter" class="filter-select">
+                        <label for="auditActionFilter" class="sr-only">Input</label><select id="auditActionFilter" class="filter-select">
                             <option value="">Tüm Aksiyonlar</option>
                             <option value="create">Oluşturma</option>
                             <option value="update">Güncelleme</option>
@@ -4290,7 +4284,7 @@ include '../includes/dashboard_header.php';
                             <option value="logout">Çıkış</option>
                         </select>
                         
-                        <select id="auditEntityFilter" class="filter-select">
+                        <label for="auditEntityFilter" class="sr-only">Input</label><select id="auditEntityFilter" class="filter-select">
                             <option value="">Tüm Varlıklar</option>
                             <option value="user">Kullanıcı</option>
                             <option value="order">Sipariş</option>
@@ -4298,7 +4292,7 @@ include '../includes/dashboard_header.php';
                             <option value="service">Hizmet</option>
                         </select>
                         
-                        <input type="date" id="auditDateFrom" class="filter-select">
+                        <label for="auditDateFrom" class="sr-only">Date</label><input type="date" id="auditDateFrom" class="filter-select">
                         
                         <button class="add-btn">
                             <i class="fas fa-filter"></i> Filtrele
@@ -4607,42 +4601,37 @@ include '../includes/dashboard_header.php';
                         <i class="fas fa-globe"></i> Genel Ayarlar
                     </h3>
                     <div class="form-group">
-                        <label>Site Adı *</label>
-                        <input type="text" value="CarWash Yönetim Sistemi" placeholder="Site adını girin">
+             <label for="auto_16" class="sr-only">Site adını girin</label><input type="text" value="CarWash Yönetim Sistemi" placeholder="Site adını girin" id="auto_16">ue="CarWash Yönetim Sistemi" placeholder="Site adını girin">
                         <small style="color: #64748b;">Web sitesinde görünecek isim</small>
                     </div>
                     <div class="form-group">
-                        <label>Admin Email *</label>
-                        <input type="email" value="admin@otoparkdemotime.com" placeholder="admin@example.com">
+      <label for="auto_17" class="sr-only">admin@example.com</label><input type="email" value="admin@otoparkdemotime.com" placeholder="admin@example.com" id="auto_17">mail" value="admin@otoparkdemotime.com" placeholder="admin@example.com">
                         <small style="color: #64748b;">Sistem bildirimleri bu adrese gönderilecek</small>
                     </div>
                     <div class="form-group">
-                        <label>Saat Dilimi</label>
-                        <select>
+             <label for="auto_18" class="sr-only">Input</label><select id="auto_18">   <label>Saat Dilimi</label>
+                        <label for="auto_19" class="sr-only">Input</label><select id="auto_19">
                             <option value="Europe/Istanbul" selected>Europe/Istanbul (GMT+3)</option>
                             <option value="UTC">UTC (GMT+0)</option>
                             <option value="Europe/London">Europe/London (GMT+0)</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Dil</label>
-                        <select>
+                    <div class="form-group<label for="auto_20" class="sr-only">Input</label><select id="auto_20">                    <label>Dil</label>
+                        <label for="auto_21" class="sr-only">Input</label><select id="auto_21">
                             <option value="tr" selected>Türkçe</option>
                             <option value="en">English</option>
                             <option value="fa">فارسی</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Para Birimi</label>
-                        <select>
+                    <div class="form-grou<label for="auto_22" class="sr-only">Input</label><select id="auto_22">                     <label>Para Birimi</label>
+                        <label for="auto_23" class="sr-only">Input</label><select id="auto_23">
                             <option value="TRY" selected>₺ Türk Lirası (TRY)</option>
                             <option value="USD">$ US Dollar (USD)</option>
                             <option value="EUR">€ Euro (EUR)</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                        <label style="display: flex<label for="auto_24" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_24">                  <label for="auto_25" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_25">
                             <span>Bakım Modu</span>
                         </label>
                         <small style="color: #64748b;">Aktif olduğunda site ziyaretçilere kapalı olacak</small>
@@ -4657,14 +4646,12 @@ include '../includes/dashboard_header.php';
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-credit-card"></i> Ödeme Ayarları
                     </h3>
-                    <div class="form-group">
-                        <label>Komisyon Oranı (%)</label>
-                        <input type="number" value="15" min="0" max="100" step="0.1">
+                    <div class="form-gro<label for="auto_26" class="sr-only">Input</label><input type="number" value="15" min="0" max="100" step="0.1" id="auto_26">el>
+                        <label for="auto_27" class="sr-only">Input</label><input type="number" value="15" min="0" max="100" step="0.1" id="auto_27">
                         <small style="color: #64748b;">Platform komisyon yüzdesi</small>
                     </div>
-                    <div class="form-group">
-                        <label>Minimum Ödeme Tutarı (₺)</label>
-                        <input type="number" value="50" min="0">
+                    <div class="form-gro<label for="auto_28" class="sr-only">Input</label><input type="number" value="50" min="0" id="auto_28">imum Ödeme Tutarı (₺)</label>
+                        <label for="auto_29" class="sr-only">Input</label><input type="number" value="50" min="0" id="auto_29">
                         <small style="color: #64748b;">Tasfiye için minimum tutar</small>
                     </div>
                     
@@ -4678,18 +4665,16 @@ include '../includes/dashboard_header.php';
                                 <h5 style="margin: 0;">Stripe</h5>
                                 <small style="color: #64748b;">Kredi kartı ödemeleri</small>
                             </div>
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
-                                <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <label style="d<label for="auto_30" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_30">argin: 0;">
+                                <label for="auto_31" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_31">
                                 <span>Aktif</span>
                             </label>
                         </div>
-                        <div class="form-group" style="margin-bottom: 1rem;">
-                            <label>Publishable Key</label>
-                            <input type="text" placeholder="pk_live_...">
+                        <div class="form-group" st<label for="auto_32" class="sr-only">pk_live_...</label><input type="text" placeholder="pk_live_..." id="auto_32">            <label>Publishable Key</label>
+                            <label for="auto_33" class="sr-only">pk_live_...</label><input type="text" placeholder="pk_live_..." id="auto_33">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Secret Key</label>
-                            <input type="password" placeholder="sk_live_...">
+                        <div clas<label for="auto_34" class="sr-only">sk_live_...</label><input type="password" placeholder="sk_live_..." id="auto_34">                      <label>Secret Key</label>
+                            <label for="auto_35" class="sr-only">sk_live_...</label><input type="password" placeholder="sk_live_..." id="auto_35">
                         </div>
                     </div>
 
@@ -4701,18 +4686,18 @@ include '../includes/dashboard_header.php';
                                 <h5 style="margin: 0;">PayPal</h5>
                                 <small style="color: #64748b;">PayPal ödemeleri</small>
                             </div>
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
-                                <input type="checkbox" style="width: auto; margin: 0;">
+                <label for="auto_36" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_36">enter; gap: 8px; cursor: pointer; margin: 0;">
+                                <label for="auto_37" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_37">
                                 <span>Aktif</span>
                             </label>
                         </div>
-                        <div class="form-group" style="margin-bottom: 1rem;">
+                 <label for="auto_38" class="sr-only">AXxxx...</label><input type="text" placeholder="AXxxx..." id="auto_38">in-bottom: 1rem;">
                             <label>Client ID</label>
-                            <input type="text" placeholder="AXxxx...">
+                            <label for="auto_39" class="sr-only">AXxxx...</label><input type="text" placeholder="AXxxx..." id="auto_39">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
+      <label for="auto_40" class="sr-only">ECxxx...</label><input type="password" placeholder="ECxxx..." id="auto_40">e="margin-bottom: 0;">
                             <label>Secret Key</label>
-                            <input type="password" placeholder="ECxxx...">
+                            <label for="auto_41" class="sr-only">ECxxx...</label><input type="password" placeholder="ECxxx..." id="auto_41">
                         </div>
                     </div>
 
@@ -4723,19 +4708,16 @@ include '../includes/dashboard_header.php';
                             <div style="flex: 1;">
                                 <h5 style="margin: 0;">iyzico</h5>
                                 <small style="color: #64748b;">Türkiye kredi kartı ödemeleri</small>
-                            </div>
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
-                                <input type="checkbox" checked style="width: auto; margin: 0;">
+                         <label for="auto_42" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_42">lex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                                <label for="auto_43" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_43">
                                 <span>Aktif</span>
                             </label>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="auto_44" class="sr-only">sandbox-xxx...</label><input type="text" placeholder="sandbox-xxx..." id="auto_44">form-group" style="margin-bottom: 1rem;">
                             <label>API Key</label>
-                            <input type="text" placeholder="sandbox-xxx...">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="auto_45" class="sr-only">sandbox-xxx...</label><input type="text" placeholder="sandbox-xxx..." id="auto_45">
+           <label for="auto_46" class="sr-only">sandbox-xxx...</label><input type="password" placeholder="sandbox-xxx..." id="auto_46">ass="form-group" style="margin-bottom: 0;">
                             <label>Secret Key</label>
-                            <input type="password" placeholder="sandbox-xxx...">
+                            <label for="auto_47" class="sr-only">sandbox-xxx...</label><input type="password" placeholder="sandbox-xxx..." id="auto_47">
                         </div>
                     </div>
 
@@ -4751,66 +4733,57 @@ include '../includes/dashboard_header.php';
                     </h3>
                     
                     <!-- Email Notifications -->
-                    <h4 style="margin: 1.5rem 0 1rem 0;">Email Bildirimleri (SMTP)</h4>
-                    <div class="form-group">
+                    <label for="auto_48" class="sr-only">smtp.example.com</label><input type="text" value="smtp.gmail.com" placeholder="smtp.example.com" id="auto_48">                <div class="form-group">
                         <label>SMTP Host</label>
-                        <input type="text" value="smtp.gmail.com" placeholder="smtp.example.com">
+                        <label for="auto_49" class="sr-only">smtp.example.com</label><input type="text" value="smtp.gmail.com" placeholder="smtp.example.com" id="auto_49">
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div st<label for="auto_50" class="sr-only">Input</label><input type="number" value="587" id="auto_50">-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label>SMTP Port</label>
-                            <input type="number" value="587">
+                            <label for="auto_51" class="sr-only">Input</label><input type="number" value="587" id="auto_51">
                         </div>
-                        <div class="form-group">
-                            <label>Encryption</label>
-                            <select>
+                        <div class="form-gr<label for="auto_52" class="sr-only">Input</label><select id="auto_52">                           <label>Encryption</label>
+                            <label for="auto_53" class="sr-only">Input</label><select id="auto_53">
                                 <option value="tls" selected>TLS</option>
                                 <option value="ssl">SSL</option>
                                 <option value="none">None</option>
-                            </select>
-                        </div>
-                    </div>
+                <label for="auto_54" class="sr-only">Input</label><input type="text" value="no-reply@otoparkdemotime.com" id="auto_54">                   </div>
                     <div class="form-group">
                         <label>SMTP Username</label>
-                        <input type="text" value="no-reply@otoparkdemotime.com">
+                  <label for="auto_55" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_55">
                     </div>
                     <div class="form-group">
                         <label>SMTP Password</label>
-                        <input type="password" placeholder="••••••••">
+                        <label for="auto_56" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_56">
                     </div>
                     
                     <!-- SMS Notifications -->
-                    <h4 style="margin: 2rem 0 1rem 0;">SMS Bildirimleri (Twilio)</h4>
-                    <div class="form-group">
+                    <h4 style="margin: 2<label for="auto_57" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_57">    <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" checked style="width: auto; margin: 0;">
-                            <span>SMS Bildirimlerini Aktif Et</span>
-                        </label>
+                            <label for="auto_58" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_58">
+                           <label for="auto_59" class="sr-only">ACxxxxxxxxxx</label><input type="text" placeholder="ACxxxxxxxxxx" id="auto_59">                     </label>
                     </div>
                     <div class="form-group">
-                        <label>Twilio Account SID</label>
-                        <input type="text" placeholder="ACxxxxxxxxxx">
+                        <label>Twilio Accoun<label for="auto_60" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_60">eholder="ACxxxxxxxxxx">
                     </div>
                     <div class="form-group">
-                        <label>Twilio Auth Token</label>
-                        <input type="password" placeholder="••••••••">
+                        <label>Twilio Auth Token<<label for="auto_61" class="sr-only">Phone</label><input type="tel" value="+905551234567" id="auto_61">type="password" placeholder="••••••••">
                     </div>
                     <div class="form-group">
                         <label>Gönderen Numara</label>
-                        <input type="tel" value="+905551234567">
+                        <label for="auto_62" class="sr-only">Phone</label><input type="tel" value="+905551234567" id="auto_62">
                     </div>
                     
                     <!-- Push Notifications -->
-                    <h4 style="margin: 2rem 0 1rem 0;">Push Notifications (Firebase)</h4>
+        <label for="auto_63" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_63">ifications (Firebase)</h4>
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" style="width: auto; margin: 0;">
-                            <span>Push Notification'ları Aktif Et</span>
+                            <label for="auto_64" class="sr-only">••••••••</label><input type="checkbox" style="width: auto; margin: 0;"<input type="password" placeholder="••••••••" id="auto_64">ktif Et</span>
                         </label>
                     </div>
                     <div class="form-group">
                         <label>Firebase Server Key</label>
-                        <input type="password" placeholder="••••••••">
+                        <label for="auto_65" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_65">
                     </div>
                     
                     <button class="save-btn" style="margin-top: 1rem;">
@@ -4955,57 +4928,53 @@ include '../includes/dashboard_header.php';
                 <!-- Security Settings Tab -->
                 <div id="securitytab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-shield-alt"></i> Güvenlik Ayarları
-                    </h3>
+                        <i <label for="auto_66" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_66">         </h3>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <label for="auto_67" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_67">
                             <span>İki Faktörlü Kimlik Doğrulama (2FA) Zorunlu</span>
                         </label>
-                        <small style="color: #64748b;">Tüm admin kullanıcıları için 2FA zorunlu olacak</small>
+                    <label for="auto_68" class="sr-only">Input</label><input type="number" value="60" min="5" max="1440" id="auto_68">nıcıları için 2FA zorunlu olacak</small>
                     </div>
                     
                     <div class="form-group">
                         <label>Oturum Zaman Aşımı (dakika)</label>
-                        <input type="number" value="60" min="5" max="1440">
-                        <small style="color: #64748b;">İşlem yapılmadığında otomatik çıkış süresi</small>
+                        <label for="auto_69" class="sr-only">Input</label><input type="number" value="60" min="5" max="1440" id="auto_69">
+                   <label for="auto_70" class="sr-only">Input</label><input type="number" value="5" min="3" max="10" id="auto_70">�lmadığında otomatik çıkış süresi</small>
                     </div>
                     
                     <div class="form-group">
                         <label>Maksimum Başarısız Giriş Denemesi</label>
-                        <input type="number" value="5" min="3" max="10">
-                        <small style="color: #64748b;">Bu sayıda başarısız girişten sonra hesap kilitlenecek</small>
+                        <label for="auto_71" class="sr-only">Input</label><input type="number" value="5" min="3" max="10" id="auto_71">
+          <label for="auto_72" class="sr-only">Input</label><input type="number" value="30" min="5" max="1440" id="auto_72">ıda başarısız girişten sonra hesap kilitlenecek</small>
                     </div>
                     
                     <div class="form-group">
-                        <label>Hesap Kilitleme Süresi (dakika)</label>
-                        <input type="number" value="30" min="5" max="1440">
+                    <label for="auto_73" class="sr-only">Input</label><input type="number" value="8" min="6" max="20" id="auto_73">el>
+                        <label for="auto_74" class="sr-only">Input</label><input type="number" value="30" min="5" max="1440" id="auto_74">
                     </div>
                     
                     <div class="form-group">
-                        <label>Minimum Şifre Uzunluğu</label>
-                        <input type="number" value="8" min="6" max="20">
+                        <label>Minimum Şif<label for="auto_75" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_75">er" value="8" min="6" max="20">
                     </div>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <label for="auto_76" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_76">
                             <span>Şifre Karmaşıklık Kuralları</span>
-                        </label>
-                        <small style="color: #64748b;">Büyük/küçük harf, rakam ve özel karakter gerektirir</small>
+                   <label for="auto_77" class="sr-only">Input</label><input type="number" value="90" min="0" max="365" id="auto_77">e="color: #64748b;">Büyük/küçük harf, rakam ve özel karakter gerektirir</small>
                     </div>
                     
                     <div class="form-group">
                         <label>Şifre Değiştirme Periyodu (gün)</label>
-                        <input type="number" value="90" min="0" max="365">
-                        <small style="color: #64748b;">0 girerek devre dışı bırakabilirsiniz</small>
-                    </div>
+                        <label for="auto_78" class="sr-only">Input</label><input type="number" value="90" min="0" max="365" id="auto_78">
+                        <small style="color: #64748b;">0 girerek devre<label for="auto_79" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_79"> </div>
                     
                     <h4 style="margin: 2rem 0 1rem 0;">IP Beyaz Listesi</h4>
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" style="width: auto; margin: 0;">
+                            <label for="auto_80" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_80">
                             <span>IP Kısıtlaması Aktif</span>
                         </label>
                         <small style="color: #64748b;">Sadece belirlenen IP adreslerinden erişime izin ver</small>
@@ -5013,7 +4982,7 @@ include '../includes/dashboard_header.php';
                     
                     <div class="form-group">
                         <label>İzin Verilen IP Adresleri (her satırda bir IP)</label>
-                        <textarea rows="5" placeholder="192.168.1.1&#10;192.168.1.2&#10;10.0.0.1"></textarea>
+                        <label for="auto_81" class="sr-only">192.168.1.1&#10;192.168.1.2&#10;10.0.0.1</label><textarea rows="5" placeholder="192.168.1.1&#10;192.168.1.2&#10;10.0.0.1" id="auto_81"></textarea>
                     </div>
                     
                     <button class="save-btn" style="margin-top: 1rem;">
@@ -5023,79 +4992,71 @@ include '../includes/dashboard_header.php';
 
                 <!-- Backup Settings Tab -->
                 <div id="backuptab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
-                    <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-database"></i> Yedekleme Ayarları
+                    <h3 style="margin-bottom: 1.5rem; color: #333; di<label for="auto_82" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_82">        <i class="fas fa-database"></i> Yedekleme Ayarları
                     </h3>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <label for="auto_83" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_83">
                             <span>Otomatik Yedekleme Aktif</span>
                         </label>
                         <small style="color: #64748b;">Belirlenen zamanlarda otomatik yedek alınacak</small>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="f<label for="auto_84" class="sr-only">Input</label><select id="auto_84">p">
                         <label>Yedekleme Sıklığı</label>
-                        <select>
+                        <label for="auto_85" class="sr-only">Input</label><select id="auto_85">
                             <option value="hourly">Saatlik</option>
-                            <option value="daily" selected>Günlük</option>
-                            <option value="weekly">Haftalık</option>
+                            <option value="daily" selected>Günlük</<label for="auto_86" class="sr-only">Time</label><input type="time" value="02:00" id="auto_86">    <option value="weekly">Haftalık</option>
                             <option value="monthly">Aylık</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label>Yedekleme Saati</label>
-                        <input type="time" value="02:00">
+                        <label>Yedeklem<label for="auto_87" class="sr-only">Input</label><input type="number" value="30" min="1" max="365" id="auto_87">pe="time" value="02:00">
                         <small style="color: #64748b;">Yedekleme işleminin yapılacağı saat</small>
                     </div>
                     
                     <div class="form-group">
-                        <label>Yedek Saklama Süresi (gün)</label>
-                        <input type="number" value="30" min="1" max="365">
+                        <label>Yedek Saklama Süresi (gün)<<label for="auto_88" class="sr-only">Input</label><input type="number" value="10" min="1" max="100" id="auto_88">er" value="30" min="1" max="365">
                         <small style="color: #64748b;">Bu süreden eski yedekler otomatik silinecek</small>
                     </div>
                     
                     <div class="form-group">
                         <label>Maksimum Yedek Sayısı</label>
-                        <input type="number" value="10" min="1" max="100">
-                    </div>
+               <label for="auto_89" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_89">                  </div>
                     
                     <h4 style="margin: 2rem 0 1rem 0;">Yedek Depolama</h4>
                     
                     <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                        <label style="display: flex; align-items: center; gap: 8<label for="auto_90" class="sr-only">Input</label><input type="text" value="/var/backups/carwash" id="auto_90">    <label for="auto_91" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_91">
                             <span>Yerel Sunucuda Sakla</span>
                         </label>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Yerel Yedek Klasörü</label>
-                        <input type="text" value="/var/backups/carwash">
+     <label for="auto_92" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_92">          <label>Yerel Yedek Klasörü</label>
+                        <label for="auto_93" class="sr-only">Input</label><input type="text" value="/var/backups/carwash" id="auto_93">
                     </div>
                     
                     <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" style="width: auto; margin: 0;">
+                        <label style="display: flex;<label for="auto_94" class="sr-only">ftp.example.com</label><input type="text" placeholder="ftp.example.com" id="auto_94">>
+                            <label for="auto_95" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_95">
                             <span>Uzak Sunucuya Yükle (FTP/SFTP)</span>
                         </label>
                     </div>
                     
-                    <div class="form-group">
-                        <label>FTP Host</label>
-                        <input type="text" placeholder="ftp.example.com">
+                    <div <label for="auto_96" class="sr-only">username</label><input type="text" placeholder="username" id="auto_96">   <label>FTP Host</label>
+                        <label for="auto_97" class="sr-only">ftp.example.com</label><input type="text" placeholder="ftp.example.com" id="auto_97">
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+       <label for="auto_98" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_98"> 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label>FTP Username</label>
-                            <input type="text" placeholder="username">
+                            <label for="auto_99" class="sr-only">username</label><input type="text" placeholder="username" id="auto_99">
                         </div>
                         <div class="form-group">
                             <label>FTP Password</label>
-                            <input type="password" placeholder="••••••••">
+                            <label for="auto_100" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_100">
                         </div>
                     </div>
                     
@@ -5116,19 +5077,17 @@ include '../includes/dashboard_header.php';
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div>
                                     <h5 style="margin: 0;">Hoş Geldin Emaili</h5>
-                                    <small style="color: #64748b;">Yeni kullanıcı kaydında gönderilen email</small>
-                                </div>
-                                <button class="action-btn edit-btn">
+                                    <small style="color: #64748b;">Yeni kullanıcı kaydında gönderilen email</<label for="auto_101" class="sr-only">Input</label><input type="text" value="CarWash'a Hoş Geldiniz!" id="auto_101">                            <button class="action-btn edit-btn">
                                     <i class="fas fa-edit"></i> Düzenle
                                 </button>
                             </div>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
                                 <label>Konu</label>
-                                <input type="text" value="CarWash'a Hoş Geldiniz!">
+                                <label for="auto_102" class="sr-only">Input</label><input type="text" value="CarWash'a Hoş Geldiniz!" id="auto_102">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label>Gövde</label>
-                                <textarea rows="3" readonly>Merhaba {{user_name}}, CarWash ailesine hoş geldiniz!</textarea>
+                       <label for="auto_103" class="sr-only">Input</label><textarea rows="3" readonly id="auto_103">readonly>Merhaba {{user_name}}, CarWash ailesine hoş geldiniz!</textarea>
                             </div>
                         </div>
                         
@@ -5137,19 +5096,17 @@ include '../includes/dashboard_header.php';
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div>
                                     <h5 style="margin: 0;">Sipariş Onayı</h5>
-                                    <small style="color: #64748b;">Sipariş oluşturulduğunda gönderilen email</small>
-                                </div>
-                                <button class="action-btn edit-btn">
+                                    <small style="color: #64748b;">Sipariş oluşturulduğunda gönderile<label for="auto_104" class="sr-only">Input</label><input type="text" value="Siparişiniz Alındı - #{{order_id}}" id="auto_104">                        <button class="action-btn edit-btn">
                                     <i class="fas fa-edit"></i> Düzenle
                                 </button>
                             </div>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
                                 <label>Konu</label>
-                                <input type="text" value="Siparişiniz Alındı - #{{order_id}}">
+                                <label for="auto_105" class="sr-only">Input</label><input type="text" value="Siparişiniz Alındı - #{{order_id}}" id="auto_105">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label>Gövde</label>
-                                <textarea rows="3" readonly>Siparişiniz başarıyla alındı. Sipariş No: {{order_id}}</textarea>
+              <label for="auto_106" class="sr-only">Input</label><textarea rows="3" readonly id="auto_106">rows="3" readonly>Siparişiniz başarıyla alındı. Sipariş No: {{order_id}}</textarea>
                             </div>
                         </div>
                         
@@ -5158,19 +5115,18 @@ include '../includes/dashboard_header.php';
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div>
                                     <h5 style="margin: 0;">Şifre Sıfırlama</h5>
-                                    <small style="color: #64748b;">Şifre sıfırlama talebi için email</small>
-                                </div>
+                                    <small style="color: #64748b;">Şifre sıfırlama ta<label for="auto_107" class="sr-only">Input</label><input type="text" value="Şifre Sıfırlama Talebi" id="auto_107">     </div>
                                 <button class="action-btn edit-btn">
                                     <i class="fas fa-edit"></i> Düzenle
                                 </button>
                             </div>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
                                 <label>Konu</label>
-                                <input type="text" value="Şifre Sıfırlama Talebi">
+                                <label for="auto_108" class="sr-only">Input</label><input type="text" value="Şifre Sıfırlama Talebi" id="auto_108">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label>Gövde</label>
-                                <textarea rows="3" readonly>Şifrenizi sıfırlamak için aşağıdaki linke tıklayın: {{reset_link}}</textarea>
+     <label for="auto_109" class="sr-only">Input</label><textarea rows="3" readonly id="auto_109">textarea rows="3" readonly>Şifrenizi sıfırlamak için aşağıdaki linke tıklayın: {{reset_link}}</textarea>
                             </div>
                         </div>
                     </div>
@@ -5201,19 +5157,19 @@ include '../includes/dashboard_header.php';
                 <form id="carwashForm">
                     <div class="form-group">
                         <label>Otopark Adı</label>
-                        <input type="text" id="carwashName" required>
+                        <label for="carwashName" class="sr-only">Input</label><input type="text" id="carwashName" required>
                     </div>
                     <div class="form-group">
                         <label>Adres</label>
-                        <textarea id="carwashAddress" required></textarea>
+                        <label for="carwashAddress" class="sr-only">Input</label><textarea id="carwashAddress" required></textarea>
                     </div>
                     <div class="form-group">
                         <label>Kapasite</label>
-                        <input type="number" id="carwashCapacity" required>
+                        <label for="carwashCapacity" class="sr-only">Input</label><input type="number" id="carwashCapacity" required>
                     </div>
                     <div class="form-group">
                         <label>Saat Ücreti (₺)</label>
-                        <input type="number" id="carwashPrice" required>
+                        <label for="carwashPrice" class="sr-only">Input</label><input type="number" id="carwashPrice" required>
                     </div>
                     <div class="form-group">
                         <label for="carwashStatus">Durum</label>
@@ -5243,18 +5199,18 @@ include '../includes/dashboard_header.php';
                 <form id="serviceForm">
                     <div class="form-group">
                         <label><i class="fas fa-tag mr-1"></i>Hizmet Adı *</label>
-                        <input type="text" id="serviceName" name="service_name" placeholder="Örn: Dış Yıkama" required>
+                        <label for="serviceName" class="sr-only">Service name</label><input type="text" id="serviceName" name="service_name" placeholder="Örn: Dış Yıkama" required>
                     </div>
                     
                     <div class="form-group">
                         <label><i class="fas fa-align-left mr-1"></i>Açıklama</label>
-                        <textarea id="serviceDescription" name="description" rows="3" placeholder="Hizmet açıklaması..."></textarea>
+                        <label for="serviceDescription" class="sr-only">Description</label><textarea id="serviceDescription" name="description" rows="3" placeholder="Hizmet açıklaması..."></textarea>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label><i class="fas fa-layer-group mr-1"></i>Kategori *</label>
-                            <select id="serviceCategory" name="category" required>
+                            <label for="serviceCategory" class="sr-only">Category</label><select id="serviceCategory" name="category" required>
                                 <option value="">Kategori Seçin</option>
                                 <option value="wash">Yıkama</option>
                                 <option value="detail">Detaylı Bakım</option>
@@ -5265,7 +5221,7 @@ include '../includes/dashboard_header.php';
                         
                         <div class="form-group">
                             <label><i class="fas fa-clock mr-1"></i>Süre (dakika) *</label>
-                            <input type="number" id="serviceDuration" name="duration" min="1" placeholder="30" required>
+                            <label for="serviceDuration" class="sr-only">Duration</label><input type="number" id="serviceDuration" name="duration" min="1" placeholder="30" required>
                         </div>
                     </div>
                     
@@ -5275,15 +5231,15 @@ include '../includes/dashboard_header.php';
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
                                 <div>
                                     <label style="font-size: 0.85rem; color: #666; font-weight: normal;">Sedan (₺) *</label>
-                                    <input type="number" id="priceSedan" name="price_sedan" min="0" step="0.01" placeholder="150" required style="margin-top: 0.25rem;">
+                                    <label for="priceSedan" class="sr-only">Price sedan</label><input type="number" id="priceSedan" name="price_sedan" min="0" step="0.01" placeholder="150" required style="margin-top: 0.25rem;">
                                 </div>
                                 <div>
                                     <label style="font-size: 0.85rem; color: #666; font-weight: normal;">SUV (₺) *</label>
-                                    <input type="number" id="priceSUV" name="price_suv" min="0" step="0.01" placeholder="180" required style="margin-top: 0.25rem;">
+                                    <label for="priceSUV" class="sr-only">Price suv</label><input type="number" id="priceSUV" name="price_suv" min="0" step="0.01" placeholder="180" required style="margin-top: 0.25rem;">
                                 </div>
                                 <div>
                                     <label style="font-size: 0.85rem; color: #666; font-weight: normal;">Kamyonet (₺) *</label>
-                                    <input type="number" id="priceTruck" name="price_truck" min="0" step="0.01" placeholder="200" required style="margin-top: 0.25rem;">
+                                    <label for="priceTruck" class="sr-only">Price truck</label><input type="number" id="priceTruck" name="price_truck" min="0" step="0.01" placeholder="200" required style="margin-top: 0.25rem;">
                                 </div>
                             </div>
                             <small style="color: #666; font-size: 0.8rem;">
@@ -5295,12 +5251,12 @@ include '../includes/dashboard_header.php';
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
-                            <input type="number" id="serviceOrder" name="sort_order" min="1" placeholder="1" value="1">
+                            <label for="serviceOrder" class="sr-only">Sort order</label><input type="number" id="serviceOrder" name="sort_order" min="1" placeholder="1" value="1">
                         </div>
                         
                         <div class="form-group">
                             <label><i class="fas fa-toggle-on mr-1"></i>Durum *</label>
-                            <select id="serviceStatus" name="status" required>
+                            <label for="serviceStatus" class="sr-only">Status</label><select id="serviceStatus" name="status" required>
                                 <option value="active">Aktif</option>
                                 <option value="inactive">Pasif</option>
                             </select>
@@ -5309,7 +5265,7 @@ include '../includes/dashboard_header.php';
                     
                     <div class="form-group">
                         <label><i class="fas fa-icons mr-1"></i>İkon (Font Awesome sınıfı)</label>
-                        <input type="text" id="serviceIcon" name="icon" placeholder="fas fa-car" value="fas fa-car">
+                        <label for="serviceIcon" class="sr-only">Icon</label><input type="text" id="serviceIcon" name="icon" placeholder="fas fa-car" value="fas fa-car">
                         <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 0.25rem;">
                             <i class="fas fa-lightbulb"></i> Örnek: fas fa-car, fas fa-broom, fas fa-star, fas fa-shield-alt
                         </small>
@@ -5337,7 +5293,7 @@ include '../includes/dashboard_header.php';
                 <form id="ticketForm">
                     <div class="form-group">
                         <label><i class="fas fa-user mr-1"></i>Müşteri Seçin *</label>
-                        <select id="ticketCustomer" name="customer_id" required>
+                        <label for="ticketCustomer" class="sr-only">Customer id</label><select id="ticketCustomer" name="customer_id" required>
                             <option value="">Müşteri Seçin</option>
                             <option value="1">Ahmet Yılmaz - ahmet@email.com</option>
                             <option value="2">Elif Kara - elif@email.com</option>
@@ -5348,13 +5304,13 @@ include '../includes/dashboard_header.php';
                     
                     <div class="form-group">
                         <label><i class="fas fa-heading mr-1"></i>Konu *</label>
-                        <input type="text" id="ticketSubject" name="subject" placeholder="Talep konusu..." required>
+                        <label for="ticketSubject" class="sr-only">Subject</label><input type="text" id="ticketSubject" name="subject" placeholder="Talep konusu..." required>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label><i class="fas fa-tag mr-1"></i>Kategori *</label>
-                            <select id="ticketCategory" name="category" required>
+                            <label for="ticketCategory" class="sr-only">Category</label><select id="ticketCategory" name="category" required>
                                 <option value="">Kategori Seçin</option>
                                 <option value="technical">Teknik Destek</option>
                                 <option value="billing">Ödeme & Fatura</option>
@@ -5366,7 +5322,7 @@ include '../includes/dashboard_header.php';
                         
                         <div class="form-group">
                             <label><i class="fas fa-exclamation-circle mr-1"></i>Öncelik *</label>
-                            <select id="ticketPriority" name="priority" required>
+                            <label for="ticketPriority" class="sr-only">Priority</label><select id="ticketPriority" name="priority" required>
                                 <option value="">Öncelik Seçin</option>
                                 <option value="low">Düşük</option>
                                 <option value="medium" selected>Orta</option>
@@ -5378,13 +5334,13 @@ include '../includes/dashboard_header.php';
                     
                     <div class="form-group">
                         <label><i class="fas fa-align-left mr-1"></i>Mesaj *</label>
-                        <textarea id="ticketMessage" name="message" rows="5" placeholder="Talep detaylarını yazın..." required></textarea>
+                        <label for="ticketMessage" class="sr-only">Message</label><textarea id="ticketMessage" name="message" rows="5" placeholder="Talep detaylarını yazın..." required></textarea>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label><i class="fas fa-user-tag mr-1"></i>Atanan Kişi</label>
-                            <select id="ticketAssignedTo" name="assigned_to">
+                            <label for="ticketAssignedTo" class="sr-only">Assigned to</label><select id="ticketAssignedTo" name="assigned_to">
                                 <option value="">Atama Yapılmadı</option>
                                 <option value="1">Destek Ekibi - Ahmet</option>
                                 <option value="2">Destek Ekibi - Ayşe</option>
@@ -5394,7 +5350,7 @@ include '../includes/dashboard_header.php';
                         
                         <div class="form-group">
                             <label><i class="fas fa-flag mr-1"></i>Durum</label>
-                            <select id="ticketStatus" name="status">
+                            <label for="ticketStatus" class="sr-only">Status</label><select id="ticketStatus" name="status">
                                 <option value="new" selected>Yeni</option>
                                 <option value="open">Açık</option>
                                 <option value="in_progress">Devam Ediyor</option>
@@ -5404,7 +5360,7 @@ include '../includes/dashboard_header.php';
                     
                     <div class="form-group">
                         <label><i class="fas fa-paperclip mr-1"></i>Dosya Ekle (Opsiyonel)</label>
-                        <input type="file" id="ticketAttachment" name="attachment" accept="image/*,.pdf,.doc,.docx" style="padding: 8px;">
+                        <label for="ticketAttachment" class="sr-only">Attachment</label><input type="file" id="ticketAttachment" name="attachment" accept="image/*,.pdf,.doc,.docx" style="padding: 8px;">
                         <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 0.25rem;">
                             <i class="fas fa-info-circle"></i> Maksimum dosya boyutu: 5MB
                         </small>
@@ -5432,34 +5388,34 @@ include '../includes/dashboard_header.php';
                 <form id="userForm">
                     <div class="form-group">
                         <label>Kullanıcı Adı *</label>
-                        <input type="text" name="username" id="userName" required placeholder="kullanici_adi">
+                        <label for="userName" class="sr-only">Username</label><input type="text" name="username" id="userName" required placeholder="kullanici_adi">
                         <small style="color: #64748b;">Benzersiz kullanıcı adı</small>
                     </div>
                     
                     <div class="form-group">
                         <label>Email Adresi *</label>
-                        <input type="email" name="email" id="userEmail" required placeholder="ornek@email.com">
+                        <label for="userEmail" class="sr-only">Email</label><input type="email" name="email" id="userEmail" required placeholder="ornek@email.com">
                     </div>
                     
                     <div class="form-group">
                         <label>Şifre *</label>
-                        <input type="password" name="password" id="userPassword" required placeholder="Güçlü şifre">
+                        <label for="userPassword" class="sr-only">Password</label><input type="password" name="password" id="userPassword" required placeholder="Güçlü şifre">
                         <small style="color: #64748b;">En az 8 karakter, büyük/küçük harf ve rakam içermeli</small>
                     </div>
                     
                     <div class="form-group">
                         <label>Şifre Tekrar *</label>
-                        <input type="password" name="password_confirm" id="userPasswordConfirm" required placeholder="Şifreyi tekrar girin">
+                        <label for="userPasswordConfirm" class="sr-only">Password confirm</label><input type="password" name="password_confirm" id="userPasswordConfirm" required placeholder="Şifreyi tekrar girin">
                     </div>
                     
                     <div class="form-group">
                         <label>Tam Adı *</label>
-                        <input type="text" name="full_name" id="userFullName" required placeholder="Ad Soyad">
+                        <label for="userFullName" class="sr-only">Full name</label><input type="text" name="full_name" id="userFullName" required placeholder="Ad Soyad">
                     </div>
                     
                     <div class="form-group">
                         <label>Telefon</label>
-                        <input type="tel" name="phone" id="userPhone" placeholder="+90 555 123 4567">
+                        <label for="userPhone" class="sr-only">Phone</label><input type="tel" name="phone" id="userPhone" placeholder="+90 555 123 4567">
                     </div>
                     
                     <div class="form-group">
@@ -5486,7 +5442,7 @@ include '../includes/dashboard_header.php';
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" name="require_2fa" id="userRequire2FA" style="width: auto; margin: 0;">
+                            <label for="userRequire2FA" class="sr-only">Require 2fa</label><input type="checkbox" name="require_2fa" id="userRequire2FA" style="width: auto; margin: 0;">
                             <span>İki Faktörlü Kimlik Doğrulama Zorunlu</span>
                         </label>
                         <small style="color: #64748b;">Kullanıcı ilk girişte 2FA kurulumu yapacak</small>
@@ -5494,7 +5450,7 @@ include '../includes/dashboard_header.php';
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" name="email_verified" id="userEmailVerified" checked style="width: auto; margin: 0;">
+                            <label for="userEmailVerified" class="sr-only">Email verified</label><input type="checkbox" name="email_verified" id="userEmailVerified" checked style="width: auto; margin: 0;">
                             <span>Email Doğrulanmış Olarak İşaretle</span>
                         </label>
                     </div>
@@ -5530,20 +5486,20 @@ include '../includes/dashboard_header.php';
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
                                 <label><i class="fas fa-heading mr-1"></i>Sayfa Başlığı *</label>
-                                <input type="text" name="page_title" id="pageTitle" required placeholder="Örn: Hakkımızda">
+                                <label for="pageTitle" class="sr-only">Page title</label><input type="text" name="page_title" id="pageTitle" required placeholder="Örn: Hakkımızda">
                                 <small style="color: #64748b;">Sayfa başlığı (meta title)</small>
                             </div>
                             
                             <div class="form-group">
                                 <label><i class="fas fa-link mr-1"></i>URL Slug *</label>
-                                <input type="text" name="page_slug" id="pageSlug" required placeholder="Örn: hakkimizda">
+                                <label for="pageSlug" class="sr-only">Page slug</label><input type="text" name="page_slug" id="pageSlug" required placeholder="Örn: hakkimizda">
                                 <small style="color: #64748b;">URL dostu metin (otomatik oluşturulur)</small>
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <label><i class="fas fa-align-left mr-1"></i>Kısa Açıklama</label>
-                            <textarea name="page_description" id="pageDescription" rows="2" placeholder="Sayfa meta açıklaması (SEO için önemli)"></textarea>
+                            <label for="pageDescription" class="sr-only">Page description</label><textarea name="page_description" id="pageDescription" rows="2" placeholder="Sayfa meta açıklaması (SEO için önemli)"></textarea>
                             <small style="color: #64748b;">150-160 karakter önerilir</small>
                         </div>
                     </div>
@@ -5557,7 +5513,7 @@ include '../includes/dashboard_header.php';
                         
                         <div class="form-group">
                             <label><i class="fas fa-paragraph mr-1"></i>Ana İçerik *</label>
-                            <textarea name="page_content" id="pageContent" rows="10" required placeholder="Sayfa içeriğini buraya yazın... HTML etiketleri kullanabilirsiniz."></textarea>
+                            <label for="pageContent" class="sr-only">Page content</label><textarea name="page_content" id="pageContent" rows="10" required placeholder="Sayfa içeriğini buraya yazın... HTML etiketleri kullanabilirsiniz."></textarea>
                             <small style="color: #64748b;">
                                 <i class="fas fa-lightbulb"></i> 
                                 HTML etiketleri desteklenir: &lt;h1&gt;, &lt;p&gt;, &lt;div&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;a&gt;, &lt;img&gt;
@@ -5567,13 +5523,13 @@ include '../includes/dashboard_header.php';
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
                                 <label><i class="fas fa-image mr-1"></i>Öne Çıkan Görsel (URL)</label>
-                                <input type="url" name="featured_image" id="featuredImage" placeholder="https://example.com/image.jpg">
+                                <label for="featuredImage" class="sr-only">Featured image</label><input type="url" name="featured_image" id="featuredImage" placeholder="https://example.com/image.jpg">
                                 <small style="color: #64748b;">Sayfa görseli URL'si</small>
                             </div>
                             
                             <div class="form-group">
                                 <label><i class="fas fa-palette mr-1"></i>Arka Plan Rengi</label>
-                                <input type="color" name="background_color" id="backgroundColor" value="#ffffff" style="height: 45px; padding: 4px;">
+                                <label for="backgroundColor" class="sr-only">Background color</label><input type="color" name="background_color" id="backgroundColor" value="#ffffff" style="height: 45px; padding: 4px;">
                                 <small style="color: #64748b;">Sayfa arka plan rengi</small>
                             </div>
                         </div>
@@ -5589,7 +5545,7 @@ include '../includes/dashboard_header.php';
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
                             <div class="form-group">
                                 <label><i class="fas fa-list-alt mr-1"></i>Kategori *</label>
-                                <select name="page_category" id="pageCategory" required>
+                                <label for="pageCategory" class="sr-only">Page category</label><select name="page_category" id="pageCategory" required>
                                     <option value="">Kategori Seçin</option>
                                     <option value="about">Hakkımızda</option>
                                     <option value="services">Hizmetler</option>
@@ -5603,7 +5559,7 @@ include '../includes/dashboard_header.php';
                             
                             <div class="form-group">
                                 <label><i class="fas fa-flag mr-1"></i>Durum *</label>
-                                <select name="page_status" id="pageStatus" required>
+                                <label for="pageStatus" class="sr-only">Page status</label><select name="page_status" id="pageStatus" required>
                                     <option value="draft">Taslak</option>
                                     <option value="published" selected>Yayında</option>
                                     <option value="archived">Arşivlendi</option>
@@ -5612,7 +5568,7 @@ include '../includes/dashboard_header.php';
                             
                             <div class="form-group">
                                 <label><i class="fas fa-language mr-1"></i>Dil *</label>
-                                <select name="page_language" id="pageLanguage" required>
+                                <label for="pageLanguage" class="sr-only">Page language</label><select name="page_language" id="pageLanguage" required>
                                     <option value="tr" selected>Türkçe</option>
                                     <option value="en">English</option>
                                     <option value="ar">العربية</option>
@@ -5624,13 +5580,13 @@ include '../includes/dashboard_header.php';
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
                             <div class="form-group">
                                 <label><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
-                                <input type="number" name="page_order" id="pageOrder" value="0" min="0" placeholder="0">
+                                <label for="pageOrder" class="sr-only">Page order</label><input type="number" name="page_order" id="pageOrder" value="0" min="0" placeholder="0">
                                 <small style="color: #64748b;">Sayfa sıralama numarası (0 = en üstte)</small>
                             </div>
                             
                             <div class="form-group">
                                 <label><i class="fas fa-user-tie mr-1"></i>Yazar</label>
-                                <select name="page_author" id="pageAuthor">
+                                <label for="pageAuthor" class="sr-only">Page author</label><select name="page_author" id="pageAuthor">
                                     <option value="1" selected>Admin</option>
                                     <option value="2">Editor</option>
                                     <option value="3">Content Manager</option>
@@ -5648,14 +5604,14 @@ include '../includes/dashboard_header.php';
                         
                         <div class="form-group">
                             <label><i class="fas fa-tag mr-1"></i>Meta Anahtar Kelimeler</label>
-                            <input type="text" name="meta_keywords" id="metaKeywords" placeholder="otopark, araç yıkama, temizlik, bakım">
+                            <label for="metaKeywords" class="sr-only">Meta keywords</label><input type="text" name="meta_keywords" id="metaKeywords" placeholder="otopark, araç yıkama, temizlik, bakım">
                             <small style="color: #64748b;">Virgülle ayrılmış anahtar kelimeler</small>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
                                 <label><i class="fas fa-robot mr-1"></i>Robots Meta Tag</label>
-                                <select name="robots_meta" id="robotsMeta">
+                                <label for="robotsMeta" class="sr-only">Robots meta</label><select name="robots_meta" id="robotsMeta">
                                     <option value="index,follow" selected>Index, Follow (Önerilen)</option>
                                     <option value="noindex,follow">No Index, Follow</option>
                                     <option value="index,nofollow">Index, No Follow</option>
@@ -5665,7 +5621,7 @@ include '../includes/dashboard_header.php';
                             
                             <div class="form-group">
                                 <label><i class="fas fa-share-alt mr-1"></i>Open Graph Görseli</label>
-                                <input type="url" name="og_image" id="ogImage" placeholder="https://example.com/og-image.jpg">
+                                <label for="ogImage" class="sr-only">Og image</label><input type="url" name="og_image" id="ogImage" placeholder="https://example.com/og-image.jpg">
                                 <small style="color: #64748b;">Sosyal medya paylaşım görseli</small>
                             </div>
                         </div>
@@ -5680,20 +5636,20 @@ include '../includes/dashboard_header.php';
                         
                         <div class="form-group">
                             <label><i class="fas fa-code mr-1"></i>Özel CSS</label>
-                            <textarea name="custom_css" id="customCss" rows="4" placeholder=".my-class { color: blue; }"></textarea>
+                            <label for="customCss" class="sr-only">Custom css</label><textarea name="custom_css" id="customCss" rows="4" placeholder=".my-class { color: blue; }"></textarea>
                             <small style="color: #64748b;">Bu sayfa için özel CSS kodları</small>
                         </div>
                         
                         <div class="form-group">
                             <label><i class="fas fa-file-code mr-1"></i>Özel JavaScript</label>
-                            <textarea name="custom_js" id="customJs" rows="4" placeholder="console.log('Page loaded');"></textarea>
+                            <label for="customJs" class="sr-only">Custom js</label><textarea name="custom_js" id="customJs" rows="4" placeholder="console.log('Page loaded');"></textarea>
                             <small style="color: #64748b;">Bu sayfa için özel JavaScript kodları</small>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px;">
                             <div class="form-group">
                                 <label style="display: flex; align-items: center; cursor: pointer;">
-                                    <input type="checkbox" name="show_in_menu" id="showInMenu" checked style="margin-right: 8px;">
+                                    <label for="showInMenu" class="sr-only">Show in menu</label><input type="checkbox" name="show_in_menu" id="showInMenu" checked style="margin-right: 8px;">
                                     <i class="fas fa-bars mr-1"></i>
                                     Menüde Göster
                                 </label>
@@ -5701,7 +5657,7 @@ include '../includes/dashboard_header.php';
                             
                             <div class="form-group">
                                 <label style="display: flex; align-items: center; cursor: pointer;">
-                                    <input type="checkbox" name="show_in_footer" id="showInFooter" style="margin-right: 8px;">
+                                    <label for="showInFooter" class="sr-only">Show in footer</label><input type="checkbox" name="show_in_footer" id="showInFooter" style="margin-right: 8px;">
                                     <i class="fas fa-shoe-prints mr-1"></i>
                                     Footer'da Göster
                                 </label>
@@ -5709,7 +5665,7 @@ include '../includes/dashboard_header.php';
                             
                             <div class="form-group">
                                 <label style="display: flex; align-items: center; cursor: pointer;">
-                                    <input type="checkbox" name="require_auth" id="requireAuth" style="margin-right: 8px;">
+                                    <label for="requireAuth" class="sr-only">Require auth</label><input type="checkbox" name="require_auth" id="requireAuth" style="margin-right: 8px;">
                                     <i class="fas fa-lock mr-1"></i>
                                     Giriş Gerekli
                                 </label>
@@ -6809,3 +6765,6 @@ include '../includes/footer.php';
 ?>
 </body>
 </html>
+
+
+

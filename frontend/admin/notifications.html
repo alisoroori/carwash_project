@@ -21,14 +21,14 @@
             </div>
 
             <div class="filters">
-                <select id="typeFilter" title="Type Filter">
+                <label for="typeFilter" class="sr-only">Input</label><select id="typeFilter" title="Type Filter">
                     <option value="">All Types</option>
                     <option value="system">System</option>
                     <option value="promotional">Promotional</option>
                     <option value="booking">Booking</option>
                     <option value="payment">Payment</option>
                 </select>
-                <select id="statusFilter" title="Status Filter">
+                <label for="statusFilter" class="sr-only">Input</label><select id="statusFilter" title="Status Filter">
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                 </select>
@@ -46,7 +46,7 @@
             <span class="close">&times;</span>
             <h2 id="modalTitle">Create Notification</h2>
             <form id="notificationForm">
-                <input type="hidden" id="notificationId">
+                <label for="notificationId" class="sr-only">Input</label><input type="hidden" id="notificationId">
                 
                 <div class="form-group">
                     <label for="title">Title</label>

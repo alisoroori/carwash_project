@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Vehicle integration test (CLI)
  *
@@ -70,7 +70,7 @@ if ($httpCode >= 400) {
 // extract csrf token from the HTML hidden input
 if (!preg_match('/name="csrf_token"\s+value="([a-f0-9]+)"/i', $resp, $m)) {
     // try looser pattern
-    if (!preg_match('/<input[^>]+name=["\']csrf_token["\'][^>]*value=["\']([^"\']+)["\']/i', $resp, $m)) {
+    if (!preg_match('/<input[^ id="$id">]+name=["\']csrf_token["\'][^>]*value=["\']([^"\']+)["\']/i', $resp, $m)) {
         fail('Could not locate csrf_token in test page response. Response snippet: ' . substr(strip_tags($resp),0,500));
     }
 }
@@ -195,3 +195,4 @@ info('Temporary files removed.');
 
 info('Integration test PASSED');
 exit(0);
+

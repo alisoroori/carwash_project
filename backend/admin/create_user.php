@@ -303,7 +303,7 @@ $page_title = 'Create User - CarWash Admin';
                 }
             }
             ?>
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+            <label for="auto_label_1" class="sr-only">Csrf token</label><label for="auto_label_1" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_1">">
             <div class="form-group">
                 <label for="full_name">Full Name</label>
                 <input 
@@ -383,3 +383,5 @@ $page_title = 'Create User - CarWash Admin';
     </script>
 </body>
 </html>
+
+

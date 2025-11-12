@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -20,12 +20,12 @@ require_once '../../includes/auth_check.php';
         <!-- Interactive Chart Controls -->
         <div class="bg-white rounded-lg shadow p-6 mb-6">
             <div class="grid grid-cols-4 gap-4">
-                <select id="chartType" class="rounded-md border-gray-300">
+                <label for="chartType" class="sr-only">Input</label><select id="chartType" class="rounded-md border-gray-300">
                     <option value="line">Line Chart</option>
                     <option value="bar">Bar Chart</option>
                     <option value="heatmap">Heatmap</option>
                 </select>
-                <select id="timeRange" class="rounded-md border-gray-300">
+                <label for="timeRange" class="sr-only">Input</label><select id="timeRange" class="rounded-md border-gray-300">
                     <option value="7">Last 7 Days</option>
                     <option value="30">Last 30 Days</option>
                     <option value="90">Last 90 Days</option>
@@ -48,6 +48,7 @@ require_once '../../includes/auth_check.php';
 </body>
 
 </html>
+
 
 
 

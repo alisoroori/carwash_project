@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
 
@@ -25,7 +25,7 @@ if ($_SESSION['user_role'] !== 'admin') {
 
             <!-- Filters -->
             <div class="mb-6 flex space-x-4">
-                <select id="statusFilter" class="rounded-md border-gray-300">
+                <label for="statusFilter" class="sr-only">Input</label><select id="statusFilter" class="rounded-md border-gray-300">
                     <option value="pending">Pending Reviews</option>
                     <option value="approved">Approved Reviews</option>
                     <option value="rejected">Rejected Reviews</option>
@@ -43,6 +43,7 @@ if ($_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+
 
 
 

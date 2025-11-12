@@ -263,14 +263,14 @@ include '../includes/header.php';
         <!-- Login Form - File-based routing to process file -->
         <form action="login_process.php" method="POST" class="space-y-6">
           <!-- Added CSRF token for security -->
-          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+          <label for="auto_label_72" class="sr-only">Csrf token</label><label for="auto_label_72" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ? id="auto_label_72">">
 
           <!-- User Type Selection - Moved to top -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-user-tag mr-2 text-blue-600"></i>Hesap Türü
             </label>
-            <select name="user_type" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none">
+            <label for="auto_label_71" class="sr-only">User type</label><label for="auto_label_71" class="sr-only">User type</label><select name="user_type" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none" id="auto_label_71">
               <option value="">Hesap türünüzü seçin</option>
               <option value="customer">Müşteri</option>
               <option value="carwash">Araç Yıkama İşletmesi</option>
@@ -283,12 +283,12 @@ include '../includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi
             </label>
-            <input
+            <label for="auto_label_70" class="sr-only">Email</label><label for="auto_label_70" class="sr-only">Email</label><input
               type="email"
               name="email"
               placeholder="ornek@email.com"
               required
-              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none">
+              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_70">
           </div>
 
           <!-- Password Field -->
@@ -297,7 +297,7 @@ include '../includes/header.php';
               <i class="fas fa-lock mr-2 text-blue-600"></i>Şifre
             </label>
             <div class="relative">
-              <input
+              <label for="password" class="sr-only">Password</label><input
                 type="password"
                 name="password"
                 id="password"
@@ -520,3 +520,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: login.php');
     exit;
 } 
+
+

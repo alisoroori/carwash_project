@@ -12,14 +12,14 @@
     <div class="search-container">
         <div class="search-panel">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search car washes...">
+                <label for="searchInput" class="sr-only">Search car washes...</label><input type="text" id="searchInput" placeholder="Search car washes...">
                 <button id="searchButton">Search</button>
             </div>
                 <div class="filters">
-                	<select id="serviceFilter" title="Service Filter">
+                	<label for="serviceFilter" class="sr-only">Input</label><select id="serviceFilter" title="Service Filter">
                     <option value="">All Services</option>
                 </select>
-                <select id="ratingFilter" title="Rating Filter">
+                <label for="ratingFilter" class="sr-only">Input</label><select id="ratingFilter" title="Rating Filter">
                     <option value="">Any Rating</option>
                     <option value="4">4+ Stars</option>
                     <option value="3">3+ Stars</option>

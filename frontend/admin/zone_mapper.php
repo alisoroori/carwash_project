@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../backend/includes/db.php';
 require_once '../../backend/includes/auth_check.php';
@@ -31,9 +31,9 @@ require_once '../../backend/includes/maps_config.php';
                 </div>
 
                 <div id="zoneProperties" class="hidden">
-                    <input type="text" id="zoneName" placeholder="Zone Name"
+                    <label for="zoneName" class="sr-only">Zone Name</label><input type="text" id="zoneName" placeholder="Zone Name"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    <input type="number" id="multiplier" placeholder="Price Multiplier"
+                    <label for="multiplier" class="sr-only">Price Multiplier</label><input type="number" id="multiplier" placeholder="Price Multiplier"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
             </div>
@@ -42,6 +42,7 @@ require_once '../../backend/includes/maps_config.php';
 </body>
 
 </html>
+
 
 
 

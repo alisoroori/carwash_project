@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
@@ -41,23 +41,23 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                 <!-- Editor -->
                 <div>
                     <form id="templateForm" class="space-y-4">
-                        <input type="hidden" id="templateId" name="id">
+                        <label for="templateId" class="sr-only">Id</label><input type="hidden" id="templateId" name="id">
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Template Name</label>
-                            <input type="text" id="templateName" name="name" required
+                            <label for="templateName" class="sr-only">Name</label><input type="text" id="templateName" name="name" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Subject</label>
-                            <input type="text" id="templateSubject" name="subject" required
+                            <label for="templateSubject" class="sr-only">Subject</label><input type="text" id="templateSubject" name="subject" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Template Type</label>
-                            <select id="templateType" name="type" required
+                            <label for="templateType" class="sr-only">Type</label><select id="templateType" name="type" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="notification">Notification</option>
                                 <option value="approval">Approval</option>
@@ -67,7 +67,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">HTML Content</label>
-                            <textarea id="templateContent" name="content" rows="20"
+                            <label for="templateContent" class="sr-only">Content</label><textarea id="templateContent" name="content" rows="20"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
                         </div>
 
@@ -113,6 +113,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+
 
 
 

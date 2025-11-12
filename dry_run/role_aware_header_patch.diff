@@ -1,0 +1,73 @@
+*** Begin Patch
+*** Update File: /c:/xampp/htdocs/carwash_project/backend/includes/dashboard_header_improved.php
+@@
+-$home_url = $base_url . '/backend/index.php';
+-$dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
+-$profile_url = $dashboard_url . '#profile';
+-$settings_url = $dashboard_url . '#settings';
++$home_url = $base_url . '/backend/index.php';
++
++// Role-aware dashboard resolution (use Auth::hasRole when available, fall back to session)
++$customer_dashboard = $base_url . '/backend/dashboard/Customer_Dashboard.php';
++$carwash_dashboard = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
++$admin_dashboard = $base_url . '/backend/dashboard/admin_panel.php';
++$dashboard_url = $customer_dashboard; // default
++
++// Session role helper
++$sessRole = $_SESSION['role'] ?? strtolower($_SESSION['user_type'] ?? '');
++
++if (class_exists(\App\Classes\Auth::class) && method_exists(\App\Classes\Auth::class, 'hasRole')) {
++    try {
++        if (\App\Classes\Auth::hasRole('carwash')) {
++            $dashboard_url = $carwash_dashboard;
++        } elseif (\App\Classes\Auth::hasRole('admin')) {
++            $dashboard_url = $admin_dashboard;
++        }
++    } catch (Throwable $e) {
++        // Fallback to session role
++        if ($sessRole === 'carwash') $dashboard_url = $carwash_dashboard;
++        elseif ($sessRole === 'admin') $dashboard_url = $admin_dashboard;
++    }
++} else {
++    if ($sessRole === 'carwash') $dashboard_url = $carwash_dashboard;
++    elseif ($sessRole === 'admin') $dashboard_url = $admin_dashboard;
++}
++
++$profile_url = $dashboard_url . '#profile';
++$settings_url = $dashboard_url . '#settings';
+*** End Patch
+
+*** Begin Patch
+*** Update File: /c:/xampp/htdocs/carwash_project/backend/includes/dashboard_header.php
+@@
+ $customer_dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
+ $admin_dashboard_url = $base_url . '/backend/dashboard/admin_panel.php';
+ $carwash_dashboard_url = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
+-
+-// Set current dashboard URL based on role
+-switch ($dashboard_type) {
++
++// Normalize dashboard type by checking Auth::hasRole when available, otherwise fall back to session
++$sessRole = $_SESSION['role'] ?? strtolower($_SESSION['user_type'] ?? '');
++if (class_exists(\App\Classes\Auth::class) && method_exists(\App\Classes\Auth::class, 'hasRole')) {
++    try {
++        if (\App\Classes\Auth::hasRole('carwash')) {
++            $dashboard_type = 'carwash';
++        } elseif (\App\Classes\Auth::class) {
++            $dashboard_type = 'admin';
++        } else {
++            $dashboard_type = 'customer';
++        }
++    } catch (Throwable $e) {
++        if ($sessRole === 'carwash') $dashboard_type = 'carwash';
++        elseif ($sessRole === 'admin') $dashboard_type = 'admin';
++        else $dashboard_type = $dashboard_type ?? 'customer';
++    }
++} else {
++    if ($sessRole === 'carwash') $dashboard_type = 'carwash';
++    elseif ($sessRole === 'admin') $dashboard_type = 'admin';
++    else $dashboard_type = $dashboard_type ?? 'customer';
++}
++
++// Set current dashboard URL based on role
++switch ($dashboard_type) {

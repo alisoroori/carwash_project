@@ -67,6 +67,28 @@ $customer_dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php
 $admin_dashboard_url = $base_url . '/backend/dashboard/admin_panel.php';
 $carwash_dashboard_url = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
 
+// Normalize dashboard type by checking Auth::hasRole when available, otherwise fall back to session
+$sessRole = $_SESSION['role'] ?? strtolower($_SESSION['user_type'] ?? '');
+if (class_exists(\App\Classes\Auth::class) && method_exists(\App\Classes\Auth::class, 'hasRole')) {
+    try {
+        if (\App\Classes\Auth::hasRole('carwash')) {
+            $dashboard_type = 'carwash';
+        } elseif (\App\Classes\Auth::class) {
+            $dashboard_type = 'admin';
+        } else {
+            $dashboard_type = 'customer';
+        }
+    } catch (Throwable $e) {
+        if ($sessRole === 'carwash') $dashboard_type = 'carwash';
+        elseif ($sessRole === 'admin') $dashboard_type = 'admin';
+        else $dashboard_type = $dashboard_type ?? 'customer';
+    }
+} else {
+    if ($sessRole === 'carwash') $dashboard_type = 'carwash';
+    elseif ($sessRole === 'admin') $dashboard_type = 'admin';
+    else $dashboard_type = $dashboard_type ?? 'customer';
+}
+
 // Set current dashboard URL based on role
 switch ($dashboard_type) {
     case 'admin':
@@ -167,6 +189,7 @@ if (!empty($_SESSION['logo_path'])) {
         /* Dashboard Header */
         .dashboard-header {
             background: #1f2937; /* Gray-800 to match footer */
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             box-shadow: var(--shadow-elevation);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);

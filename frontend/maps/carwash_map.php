@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../backend/includes/auth_check.php';
 require_once '../../backend/includes/maps_config.php';
 
@@ -19,7 +19,7 @@ $mapsConfig = new MapsConfig();
     <div class="container mx-auto px-4 py-8">
         <!-- Search Box -->
         <div class="mb-6">
-            <input type="text"
+            <label for="searchLocation" class="sr-only">Enter your location</label><input type="text"
                 id="searchLocation"
                 class="w-full p-3 rounded-lg border border-gray-300"
                 placeholder="Enter your location">
@@ -40,6 +40,7 @@ $mapsConfig = new MapsConfig();
 </body>
 
 </html>
+
 
 
 

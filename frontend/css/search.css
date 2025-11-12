@@ -140,8 +140,8 @@ body {
    ======================================== */
 
 nav {
-    backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--gray-200);
     position: sticky;
     top: 0;
@@ -378,6 +378,7 @@ nav a:hover::after {
     border-radius: var(--radius-lg);
     font-size: var(--font-size-xs);
     font-weight: 600;
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
 }
 

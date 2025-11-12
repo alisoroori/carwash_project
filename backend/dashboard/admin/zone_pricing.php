@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../includes/auth_check.php';
 require_once '../../includes/db.php';
 
@@ -23,16 +23,16 @@ if ($_SESSION['user_role'] !== 'admin') {
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Add/Edit Zone</h2>
             <form id="zoneForm" class="space-y-4">
-                <input type="hidden" id="zoneId" name="zone_id">
+                <label for="zoneId" class="sr-only">Zone id</label><input type="hidden" id="zoneId" name="zone_id">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Zone Name</label>
-                        <input type="text" id="zoneName" name="zone_name" required
+                        <label for="zoneName" class="sr-only">Zone name</label><input type="text" id="zoneName" name="zone_name" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Price Multiplier</label>
-                        <input type="number" id="multiplier" name="multiplier" step="0.1" min="1"
+                        <label for="multiplier" class="sr-only">Multiplier</label><input type="number" id="multiplier" name="multiplier" step="0.1" min="1"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                 </div>
@@ -55,6 +55,7 @@ if ($_SESSION['user_role'] !== 'admin') {
 </body>
 
 </html>
+
 
 
 

@@ -115,11 +115,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" class="space-y-4">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ?>">
+                    <label for="auto_label_7" class="sr-only">Csrf token</label><label for="auto_label_7" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ? id="auto_label_7">">
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                        <select name="role" class="input-field w-full">
+                        <label for="auto_label_6" class="sr-only">Role</label><label for="auto_label_6" class="sr-only">Role</label><select name="role" class="input-field w-full" id="auto_label_6">
                             <?php foreach ($roles as $r): ?>
                                 <option value="<?php echo $r; ?>" <?php echo (isset($_POST['role']) && $_POST['role']===$r) ? 'selected' : ($r==='customer' ? 'selected' : ''); ?>><?php echo ucfirst($r); ?></option>
                             <?php endforeach; ?>
@@ -128,12 +128,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" name="email" class="input-field w-full" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+                        <label for="auto_label_5" class="sr-only">Email</label><label for="auto_label_5" class="sr-only">Email</label><input type="email" name="email" class="input-field w-full" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ? id="auto_label_5" placeholder="Email">">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                        <input type="password" name="password" class="input-field w-full" required>
+                        <label for="auto_label_4" class="sr-only">Password</label><label for="auto_label_4" class="sr-only">Password</label><input type="password" name="password" class="input-field w-full" required id="auto_label_4" placeholder="Password">
                     </div>
 
                     <button type="submit" class="btn-primary w-full font-bold">Create User</button>
@@ -314,7 +314,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             ?>
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+            <label for="auto_label_3" class="sr-only">Csrf token</label><label for="auto_label_3" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_3">">
             <div class="row">
                 <div class="col">
                     <label for="username">Username</label>
@@ -714,7 +714,7 @@ $page_title = 'Create User - CarWash Admin';
                 }
             }
             ?>
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+            <label for="auto_label_2" class="sr-only">Csrf token</label><label for="auto_label_2" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_2">">
             <div class="form-group">
                 <label for="full_name">Full Name</label>
                 <input 
@@ -804,3 +804,5 @@ $page_title = 'Create User - CarWash Admin';
     </script>
 </body>
 </html>
+
+

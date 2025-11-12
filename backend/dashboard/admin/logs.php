@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../includes/db.php';
 
@@ -50,11 +50,11 @@ $logs = $stmt->get_result();
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <a href="index.php" class="text-xl font-bold text-blue-600">
-                    <i class="fas fa-arrow-left"></i> Panele DÃ¶n
+                    <i class="fas fa-arrow-left"></i> Panele Dön
                 </a>
                 <div class="flex items-center space-x-4">
                     <button onclick="exportLogs()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                        <i class="fas fa-download"></i> DÄ±ÅŸa Aktar
+                        <i class="fas fa-download"></i> Dışa Aktar
                     </button>
                     <button onclick="exportLogs('csv')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         <i class="fas fa-file-csv"></i> CSV
@@ -68,21 +68,21 @@ $logs = $stmt->get_result();
     </nav>
 
     <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">Sistem LoglarÄ±</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Sistem Logları</h1>
 
         <!-- Filters -->
         <div class="bg-white rounded-lg shadow-md p-4 mb-6">
             <form id="filterForm" class="flex flex-wrap gap-4">
                 <div class="flex-1">
-                    <input type="text" name="search" placeholder="Ara..."
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <label for="auto_label_78" class="sr-only">Search</label><label for="auto_label_78" class="sr-only">Search</label><input type="text" name="search" placeholder="Ara..."
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="auto_label_78">
                 </div>
                 <div class="w-48">
-                    <select name="action" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">TÃ¼m Ä°ÅŸlemler</option>
-                        <option value="update_settings">Ayar GÃ¼ncelleme</option>
-                        <option value="clear_cache">Ã–nbellek Temizleme</option>
-                        <option value="backup_db">VeritabanÄ± Yedekleme</option>
+                    <label for="auto_label_77" class="sr-only">Action</label><label for="auto_label_77" class="sr-only">Action</label><select name="action" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="auto_label_77">
+                        <option value="">Tüm İşlemler</option>
+                        <option value="update_settings">Ayar Güncelleme</option>
+                        <option value="clear_cache">Önbellek Temizleme</option>
+                        <option value="backup_db">Veritabanı Yedekleme</option>
                     </select>
                 </div>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
@@ -98,7 +98,7 @@ $logs = $stmt->get_result();
                     <tr>
                         <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Tarih/Saat</th>
                         <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Admin</th>
-                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Ä°ÅŸlem</th>
+                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">İşlem</th>
                         <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Detay</th>
                     </tr>
                 </thead>
@@ -182,11 +182,11 @@ $logs = $stmt->get_result();
     {
         switch ($action) {
             case 'update_settings':
-                return 'Ayar GÃ¼ncelleme';
+                return 'Ayar Güncelleme';
             case 'clear_cache':
-                return 'Ã–nbellek Temizleme';
+                return 'Önbellek Temizleme';
             case 'backup_db':
-                return 'VeritabanÄ± Yedekleme';
+                return 'Veritabanı Yedekleme';
             default:
                 return ucfirst(str_replace('_', ' ', $action));
         }
@@ -210,6 +210,8 @@ $logs = $stmt->get_result();
 </body>
 
 </html>
+
+
 
 
 

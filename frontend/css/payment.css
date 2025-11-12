@@ -186,8 +186,8 @@ header {
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
-    backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
 }
 
 .header-container {
@@ -808,8 +808,8 @@ main {
     align-items: center;
     justify-content: center;
     padding: var(--space-4);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
 }
 
 .modal-container {

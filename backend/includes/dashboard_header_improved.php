@@ -31,7 +31,33 @@ $page_title = isset($page_title) ? $page_title : 'Customer Dashboard - CarWash';
 
 // URLs
 $home_url = $base_url . '/backend/index.php';
-$dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
+
+// Role-aware dashboard resolution (use Auth::hasRole when available, fall back to session)
+$customer_dashboard = $base_url . '/backend/dashboard/Customer_Dashboard.php';
+$carwash_dashboard = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
+$admin_dashboard = $base_url . '/backend/dashboard/admin_panel.php';
+$dashboard_url = $customer_dashboard; // default
+
+// Session role helper
+$sessRole = $_SESSION['role'] ?? strtolower($_SESSION['user_type'] ?? '');
+
+if (class_exists(\App\Classes\Auth::class) && method_exists(\App\Classes\Auth::class, 'hasRole')) {
+    try {
+        if (\App\Classes\Auth::hasRole('carwash')) {
+            $dashboard_url = $carwash_dashboard;
+        } elseif (\App\Classes\Auth::hasRole('admin')) {
+            $dashboard_url = $admin_dashboard;
+        }
+    } catch (Throwable $e) {
+        // Fallback to session role
+        if ($sessRole === 'carwash') $dashboard_url = $carwash_dashboard;
+        elseif ($sessRole === 'admin') $dashboard_url = $admin_dashboard;
+    }
+} else {
+    if ($sessRole === 'carwash') $dashboard_url = $carwash_dashboard;
+    elseif ($sessRole === 'admin') $dashboard_url = $admin_dashboard;
+}
+
 $profile_url = $dashboard_url . '#profile';
 $settings_url = $dashboard_url . '#settings';
 $logout_url = $base_url . '/backend/includes/logout.php';

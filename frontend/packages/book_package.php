@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../backend/includes/auth_check.php';
 require_once '../../backend/includes/db.php';
 
@@ -36,7 +36,7 @@ $package = $stmt->get_result()->fetch_assoc();
             <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                 <h1 class="text-2xl font-bold mb-4"><?= htmlspecialchars($package['name']) ?></h1>
                 <div class="text-gray-600 mb-4"><?= nl2br(htmlspecialchars($package['description'])) ?></div>
-                <div class="text-2xl font-bold text-blue-600 mb-2">â‚º<?= number_format($package['price'], 2) ?></div>
+                <div class="text-2xl font-bold text-blue-600 mb-2">₺<?= number_format($package['price'], 2) ?></div>
                 <?php if ($package['discount_percentage'] > 0): ?>
                     <div class="text-green-600">Save <?= $package['discount_percentage'] ?>%</div>
                 <?php endif; ?>
@@ -44,11 +44,11 @@ $package = $stmt->get_result()->fetch_assoc();
 
             <!-- Booking Form -->
             <form id="packageBookingForm" class="bg-white rounded-lg shadow-lg p-6">
-                <input type="hidden" name="package_id" value="<?= $package_id ?>">
+                <label for="auto_label_122" class="sr-only">Package id</label><label for="auto_label_122" class="sr-only">Package id</label><input type="hidden" name="package_id" value="<?= $package_id ? id="auto_label_122">">
 
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700">Select Date</label>
-                    <input type="date" name="date" required min="<?= date('Y-m-d') ?>"
+                    <label for="auto_label_121" class="sr-only">Date</label><label for="auto_label_121" class="sr-only">Date</label><input type="date" name="date" required min="<?= date('Y-m-d') ? id="auto_label_121">"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
 
@@ -70,6 +70,8 @@ $package = $stmt->get_result()->fetch_assoc();
 </body>
 
 </html>
+
+
 
 
 
