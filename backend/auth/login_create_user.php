@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Modern secure login page (copy with Create User button)
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -41,7 +41,7 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
 if (isset($_SESSION['success_message'])) unset($_SESSION['success_message']);
 
 // Set header configuration
-$page_title = 'CarWash - Giriş Yap';
+$page_title = 'CarWash - GiriÅŸ Yap';
 $show_login = false; // Don't show login button on login page
 $home_url = '../index.php';
 $about_url = '../index.php#about';
@@ -60,6 +60,8 @@ include '../includes/header.php';
 
     .login-container {
       background: rgba(255, 255, 255, 0.98);
+      /* Added -webkit-backdrop-filter for Safari support */
+      -webkit-backdrop-filter: blur(15px);
       backdrop-filter: blur(15px);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
@@ -236,8 +238,8 @@ include '../includes/header.php';
           <div class="w-16 h-16 sm:w-20 sm:h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-sign-in-alt text-2xl sm:text-3xl text-white"></i>
           </div>
-          <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Giriş Yap</h1>
-          <p class="text-sm sm:text-base text-gray-600 px-2">Hesabınıza giriş yaparak hizmetlerimizden yararlanın</p>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">GiriÅŸ Yap</h1>
+          <p class="text-sm sm:text-base text-gray-600 px-2">HesabÄ±nÄ±za giriÅŸ yaparak hizmetlerimizden yararlanÄ±n</p>
         </div>
 
         <!-- Success Message Display -->
@@ -262,8 +264,9 @@ include '../includes/header.php';
 
         <!-- Login Form - File-based routing to process file -->
         <form action="login_process.php" method="POST" class="space-y-6">
-          <!-- Added CSRF token for security -->
-          <label for="auto_label_74" class="sr-only">Csrf token</label><label for="auto_label_74" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ? id="auto_label_74">">
+          <!-- Fixed auto_label_74: valid hidden CSRF input -->
+          <label for="auto_label_74" class="sr-only">CSRF token</label>
+          <input type="hidden" id="auto_label_74" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
 
           <!-- Email Field -->
           <div>
@@ -281,14 +284,14 @@ include '../includes/header.php';
           <!-- Password Field -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-lock mr-2 text-blue-600"></i>Şifre
+              <i class="fas fa-lock mr-2 text-blue-600"></i>Åžifre
             </label>
             <div class="relative">
               <label for="password" class="sr-only">Password</label><input
                 type="password"
                 name="password"
                 id="password"
-                placeholder="Şifrenizi girin"
+                placeholder="Åžifrenizi girin"
                 required
                 class="input-field w-full px-4 py-3 pr-12 rounded-lg focus:outline-none">
               <button
@@ -304,10 +307,10 @@ include '../includes/header.php';
           <div class="flex items-center justify-between flex-wrap gap-2 sm:gap-0">
             <div class="flex items-center gap-2">
               <input type="checkbox" name="remember_me" id="remember_me" class="text-blue-600 focus:ring-blue-500 rounded flex-shrink-0">
-              <label for="remember_me" class="text-sm text-gray-600 whitespace-nowrap">Beni Hatırla</label>
+              <label for="remember_me" class="text-sm text-gray-600 whitespace-nowrap">Beni HatÄ±rla</label>
             </div>
             <a href="forget_password.php" class="text-sm text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap">
-              Şifremi unuttum
+              Åžifremi unuttum
             </a>
           </div>
 
@@ -315,14 +318,14 @@ include '../includes/header.php';
           <button
             type="submit"
             class="btn-primary w-full text-white py-4 rounded-lg font-bold transition-all duration-300">
-            <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
+            <i class="fas fa-sign-in-alt mr-2"></i>GiriÅŸ Yap
           </button>
         </form>
 
         <!-- Create User Button (links to direct create page) -->
         <div class="mt-4 text-center">
           <a href="../admin/create_user_direct.php" class="btn-customer inline-block w-full py-3 px-4 rounded-lg transition-all duration-300 font-semibold text-sm sm:text-base">
-            <i class="fas fa-user-plus mr-2"></i>Oluşturucu (Create User)
+            <i class="fas fa-user-plus mr-2"></i>OluÅŸturucu (Create User)
           </a>
         </div>
 
@@ -340,12 +343,12 @@ include '../includes/header.php';
         passwordInput.type = 'text';
         toggleIcon.classList.remove('fa-eye');
         toggleIcon.classList.add('fa-eye-slash');
-        toggleIcon.setAttribute('aria-label', 'Şifreyi gizle');
+        toggleIcon.setAttribute('aria-label', 'Åžifreyi gizle');
       } else {
         passwordInput.type = 'password';
         toggleIcon.classList.remove('fa-eye-slash');
         toggleIcon.classList.add('fa-eye');
-        toggleIcon.setAttribute('aria-label', 'Şifreyi göster');
+        toggleIcon.setAttribute('aria-label', 'Åžifreyi gÃ¶ster');
       }
     }
 
@@ -410,13 +413,13 @@ include '../includes/header.php';
 
       if (!email || !password) {
         e.preventDefault();
-        alert('Lütfen tüm alanları doldurun.');
+        alert('LÃ¼tfen tÃ¼m alanlarÄ± doldurun.');
         return false;
       }
 
       // Add loading state to submit button
       const submitButton = this.querySelector('button[type="submit"]');
-      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Giriş yapılıyor...';
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>GiriÅŸ yapÄ±lÄ±yor...';
       submitButton.disabled = true;
     });
 
@@ -430,5 +433,6 @@ include '../includes/header.php';
   </script>
 
 <?php include '../includes/footer.php'; ?>
+
 
 

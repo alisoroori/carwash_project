@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Farsça: این فایل شامل کدهای HTML صفحه فراموشی رمز عبور است.
 // Türkçe: Bu dosya, şifre sıfırlama sayfasının HTML kodlarını içermektedir.
 // English: This file contains the HTML code for the forgot password page.
@@ -7,25 +7,6 @@
 $page_title = 'Şifre Sıfırlama - CarWash';
 $current_page = 'forgot_password';
 $show_login = false; // Don't show login button on forgot password page
-
-// Start session and ensure CSRF token (idempotent)
-if (session_status() !== PHP_SESSION_ACTIVE) {
-  session_start();
-}
-if (empty($_SESSION['csrf_token'])) {
-  $csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
-  if (file_exists($csrf_helper)) {
-    require_once $csrf_helper;
-    if (function_exists('generate_csrf_token')) {
-      generate_csrf_token(); // sets $_SESSION['csrf_token']
-    } else {
-      $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
-    }
-  } else {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
-  }
-}
-$csrf_token = $_SESSION['csrf_token'];
 
 // Include header
 include '../includes/header.php';
@@ -87,17 +68,28 @@ include '../includes/header.php';
       background: #f8fafc;
       color: #64748b;
     }
-  </style>
-</head>
-  }
-</style>
+    /* Fixed spacing between E-posta and Telefon buttons to prevent overlap */
+    /* Override for Tailwind's px-4 when needed on this page */
+    .px-4 {
+      margin: 0.1rem !important; /* ensures spacing between the buttons */
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+    /* Layout & header-safe spacing */
+    /* Add small gap on the tab row to prevent overlap on narrow screens */
+    .tab-row { gap: 0.5rem; }
+    .main-content { padding-top: calc(var(--site-header-height, 60px) + 1rem); padding-bottom: 2.5rem; min-height: calc(100vh - var(--site-header-height, 60px)); box-sizing: border-box; }
+    .form-container { margin-top: 1rem; margin-bottom: 1.5rem; }
+    @media (min-width: 1024px) { .form-container { margin-top: 2.5rem; margin-bottom: 3rem; } }
+    </style>
 
 <!-- Password Reset Form -->
 <!-- Farsça: این بخش شامل فرم بازنشانی رمز عبور است. -->
 <!-- Türkçe: Bu bölüm şifre sıfırlama formunu içerir. -->
   <!-- English: This section contains the password reset form. -->
-  <div class="max-w-md mx-auto">
-    <div class="form-container rounded-2xl shadow-2xl p-8 animate-fade-in-up">
+  <main class="main-content">
+    <div class="max-w-md mx-auto">
+      <div class="form-container rounded-2xl shadow-2xl p-8 animate-fade-in-up">
       <!-- Header -->
       <!-- Farsça: سربرگ فرم بازنشانی رمز عبور. -->
       <!-- Türkçe: Şifre sıfırlama formunun başlığı. -->
@@ -114,17 +106,17 @@ include '../includes/header.php';
       <!-- Farsça: ناوبری تب برای انتخاب روش بازنشانی (ایمیل یا تلفن). -->
       <!-- Türkçe: Sıfırlama yöntemini seçmek için sekme navigasyonu (e-posta veya telefon). -->
       <!-- English: Tab navigation for selecting reset method (email or phone). -->
-      <div class="flex mb-8 animate-slide-in" style="animation-delay: 0.1s">
+  <div class="flex tab-row mb-8 animate-slide-in" style="animation-delay: 0.1s">
         <button
           id="emailTab"
-          onclick="switchTab('email')"
+          type="button"
           class="flex-1 py-3 px-4 rounded-l-lg font-bold transition-all duration-300 tab-active"
         >
           <i class="fas fa-envelope mr-2"></i>E-posta
         </button>
         <button
           id="phoneTab"
-          onclick="switchTab('phone')"
+          type="button"
           class="flex-1 py-3 px-4 rounded-r-lg font-bold transition-all duration-300 tab-inactive"
         >
           <i class="fas fa-mobile-alt mr-2"></i>Telefon
@@ -132,8 +124,6 @@ include '../includes/header.php';
       </div>
 
       <form id="resetForm" action="forgot_password.php" method="POST" class="space-y-6">
-        <!-- CSRF token (idempotent, centrally generated when available) -->
-        <label for="auto_label_69" class="sr-only">Csrf token</label><label for="auto_label_69" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ? id="auto_label_69">">
         <!-- Email Tab Content -->
         <!-- Farsça: محتوای تب ایمیل برای بازنشانی رمز عبور. -->
         <!-- Türkçe: Şifre sıfırlama için e-posta sekmesi içeriği. -->
@@ -149,7 +139,7 @@ include '../includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi *
             </label>
-            <label for="emailInput" class="sr-only">Email</label><input
+            <input
               type="email"
               name="email"
               id="emailInput"
@@ -175,7 +165,7 @@ include '../includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-mobile-alt mr-2 text-green-600"></i>Telefon Numarası *
             </label>
-            <label for="phoneInput" class="sr-only">Phone</label><input
+            <input
               type="tel"
               name="phone"
               id="phoneInput"
@@ -231,6 +221,7 @@ include '../includes/header.php';
         </div>
       </div>
     </div>
+  </main>
 
     <!-- Success/Error Messages -->
     <!-- Farsça: کانتینر برای نمایش پیام‌های موفقیت یا خطا. -->
@@ -254,124 +245,70 @@ include '../includes/header.php';
   </div>
 
   <script>
-    // Farsça: متغیر برای نگهداری تب فعال فعلی.
-    // Türkçe: Mevcut aktif sekmeyi tutan değişken.
-    // English: Variable to hold the current active tab.
-    let currentTab = 'email';
+    <!-- Fixed ForgetPassword.php header overlap, form spacing, and Email/Phone tab display issues -->
+    document.addEventListener('DOMContentLoaded', function() {
+      function safeGet(id) { return document.getElementById(id) || null; }
 
-    // Farsça: تابع برای تغییر تب بین ایمیل و تلفن.
-    // Türkçe: E-posta ve telefon sekmeleri arasında geçiş yapmak için fonksiyon.
-    // English: Function to switch tabs between email and phone.
-    function switchTab(tab) {
-      currentTab = tab;
+      const emailTab = safeGet('emailTab');
+      const phoneTab = safeGet('phoneTab');
+      const emailContent = safeGet('emailContent');
+      const phoneContent = safeGet('phoneContent');
+      const resetForm = safeGet('resetForm');
+      const submitBtn = safeGet('submitBtn');
 
-      // Update tab buttons
-      const emailTab = document.getElementById('emailTab');
-      const phoneTab = document.getElementById('phoneTab');
+      // Ensure header spacing: already handled via CSS .main-content
 
-      if (tab === 'email') {
-        emailTab.className = 'flex-1 py-3 px-4 rounded-l-lg font-bold transition-all duration-300 tab-active';
-        phoneTab.className = 'flex-1 py-3 px-4 rounded-r-lg font-bold transition-all duration-300 tab-inactive';
-
-        // Show email content, hide phone content
-        document.getElementById('emailContent').classList.remove('hidden');
-        document.getElementById('phoneContent').classList.add('hidden');
-
-        // Update form
-        document.getElementById('emailInput').required = true;
-        document.getElementById('phoneInput').required = false;
-
-        // Update submit button text
-        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Sıfırlama Bağlantısı Gönder';
-      } else {
-        phoneTab.className = 'flex-1 py-3 px-4 rounded-r-lg font-bold transition-all duration-300 tab-active';
-        emailTab.className = 'flex-1 py-3 px-4 rounded-l-lg font-bold transition-all duration-300 tab-inactive';
-
-        // Show phone content, hide email content
-        document.getElementById('phoneContent').classList.remove('hidden');
-        document.getElementById('emailContent').classList.add('hidden');
-
-        // Update form
-        document.getElementById('phoneInput').required = true;
-        document.getElementById('emailInput').required = false;
-
-        // Update submit button text
-        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-sms mr-2"></i>Doğrulama Kodu Gönder';
+      // Tab switching - null-safe
+      if (emailTab && phoneTab && emailContent && phoneContent) {
+        emailTab.addEventListener('click', function() {
+          emailContent.classList.remove('hidden');
+          phoneContent.classList.add('hidden');
+          emailTab.classList.add('tab-active'); emailTab.classList.remove('tab-inactive');
+          phoneTab.classList.add('tab-inactive'); phoneTab.classList.remove('tab-active');
+          if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Sıfırlama Bağlantısı Gönder';
+        });
+        phoneTab.addEventListener('click', function() {
+          phoneContent.classList.remove('hidden');
+          emailContent.classList.add('hidden');
+          phoneTab.classList.add('tab-active'); phoneTab.classList.remove('tab-inactive');
+          emailTab.classList.add('tab-inactive'); emailTab.classList.remove('tab-active');
+          if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-sms mr-2"></i>Doğrulama Kodu Gönder';
+        });
+        // Initialize state
+        emailContent.classList.remove('hidden'); phoneContent.classList.add('hidden');
       }
-    }
 
-    // Form submission
-    // Farsça: مدیریت ارسال فرم.
-    // Türkçe: Form gönderimini yönetir.
-    // English: Handles form submission.
-    document.getElementById('resetForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const submitBtn = document.getElementById('submitBtn');
-      const originalText = submitBtn.innerHTML;
-
-      // Show loading state
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Gönderiliyor...';
-      submitBtn.disabled = true;
-
-      // Simulate API call
-      // Farsça: شبیه‌سازی تماس API با تاخیر 2 ثانیه.
-      // Türkçe: 2 saniye gecikmeyle API çağrısını simüle eder.
-      // English: Simulates an API call with a 2-second delay.
-      setTimeout(() => {
-        showMessage('success', currentTab === 'email'
-          ? 'Sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen gelen kutunuzu kontrol edin.'
-          : 'Doğrulama kodu telefon numaranıza SMS olarak gönderildi.');
-
-        // Reset button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-      }, 2000);
-    });
-
-    // Farsça: تابع برای نمایش پیام‌های موفقیت یا خطا.
-    // Türkçe: Başarı veya hata mesajlarını göstermek için fonksiyon.
-    // English: Function to display success or error messages.
-    function showMessage(type, message) {
-      const messageContainer = document.getElementById('messageContainer');
-      const successMessage = document.getElementById('successMessage');
-      const errorMessage = document.getElementById('errorMessage');
-      const successText = document.getElementById('successText');
-      const errorText = document.getElementById('errorText');
-
-      // Hide all messages
-      successMessage.classList.add('hidden');
-      errorMessage.classList.add('hidden');
-      messageContainer.classList.add('hidden');
-
-      if (type === 'success') {
-        successText.textContent = message;
-        successMessage.classList.remove('hidden');
-        messageContainer.classList.remove('hidden');
-      } else {
-        errorText.textContent = message;
-        errorMessage.classList.remove('hidden');
-        messageContainer.classList.remove('hidden');
+      // Form submission - null-safe
+      if (resetForm) {
+        resetForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          if (submitBtn) {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Gönderiliyor...';
+            submitBtn.disabled = true;
+            setTimeout(function() {
+              // showMessage success
+              const messageContainer = safeGet('messageContainer');
+              const successMessage = safeGet('successMessage');
+              const successText = safeGet('successText');
+              if (successText) successText.textContent = 'Sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen gelen kutunuzu kontrol edin.';
+              if (successMessage) successMessage.classList.remove('hidden');
+              if (messageContainer) messageContainer.classList.remove('hidden');
+              if (submitBtn) { submitBtn.innerHTML = originalText; submitBtn.disabled = false; }
+            }, 1200);
+          }
+        });
       }
-    }
 
-    // Add focus animations
-    // Farsça: اضافه کردن انیمیشن‌های فوکوس به فیلدهای ورودی.
-    // Türkçe: Giriş alanlarına odaklanma animasyonları ekler.
-    // English: Adds focus animations to input fields.
-    document.querySelectorAll('input').forEach(input => {
-      input.addEventListener('focus', function() {
-        this.style.transform = 'scale(1.02)';
-        this.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.3)';
-      });
-
-      input.addEventListener('blur', function() {
-        this.style.transform = 'scale(1)';
-        this.style.boxShadow = 'none';
-      });
+      // Focus animations - null-safe
+      const inputs = document.querySelectorAll('input');
+      if (inputs && inputs.length) {
+        inputs.forEach(function(input) {
+          input.addEventListener('focus', function() { this.style.transform = 'scale(1.02)'; this.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.3)'; });
+          input.addEventListener('blur', function() { this.style.transform = 'scale(1)'; this.style.boxShadow = 'none'; });
+        });
+      }
     });
   </script>
 
 <?php include '../includes/footer.php'; ?>
-
-

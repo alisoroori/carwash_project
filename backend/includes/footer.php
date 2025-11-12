@@ -48,17 +48,17 @@ $current_year = date('Y');
         
         <!-- Social Media Links -->
         <div class="flex space-x-4">
-          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors">
-            <i class="fab fa-facebook-f"></i>
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors" aria-label="MYCAR on Facebook" title="Facebook">
+            <i class="fab fa-facebook-f" aria-hidden="true"></i>
           </a>
-          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-400 transition-colors">
-            <i class="fab fa-twitter"></i>
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-400 transition-colors" aria-label="MYCAR on Twitter" title="Twitter">
+            <i class="fab fa-twitter" aria-hidden="true"></i>
           </a>
-          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-pink-600 transition-colors">
-            <i class="fab fa-instagram"></i>
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-pink-600 transition-colors" aria-label="MYCAR on Instagram" title="Instagram">
+            <i class="fab fa-instagram" aria-hidden="true"></i>
           </a>
-          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors">
-            <i class="fab fa-linkedin-in"></i>
+          <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors" aria-label="MYCAR on LinkedIn" title="LinkedIn">
+            <i class="fab fa-linkedin-in" aria-hidden="true"></i>
           </a>
         </div>
       </div>
@@ -232,8 +232,9 @@ $current_year = date('Y');
 </footer>
 
 <!-- Back to Top Button -->
-<button id="backToTop" class="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 invisible z-40">
-  <i class="fas fa-chevron-up"></i>
+<button id="backToTop" class="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 invisible z-40 show" tabindex="0" aria-label="Sayfanın üstüne dön" title="Sayfanın üstüne dön">
+  <i class="fas fa-chevron-up" aria-hidden="true"></i>
+  <span class="sr-only">Sayfanın üstüne dön</span>
 </button>
 
 <style>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Quick admin-only create user page (login-styled)
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -89,8 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
     <style>
-        .gradient-bg { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); }
-        .login-container { background: rgba(255,255,255,0.98); backdrop-filter: blur(12px); border:1px solid rgba(255,255,255,0.2); }
+    .gradient-bg { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); }
+    .login-container { background: rgba(255,255,255,0.98); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border:1px solid rgba(255,255,255,0.2); }
         .input-field { transition: all .25s; border:2px solid #e5e7eb; padding:10px 12px; border-radius:8px }
         .input-field:focus { border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,.08); }
         .btn-primary { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); border:none; color:#fff; padding:12px; border-radius:8px }
@@ -114,8 +114,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="msg <?php echo $messageType === 'success' ? 'success' : 'error'; ?>"><?php echo htmlspecialchars($message); ?></div>
                 <?php endif; ?>
 
-                <form method="POST" class="space-y-4">
-                    <label for="auto_label_7" class="sr-only">Csrf token</label><label for="auto_label_7" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ? id="auto_label_7">">
+                <form method="POST" class="space-y-4" action="">
+                    <!-- Fixed label-for/id mismatch for accessibility -->
+                    <label for="auto_label_7" class="sr-only">Csrf token</label>
+                    <input type="hidden" id="auto_label_7" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ?>">
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
@@ -128,7 +130,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <label for="auto_label_5" class="sr-only">Email</label><label for="auto_label_5" class="sr-only">Email</label><input type="email" name="email" class="input-field w-full" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ? id="auto_label_5" placeholder="Email">">
+                        <!-- Fixed label-for/id mismatch for accessibility -->
+                        <label for="auto_label_5" class="sr-only">Email</label>
+                        <input type="email" id="auto_label_5" name="email" class="input-field w-full" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" placeholder="Email">
                     </div>
 
                     <div>
@@ -294,7 +298,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="msg <?php echo $messageType === 'success' ? 'success' : 'error'; ?>"><?php echo htmlspecialchars($message); ?></div>
         <?php endif; ?>
 
-        <form method="post" action="">
+    <form method="post" action="">
             <?php
             // Idempotent ensure session and CSRF token for this form
             if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -314,7 +318,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             ?>
-            <label for="auto_label_3" class="sr-only">Csrf token</label><label for="auto_label_3" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_3">">
+            <!-- Fixed label-for/id mismatch for accessibility -->
+            <label for="auto_label_3" class="sr-only">Csrf token</label>
+            <input type="hidden" id="auto_label_3" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
             <div class="row">
                 <div class="col">
                     <label for="username">Username</label>
@@ -694,7 +700,7 @@ $page_title = 'Create User - CarWash Admin';
             </div>
         <?php endif; ?>
         
-        <form method="POST" action="">
+    <form method="POST" action="">
             <?php
             // Idempotent ensure session and CSRF token for this form
             if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -714,7 +720,9 @@ $page_title = 'Create User - CarWash Admin';
                 }
             }
             ?>
-            <label for="auto_label_2" class="sr-only">Csrf token</label><label for="auto_label_2" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_2">">
+            <!-- Fixed label-for/id mismatch for accessibility -->
+            <label for="auto_label_2" class="sr-only">Csrf token</label>
+            <input type="hidden" id="auto_label_2" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
             <div class="form-group">
                 <label for="full_name">Full Name</label>
                 <input 
@@ -804,5 +812,6 @@ $page_title = 'Create User - CarWash Admin';
     </script>
 </body>
 </html>
+
 
 

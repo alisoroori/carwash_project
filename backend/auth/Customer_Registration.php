@@ -31,8 +31,77 @@ if (isset($_SESSION['error_message'])) unset($_SESSION['error_message']);
 include '../includes/header.php';
 ?>
 
+<!-- Fixed Customer Registration form spacing, alignment, and design issues -->
 <!-- Additional CSS for registration page -->
 <style>
+  /* Fixed Customer Registration form spacing and alignment */
+  /* Ensure the form has breathing room from header and footer and inputs have clearer padding */
+  .registration-wrapper {
+    margin-top: 3.5rem !important; /* add spacing from header */
+    margin-bottom: 4rem !important; /* spacing from footer */
+    padding-top: 1rem; /* ensure inner spacing */
+  }
+
+  /* Stronger base padding for the form container and inputs for better touch targets */
+  .form-container {
+    padding: 2rem !important;
+    box-sizing: border-box;
+  }
+
+  /* Increase default padding for form controls and make focus / hover clearer */
+  .form-container input,
+  .form-container select,
+  .form-container textarea {
+    padding: 0.75rem 0.9rem !important;
+    font-size: 15px !important;
+    line-height: 1.35 !important;
+    box-sizing: border-box;
+  }
+
+  /* Make checkbox and their labels vertically centered and consistent */
+  .form-container label.flex.items-center {
+    align-items: center; /* ensure vertical alignment */
+    gap: 0.5rem; /* consistent horizontal spacing */
+  }
+
+  .form-container input[type="checkbox"] {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    vertical-align: middle;
+  }
+
+  .form-container .text-xs,
+  .form-container .text-sm {
+    vertical-align: middle;
+  }
+
+  /* Improve submit button spacing on wide screens */
+  @media (min-width: 1024px) {
+    .form-container {
+      padding: 3rem !important;
+    }
+  }
+
+  /* Make sure interactive elements have clear hover/active outlines for accessibility */
+  .form-container input:focus, .form-container select:focus, .form-container textarea:focus {
+    outline: 3px solid rgba(102,126,234,0.12) !important;
+    outline-offset: 2px;
+  }
+
+  /* Ensure checkbox + label groups are easier to tap on mobile */
+  .form-container .checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+  }
+
+  /* Slightly larger checkbox touch targets */
+  .form-container input[type="checkbox"] {
+    width: 1.15rem !important;
+    height: 1.15rem !important;
+  }
+
   /* Custom animations for registration form */
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(30px); }
@@ -58,6 +127,7 @@ include '../includes/header.php';
 
   .form-container {
     background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
 
@@ -354,8 +424,8 @@ include '../includes/header.php';
 </style>
 
 <!-- Registration Form -->
-<div class="registration-wrapper">
-  <div class="max-w-4xl mx-auto">
+<div class="registration-wrapper relative z-10 mt-16 md:mt-20 lg:mt-24 pt-6">
+  <div class="max-w-4xl mx-auto px-4">
     <div class="form-container rounded-2xl shadow-2xl p-8 animate-fade-in-up">
       <!-- Header -->
       <div class="text-center mb-6 sm:mb-8">
@@ -387,7 +457,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-signature mr-1 sm:mr-2 text-xs sm:text-sm"></i>Ad Soyad *
               </label>
-              <label for="auto_label_55" class="sr-only">Full name</label><label for="auto_label_55" class="sr-only">Full name</label><input
+              <label for="auto_label_55" class="sr-only">Full name</label><input
                 type="text"
                 name="full_name"
                 placeholder="Adınızı ve soyadınızı girin"
@@ -399,7 +469,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-envelope mr-1 sm:mr-2 text-xs sm:text-sm"></i>E-posta Adresi *
               </label>
-              <label for="auto_label_54" class="sr-only">Email</label><label for="auto_label_54" class="sr-only">Email</label><input
+              <label for="auto_label_54" class="sr-only">Email</label><input
                 type="email"
                 name="email"
                 placeholder="ornek@email.com"
@@ -411,7 +481,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-phone mr-1 sm:mr-2 text-xs sm:text-sm"></i>Telefon Numarası *
               </label>
-              <label for="auto_label_53" class="sr-only">Phone</label><label for="auto_label_53" class="sr-only">Phone</label><input
+              <label for="auto_label_53" class="sr-only">Phone</label><input
                 type="tel"
                 name="phone"
                 placeholder="05XX XXX XX XX"
@@ -473,7 +543,7 @@ include '../includes/header.php';
         </div>
 
         <!-- Hidden field for role -->
-        <label for="auto_label_52" class="sr-only">Role</label><label for="auto_label_52" class="sr-only">Role</label><input type="hidden" name="role" value="customer" id="auto_label_52">
+  <label for="auto_label_52" class="sr-only">Role</label><input type="hidden" name="role" value="customer" id="auto_label_52">
 
         <!-- Address Information -->
         <!-- Farsça: بخش اطلاعات آدرس. -->
@@ -490,7 +560,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-city mr-1 sm:mr-2 text-xs sm:text-sm"></i>Şehir *
               </label>
-              <label for="auto_label_51" class="sr-only">City</label><label for="auto_label_51" class="sr-only">City</label><select
+              <label for="auto_label_51" class="sr-only">City</label><select
                 name="city"
                 required
                 class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_51">
@@ -513,7 +583,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-address-card mr-1 sm:mr-2 text-xs sm:text-sm"></i>Adres Detayları
               </label>
-              <label for="auto_label_50" class="sr-only">Address</label><label for="auto_label_50" class="sr-only">Address</label><textarea
+              <label for="auto_label_50" class="sr-only">Address</label><textarea
                 name="address"
                 rows="3"
                 placeholder="Sokak, mahalle, apartman numarası vb."
@@ -537,7 +607,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-car-side mr-1 sm:mr-2 text-xs sm:text-sm"></i>Marka *
               </label>
-              <label for="auto_label_49" class="sr-only">Car brand</label><label for="auto_label_49" class="sr-only">Car brand</label><select
+              <label for="auto_label_49" class="sr-only">Car brand</label><select
                 name="car_brand"
                 required
                 class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_49">
@@ -561,7 +631,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-car mr-1 sm:mr-2 text-xs sm:text-sm"></i>Model *
               </label>
-              <label for="auto_label_48" class="sr-only">Car model</label><label for="auto_label_48" class="sr-only">Car model</label><input
+              <label for="auto_label_48" class="sr-only">Car model</label><input
                 type="text"
                 name="car_model"
                 placeholder="Örn: Corolla, Civic, Focus"
@@ -573,7 +643,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-calendar mr-1 sm:mr-2 text-xs sm:text-sm"></i>Model Yılı *
               </label>
-              <label for="auto_label_47" class="sr-only">Car year</label><label for="auto_label_47" class="sr-only">Car year</label><select
+              <label for="auto_label_47" class="sr-only">Car year</label><select
                 name="car_year"
                 required
                 class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_47">
@@ -596,7 +666,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-palette mr-1 sm:mr-2 text-xs sm:text-sm"></i>Renk
               </label>
-              <label for="auto_label_46" class="sr-only">Car color</label><label for="auto_label_46" class="sr-only">Car color</label><input
+              <label for="auto_label_46" class="sr-only">Car color</label><input
                 type="text"
                 name="car_color"
                 placeholder="Araç rengi"
@@ -607,7 +677,7 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-id-card mr-1 sm:mr-2 text-xs sm:text-sm"></i>Plaka Numarası
               </label>
-              <label for="auto_label_45" class="sr-only">License plate</label><label for="auto_label_45" class="sr-only">License plate</label><input
+              <label for="auto_label_45" class="sr-only">License plate</label><input
                 type="text"
                 name="license_plate"
                 placeholder="34 ABC 123"
@@ -631,15 +701,15 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-3">Bildirim Tercihleri</label>
               <div class="space-y-2 sm:space-y-3">
                 <label class="flex items-center cursor-pointer py-1">
-                  <label for="auto_label_44" class="sr-only">Notifications[]</label><label for="auto_label_44" class="sr-only">Notifications[]</label><input type="checkbox" name="notifications[]" value="email" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_44">
+                  <label for="auto_label_44" class="sr-only">Notifications[]</label><input type="checkbox" name="notifications[]" value="email" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_44">
                   <span class="text-xs sm:text-sm text-gray-600">E-posta bildirimleri</span>
                 </label>
                 <label class="flex items-center cursor-pointer py-1">
-                  <label for="auto_label_43" class="sr-only">Notifications[]</label><label for="auto_label_43" class="sr-only">Notifications[]</label><input type="checkbox" name="notifications[]" value="sms" class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_43">
+                  <label for="auto_label_43" class="sr-only">Notifications[]</label><input type="checkbox" name="notifications[]" value="sms" class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_43">
                   <span class="text-xs sm:text-sm text-gray-600">SMS bildirimleri</span>
                 </label>
                 <label class="flex items-center cursor-pointer py-1">
-                  <label for="auto_label_42" class="sr-only">Notifications[]</label><label for="auto_label_42" class="sr-only">Notifications[]</label><input type="checkbox" name="notifications[]" value="push" class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_42">
+                  <label for="auto_label_42" class="sr-only">Notifications[]</label><input type="checkbox" name="notifications[]" value="push" class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_42">
                   <span class="text-xs sm:text-sm text-gray-600">Push bildirimleri</span>
                 </label>
               </div>
@@ -649,15 +719,15 @@ include '../includes/header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-3">Hangi hizmetleri tercih edersiniz?</label>
               <div class="space-y-2 sm:space-y-3">
                 <label class="flex items-center cursor-pointer py-1">
-                  <label for="auto_label_41" class="sr-only">Services[]</label><label for="auto_label_41" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="exterior" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_41">
+                  <label for="auto_label_41" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="exterior" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_41">
                   <span class="text-xs sm:text-sm text-gray-600">Dış yıkama</span>
                 </label>
                 <label class="flex items-center cursor-pointer py-1">
-                  <label for="auto_label_40" class="sr-only">Services[]</label><label for="auto_label_40" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="interior" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_40">
+                  <label for="auto_label_40" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="interior" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_40">
                   <span class="text-xs sm:text-sm text-gray-600">İç temizlik</span>
                 </label>
                 <label class="flex items-center cursor-pointer py-1">
-                  <label for="auto_label_39" class="sr-only">Services[]</label><label for="auto_label_39" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="detailing" class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_39">
+                  <label for="auto_label_39" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="detailing" class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_39">
                   <span class="text-xs sm:text-sm text-gray-600">Tam detaylandırma</span>
                 </label>
               </div>
@@ -672,14 +742,14 @@ include '../includes/header.php';
         <div class="animate-slide-in" style="animation-delay: 0.5s">
           <div class="section-divider my-4 sm:my-6"></div>
 
-          <div class="flex items-start mb-4 sm:mb-6">
-            <label for="auto_label_38" class="sr-only">Terms</label><label for="auto_label_38" class="sr-only">Terms</label><input type="checkbox" name="terms" required class="mt-1 mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2 flex-shrink-0" id="auto_label_38">
-            <p class="text-xs sm:text-sm text-gray-600">
+          <label class="checkbox-label mb-4 sm:mb-6">
+            <input id="terms" type="checkbox" name="terms" required class="mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" />
+            <span class="text-xs sm:text-sm text-gray-600">
               <a href="#" class="text-blue-600 hover:underline font-medium">Kullanım Şartları</a> ve
               <a href="#" class="text-blue-600 hover:underline font-medium">Gizlilik Politikası</a>'nı
               okudum ve kabul ediyorum. *
-            </p>
-          </div>
+            </span>
+          </label>
 
           <button
             type="submit"

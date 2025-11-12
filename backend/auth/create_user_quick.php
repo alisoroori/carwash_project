@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Quick user-creation page styled like login page
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <style>
     /* keep styles consistent with login page */
     .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .login-container { background: rgba(255,255,255,0.98); backdrop-filter: blur(12px); border:1px solid rgba(255,255,255,0.2); }
+  .login-container { background: rgba(255,255,255,0.98); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border:1px solid rgba(255,255,255,0.2); }
     .input-field { transition: all .25s; border:2px solid #e5e7eb; }
     .input-field:focus { border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,.08); }
     .btn-primary { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); border:none; color:#fff; }
@@ -116,8 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="msg <?php echo $messageType === 'success' ? 'success' : 'error'; ?>"><?php echo $messageType === 'success' ? htmlspecialchars($message) : htmlspecialchars($message); ?></div>
         <?php endif; ?>
 
-        <form method="POST" class="space-y-4">
-          <label for="auto_label_37" class="sr-only">Csrf token</label><label for="auto_label_37" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ? id="auto_label_37">">
+        <form method="POST" class="space-y-4" action="">
+          <!-- Fixed label-for/id mismatch for accessibility -->
+          <label for="auto_label_37" class="sr-only">Csrf token</label>
+          <input type="hidden" id="auto_label_37" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ?>">
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
@@ -130,7 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <label for="auto_label_35" class="sr-only">Email</label><label for="auto_label_35" class="sr-only">Email</label><input type="email" name="email" class="input-field w-full px-4 py-3 rounded-lg" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ? id="auto_label_35" placeholder="Email">">
+            <!-- Fixed label-for/id mismatch for accessibility -->
+            <label for="auto_label_35" class="sr-only">Email</label>
+            <input type="email" id="auto_label_35" name="email" class="input-field w-full px-4 py-3 rounded-lg" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" placeholder="Email">
           </div>
 
           <div>
@@ -146,5 +150,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
+
 
 

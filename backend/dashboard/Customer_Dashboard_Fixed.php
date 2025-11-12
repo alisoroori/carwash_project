@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once __DIR__ . '/../includes/bootstrap.php';
 
@@ -19,7 +19,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 // Dashboard header variables
 $dashboard_type = 'customer';
-$page_title = 'Müşteri Paneli - CarWash';
+$page_title = 'MÃ¼ÅŸteri Paneli - CarWash';
 $current_page = 'dashboard';
 ?>
 <!DOCTYPE html>
@@ -62,7 +62,7 @@ $current_page = 'dashboard';
                 class="sidebar-link"
             >
                 <i class="fas fa-store w-5 mr-3 text-lg"></i>
-                <span>Yıkama Yerleri</span>
+                <span>YÄ±kama Yerleri</span>
             </a>
 
             <a 
@@ -82,7 +82,7 @@ $current_page = 'dashboard';
                 class="sidebar-link"
             >
                 <i class="fas fa-car w-5 mr-3 text-lg"></i>
-                <span>Araçlarım</span>
+                <span>AraÃ§larÄ±m</span>
             </a>
 
             <a 
@@ -92,7 +92,7 @@ $current_page = 'dashboard';
                 class="sidebar-link"
             >
                 <i class="fas fa-history w-5 mr-3 text-lg"></i>
-                <span>Geçmiş</span>
+                <span>GeÃ§miÅŸ</span>
             </a>
 
             <a 
@@ -127,7 +127,7 @@ $current_page = 'dashboard';
 </aside>
                     <a href="/carwash_project/backend/includes/logout.php" class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium">
                         <i class="fas fa-sign-out-alt w-5 mr-3"></i>
-                        <span>Çıkış Yap</span>
+                        <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
                     </a>
                 </div>
             </div>
@@ -191,7 +191,7 @@ $current_page = 'dashboard';
                 class="sidebar-link"
             >
                 <i class="fas fa-store w-5 mr-3 text-lg"></i>
-                <span>Yıkama Yerleri</span>
+                <span>YÄ±kama Yerleri</span>
             </a>
             
             <a 
@@ -211,7 +211,7 @@ $current_page = 'dashboard';
                 class="sidebar-link"
             >
                 <i class="fas fa-car w-5 mr-3 text-lg"></i>
-                <span>Araçlarım</span>
+                <span>AraÃ§larÄ±m</span>
             </a>
             
             <a 
@@ -221,7 +221,7 @@ $current_page = 'dashboard';
                 class="sidebar-link"
             >
                 <i class="fas fa-history w-5 mr-3 text-lg"></i>
-                <span>Geçmiş</span>
+                <span>GeÃ§miÅŸ</span>
             </a>
             
             <a 
@@ -269,7 +269,7 @@ $current_page = 'dashboard';
         >
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
-                <p class="text-gray-600">Hoş geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
+                <p class="text-gray-600">HoÅŸ geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
             </div>
             
             <!-- Stats Grid -->
@@ -284,7 +284,7 @@ $current_page = 'dashboard';
                     <p class="text-3xl font-bold text-gray-900">24</p>
                     <p class="text-sm text-gray-500 mt-2 flex items-center">
                         <i class="fas fa-arrow-up text-green-500 mr-1 text-xs"></i>
-                        12% artış
+                        12% artÄ±ÅŸ
                     </p>
                 </div>
                 
@@ -312,7 +312,7 @@ $current_page = 'dashboard';
                 
                 <div class="card-hover">
                     <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-sm font-semibold text-gray-600">Kayıtlı Araç</h4>
+                        <h4 class="text-sm font-semibold text-gray-600">KayÄ±tlÄ± AraÃ§</h4>
                         <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                             <i class="fas fa-car text-purple-600 text-xl"></i>
                         </div>
@@ -324,12 +324,12 @@ $current_page = 'dashboard';
             
             <!-- Quick Actions -->
             <div class="mt-8">
-                <h3 class="text-xl font-bold text-gray-900 mb-6">Hızlı İşlemler</h3>
+                <h3 class="text-xl font-bold text-gray-900 mb-6">HÄ±zlÄ± Ä°ÅŸlemler</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="gradient-bg rounded-2xl p-8 text-white shadow-xl card-hover">
                         <i class="fas fa-plus-circle text-5xl mb-4 opacity-90"></i>
                         <h4 class="text-xl font-bold mb-2">Yeni Rezervasyon</h4>
-                        <p class="text-blue-100 mb-6">Araç yıkama hizmeti rezervasyonu oluşturun</p>
+                        <p class="text-blue-100 mb-6">AraÃ§ yÄ±kama hizmeti rezervasyonu oluÅŸturun</p>
                         <button 
                             @click="currentSection = 'carWashSelection'"
                             class="btn-ghost bg-white text-blue-600 hover:bg-blue-50"
@@ -341,13 +341,13 @@ $current_page = 'dashboard';
                     
                     <div class="gradient-bg-reverse rounded-2xl p-8 text-white shadow-xl card-hover">
                         <i class="fas fa-car text-5xl mb-4 opacity-90"></i>
-                        <h4 class="text-xl font-bold mb-2">Araç Ekle</h4>
-                        <p class="text-green-100 mb-6">Yeni araç bilgisi kaydedin</p>
+                        <h4 class="text-xl font-bold mb-2">AraÃ§ Ekle</h4>
+                        <p class="text-green-100 mb-6">Yeni araÃ§ bilgisi kaydedin</p>
                         <button 
                             @click="currentSection = 'vehicles'"
                             class="btn-ghost bg-white text-green-600 hover:bg-green-50"
                         >
-                            <span>Araç Ekle</span>
+                            <span>AraÃ§ Ekle</span>
                             <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
@@ -360,16 +360,16 @@ $current_page = 'dashboard';
             x-show="currentSection === 'vehicles'" 
             x-transition 
             class="space-y-6" 
-            x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing — using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" 
+            x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing â€” using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" 
             style="display: none;"
         >
             <div class="mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Araçlarım</h2>
-                <p class="text-gray-600">Kayıtlı araçlarınızı yönetin</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">AraÃ§larÄ±m</h2>
+                <p class="text-gray-600">KayÄ±tlÄ± araÃ§larÄ±nÄ±zÄ± yÃ¶netin</p>
             </div>
             
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <p class="text-sm text-gray-600" x-text="vehicles.length + ' kayıtlı araç'"></p>
+                <p class="text-sm text-gray-600" x-text="vehicles.length + ' kayÄ±tlÄ± araÃ§'"></p>
                 <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     <button @click="loadVehicles()" class="btn-outline">
                         <i class="fas fa-sync-alt mr-2"></i>
@@ -377,7 +377,7 @@ $current_page = 'dashboard';
                     </button>
                     <button @click="openVehicleForm()" class="btn-primary gradient-bg border-0">
                         <i class="fas fa-plus mr-2"></i>
-                        <span>Araç Ekle</span>
+                        <span>AraÃ§ Ekle</span>
                     </button>
                 </div>
             </div>
@@ -414,7 +414,7 @@ $current_page = 'dashboard';
                         <div class="flex space-x-2 pt-4 border-t border-gray-100">
                             <button @click="editVehicle(vehicle)" class="flex-1 btn-ghost text-blue-600 hover:bg-blue-50">
                                 <i class="fas fa-edit mr-1"></i>
-                                Düzenle
+                                DÃ¼zenle
                             </button>
                             <button @click="deleteVehicle(vehicle.id)" class="flex-1 btn-ghost text-red-600 hover:bg-red-50">
                                 <i class="fas fa-trash mr-1"></i>
@@ -428,10 +428,10 @@ $current_page = 'dashboard';
                 <template x-if="vehicles.length === 0">
                     <div class="col-span-full text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-300">
                         <i class="fas fa-car text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg mb-4">Henüz kayıtlı araç yok</p>
+                        <p class="text-gray-500 text-lg mb-4">HenÃ¼z kayÄ±tlÄ± araÃ§ yok</p>
                         <button @click="openVehicleForm()" class="btn-primary gradient-bg border-0">
                             <i class="fas fa-plus mr-2"></i>
-                            <span>İlk Aracınızı Ekleyin</span>
+                            <span>Ä°lk AracÄ±nÄ±zÄ± Ekleyin</span>
                         </button>
                     </div>
                 </template>
@@ -448,7 +448,7 @@ $current_page = 'dashboard';
                 <div class="modal-content">
                     <div class="modal-header">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-2xl font-bold text-gray-900" x-text="editingVehicle ? 'Araç Düzenle' : 'Yeni Araç Ekle'"></h3>
+                            <h3 class="text-2xl font-bold text-gray-900" x-text="editingVehicle ? 'AraÃ§ DÃ¼zenle' : 'Yeni AraÃ§ Ekle'"></h3>
                             <button @click="closeVehicleForm()" class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100">
                                 <i class="fas fa-times text-2xl"></i>
                             </button>
@@ -477,7 +477,7 @@ $current_page = 'dashboard';
                             </div>
                             
                             <div>
-                                <label class="input-label">Yıl</label>
+                                <label class="input-label">YÄ±l</label>
                                 <label for="auto_label_112" class="sr-only">Car year</label><label for="auto_label_112" class="sr-only">Car year</label><input type="number" name="car_year" x-model="formData.year" :max="new Date().getFullYear()" class="input-field" placeholder="2020" id="auto_label_112">
                             </div>
                             
@@ -487,18 +487,18 @@ $current_page = 'dashboard';
                             </div>
                             
                             <div>
-                                <label class="input-label">Araç Fotoğrafı</label>
+                                <label class="input-label">AraÃ§ FotoÄŸrafÄ±</label>
                                 <label for="auto_label_110" class="sr-only">Vehicle image</label><label for="auto_label_110" class="sr-only">Vehicle image</label><input type="file" name="vehicle_image" @change="previewImage($event)" accept="image/*" class="input-field" id="auto_label_110">
                             </div>
                         </div>
                         
                         <div>
-                            <label class="input-label">Önizleme</label>
+                            <label class="input-label">Ã–nizleme</label>
                             <img :src="imagePreview || '/carwash_project/frontend/assets/images/default-car.png'" alt="Preview" class="w-32 h-24 object-cover rounded-xl border-2 border-gray-300">
                         </div>
                         
                         <div class="modal-footer">
-                            <button type="button" @click="closeVehicleForm()" class="btn-ghost">İptal</button>
+                            <button type="button" @click="closeVehicleForm()" class="btn-ghost">Ä°ptal</button>
                             <button type="submit" :disabled="loading" class="btn-primary gradient-bg border-0">
                                 <i class="fas" :class="loading ? 'fa-spinner fa-spin' : 'fa-save'"></i>
                                 <span x-text="loading ? 'Kaydediliyor...' : 'Kaydet'" class="ml-2"></span>
@@ -517,8 +517,8 @@ $current_page = 'dashboard';
         <!-- ========== PROFILE SECTION ========== -->
         <section x-show="currentSection === 'profile'" x-transition class="space-y-6" style="display: none;">
             <div class="mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Profil Ayarları</h2>
-                <p class="text-gray-600">Hesap bilgilerinizi güncelleyin</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Profil AyarlarÄ±</h2>
+                <p class="text-gray-600">Hesap bilgilerinizi gÃ¼ncelleyin</p>
             </div>
             
             <div class="card">
@@ -542,7 +542,7 @@ $current_page = 'dashboard';
                         }
                     }
                     ?>
-                    <label for="auto_label_109" class="sr-only">Csrf token</label><label for="auto_label_109" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_109">">
+                    <label for="auto_label_109" class="sr-only">Csrf token</label><label for="auto_label_109" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); "\>" id="auto_label_109">">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="profile_name_fixed" class="input-label">Ad Soyad</label>
@@ -557,12 +557,12 @@ $current_page = 'dashboard';
                             <input id="profile_phone_fixed" name="phone" type="tel" placeholder="+90 555 123 45 67" class="input-field">
                         </div>
                         <div>
-                            <label for="profile_city_fixed" class="input-label">Şehir</label>
-                            <input id="profile_city_fixed" name="city" type="text" placeholder="İstanbul" class="input-field">
+                            <label for="profile_city_fixed" class="input-label">Åžehir</label>
+                            <input id="profile_city_fixed" name="city" type="text" placeholder="Ä°stanbul" class="input-field">
                         </div>
                     </div>
                     <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
-                        <button type="button" class="btn-ghost">İptal</button>
+                        <button type="button" class="btn-ghost">Ä°ptal</button>
                         <button type="submit" class="btn-primary gradient-bg border-0">
                             <i class="fas fa-save mr-2"></i>
                             <span>Kaydet</span>
@@ -576,23 +576,23 @@ $current_page = 'dashboard';
         <section x-show="currentSection === 'support'" x-transition class="space-y-6" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Destek</h2>
-                <p class="text-gray-600">Yardıma mı ihtiyacınız var? Bize ulaşın</p>
+                <p class="text-gray-600">YardÄ±ma mÄ± ihtiyacÄ±nÄ±z var? Bize ulaÅŸÄ±n</p>
             </div>
             
             <div class="card">
                 <form class="space-y-6">
                     <div>
                         <label class="input-label">Konu</label>
-                        <label for="auto_174" class="sr-only">Sorununuzun kısa açıklaması</label><input type="text" placeholder="Sorununuzun kısa açıklaması" class="input-field" id="auto_174">
+                        <label for="auto_174" class="sr-only">Sorununuzun kÄ±sa aÃ§Ä±klamasÄ±</label><input type="text" placeholder="Sorununuzun kÄ±sa aÃ§Ä±klamasÄ±" class="input-field" id="auto_174">
                     </div>
                     <div>
                         <label class="input-label">Mesaj</label>
-                        <label for="auto_175" class="sr-only">Sorununuzu detaylı olarak açıklayın</label><textarea rows="6" placeholder="Sorununuzu detaylı olarak açıklayın" class="input-field resize-none" id="auto_175"></textarea>
+                        <label for="auto_175" class="sr-only">Sorununuzu detaylÄ± olarak aÃ§Ä±klayÄ±n</label><textarea rows="6" placeholder="Sorununuzu detaylÄ± olarak aÃ§Ä±klayÄ±n" class="input-field resize-none" id="auto_175"></textarea>
                     </div>
                     <div class="flex justify-end">
                         <button type="submit" class="btn-primary gradient-bg border-0">
                             <i class="fas fa-paper-plane mr-2"></i>
-                            <span>Gönder</span>
+                            <span>GÃ¶nder</span>
                         </button>
                     </div>
                 </form>
@@ -604,6 +604,7 @@ $current_page = 'dashboard';
 
 </body>
 </html>
+
 
 
 

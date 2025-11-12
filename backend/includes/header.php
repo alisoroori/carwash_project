@@ -147,17 +147,31 @@ if (!empty($_SESSION['logo_path'])) {
     and include a compiled, minified CSS file to enable purging of unused
     styles and better performance. -->
   <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
+  <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/backdrop-fixes.css">
   <script>
     console.info("Tailwind CDN removed — serving compiled <?php echo $base_url; ?>/dist/output.css for production.");
   </script>
   
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+  <!-- Fixed Font Awesome font 404 errors -->
+  <!-- Font Awesome: prefer local vendor copy, fall back to CDN. Use local only if CSS and essential webfonts exist. -->
+  <?php
+    $fa_css_local = __DIR__ . '/../../frontend/vendor/fontawesome/css/all.min.css';
+    $fa_brands_local = __DIR__ . '/../../frontend/vendor/fontawesome/webfonts/fa-brands-400.woff2';
+    if (file_exists($fa_css_local) && file_exists($fa_brands_local)):
+  ?>
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/frontend/vendor/fontawesome/css/all.min.css">
+  <?php else: ?>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <?php endif; ?>
+
   <!-- Vehicle manager factory (load before Alpine so factories can register before Alpine initializes) -->
   <script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
-  <!-- Alpine.js (deferred) for reactive components -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Alpine.js: prefer local vendor copy, fall back to CDN -->
+  <?php if (file_exists(__DIR__ . '/../../frontend/vendor/alpinejs/cdn.min.js')): ?>
+    <script defer src="<?php echo $base_url; ?>/frontend/vendor/alpinejs/cdn.min.js"></script>
+  <?php else: ?>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <?php endif; ?>
   <!-- Local Alpine components (registers customerDashboard, etc.) -->
   <script defer src="<?php echo $base_url; ?>/frontend/js/alpine-components.js"></script>
   <!-- CSRF helper: reads meta token and appends to fetch/XHR and forms -->
@@ -196,6 +210,8 @@ if (!empty($_SESSION['logo_path'])) {
     /* Elite Header Styling - Lighter Blue Theme with White Text */
     .header-elite {
       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      /* Safari support */
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -1127,7 +1143,9 @@ if (!empty($_SESSION['logo_path'])) {
 // Enhanced Universal Header JavaScript with Progressive Enhancement
 document.addEventListener('DOMContentLoaded', function() {
   // Viewport and device detection
-  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  <!-- Fixed touch device detection for mobile -->
+  // Use robust touch detection: check for ontouchstart and navigator.maxTouchPoints existence
+  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
   const isMobile = window.innerWidth < 768;
   let lastScrollY = window.scrollY;
   let ticking = false;

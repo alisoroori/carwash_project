@@ -20,8 +20,53 @@ $register_url = './auth/register.php';
 include __DIR__ . '/includes/header.php';
 ?>
 
+<!-- Fixed About.php layout: MainContent spacing, full width, and text-center padding -->
+<!-- Fixed MainContent overlap with Header -->
+<style>
+  /* Ensure main content sits below fixed header and works responsively */
+  :root { --site-header-height: 60px; }
+  /* mobile adjustments match header.php media adjustments */
+  @media (max-width: 479px) { :root { --site-header-height: 56px; } }
+  @media (min-width: 480px) and (max-width: 639px) { :root { --site-header-height: 58px; } }
+  @media (min-width: 640px) and (max-width: 1023px) { :root { --site-header-height: 62px; } }
+
+  /* main content padding ensures it's not hidden behind the fixed header */
+  .main-content {
+    padding-top: calc(var(--site-header-height) + 1rem);
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Center inner content area and constrain for readability */
+  .main-inner {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Make .text-center sections have internal padding and spacing below */
+  .main-content .text-center {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-bottom: 1.25rem; /* 20px */
+  }
+
+  /* Slightly more breathing room on larger screens */
+  @media (min-width: 1024px) {
+    .main-content { padding-top: calc(var(--site-header-height) + 1.5rem); }
+  }
+
+  /* If prefers-reduced-motion, avoid large visual shifts */
+  @media (prefers-reduced-motion: reduce) {
+    .main-content { transition: none; }
+  }
+</style>
+
 <!-- Main Content -->
-<main class="container mx-auto px-4 py-8">
+<main id="main-content" class="main-content container mx-auto px-4 py-8">
   <div class="max-w-4xl mx-auto">
     
     <!-- Page Header -->

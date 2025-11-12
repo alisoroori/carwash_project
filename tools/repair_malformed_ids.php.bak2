@@ -1,0 +1,39 @@
+<?php
+// tools/repair_malformed_ids.php
+// Conservative fixer: perform minimal literal replacements in files that contain `auto_label_`.
+
+$root = realpath(__DIR__ . '/../');
+$rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root));
+$files = [];
+foreach ($rii as $f) {
+    if (!$f->isFile()) continue;
+    $ext = strtolower(pathinfo($f->getFilename(), PATHINFO_EXTENSION));
+    if (!in_array($ext, ['php','html','htm'])) continue;
+    $files[] = $f->getPathname();
+}
+
+$modified = [];
+foreach ($files as $path) {
+    $s = @file_get_contents($path);
+    if ($s === false) continue;
+    if (strpos($s, 'auto_label_') === false) continue;
+    $orig = $s;
+
+    // minimal safe replacements
+    $s = str_replace('? id=', '?>" id=', $s);
+    $s = str_replace('"" id=', '" id=', $s);
+    // remove stray backslashes before quotes
+    $s = str_replace('\\"', '"', $s);
+
+    if ($s !== $orig) {
+        $bak = $path . '.bak2';
+        if (!file_exists($bak)) copy($path, $bak);
+        file_put_contents($path, $s);
+        $modified[] = $path;
+    }
+}
+
+echo "Repair complete. Files modified: " . count($modified) . "\n";
+foreach ($modified as $m) echo $m . "\n";
+
+?>

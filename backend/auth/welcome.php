@@ -92,6 +92,8 @@ $dashboard_url = match($user_role) {
 
         .welcome-card {
             background: rgba(255, 255, 255, 0.95);
+            /* Added -webkit-backdrop-filter for Safari support */
+            -webkit-backdrop-filter: blur(15px);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }

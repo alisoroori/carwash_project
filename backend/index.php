@@ -532,8 +532,12 @@ include 'includes/index-header.php';
   <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg animate-fade-in-up">
           <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4 md:mb-6">Mesaj Gönderin</h3>
           <form class="space-y-3 sm:space-y-4 md:space-y-6" method="post" action="" name="contactForm">
-            <label for="auto_label_120" class="sr-only">Form</label><label for="auto_label_120" class="sr-only">Form</label><input type="hidden" name="__form" value="contact" id="auto_label_120">
-            <label for="auto_label_119" class="sr-only">Csrf token</label><label for="auto_label_119" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>" id="auto_label_119">
+            <!-- Fixed auto_label association for accessibility -->
+            <label for="auto_label_120" class="sr-only">Contact form marker</label>
+            <input type="hidden" name="__form" value="contact" id="auto_label_120">
+            <!-- Fixed auto_label association for accessibility -->
+            <label for="auto_label_119" class="sr-only">CSRF token (hidden)</label>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>" id="auto_label_119">
             <div>
               <label for="contactName" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">Adınız Soyadınız</label>
               <input type="text" id="contactName" name="contactName" placeholder="Adınız Soyadınız" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
@@ -543,6 +547,7 @@ include 'includes/index-header.php';
               <input type="email" id="contactEmail" name="contactEmail" placeholder="email@example.com" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
             </div>
             <div>
+              <!-- Added input/select to associate with label for accessibility -->
               <label for="contactSubject" class="block text-xs sm:text-sm font-bold text-gray-700 mb-1 sm:mb-2">Konu</label>
               <input type="text" id="contactSubject" name="contactSubject" placeholder="Konu" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base">
             </div>
@@ -565,6 +570,7 @@ include 'includes/index-header.php';
         <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4 md:mb-6 text-center">Konumumuz</h3>
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
           <iframe
+            title="CarWash Konumumuz — İstanbul Haritası"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.7600000000007!2d28.97835891526708!3d41.00823797929982!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cac24e2b2b2b2b%3A0x123456789abcdef!2sIstanbul%2C%20Turkey!5e0!3m2!1sen!2sus!4v1678901234567!5m2!1sen!2sus"
             width="100%"
             height="250"

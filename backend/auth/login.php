@@ -63,6 +63,7 @@ include '../includes/header.php';
 
     .login-container {
       background: rgba(255, 255, 255, 0.98);
+      -webkit-backdrop-filter: blur(15px);
       backdrop-filter: blur(15px);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
@@ -227,10 +228,33 @@ include '../includes/header.php';
       cursor: pointer;
       user-select: none;
     }
+  /* Fixed MainLogin Center spacing with Header and bottom container */
+  /* Ensure main login content sits below a fixed header and has bottom spacing */
+  :root { --site-header-height: 60px; }
+  @media (max-width: 479px) { :root { --site-header-height: 56px; } }
+  @media (min-width: 480px) and (max-width: 639px) { :root { --site-header-height: 58px; } }
+  @media (min-width: 640px) and (max-width: 1023px) { :root { --site-header-height: 62px; } }
+
+  .main-login-wrapper {
+    /* pad down by header height + a small gap */
+    padding-top: calc(var(--site-header-height) + 1rem);
+    /* ensure there's breathing room from the bottom of the page */
+    padding-bottom: 2.5rem;
+    box-sizing: border-box;
+    /* keep visual centering while accounting for header */
+    min-height: calc(100vh - var(--site-header-height));
+    width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    .main-login-wrapper { padding-top: calc(var(--site-header-height) + 1.5rem); padding-bottom: 3rem; }
+  }
+
   </style>
 
   <!-- Main Login Container -->
-  <div class="flex items-center justify-center min-h-screen p-4 pt-24">
+  <!-- Fixed MainLogin Center spacing with Header and bottom container -->
+  <div id="main-login" class="flex items-center justify-center main-login-wrapper p-4">
     <div class="w-full max-w-md mx-auto">
       <div class="login-container rounded-2xl shadow-2xl p-6 sm:p-8 animate-fade-in-up">
 
@@ -355,11 +379,13 @@ include '../includes/header.php';
     </div>
   </div>
 
+  <!-- Fixed addEventListener null-reference error and DOM timing issues -->
   <script>
-    // Password toggle function - Fixed positioning and improved accessibility
+    // Safe global togglePassword kept in global scope for inline onclick handlers
     function togglePassword() {
       const passwordInput = document.getElementById('password');
       const toggleIcon = document.getElementById('passwordToggle');
+      if (!passwordInput || !toggleIcon) return;
 
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
@@ -374,84 +400,96 @@ include '../includes/header.php';
       }
     }
 
-    // Enhanced focus animations for input fields with mobile optimization
-    document.querySelectorAll('.input-field').forEach(input => {
-      input.addEventListener('focus', function() {
-        this.style.borderColor = '#667eea';
-        this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-        this.style.transform = 'translateY(-1px)';
-      });
+    document.addEventListener('DOMContentLoaded', function() {
+      // Enhanced focus animations for input fields with mobile optimization
+      const inputs = document.querySelectorAll('.input-field');
+      if (inputs && inputs.length) {
+        inputs.forEach(input => {
+          input.addEventListener('focus', function() {
+            this.style.borderColor = '#667eea';
+            this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+            this.style.transform = 'translateY(-1px)';
+          });
 
-      input.addEventListener('blur', function() {
-        this.style.borderColor = '#e5e7eb';
-        this.style.boxShadow = 'none';
-        this.style.transform = 'translateY(0)';
-      });
-
-      // Hover effects only for non-touch devices
-      if (!('ontouchstart' in window)) {
-        input.addEventListener('mouseenter', function() {
-          if (this !== document.activeElement) {
-            this.style.borderColor = '#d1d5db';
-          }
-        });
-
-        input.addEventListener('mouseleave', function() {
-          if (this !== document.activeElement) {
+          input.addEventListener('blur', function() {
             this.style.borderColor = '#e5e7eb';
+            this.style.boxShadow = 'none';
+            this.style.transform = 'translateY(0)';
+          });
+
+          // Hover effects only for non-touch devices
+          if (!('ontouchstart' in window)) {
+            input.addEventListener('mouseenter', function() {
+              if (this !== document.activeElement) {
+                this.style.borderColor = '#d1d5db';
+              }
+            });
+
+            input.addEventListener('mouseleave', function() {
+              if (this !== document.activeElement) {
+                this.style.borderColor = '#e5e7eb';
+              }
+            });
           }
         });
       }
-    });
 
-    // Button hover effects with touch optimization
-    document.querySelectorAll('.btn-primary, .btn-customer, .btn-carwash').forEach(button => {
-      if (!('ontouchstart' in window)) {
-        button.addEventListener('mouseenter', function() {
-          this.style.transform = 'translateY(-2px)';
+      // Button hover effects with touch optimization
+      const buttons = document.querySelectorAll('.btn-primary, .btn-customer, .btn-carwash');
+      if (buttons && buttons.length) {
+        buttons.forEach(button => {
+          if (!('ontouchstart' in window)) {
+            button.addEventListener('mouseenter', function() {
+              this.style.transform = 'translateY(-2px)';
+            });
+
+            button.addEventListener('mouseleave', function() {
+              this.style.transform = 'translateY(0)';
+            });
+          }
+
+          // Touch feedback for mobile
+          button.addEventListener('touchstart', function() {
+            this.style.transform = 'translateY(-1px)';
+          });
+
+          button.addEventListener('touchend', function() {
+            setTimeout(() => { this.style.transform = 'translateY(0)'; }, 150);
+          });
         });
+      }
 
-        button.addEventListener('mouseleave', function() {
-          this.style.transform = 'translateY(0)';
+      // Form validation enhancement
+      const theForm = document.querySelector('form');
+      if (theForm) {
+        theForm.addEventListener('submit', function(e) {
+          const emailEl = document.querySelector('input[name="email"]');
+          const passwordEl = document.querySelector('input[name="password"]');
+          const userTypeEl = document.querySelector('select[name="user_type"]');
+          const email = emailEl ? emailEl.value : '';
+          const password = passwordEl ? passwordEl.value : '';
+          const userType = userTypeEl ? userTypeEl.value : '';
+
+          if (!email || !password || !userType) {
+            e.preventDefault();
+            alert('Lütfen tüm alanları doldurun.');
+            return false;
+          }
+
+          // Add loading state to submit button
+          const submitButton = this.querySelector('button[type="submit"]');
+          if (submitButton) {
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Giriş yapılıyor...';
+            submitButton.disabled = true;
+          }
         });
       }
 
-      // Touch feedback for mobile
-      button.addEventListener('touchstart', function() {
-        this.style.transform = 'translateY(-1px)';
+      // Auto-focus first empty field
+      window.addEventListener('load', function() {
+        const userType = document.querySelector('select[name="user_type"]');
+        if (userType && userType.value === '') userType.focus();
       });
-
-      button.addEventListener('touchend', function() {
-        setTimeout(() => {
-          this.style.transform = 'translateY(0)';
-        }, 150);
-      });
-    });
-
-    // Form validation enhancement
-    document.querySelector('form').addEventListener('submit', function(e) {
-      const email = document.querySelector('input[name="email"]').value;
-      const password = document.querySelector('input[name="password"]').value;
-      const userType = document.querySelector('select[name="user_type"]').value;
-
-      if (!email || !password || !userType) {
-        e.preventDefault();
-        alert('Lütfen tüm alanları doldurun.');
-        return false;
-      }
-
-      // Add loading state to submit button
-      const submitButton = this.querySelector('button[type="submit"]');
-      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Giriş yapılıyor...';
-      submitButton.disabled = true;
-    });
-
-    // Auto-focus first empty field
-    window.addEventListener('load', function() {
-      const userType = document.querySelector('select[name="user_type"]');
-      if (userType.value === '') {
-        userType.focus();
-      }
     });
   </script>
 

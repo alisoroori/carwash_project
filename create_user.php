@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Quick user creation page for admin
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -279,7 +279,7 @@ include 'backend/includes/header.php';
         <!-- Create User Form -->
         <form action="" method="POST" class="space-y-6" enctype="application/x-www-form-urlencoded">
           <!-- CSRF token -->
-          <label for="auto_label_136" class="sr-only">Csrf token</label><label for="auto_label_136" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ? id="auto_label_136">">
+          <label for="auto_label_136" class="sr-only">Csrf token</label><label for="auto_label_136" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); "\>" id="auto_label_136">">
 
           <!-- Full Name Field -->
           <div>
@@ -300,7 +300,7 @@ include 'backend/includes/header.php';
               <i class="fas fa-user-tag mr-2 text-blue-600"></i>User Role
             </label>
             <label for="auto_label_134" class="sr-only">Role</label><label for="auto_label_134" class="sr-only">Role</label><select name="role" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none" id="auto_label_134">
-              <option value="">Select user role</option>
+              <option value="\>Select user role</option>
               <option value="customer">Customer</option>
               <option value="carwash">Car Wash</option>
               <option value="staff">Staff</option>
@@ -464,5 +464,6 @@ include 'backend/includes/header.php';
   </script>
 
 <?php include 'backend/includes/footer.php'; ?>
+
 
 

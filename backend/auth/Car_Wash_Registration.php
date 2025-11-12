@@ -44,6 +44,7 @@ include '../includes/header.php';
 
   .form-container {
     background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
 
@@ -89,7 +90,7 @@ include '../includes/header.php';
     </div>
 
   <form action="Car_Wash_Registration_process.php" method="POST" enctype="multipart/form-data" class="space-y-8">
-    <label for="auto_label_33" class="sr-only">Csrf token</label><label for="auto_label_33" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_33">">
+  <label for="auto_label_33" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>" id="auto_label_33">
         <!-- Business Information Section -->
         <!-- Farsça: بخش اطلاعات کسب و کار. -->
         <!-- Türkçe: İşletme Bilgileri bölümü. -->
@@ -105,7 +106,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-signature mr-2"></i>İşletme Adı *
               </label>
-              <label for="auto_label_32" class="sr-only">Business name</label><label for="auto_label_32" class="sr-only">Business name</label><input
+              <label for="auto_label_32" class="sr-only">Business name</label><input
                 type="text"
                 name="business_name"
                 placeholder="İşletmenizin tam adını girin"
@@ -118,7 +119,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-envelope mr-2"></i>İşletme E-postası *
               </label>
-              <label for="auto_label_31" class="sr-only">Email</label><label for="auto_label_31" class="sr-only">Email</label><input
+              <label for="auto_label_31" class="sr-only">Email</label><input
                 type="email"
                 name="email"
                 placeholder="ornek@isyeri.com"
@@ -131,7 +132,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-phone mr-2"></i>İşletme Telefonu *
               </label>
-              <label for="auto_label_30" class="sr-only">Phone</label><label for="auto_label_30" class="sr-only">Phone</label><input
+              <label for="auto_label_30" class="sr-only">Phone</label><input
                 type="tel"
                 name="phone"
                 placeholder="05XX XXX XX XX"
@@ -167,7 +168,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-id-card mr-2"></i>Vergi Numarası *
               </label>
-              <label for="auto_label_29" class="sr-only">Tax number</label><label for="auto_label_29" class="sr-only">Tax number</label><input
+                <label for="auto_label_29" class="sr-only">Tax number</label><input
                 type="text"
                 name="tax_number"
                 placeholder="Vergi numaranızı girin"
@@ -180,7 +181,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-certificate mr-2"></i>Ruhsat Numarası *
               </label>
-              <label for="auto_label_28" class="sr-only">License number</label><label for="auto_label_28" class="sr-only">License number</label><input
+                <label for="auto_label_28" class="sr-only">License number</label><input
                 type="text"
                 name="license_number"
                 placeholder="İşyeri ruhsat numarası"
@@ -206,7 +207,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-user mr-2"></i>Sahip Adı Soyadı *
               </label>
-              <label for="auto_label_27" class="sr-only">Owner name</label><label for="auto_label_27" class="sr-only">Owner name</label><input
+              <label for="auto_label_27" class="sr-only">Owner name</label><input
                 type="text"
                 name="owner_name"
                 placeholder="İşletme sahibinin tam adı"
@@ -219,7 +220,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-id-badge mr-2"></i>TC Kimlik Numarası *
               </label>
-              <label for="auto_label_26" class="sr-only">Owner id</label><label for="auto_label_26" class="sr-only">Owner id</label><input
+              <label for="auto_label_26" class="sr-only">Owner id</label><input
                 type="text"
                 name="owner_id"
                 placeholder="11 haneli TC kimlik numarası"
@@ -232,7 +233,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-mobile-alt mr-2"></i>Cep Telefonu *
               </label>
-              <label for="auto_label_25" class="sr-only">Owner phone</label><label for="auto_label_25" class="sr-only">Owner phone</label><input
+              <label for="auto_label_25" class="sr-only">Owner phone</label><input
                 type="tel"
                 name="owner_phone"
                 placeholder="05XX XXX XX XX"
@@ -245,7 +246,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-birthday-cake mr-2"></i>Doğum Tarihi
               </label>
-              <label for="auto_label_24" class="sr-only">Birth date</label><label for="auto_label_24" class="sr-only">Birth date</label><input
+              <label for="auto_label_24" class="sr-only">Birth date</label><input
                 type="date"
                 name="birth_date"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300"
@@ -269,7 +270,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-city mr-2"></i>Şehir *
               </label>
-              <label for="auto_label_23" class="sr-only">City</label><label for="auto_label_23" class="sr-only">City</label><select
+              <label for="auto_label_23" class="sr-only">City</label><select
                 name="city"
                 required
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300"
@@ -293,7 +294,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-map mr-2"></i>İlçe *
               </label>
-              <label for="auto_label_22" class="sr-only">District</label><label for="auto_label_22" class="sr-only">District</label><input
+              <label for="auto_label_22" class="sr-only">District</label><input
                 type="text"
                 name="district"
                 placeholder="İlçe adı"
@@ -306,7 +307,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-address-card mr-2"></i>Adres Detayları *
               </label>
-              <label for="auto_label_21" class="sr-only">Address</label><label for="auto_label_21" class="sr-only">Address</label><textarea
+              <label for="auto_label_21" class="sr-only">Address</label><textarea
                 name="address"
                 rows="3"
                 placeholder="Sokak, mahalle, apartman numarası, yakın yerler vb."
@@ -331,7 +332,7 @@ include '../includes/header.php';
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="md:col-span-2">
                 <label class="block text-sm font-bold text-gray-700 mb-2">Dış Yıkama Fiyatı (₺)</label>
-                <label for="auto_label_20" class="sr-only">Exterior price</label><label for="auto_label_20" class="sr-only">Exterior price</label><input
+                <label for="auto_label_20" class="sr-only">Exterior price</label><input
                   type="number"
                   name="exterior_price"
                   placeholder="50"
@@ -341,7 +342,7 @@ include '../includes/header.php';
               </div>
               <div class="flex items-center">
                 <label class="flex items-center">
-                  <label for="auto_label_19" class="sr-only">Services[]</label><label for="auto_label_19" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="exterior" checked class="mr-2 text-blue-600 focus:ring-blue-500" id="auto_label_19">
+                  <label for="auto_label_19" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="exterior" checked class="mr-2 text-blue-600 focus:ring-blue-500" id="auto_label_19">
                   <span class="text-sm text-gray-600">Sunuyorum</span>
                 </label>
               </div>
@@ -350,7 +351,7 @@ include '../includes/header.php';
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="md:col-span-2">
                 <label class="block text-sm font-bold text-gray-700 mb-2">İç Temizlik Fiyatı (₺)</label>
-                <label for="auto_label_18" class="sr-only">Interior price</label><label for="auto_label_18" class="sr-only">Interior price</label><input
+                <label for="auto_label_18" class="sr-only">Interior price</label><input
                   type="number"
                   name="interior_price"
                   placeholder="80"
@@ -360,7 +361,7 @@ include '../includes/header.php';
               </div>
               <div class="flex items-center">
                 <label class="flex items-center">
-                  <label for="auto_label_17" class="sr-only">Services[]</label><label for="auto_label_17" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="interior" checked class="mr-2 text-blue-600 focus:ring-blue-500" id="auto_label_17">
+                  <label for="auto_label_17" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="interior" checked class="mr-2 text-blue-600 focus:ring-blue-500" id="auto_label_17">
                   <span class="text-sm text-gray-600">Sunuyorum</span>
                 </label>
               </div>
@@ -369,7 +370,7 @@ include '../includes/header.php';
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="md:col-span-2">
                 <label class="block text-sm font-bold text-gray-700 mb-2">Tam Detaylandırma Fiyatı (₺)</label>
-                <label for="auto_label_16" class="sr-only">Detailing price</label><label for="auto_label_16" class="sr-only">Detailing price</label><input
+                <label for="auto_label_16" class="sr-only">Detailing price</label><input
                   type="number"
                   name="detailing_price"
                   placeholder="150"
@@ -379,7 +380,7 @@ include '../includes/header.php';
               </div>
               <div class="flex items-center">
                 <label class="flex items-center">
-                  <label for="auto_label_15" class="sr-only">Services[]</label><label for="auto_label_15" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="detailing" class="mr-2 text-blue-600 focus:ring-blue-500" id="auto_label_15">
+                  <label for="auto_label_15" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="detailing" class="mr-2 text-blue-600 focus:ring-blue-500" id="auto_label_15">
                   <span class="text-sm text-gray-600">Sunuyorum</span>
                 </label>
               </div>
@@ -401,13 +402,13 @@ include '../includes/header.php';
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-2">Çalışma Saatleri</label>
               <div class="grid grid-cols-2 gap-2">
-                <label for="auto_label_14" class="sr-only">Opening time</label><label for="auto_label_14" class="sr-only">Opening time</label><input
+                <label for="auto_label_14" class="sr-only">Opening time</label><input
                   type="time"
                   name="opening_time"
                   placeholder="Açılış"
                   class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                  id="auto_label_14">
-                <label for="auto_label_13" class="sr-only">Closing time</label><label for="auto_label_13" class="sr-only">Closing time</label><input
+                <label for="auto_label_13" class="sr-only">Closing time</label><input
                   type="time"
                   name="closing_time"
                   placeholder="Kapanış"
@@ -418,7 +419,7 @@ include '../includes/header.php';
 
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-2">Kapasite (Günlük araç sayısı)</label>
-              <label for="auto_label_12" class="sr-only">Capacity</label><label for="auto_label_12" class="sr-only">Capacity</label><input
+              <label for="auto_label_12" class="sr-only">Capacity</label><input
                 type="number"
                 name="capacity"
                 placeholder="20"
@@ -429,7 +430,7 @@ include '../includes/header.php';
 
             <div class="md:col-span-2">
               <label class="block text-sm font-bold text-gray-700 mb-2">Özel Hizmetler/Açıklama</label>
-              <label for="auto_label_11" class="sr-only">Description</label><label for="auto_label_11" class="sr-only">Description</label><textarea
+              <label for="auto_label_11" class="sr-only">Description</label><textarea
                 name="description"
                 rows="3"
                 placeholder="İşletmeniz hakkında kısa bilgi, özel hizmetler, avantajlar vb."
@@ -454,7 +455,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-user-circle mr-2"></i>Profil Fotoğrafı
               </label>
-              <label for="auto_label_10" class="sr-only">Profile image</label><label for="auto_label_10" class="sr-only">Profile image</label><input
+              <label for="auto_label_10" class="sr-only">Profile image</label><input
                 type="file"
                 name="profile_image"
                 accept="image/*"
@@ -466,7 +467,7 @@ include '../includes/header.php';
               <label class="block text-sm font-bold text-gray-700 mb-2">
                 <i class="fas fa-building mr-2"></i>İşletme Logosu
               </label>
-              <label for="auto_label_9" class="sr-only">Logo image</label><label for="auto_label_9" class="sr-only">Logo image</label><input
+              <label for="auto_label_9" class="sr-only">Logo image</label><input
                 type="file"
                 name="logo_image"
                 accept="image/*"
@@ -484,7 +485,7 @@ include '../includes/header.php';
           <div class="section-divider my-6"></div>
 
           <div class="flex items-start mb-6">
-            <label for="auto_label_8" class="sr-only">Terms</label><label for="auto_label_8" class="sr-only">Terms</label><input type="checkbox" name="terms" required class="mt-1 mr-3 text-blue-600 focus:ring-blue-500" id="auto_label_8">
+            <label for="auto_label_8" class="sr-only">Terms</label><input type="checkbox" name="terms" required class="mt-1 mr-3 text-blue-600 focus:ring-blue-500" id="auto_label_8">
             <p class="text-sm text-gray-600">
               <a href="#" class="text-blue-600 hover:underline">Kullanım Şartları</a>,
               <a href="#" class="text-blue-600 hover:underline">Gizlilik Politikası</a> ve

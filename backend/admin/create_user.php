@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // filepath: c:\xampp\htdocs\carwash_project\backend\admin\create_user.php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -303,7 +303,9 @@ $page_title = 'Create User - CarWash Admin';
                 }
             }
             ?>
-            <label for="auto_label_1" class="sr-only">Csrf token</label><label for="auto_label_1" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ? id="auto_label_1">">
+            <!-- Fixed label-for/id mismatch for accessibility -->
+            <label for="auto_label_1" class="sr-only">Csrf token</label>
+            <input type="hidden" id="auto_label_1" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
             <div class="form-group">
                 <label for="full_name">Full Name</label>
                 <input 
@@ -383,5 +385,6 @@ $page_title = 'Create User - CarWash Admin';
     </script>
 </body>
 </html>
+
 
 

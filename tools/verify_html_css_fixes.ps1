@@ -97,9 +97,9 @@ foreach ($file in $cssFiles) {
     $webkitMatches = [regex]::Matches($content, '-webkit-text-size-adjust:\s*([^;]+);')
     
     foreach ($m in $webkitMatches) {
-        # Check if followed by standard property
+        # Check if the standard property appears shortly after (allow inline or newline)
         $afterMatch = $content.Substring($m.Index + $m.Length, [Math]::Min(200, $content.Length - ($m.Index + $m.Length)))
-        if ($afterMatch -notmatch '^\s*[\r\n]+\s*text-size-adjust:') {
+        if ($afterMatch -notmatch 'text-size-adjust:') {
             Write-Host "  FOUND: $($file.FullName) - missing text-size-adjust after -webkit-text-size-adjust" -ForegroundColor Red
             $foundIssues++
             break

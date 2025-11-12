@@ -38,6 +38,9 @@ $customer_dashboard = $base_url . '/backend/dashboard/Customer_Dashboard.php';
 $carwash_dashboard = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
 $admin_dashboard = $base_url . '/backend/dashboard/admin_panel.php';
 $dashboard_url = $customer_dashboard;
+// Determine whether the user is logged in before using $is_logged_in
+$is_logged_in = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+
 if ($is_logged_in) {
   $sessRole = $_SESSION['role'] ?? strtolower($_SESSION['user_type'] ?? '');
   if (class_exists(\App\Classes\Auth::class) && method_exists(\App\Classes\Auth::class, 'hasRole')) {
@@ -57,8 +60,7 @@ if ($is_logged_in) {
 // Set defaults
 $page_title = isset($page_title) ? $page_title : 'CarWash - En Ä°yi Online AraÃ§ YÄ±kama Rezervasyon Platformu';
 
-// Check if user is logged in
-$is_logged_in = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+// Set user display name (login flag already initialized above)
 $user_name = $is_logged_in ? ($_SESSION['name'] ?? $_SESSION['full_name'] ?? 'User') : '';
 // Fetch user's profile image if logged in (legacy DB helper is available)
 $profile_img = '/carwash_project/frontend/assets/img/default-user.png';
@@ -149,6 +151,7 @@ if ($is_logged_in) {
     /* Elite Index Header Styling */
     .index-header {
       background: rgba(255, 255, 255, 0.98);
+      -webkit-backdrop-filter: blur(20px);
       backdrop-filter: blur(20px);
       box-shadow: var(--shadow-elevation);
       border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -342,6 +345,7 @@ if ($is_logged_in) {
     /* Mobile Menu */
     .mobile-menu {
       background: rgba(255, 255, 255, 0.98);
+      -webkit-backdrop-filter: blur(20px);
       backdrop-filter: blur(20px);
       box-shadow: var(--shadow-elevation);
       border-radius: 0 0 20px 20px;
@@ -466,6 +470,7 @@ if ($is_logged_in) {
       pointer-events: none;
       z-index: 99999;
       min-width: 200px;
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
     }
     
@@ -504,7 +509,7 @@ if ($is_logged_in) {
       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
     }
     
-    .dropdown-item i {
+    .dropdown-menu {
       width: 1.5rem;
       text-align: center;
       font-size: 1.125rem;
@@ -519,7 +524,8 @@ if ($is_logged_in) {
       border-bottom-width: 2px;
       border-color: rgba(229, 231, 235, 0.8);
       margin-bottom: 0.5rem;
-      padding: 0.75rem 1.25rem;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
     }
     
     .dropdown-menu .border-b p {
@@ -700,10 +706,12 @@ if ($is_logged_in) {
       }
       
       .index-header {
+        -webkit-backdrop-filter: blur(15px);
         backdrop-filter: blur(15px);
       }
       
       .mobile-menu {
+        -webkit-backdrop-filter: blur(15px);
         backdrop-filter: blur(15px);
       }
     }
@@ -1081,7 +1089,9 @@ if ($is_logged_in) {
   let isMobile = window.innerWidth < 768;
   let isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
   let isDesktop = window.innerWidth >= 1024;
-  let touchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  <!-- Fixed touch device detection for mobile -->
+  // Use robust touch detection: check for ontouchstart and navigator.maxTouchPoints existence
+  let touchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
   
   // Mobile menu toggle functionality
   function toggleMobileMenu() {

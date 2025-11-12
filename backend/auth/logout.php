@@ -77,6 +77,8 @@ header("Refresh: 2; url=login.php");
     /* English: Form container style with transparent background and blur filter. */
     .logout-container {
       background: rgba(255, 255, 255, 0.95);
+      /* Added -webkit-backdrop-filter for Safari support */
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
     }
   </style>
