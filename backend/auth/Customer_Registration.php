@@ -454,60 +454,33 @@ include '../includes/header.php';
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_55">
                 <i class="fas fa-signature mr-1 sm:mr-2 text-xs sm:text-sm"></i>Ad Soyad *
               </label>
-              <label for="auto_label_55" class="sr-only">Full name</label><input
-                type="text"
-                name="full_name"
-                placeholder="Adınızı ve soyadınızı girin"
-                required
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_55">
+              <label for="auto_label_55" class="sr-only">Full name</label><input type="text" name="full_name" placeholder="Adınızı ve soyadınızı girin" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_55">
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_54">
                 <i class="fas fa-envelope mr-1 sm:mr-2 text-xs sm:text-sm"></i>E-posta Adresi *
               </label>
-              <label for="auto_label_54" class="sr-only">Email</label><input
-                type="email"
-                name="email"
-                placeholder="ornek@email.com"
-                required
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_54">
+              <label for="auto_label_54" class="sr-only">Email</label><input type="email" name="email" placeholder="ornek@email.com" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_54">
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_53">
                 <i class="fas fa-phone mr-1 sm:mr-2 text-xs sm:text-sm"></i>Telefon Numarası *
               </label>
-              <label for="auto_label_53" class="sr-only">Phone</label><input
-                type="tel"
-                name="phone"
-                placeholder="05XX XXX XX XX"
-                required
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_53">
+              <label for="auto_label_53" class="sr-only">Phone</label><input type="tel" name="phone" placeholder="05XX XXX XX XX" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_53">
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="password">
                 <i class="fas fa-lock mr-1 sm:mr-2 text-xs sm:text-sm"></i>Şifre *
               </label>
               <div class="relative">
-                <label for="password" class="sr-only">Password</label><input
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="Güçlü bir şifre belirleyin"
-                  pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})"
-                  title="Şifreniz en az 8 karakter uzunluğunda olmalı ve en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir"
-                  required
-                  class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
-                <button
-                  type="button"
-                  onclick="togglePassword()"
-                  class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors p-2"
-                  aria-label="Toggle password visibility">
+                <label for="password" class="sr-only">Password</label><input type="password" name="password" id="password" placeholder="Güçlü bir şifre belirleyin" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&amp;*])(?=.{8,})" title="Şifreniz en az 8 karakter uzunluğunda olmalı ve en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
+                <button type="button" onclick="togglePassword()" class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors p-2" aria-label="Toggle password visibility">
                   <i class="fas fa-eye text-sm sm:text-base" id="passwordToggle"></i>
                 </button>
               </div>
@@ -526,17 +499,11 @@ include '../includes/header.php';
             
             <!-- Add password confirmation field -->
             <div class="md:col-span-2">
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="password_confirm">
                 <i class="fas fa-lock mr-1 sm:mr-2 text-xs sm:text-sm"></i>Şifre Tekrar *
               </label>
               <div class="relative">
-                <label for="password_confirm" class="sr-only">Password confirm</label><input
-                  type="password"
-                  name="password_confirm"
-                  id="password_confirm"
-                  placeholder="Şifrenizi tekrar girin"
-                  required
-                  class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
+                <label for="password_confirm" class="sr-only">Password confirm</label><input type="password" name="password_confirm" id="password_confirm" placeholder="Şifrenizi tekrar girin" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
               </div>
             </div>
           </div>
@@ -557,13 +524,10 @@ include '../includes/header.php';
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div class="md:col-span-2">
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_51">
                 <i class="fas fa-city mr-1 sm:mr-2 text-xs sm:text-sm"></i>Şehir *
               </label>
-              <label for="auto_label_51" class="sr-only">City</label><select
-                name="city"
-                required
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_51">
+              <label for="auto_label_51" class="sr-only">City</label><select name="city" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_51">
                 <option value="">Şehir seçin</option>
                 <option value="istanbul">İstanbul</option>
                 <option value="ankara">Ankara</option>
@@ -580,14 +544,10 @@ include '../includes/header.php';
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_50">
                 <i class="fas fa-address-card mr-1 sm:mr-2 text-xs sm:text-sm"></i>Adres Detayları
               </label>
-              <label for="auto_label_50" class="sr-only">Address</label><textarea
-                name="address"
-                rows="3"
-                placeholder="Sokak, mahalle, apartman numarası vb."
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base resize-none" id="auto_label_50"></textarea>
+              <label for="auto_label_50" class="sr-only">Address</label><textarea name="address" rows="3" placeholder="Sokak, mahalle, apartman numarası vb." class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base resize-none" id="auto_label_50"></textarea>
             </div>
           </div>
         </div>
@@ -604,13 +564,10 @@ include '../includes/header.php';
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_49">
                 <i class="fas fa-car-side mr-1 sm:mr-2 text-xs sm:text-sm"></i>Marka *
               </label>
-              <label for="auto_label_49" class="sr-only">Car brand</label><select
-                name="car_brand"
-                required
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_49">
+              <label for="auto_label_49" class="sr-only">Car brand</label><select name="car_brand" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_49">
                 <option value="">Marka seçin</option>
                 <option value="toyota">Toyota</option>
                 <option value="honda">Honda</option>
@@ -628,25 +585,17 @@ include '../includes/header.php';
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_48">
                 <i class="fas fa-car mr-1 sm:mr-2 text-xs sm:text-sm"></i>Model *
               </label>
-              <label for="auto_label_48" class="sr-only">Car model</label><input
-                type="text"
-                name="car_model"
-                placeholder="Örn: Corolla, Civic, Focus"
-                required
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_48">
+              <label for="auto_label_48" class="sr-only">Car model</label><input type="text" name="car_model" placeholder="Örn: Corolla, Civic, Focus" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_48">
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_47">
                 <i class="fas fa-calendar mr-1 sm:mr-2 text-xs sm:text-sm"></i>Model Yılı *
               </label>
-              <label for="auto_label_47" class="sr-only">Car year</label><select
-                name="car_year"
-                required
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_47">
+              <label for="auto_label_47" class="sr-only">Car year</label><select name="car_year" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_47">
                 <option value="">Yıl seçin</option>
                 <option value="2024">2024</option>
                 <option value="2023">2023</option>
@@ -663,25 +612,17 @@ include '../includes/header.php';
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_46">
                 <i class="fas fa-palette mr-1 sm:mr-2 text-xs sm:text-sm"></i>Renk
               </label>
-              <label for="auto_label_46" class="sr-only">Car color</label><input
-                type="text"
-                name="car_color"
-                placeholder="Araç rengi"
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_46">
+              <label for="auto_label_46" class="sr-only">Car color</label><input type="text" name="car_color" placeholder="Araç rengi" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_46">
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_45">
                 <i class="fas fa-id-card mr-1 sm:mr-2 text-xs sm:text-sm"></i>Plaka Numarası
               </label>
-              <label for="auto_label_45" class="sr-only">License plate</label><input
-                type="text"
-                name="license_plate"
-                placeholder="34 ABC 123"
-                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_45">
+              <label for="auto_label_45" class="sr-only">License plate</label><input type="text" name="license_plate" placeholder="34 ABC 123" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_45">
             </div>
           </div>
         </div>
@@ -698,7 +639,7 @@ include '../includes/header.php';
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-3">Bildirim Tercihleri</label>
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-3" for="auto_label_44">Bildirim Tercihleri</label>
               <div class="space-y-2 sm:space-y-3">
                 <label class="flex items-center cursor-pointer py-1">
                   <label for="auto_label_44" class="sr-only">Notifications[]</label><input type="checkbox" name="notifications[]" value="email" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_44">
@@ -716,7 +657,7 @@ include '../includes/header.php';
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-3">Hangi hizmetleri tercih edersiniz?</label>
+              <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-3" for="auto_label_41">Hangi hizmetleri tercih edersiniz?</label>
               <div class="space-y-2 sm:space-y-3">
                 <label class="flex items-center cursor-pointer py-1">
                   <label for="auto_label_41" class="sr-only">Services[]</label><input type="checkbox" name="services[]" value="exterior" checked class="mr-2 sm:mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" id="auto_label_41">
@@ -743,7 +684,7 @@ include '../includes/header.php';
           <div class="section-divider my-4 sm:my-6"></div>
 
           <label class="checkbox-label mb-4 sm:mb-6">
-            <input id="terms" type="checkbox" name="terms" required class="mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2" />
+            <input id="terms" type="checkbox" name="terms" required class="mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2">
             <span class="text-xs sm:text-sm text-gray-600">
               <a href="#" class="text-blue-600 hover:underline font-medium">Kullanım Şartları</a> ve
               <a href="#" class="text-blue-600 hover:underline font-medium">Gizlilik Politikası</a>'nı
@@ -751,9 +692,7 @@ include '../includes/header.php';
             </span>
           </label>
 
-          <button
-            type="submit"
-            class="w-full gradient-bg text-white py-3 sm:py-4 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-sm sm:text-base">
+          <button type="submit" class="w-full gradient-bg text-white py-3 sm:py-4 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-sm sm:text-base">
             <i class="fas fa-user-plus mr-2"></i>Hesabımı Oluştur
           </button>
         </div>
@@ -765,9 +704,7 @@ include '../includes/header.php';
       <!-- English: Login Link. -->
       <div class="text-center mt-6 sm:mt-8 animate-slide-in" style="animation-delay: 0.6s">
         <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Zaten hesabınız var mı?</p>
-        <a
-          href="login.php"
-          class="inline-block gradient-bg text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-sm sm:text-base">
+        <a href="login.php" class="inline-block gradient-bg text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-sm sm:text-base">
           <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
         </a>
       </div>
@@ -791,12 +728,10 @@ include '../includes/header.php';
         </div>
 
         <div class="space-y-2">
-          <button onclick="redirectToDashboard()"
-            class="w-full bg-blue-600 text-white py-2.5 sm:py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base font-medium">
+          <button onclick="redirectToDashboard()" class="w-full bg-blue-600 text-white py-2.5 sm:py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base font-medium">
             <i class="fas fa-tachometer-alt mr-2"></i>Şimdi Panele Git
           </button>
-          <button onclick="closeModal()"
-            class="w-full bg-gray-300 text-gray-700 py-2.5 sm:py-3 px-4 rounded-lg hover:bg-gray-400 transition-colors text-sm sm:text-base font-medium">
+          <button onclick="closeModal()" class="w-full bg-gray-300 text-gray-700 py-2.5 sm:py-3 px-4 rounded-lg hover:bg-gray-400 transition-colors text-sm sm:text-base font-medium">
             Kapat
           </button>
         </div>

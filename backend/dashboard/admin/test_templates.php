@@ -13,18 +13,18 @@ $templateManager = new SMSTemplateManager($conn);
 $templates = $templateManager->getAllTemplates();
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
+
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMS Şablon Testi - Admin Panel</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
 
-<body class="bg-gray-50">
+
+
     <nav class="bg-white shadow-lg mb-6">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
@@ -47,7 +47,7 @@ $templates = $templateManager->getAllTemplates();
 
                 <form id="testForm" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="templateSelect">
                             Şablon Seçin
                         </label>
                         <label for="templateSelect" class="sr-only">Input</label><select id="templateSelect" class="w-full rounded-md border-gray-300 shadow-sm">
@@ -63,21 +63,17 @@ $templates = $templateManager->getAllTemplates();
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="testPhone">
                             Test Telefon Numarası
                         </label>
-                        <label for="testPhone" class="sr-only">5XX XXX XXXX</label><input type="tel" id="testPhone"
-                            placeholder="5XX XXX XXXX"
-                            class="w-full rounded-md border-gray-300 shadow-sm">
+                        <label for="testPhone" class="sr-only">5XX XXX XXXX</label><input type="tel" id="testPhone" placeholder="5XX XXX XXXX" class="w-full rounded-md border-gray-300 shadow-sm">
                     </div>
 
                     <div class="flex space-x-2">
-                        <button type="button" onclick="previewTemplate()"
-                            class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <button type="button" onclick="previewTemplate()" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                             Önizle
                         </button>
-                        <button type="button" onclick="sendTestSMS()"
-                            class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                        <button type="button" onclick="sendTestSMS()" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
                             Test SMS Gönder
                         </button>
                     </div>
@@ -144,8 +140,8 @@ $templates = $templateManager->getAllTemplates();
                 div.innerHTML = `
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         ${variable}
-                    </label>
-                    <label for="auto_label_95" class="sr-only">${variable}</label><label for="auto_label_95" class="sr-only">${variable}</label><input type="text" name="${variable}"
+                    
+                    <label for="auto_label_95" class="sr-only">${variable}<label for="auto_label_95" class="sr-only">${variable}<input type="text" name="${variable}"
                            class="w-full rounded-md border-gray-300 shadow-sm"
                            placeholder="Değer girin..." id="auto_label_95">
                 `;
@@ -223,16 +219,16 @@ $templates = $templateManager->getAllTemplates();
                     const tbody = document.getElementById('testHistory');
                     tbody.innerHTML = data.history.map(test => `
                         <tr>
-                            <td class="px-6 py-4">${test.created_at}</td>
-                            <td class="px-6 py-4">${test.template_name}</td>
-                            <td class="px-6 py-4">${test.phone}</td>
+                            <td class="px-6 py-4">${test.created_at}
+                            <td class="px-6 py-4">${test.template_name}
+                            <td class="px-6 py-4">${test.phone}
                             <td class="px-6 py-4">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     ${test.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
                                     ${test.status === 'success' ? 'Başarılı' : 'Başarısız'}
-                                </span>
-                            </td>
-                        </tr>
+                                
+                            
+                        
                     `).join('');
                 });
         }
@@ -240,9 +236,9 @@ $templates = $templateManager->getAllTemplates();
         // Load test history on page load
         loadTestHistory();
     </script>
-</body>
 
-</html>
+
+
 
 
 

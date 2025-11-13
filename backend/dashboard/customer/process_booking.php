@@ -64,14 +64,15 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
                 }
             }
             ?>
-            <label for="auto_label_104" class="sr-only">Csrf token</label><label for="auto_label_104" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); "\>" id="auto_label_104">">
+            <label for="auto_label_104" class="sr-only">Csrf token</label>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>" id="auto_label_104" />
             <!-- Step 1: Select CarWash -->
             <div class="booking-step" id="step1">
                 <h2 class="text-xl font-semibold mb-4">1. AraÃ§ YÄ±kama Merkezi SeÃ§in</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <?php foreach ($carwashes as $carwash): ?>
                         <div class="border rounded p-4 hover:border-blue-500 cursor-pointer carwash-option">
-                            <label for="auto_label_103" class="sr-only">Carwash id</label><label for="auto_label_103" class="sr-only">Carwash id</label><input type="radio" name="carwash_id" value="<?php echo htmlspecialchars($carwash['id']); "\>" id="auto_label_103">" class="hidden">
+                            <label for="auto_label_103" class="sr-only">Carwash id</label>
+                            <input type="radio" name="carwash_id" value="<?php echo htmlspecialchars($carwash['id']); ?>" id="auto_label_103" class="hidden">
                             <h3 class="font-semibold"><?php echo htmlspecialchars($carwash['business_name'] ?? $carwash['name'] ?? ''); ?></h3>
                             <p class="text-sm text-gray-600"><?php echo htmlspecialchars($carwash['address'] ?? ''); ?></p>
                             <p class="text-sm text-gray-500">

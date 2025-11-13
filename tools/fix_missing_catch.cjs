@@ -19,10 +19,10 @@ function backup(file) {
   if (!fs.existsSync(bak)) fs.copyFileSync(file, bak);
 }
 
-function fixContent(content) {
+function fixContent(content, ext) {
   // Regex: find "try { ... }" where after the closing brace there is NOT catch or finally.
   // This uses a balanced-brace heuristic (simple) — will handle most inline cases.
-  // Warning: not perfect for deeply nested blocks with unmatched braces inside strings.
+  // ext: file extension ('.js' or '.php') to determine catch block syntax.
   let changed = false;
   const tryRegex = /try\s*\{\s*([\s\S]*?)\s*\}(?!\s*(catch|finally))/g;
   const replacement = (all, inner) => {
@@ -30,8 +30,18 @@ function fixContent(content) {
     // keep indentation: determine indent from 'try' line
     const indentMatch = all.match(/^\s*/);
     const indent = indentMatch ? indentMatch[0] : '';
-    const catchBlock = `\n${indent}catch (e) {\n${indent}  console.error('Auto-insert catch:', e);\n${indent}}\n`;
-    return all + catchBlock;
+    if (ext === '.js') {
+      const catchBlock = `\n${indent}catch (e) {\n${indent}  console.error('Auto-insert catch:', e);\n${indent}}\n`;
+      return all + catchBlock;
+    } else if (ext === '.php') {
+      // PHP catch block using Throwable for compatibility
+      const catchBlock = `\n${indent}catch (\\Throwable $e) {\n${indent}  error_log('Auto-insert catch: ' . $e->getMessage());\n${indent}}\n`;
+      return all + catchBlock;
+    } else {
+      // default to JS style
+      const catchBlock = `\n${indent}catch (e) {\n${indent}  console.error('Auto-insert catch:', e);\n${indent}}\n`;
+      return all + catchBlock;
+    }
   };
   const newContent = content.replace(tryRegex, replacement);
   return { newContent, changed };

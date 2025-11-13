@@ -77,3 +77,31 @@ set_exception_handler(function ($e) {
     }
     exit;
 });
+
+// Ensure session is started early so CSRF tokens and session helpers are available
+if (session_status() === PHP_SESSION_NONE) {
+    // Use a secure session configuration if possible
+    if (!headers_sent()) {
+        ini_set('session.cookie_httponly', 1);
+        ini_set('session.use_strict_mode', 1);
+        // Prefer secure cookies when running under HTTPS
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+            ini_set('session.cookie_secure', 1);
+        }
+    }
+    session_start();
+}
+
+// Load CSRF helper (creates/generates token if missing)
+if (file_exists(__DIR__ . '/csrf_protect.php')) {
+    require_once __DIR__ . '/csrf_protect.php';
+    if (function_exists('generate_csrf_token')) {
+        // Ensure a token exists for this session
+        try {
+            generate_csrf_token();
+        } catch (Throwable $e) {
+            // Non-fatal: log and continue
+            \App\Classes\Logger::error('CSRF token generation failed: ' . $e->getMessage());
+        }
+    }
+}

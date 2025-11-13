@@ -1,0 +1,64 @@
+<?php
+
+require_once 'backend/includes/csrf_check.php';
+csrf_check(true);
+
+session_start();
+require_once '../includes/db.php';
+require_once '../includes/report_manager.php';
+
+header('Content-Type: application/json');
+
+try {
+    if (!isset($_SESSION['user_id'])) {
+        throw new Exception('Unauthorized');
+    }
+
+    // Merge JSON request body into $_POST so tokens sent in JSON are validated
+    $raw = file_get_contents('php://input');
+    $data = json_decode($raw, true);
+    if (is_array($data)) foreach ($data as $k => $v) if (!isset($_POST[$k])) $_POST[$k] = $v;
+
+    // CSRF protection: prefer centralized helper; keep inline fallback during rollout
+    $csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
+    if (file_exists($csrf_helper)) {
+        require_once $csrf_helper;
+        if (function_exists('require_valid_csrf')) {
+            // require_valid_csrf() will emit 403 JSON and exit if invalid
+            require_valid_csrf();
+        }
+    } else {
+        $csrfToken = $data['csrf_token'] ?? ($_POST['csrf_token'] ?? null) ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+        if (empty($_SESSION['csrf_token']) || empty($csrfToken) || !hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$csrfToken)) {
+            error_log('CSRF: missing or invalid token in report_review.php');
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+            exit;
+        }
+    }
+
+    if (!isset($data['review_id']) || !isset($data['reason'])) {
+        throw new Exception('Missing required fields');
+    }
+
+    $reportManager = new ReportManager($conn);
+
+    if ($reportManager->submitReport(
+        $data['review_id'],
+        $_SESSION['user_id'],
+        $data['reason'],
+        $data['description'] ?? ''
+    )) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Bildiriminiz başarıyla gönderildi'
+        ]);
+    } else {
+        throw new Exception('Bildirim gönderilemedi');
+    }
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

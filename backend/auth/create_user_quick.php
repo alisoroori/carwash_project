@@ -122,23 +122,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <input type="hidden" id="auto_label_37" name="csrf_token" value="<?php echo htmlspecialchars($csrf); ?>">
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="auto_label_36">Role</label>
             <label for="auto_label_36" class="sr-only">Role</label><label for="auto_label_36" class="sr-only">Role</label><select name="role" class="input-field w-full px-4 py-3 rounded-lg" id="auto_label_36">
               <?php foreach ($roles as $r): ?>
-                <option value="<?php echo $r; ?>" <?php echo (isset($_POST['role']) && $_POST['role']===$r) ? 'selected' : ($r==='customer' ? 'selected' : ''); ?>><?php echo ucfirst($r); ?></option>
+                <option value="<?php echo $r; ?>" __php_block_9__><?php echo ucfirst($r); ?></option>
               <?php endforeach; ?>
             </select>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="auto_label_35">Email</label>
             <!-- Fixed label-for/id mismatch for accessibility -->
             <label for="auto_label_35" class="sr-only">Email</label>
             <input type="email" id="auto_label_35" name="email" class="input-field w-full px-4 py-3 rounded-lg" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" placeholder="Email">
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="auto_label_34">Password</label>
             <label for="auto_label_34" class="sr-only">Password</label><label for="auto_label_34" class="sr-only">Password</label><input type="password" name="password" class="input-field w-full px-4 py-3 rounded-lg" required id="auto_label_34" placeholder="Password">
           </div>
 

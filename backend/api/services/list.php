@@ -1,19 +1,8 @@
 <?php
 declare(strict_types=1);
-header('Content-Type: application/json; charset=utf-8');
 
-if (file_exists(__DIR__ . '/../../../vendor/autoload.php')) {
-    require_once __DIR__ . '/../../../vendor/autoload.php';
-}
+require_once '../includes/api_bootstrap.php';
 
-$carwashId = isset($_GET['carwash_id']) ? (int)$_GET['carwash_id'] : null;
-
-$services = [];
-
-if (!$carwashId) {
-    echo json_encode($services);
-    exit;
-}
 
 try {
     if (class_exists('\App\\Classes\\Database')) {

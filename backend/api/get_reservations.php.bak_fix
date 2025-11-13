@@ -1,0 +1,72 @@
+<?php
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\\Classes\\Logger')) {
+                    try {
+                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+session_start();
+require_once '../includes/db.php';
+
+header('Content-Type: application/json');
+
+// CSRF protection: authenticated GET/POST endpoints should verify token on state-changing requests.
+// This endpoint is read-only (returns reservations). No CSRF check required for GET read.
+
+try {
+    if (!isset($_SESSION['user_id'])) {
+        throw new Exception('Unauthorized');
+    }
+
+    $stmt = $conn->prepare("
+        SELECT 
+            b.id,
+            b.service_type as service_name,
+            b.booking_date as date,
+            b.booking_time as time,
+                b.status,
+                b.price,
+                c.business_name as carwash_name
+            FROM bookings b
+            JOIN carwash_profiles c ON b.carwash_id = c.id
+            WHERE b.user_id = ?
+        ORDER BY b.booking_date DESC, b.booking_time DESC
+    ");
+
+    $stmt->bind_param('i', $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $reservations = [];
+    while ($row = $result->fetch_assoc()) {
+        $reservations[] = $row;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'reservations' => $reservations
+    ]);
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

@@ -107,18 +107,10 @@ include '../includes/header.php';
       <!-- Türkçe: Sıfırlama yöntemini seçmek için sekme navigasyonu (e-posta veya telefon). -->
       <!-- English: Tab navigation for selecting reset method (email or phone). -->
   <div class="flex tab-row mb-8 animate-slide-in" style="animation-delay: 0.1s">
-        <button
-          id="emailTab"
-          type="button"
-          class="flex-1 py-3 px-4 rounded-l-lg font-bold transition-all duration-300 tab-active"
-        >
+        <button id="emailTab" type="button" class="flex-1 py-3 px-4 rounded-l-lg font-bold transition-all duration-300 tab-active">
           <i class="fas fa-envelope mr-2"></i>E-posta
         </button>
-        <button
-          id="phoneTab"
-          type="button"
-          class="flex-1 py-3 px-4 rounded-r-lg font-bold transition-all duration-300 tab-inactive"
-        >
+        <button id="phoneTab" type="button" class="flex-1 py-3 px-4 rounded-r-lg font-bold transition-all duration-300 tab-inactive">
           <i class="fas fa-mobile-alt mr-2"></i>Telefon
         </button>
       </div>
@@ -136,17 +128,10 @@ include '../includes/header.php';
           </div>
 
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
+            <label class="block text-sm font-bold text-gray-700 mb-2" for="emailInput">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi *
             </label>
-            <input
-              type="email"
-              name="email"
-              id="emailInput"
-              placeholder="ornek@email.com"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300"
-            >
+            <input type="email" name="email" id="emailInput" placeholder="ornek@email.com" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300">
           </div>
         </div>
 
@@ -162,17 +147,10 @@ include '../includes/header.php';
           </div>
 
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
+            <label class="block text-sm font-bold text-gray-700 mb-2" for="phoneInput">
               <i class="fas fa-mobile-alt mr-2 text-green-600"></i>Telefon Numarası *
             </label>
-            <input
-              type="tel"
-              name="phone"
-              id="phoneInput"
-              placeholder="05XX XXX XX XX"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 input-focus transition-all duration-300"
-            >
+            <input type="tel" name="phone" id="phoneInput" placeholder="05XX XXX XX XX" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 input-focus transition-all duration-300">
           </div>
         </div>
 
@@ -181,11 +159,7 @@ include '../includes/header.php';
         <!-- Türkçe: Şifre sıfırlama için gönder butonu. -->
         <!-- English: Submit button for password reset. -->
         <div class="animate-slide-in" style="animation-delay: 0.3s">
-          <button
-            type="submit"
-            id="submitBtn"
-            class="w-full gradient-bg text-white py-4 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-          >
+          <button type="submit" id="submitBtn" class="w-full gradient-bg text-white py-4 rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
             <i class="fas fa-paper-plane mr-2"></i>Sıfırlama Bağlantısı Gönder
           </button>
         </div>
@@ -198,10 +172,7 @@ include '../includes/header.php';
       <div class="mt-8 pt-6 border-t border-gray-200 animate-slide-in" style="animation-delay: 0.4s">
         <div class="text-center space-y-3">
           <p class="text-sm text-gray-600">Veya diğer seçenekler:</p>
-          <a
-            href="../auth/login.php"
-            class="inline-block w-full text-center py-3 px-4 border border-blue-600 text-blue-600 rounded-lg font-bold hover:bg-blue-600 hover:text-white transition-all duration-300"
-          >
+          <a href="../auth/login.php" class="inline-block w-full text-center py-3 px-4 border border-blue-600 text-blue-600 rounded-lg font-bold hover:bg-blue-600 hover:text-white transition-all duration-300">
             <i class="fas fa-sign-in-alt mr-2"></i>Giriş Sayfasına Dön
           </a>
         </div>
@@ -221,7 +192,7 @@ include '../includes/header.php';
         </div>
       </div>
     </div>
-  </main>
+  
 
     <!-- Success/Error Messages -->
     <!-- Farsça: کانتینر برای نمایش پیام‌های موفقیت یا خطا. -->
@@ -265,14 +236,14 @@ include '../includes/header.php';
           phoneContent.classList.add('hidden');
           emailTab.classList.add('tab-active'); emailTab.classList.remove('tab-inactive');
           phoneTab.classList.add('tab-inactive'); phoneTab.classList.remove('tab-active');
-          if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Sıfırlama Bağlantısı Gönder';
+          if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2">Sıfırlama Bağlantısı Gönder';
         });
         phoneTab.addEventListener('click', function() {
           phoneContent.classList.remove('hidden');
           emailContent.classList.add('hidden');
           phoneTab.classList.add('tab-active'); phoneTab.classList.remove('tab-inactive');
           emailTab.classList.add('tab-inactive'); emailTab.classList.remove('tab-active');
-          if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-sms mr-2"></i>Doğrulama Kodu Gönder';
+          if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-sms mr-2">Doğrulama Kodu Gönder';
         });
         // Initialize state
         emailContent.classList.remove('hidden'); phoneContent.classList.add('hidden');
@@ -284,7 +255,7 @@ include '../includes/header.php';
           e.preventDefault();
           if (submitBtn) {
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Gönderiliyor...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2">Gönderiliyor...';
             submitBtn.disabled = true;
             setTimeout(function() {
               // showMessage success
@@ -312,3 +283,4 @@ include '../includes/header.php';
   </script>
 
 <?php include '../includes/footer.php'; ?>
+</main>

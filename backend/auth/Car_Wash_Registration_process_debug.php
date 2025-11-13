@@ -22,6 +22,7 @@ echo "<p><strong>Time:</strong> " . date('Y-m-d H:i:s') . "</p>";
 
 // Include database connection following project structure
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/escape.php';
 
 // Only process POST requests - following project routing patterns
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -40,15 +41,11 @@ try {
     
     // Show all POST data
     echo "<h3>📝 POST Data Received:</h3>";
-    echo "<pre>";
-    print_r($_POST);
-    echo "</pre>";
+    echo "<pre>" . escape(print_r($_POST, true)) . "</pre>";
     
     // Show FILES data
     echo "<h3>📁 FILES Data:</h3>";
-    echo "<pre>";
-    print_r($_FILES);
-    echo "</pre>";
+    echo "<pre>" . escape(print_r($_FILES, true)) . "</pre>";
     
     // Sanitize and validate form inputs following project conventions
     $business_name = trim($_POST['business_name'] ?? '');
@@ -60,12 +57,12 @@ try {
     
     echo "<h3>🔍 Field Validation:</h3>";
     echo "<ul>";
-    echo "<li>Business Name: " . (!empty($business_name) ? "✅ '$business_name'" : "❌ Empty") . "</li>";
-    echo "<li>Email: " . (!empty($email) ? "✅ '$email'" : "❌ Empty") . "</li>";
+    echo "<li>Business Name: " . (!empty($business_name) ? "✅ '" . escape($business_name) . "'" : "❌ Empty") . "</li>";
+    echo "<li>Email: " . (!empty($email) ? "✅ '" . escape($email) . "'" : "❌ Empty") . "</li>";
     echo "<li>Password: " . (!empty($password) ? "✅ Set (" . strlen($password) . " chars)" : "❌ Empty") . "</li>";
-    echo "<li>Phone: " . (!empty($phone) ? "✅ '$phone'" : "❌ Empty") . "</li>";
-    echo "<li>Tax Number: " . (!empty($tax_number) ? "✅ '$tax_number'" : "❌ Empty") . "</li>";
-    echo "<li>License Number: " . (!empty($license_number) ? "✅ '$license_number'" : "❌ Empty") . "</li>";
+    echo "<li>Phone: " . (!empty($phone) ? "✅ '" . escape($phone) . "'" : "❌ Empty") . "</li>";
+    echo "<li>Tax Number: " . (!empty($tax_number) ? "✅ '" . escape($tax_number) . "'" : "❌ Empty") . "</li>";
+    echo "<li>License Number: " . (!empty($license_number) ? "✅ '" . escape($license_number) . "'" : "❌ Empty") . "</li>";
     echo "</ul>";
     
     // Owner information
@@ -76,10 +73,10 @@ try {
     
     echo "<h3>👤 Owner Information:</h3>";
     echo "<ul>";
-    echo "<li>Owner Name: " . (!empty($owner_name) ? "✅ '$owner_name'" : "❌ Empty") . "</li>";
-    echo "<li>Owner ID: " . (!empty($owner_id) ? "✅ '$owner_id'" : "❌ Empty") . "</li>";
-    echo "<li>Owner Phone: " . (!empty($owner_phone) ? "✅ '$owner_phone'" : "❌ Empty") . "</li>";
-    echo "<li>Birth Date: " . (!empty($birth_date) ? "✅ '$birth_date'" : "❌ Empty") . "</li>";
+    echo "<li>Owner Name: " . (!empty($owner_name) ? "✅ '" . escape($owner_name) . "'" : "❌ Empty") . "</li>";
+    echo "<li>Owner ID: " . (!empty($owner_id) ? "✅ '" . escape($owner_id) . "'" : "❌ Empty") . "</li>";
+    echo "<li>Owner Phone: " . (!empty($owner_phone) ? "✅ '" . escape($owner_phone) . "'" : "❌ Empty") . "</li>";
+    echo "<li>Birth Date: " . (!empty($birth_date) ? "✅ '" . escape($birth_date) . "'" : "❌ Empty") . "</li>";
     echo "</ul>";
     
     // Location information
@@ -89,9 +86,9 @@ try {
     
     echo "<h3>📍 Location Information:</h3>";
     echo "<ul>";
-    echo "<li>City: " . (!empty($city) ? "✅ '$city'" : "❌ Empty") . "</li>";
-    echo "<li>District: " . (!empty($district) ? "✅ '$district'" : "❌ Empty") . "</li>";
-    echo "<li>Address: " . (!empty($address) ? "✅ '$address'" : "❌ Empty") . "</li>";
+    echo "<li>City: " . (!empty($city) ? "✅ '" . escape($city) . "'" : "❌ Empty") . "</li>";
+    echo "<li>District: " . (!empty($district) ? "✅ '" . escape($district) . "'" : "❌ Empty") . "</li>";
+    echo "<li>Address: " . (!empty($address) ? "✅ '" . escape($address) . "'" : "❌ Empty") . "</li>";
     echo "</ul>";
     
     // Terms checkbox
@@ -156,7 +153,7 @@ try {
         echo "<p><strong>❌ Validation failed with " . count($errors) . " errors:</strong></p>";
         echo "<ul>";
         foreach ($errors as $error) {
-            echo "<li>$error</li>";
+            echo "<li>" . escape($error) . "</li>";
         }
         echo "</ul>";
         echo "</div>";
@@ -202,9 +199,9 @@ try {
     }
     
 } catch (PDOException $e) {
-    echo "<p style='color: red;'><strong>❌ Database error:</strong> " . $e->getMessage() . "</p>";
+    echo "<p style='color: red;'><strong>❌ Database error:</strong> " . escape($e->getMessage()) . "</p>";
 } catch (Exception $e) {
-    echo "<p style='color: red;'><strong>❌ General error:</strong> " . $e->getMessage() . "</p>";
+    echo "<p style='color: red;'><strong>❌ General error:</strong> " . escape($e->getMessage()) . "</p>";
 }
 
 echo "<hr>";

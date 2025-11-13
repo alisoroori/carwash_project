@@ -1,26 +1,9 @@
 <?php
-session_start();
-require_once '../includes/db.php';
-require_once '../includes/email_helper.php';
-require_once '../includes/sms_helper.php';
-// Merge JSON body into $_POST and register structured error handler
-if (file_exists(__DIR__ . '/../includes/request_helpers.php')) {
-    require_once __DIR__ . '/../includes/request_helpers.php';
-}
 
-header('Content-Type: application/json');
 
-// Idempotent JSON body merge: if request_helpers already handled this, this will be a no-op.
-$raw = file_get_contents('php://input');
-$parsed = json_decode($raw, true);
-if (is_array($parsed)) {
-    foreach ($parsed as $k => $v) {
-        if (!isset($_POST[$k])) $_POST[$k] = $v;
-    }
-}
+require_once '../includes/api_bootstrap.php';
 
-// CSRF protection: use centralized helper if available; keep inline fallback during rollout
-$csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
+
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (file_exists($csrf_helper)) {
     require_once $csrf_helper;

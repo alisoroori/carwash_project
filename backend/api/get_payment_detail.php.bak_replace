@@ -1,0 +1,66 @@
+<?php
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\Classes\Logger')) {
+                    try {
+                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+// Read-only endpoint: returns payment details for the authenticated user.
+// This endpoint does not modify server state, so CSRF enforcement is not required here.
+session_start();
+require_once '../includes/db.php';
+
+header('Content-Type: application/json');
+
+try {
+    if (!isset($_SESSION['user_id'])) {
+        throw new Exception('Unauthorized');
+    }
+
+    if (!isset($_GET['order_id'])) {
+        throw new Exception('Order ID is required');
+    }
+
+    $stmt = $conn->prepare("
+        SELECT * FROM orders 
+        WHERE id = ? AND user_id = ?
+    ");
+
+    $stmt->bind_param('ii', $_GET['order_id'], $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($payment = $result->fetch_assoc()) {
+        $payment['items'] = json_decode($payment['items'], true);
+
+        echo json_encode([
+            'success' => true,
+            'payment' => $payment
+        ]);
+    } else {
+        throw new Exception('Payment not found');
+    }
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

@@ -1,16 +1,9 @@
 <?php
-session_start();
-require_once '../../includes/db.php';
-require_once '../../includes/auth_check.php';
 
-header('Content-Type: application/json');
-// Merge JSON body into $_POST so tokens sent in JSON are validated
-$raw = file_get_contents('php://input');
-$parsed = json_decode($raw, true);
-if (is_array($parsed)) foreach ($parsed as $k => $v) if (!isset($_POST[$k])) $_POST[$k] = $v;
 
-// CSRF protection: centralized helper preferred; fallback kept during staged rollout
-$csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+require_once '../includes/api_bootstrap.php';
+
+
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (file_exists($csrf_helper)) {
     require_once $csrf_helper;

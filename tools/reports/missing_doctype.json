@@ -1,0 +1,13 @@
+[
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DisputeCommunicationTemplates.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PaymentEmailTemplates.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ReceiptGenerator.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin_panel.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin_panel_backup.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\vehicle_api.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dispute_communication.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\email_templates.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\functions.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_templates.php",
+    "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\receipt_generator.php"
+]

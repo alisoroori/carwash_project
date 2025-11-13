@@ -4,6 +4,7 @@
 // Usage: php tools/auto_fix_label_ids.php
 
 $root = __DIR__ . '/../';
+$dryRun = in_array('--dry-run', $argv);
 $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root));
 $files = [];
 foreach ($rii as $f) {
@@ -114,13 +115,22 @@ foreach ($files as $path) {
     }
 
     if ($content !== $original) {
-        // backup
-        $bak = $path . '.bak';
-        if (!file_exists($bak)) copy($path, $bak);
-        file_put_contents($path, $content);
-        $modified[] = $path;
+        if ($dryRun) {
+            $modified[] = $path; // record candidate
+            $report[] = "$path: (DRYRUN) would modify file";
+        } else {
+            // backup
+            $bak = $path . '.bak';
+            if (!file_exists($bak)) copy($path, $bak);
+            file_put_contents($path, $content);
+            $modified[] = $path;
+        }
     }
 }
 
-echo "Auto-fix completed. Files modified: " . count($modified) . "\n";
+if ($dryRun) {
+    echo "Auto-fix DRYRUN completed. Candidate files: " . count($modified) . "\n";
+} else {
+    echo "Auto-fix completed. Files modified: " . count($modified) . "\n";
+}
 foreach ($report as $r) echo $r . "\n";

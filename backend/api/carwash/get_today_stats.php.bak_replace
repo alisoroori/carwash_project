@@ -1,0 +1,99 @@
+<?php
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\Classes\Logger')) {
+                    try {
+                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+session_start();
+require_once '../../includes/db.php';
+require_once '../../includes/auth_check.php';
+
+header('Content-Type: application/json');
+
+try {
+    if (!isset($_SESSION['carwash_id'])) {
+        throw new Exception('Unauthorized');
+    }
+
+    $carwashId = $_SESSION['carwash_id'];
+    $today = date('Y-m-d');
+
+    // Get today's appointments count
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as count 
+        FROM appointments 
+        WHERE carwash_id = ? 
+        AND DATE(appointment_date) = ?
+    ");
+    $stmt->bind_param('is', $carwashId, $today);
+    $stmt->execute();
+    $appointments = $stmt->get_result()->fetch_assoc()['count'];
+
+    // Get today's revenue
+    $stmt = $conn->prepare("
+        SELECT COALESCE(SUM(amount), 0) as total 
+        FROM payments 
+        WHERE carwash_id = ? 
+        AND DATE(created_at) = ?
+    ");
+    $stmt->bind_param('is', $carwashId, $today);
+    $stmt->execute();
+    $revenue = $stmt->get_result()->fetch_assoc()['total'];
+
+    // Get average rating
+    $stmt = $conn->prepare("
+        SELECT AVG(rating) as avg_rating 
+        FROM reviews 
+        WHERE carwash_id = ? 
+        AND status = 'approved'
+    ");
+    $stmt->bind_param('i', $carwashId);
+    $stmt->execute();
+    $rating = $stmt->get_result()->fetch_assoc()['avg_rating'];
+
+    // Get monthly revenue
+    $stmt = $conn->prepare("
+        SELECT COALESCE(SUM(amount), 0) as total 
+        FROM payments 
+        WHERE carwash_id = ? 
+        AND MONTH(created_at) = MONTH(CURRENT_DATE())
+        AND YEAR(created_at) = YEAR(CURRENT_DATE())
+    ");
+    $stmt->bind_param('i', $carwashId);
+    $stmt->execute();
+    $monthly = $stmt->get_result()->fetch_assoc()['total'];
+
+    echo json_encode([
+        'success' => true,
+        'stats' => [
+            'appointments' => $appointments,
+            'revenue' => $revenue,
+            'rating' => number_format($rating, 1),
+            'monthly' => $monthly
+        ]
+    ]);
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

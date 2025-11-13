@@ -1,8 +1,7 @@
 <?php
-require_once '../../includes/db.php';
-require_once '../../includes/config.php';
 
-header('Content-Type: application/json');
+require_once '../includes/api_bootstrap.php';
+
 
 try {
     $carwash_id = isset($_GET['carwash_id']) ?

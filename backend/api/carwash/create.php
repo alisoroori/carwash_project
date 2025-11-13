@@ -1,7 +1,9 @@
 <?php
-require_once '../../includes/db.php';
-require_once '../../includes/config.php';
-// Ensure session is started for CSRF/session management
+
+
+require_once '../includes/api_bootstrap.php';
+
+
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 header('Content-Type: application/json');

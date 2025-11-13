@@ -1,0 +1,65 @@
+<?php
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\Classes\Logger')) {
+                    try {
+                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+session_start();
+require_once '../includes/db.php';
+
+// NOTE: READ-ONLY GET endpoint
+// Returns the authenticated user's profile information. This endpoint
+// only reads data and does not mutate server state, therefore it is
+// intentionally excluded from CSRF verification. If this becomes a
+// mutating endpoint, add require_valid_csrf() from
+// backend/includes/csrf_protect.php and remove this exemption.
+header('Content-Type: application/json');
+
+try {
+    if (!isset($_SESSION['user_id'])) {
+        throw new Exception('Unauthorized');
+    }
+
+    $stmt = $conn->prepare("
+        SELECT id, name, email, phone, profile_image 
+        FROM users 
+        WHERE id = ?
+    ");
+
+    $stmt->bind_param('i', $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($user = $result->fetch_assoc()) {
+        echo json_encode([
+            'success' => true,
+            'user' => $user
+        ]);
+    } else {
+        throw new Exception('User not found');
+    }
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

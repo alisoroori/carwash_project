@@ -1,9 +1,8 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-// Return available carwashes. Prefer DB-backed source (carwash_profiles.business_name) but
-// gracefully fall back to a static list if DB isn't available.
 
-// Try to use PSR-4 Database class if available
+require_once '../includes/api_bootstrap.php';
+
+
 try {
     require_once __DIR__ . '/../../../vendor/autoload.php';
 } catch (Throwable $e) {

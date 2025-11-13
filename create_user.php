@@ -5,6 +5,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 use App\Classes\Session;
 use App\Classes\Validator;
 use App\Classes\Database;
+use App\Classes\UserManager;
 
 // Initialize session securely
 Session::start();
@@ -34,67 +35,24 @@ $success_message = '';
 $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF validation
-    if (!isset($_POST['csrf_token']) || !Session::verifyCsrfToken($_POST['csrf_token'])) {
-        $error_message = 'Security validation failed. The page has been refreshed with a new security token.';
-        // Generate new token for next attempt
-        $csrf_token = Session::generateCsrfToken();
+  // CSRF validation
+  if (!isset($_POST['csrf_token']) || !Session::verifyCsrfToken($_POST['csrf_token'])) {
+    $error_message = 'Security validation failed. The page has been refreshed with a new security token.';
+    // Generate new token for next attempt
+    $csrf_token = Session::generateCsrfToken();
+  } else {
+    // Delegate business logic to UserManager
+    $result = UserManager::create($_POST);
+    if ($result['success']) {
+      $success_message = $result['message'];
     } else {
-
-    // Validate inputs
-    $validator = new Validator();
-    $validator
-        ->required($_POST['full_name'] ?? null, 'Full Name')
-        ->required($_POST['role'] ?? null, 'Role')
-        ->required($_POST['email'] ?? null, 'Email')
-        ->email($_POST['email'] ?? null, 'Email')
-        ->required($_POST['password'] ?? null, 'Password')
-        ->minLength($_POST['password'] ?? null, 6, 'Password');
-
-    $validRoles = ['admin', 'customer', 'staff', 'carwash'];
-    if (!in_array($_POST['role'], $validRoles, true)) {
-        $validator->addError('Role', 'Invalid role selected.');
+      if (!empty($result['errors'])) {
+        $error_message = implode('<br>', $result['errors']);
+      } else {
+        $error_message = $result['message'];
+      }
     }
-
-    if ($validator->fails()) {
-        $error_message = implode('<br>', $validator->getErrors());
-    } else {
-        try {
-            $db = Database::getInstance();
-
-            // Check if email already exists
-            $existing = $db->fetchOne("SELECT id FROM users WHERE email = :email", ['email' => $_POST['email']]);
-            if ($existing) {
-                $error_message = 'Email already exists.';
-            } else {
-                // Insert new user
-                $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-                // Generate username from email if not provided
-                $username = $_POST['email']; // Use email as username for simplicity
-
-                $userId = $db->insert('users', [
-                    'username' => $username,
-                    'full_name' => $_POST['full_name'],
-                    'email' => $_POST['email'],
-                    'password' => $hashedPassword,
-                    'role' => $_POST['role'],
-                    'is_active' => 1,
-                    'email_verified' => 0
-                    // created_at and updated_at will use table defaults
-                ]);
-
-                if ($userId) {
-                    $success_message = 'New user has been created successfully.';
-                } else {
-                    $error_message = 'Failed to create user. Please check database connection and table structure.';
-                }
-            }
-        } catch (Exception $e) {
-            $error_message = 'Database error: ' . $e->getMessage();
-        }
-    }
-}
+  }
 }
 
 // Set header configuration
@@ -279,7 +237,7 @@ include 'backend/includes/header.php';
         <!-- Create User Form -->
         <form action="" method="POST" class="space-y-6" enctype="application/x-www-form-urlencoded">
           <!-- CSRF token -->
-          <label for="auto_label_136" class="sr-only">Csrf token</label><label for="auto_label_136" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); "\>" id="auto_label_136">">
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>" id="auto_label_136">
 
           <!-- Full Name Field -->
           <div>

@@ -22,13 +22,10 @@ $dashboard_type = 'customer';
 $page_title = 'MÃ¼ÅŸteri Paneli - CarWash';
 $current_page = 'dashboard';
 ?>
-<!DOCTYPE html>
-<html lang="tr" class="scroll-smooth">
+
+
 <!-- Sidebar -->
-<aside 
-    class="sidebar-fixed fixed top-16 bottom-0 left-0 w-72 sidebar-gradient text-white z-40 transition-transform duration-300 lg:translate-x-0 shadow-xl"
-    :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
->
+<aside class="sidebar-fixed fixed top-16 bottom-0 left-0 w-72 sidebar-gradient text-white z-40 transition-transform duration-300 lg:translate-x-0 shadow-xl" :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'">
     <div class="flex flex-col h-full p-6">
         <!-- User Profile Card (top) -->
         <div class="bg-white bg-opacity-10 rounded-2xl p-4 mb-4 backdrop-blur-sm border border-white border-opacity-20">
@@ -45,72 +42,37 @@ $current_page = 'dashboard';
 
         <!-- Navigation (flexible middle area) -->
         <nav class="space-y-1 flex-1 overflow-auto">
-            <a 
-                href="#dashboard" 
-                @click="currentSection = 'dashboard'; mobileMenuOpen = false"
-                :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#dashboard" mobilemenuopen='false"' :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-tachometer-alt w-5 mr-3 text-lg"></i>
                 <span>Dashboard</span>
             </a>
 
-            <a 
-                href="#carWashSelection" 
-                @click="currentSection = 'carWashSelection'; mobileMenuOpen = false"
-                :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#carWashSelection" mobilemenuopen='false"' :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-store w-5 mr-3 text-lg"></i>
                 <span>YÄ±kama Yerleri</span>
             </a>
 
-            <a 
-                href="#reservations" 
-                @click="currentSection = 'reservations'; mobileMenuOpen = false"
-                :class="currentSection === 'reservations' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#reservations" mobilemenuopen='false"' :class="currentSection === 'reservations' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-calendar-check w-5 mr-3 text-lg"></i>
                 <span>Rezervasyonlar</span>
             </a>
 
-            <a 
-                href="#vehicles" 
-                @click="currentSection = 'vehicles'; mobileMenuOpen = false"
-                :class="currentSection === 'vehicles' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#vehicles" mobilemenuopen='false"' :class="currentSection === 'vehicles' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-car w-5 mr-3 text-lg"></i>
                 <span>AraÃ§larÄ±m</span>
             </a>
 
-            <a 
-                href="#history" 
-                @click="currentSection = 'history'; mobileMenuOpen = false"
-                :class="currentSection === 'history' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#history" mobilemenuopen='false"' :class="currentSection === 'history' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-history w-5 mr-3 text-lg"></i>
                 <span>GeÃ§miÅŸ</span>
             </a>
 
-            <a 
-                href="#profile" 
-                @click="currentSection = 'profile'; mobileMenuOpen = false"
-                :class="currentSection === 'profile' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#profile" mobilemenuopen='false"' :class="currentSection === 'profile' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-user-circle w-5 mr-3 text-lg"></i>
                 <span>Profil</span>
             </a>
 
-            <a 
-                href="#support" 
-                @click="currentSection = 'support'; mobileMenuOpen = false"
-                :class="currentSection === 'support' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#support" mobilemenuopen='false"' :class="currentSection === 'support' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-headset w-5 mr-3 text-lg"></i>
                 <span>Destek</span>
             </a>
@@ -118,7 +80,7 @@ $current_page = 'dashboard';
 
         <!-- Settings pinned at bottom -->
         <div class="mt-4 pt-4 border-t border-white border-opacity-20">
-            <a href="#settings" @click="currentSection = 'profile'; mobileMenuOpen = false" class="flex items-center px-3 py-2 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200">
+            <a href="#settings" mobilemenuopen='false"' class="flex items-center px-3 py-2 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200">
                 <i class="fas fa-cog w-5 mr-3 text-lg"></i>
                 <span class="font-medium">Ayarlar</span>
             </a>
@@ -129,35 +91,21 @@ $current_page = 'dashboard';
                         <i class="fas fa-sign-out-alt w-5 mr-3"></i>
                         <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
                     </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
+                
+            
+        
+    
+
 
 <!-- ================================
      SIDEBAR - Desktop Fixed, Mobile Slide-out (z-index: 40)
      ================================ -->
 
 <!-- Mobile Sidebar Overlay -->
-<div 
-    x-show="mobileMenuOpen"
-    @click="mobileMenuOpen = false"
-    x-transition:enter="transition-opacity ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition-opacity ease-in duration-200"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-    style="display: none;"
-></div>
+<div x-show="mobileMenuOpen" false x-transition:enter="transition-opacity ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" style="display: none;"></div>
 
 <!-- Sidebar -->
-<aside 
-    class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-72 sidebar-gradient text-white overflow-y-auto scrollbar-thin z-40 transition-transform duration-300 lg:translate-x-0 shadow-xl"
-    :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
->
+<aside class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-72 sidebar-gradient text-white overflow-y-auto scrollbar-thin z-40 transition-transform duration-300 lg:translate-x-0 shadow-xl" :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'">
     <div class="p-6">
         <!-- User Profile Card -->
         <div class="bg-white bg-opacity-10 rounded-2xl p-4 mb-6 backdrop-blur-sm border border-white border-opacity-20">
@@ -174,71 +122,37 @@ $current_page = 'dashboard';
         
         <!-- Navigation -->
         <nav class="space-y-1">
-            <a 
-                href="#dashboard" 
-                @click="currentSection = 'dashboard'; mobileMenuOpen = false"
-                :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#dashboard" mobilemenuopen='false"' :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-tachometer-alt w-5 mr-3 text-lg"></i>
                 <span>Dashboard</span>
             </a>
             
-            <a 
-                href="#carWashSelection" 
-                @click="currentSection = 'carWashSelection'; mobileMenuOpen = false"
-                :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#carWashSelection" mobilemenuopen='false"' :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-store w-5 mr-3 text-lg"></i>
                 <span>YÄ±kama Yerleri</span>
             </a>
             
-            <a 
-                href="#reservations" 
-                @click="currentSection = 'reservations'; mobileMenuOpen = false"
-                :class="currentSection === 'reservations' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#reservations" mobilemenuopen='false"' :class="currentSection === 'reservations' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-calendar-check w-5 mr-3 text-lg"></i>
                 <span>Rezervasyonlar</span>
             </a>
             
-            <a 
-                href="#vehicles" 
-                @click="currentSection = 'vehicles'; mobileMenuOpen = false"
-                :class="currentSection === 'vehicles' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#vehicles" mobilemenuopen='false"' :class="currentSection === 'vehicles' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-car w-5 mr-3 text-lg"></i>
                 <span>AraÃ§larÄ±m</span>
             </a>
             
-            <a 
-                href="#history" 
-                @click="currentSection = 'history'; mobileMenuOpen = false"
-                :class="currentSection === 'history' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#history" mobilemenuopen='false"' :class="currentSection === 'history' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-history w-5 mr-3 text-lg"></i>
                 <span>GeÃ§miÅŸ</span>
             </a>
             
-            <a 
-                href="#profile" 
-                @click="currentSection = 'profile'; mobileMenuOpen = false"
-                :class="currentSection === 'profile' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#profile" mobilemenuopen='false"' :class="currentSection === 'profile' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'" class="sidebar-link">
                 <i class="fas fa-user-circle w-5 mr-3 text-lg"></i>
                 <span>Profil</span>
             </a>
             
-            <a 
-                href="#support" 
-                @click="currentSection === 'support' ? 'bg-white bg-opacity-20 shadow-md' : 'hover:bg-white hover:bg-opacity-10'"
-                class="sidebar-link"
-            >
+            <a href="#support" bg-opacity-20 shadow-md : hover:bg-opacity-10 class="sidebar-link">
                 <i class="fas fa-headset w-5 mr-3 text-lg"></i>
                 <span>Destek</span>
             </a>
@@ -260,13 +174,7 @@ $current_page = 'dashboard';
         <?php endif; ?>
         
         <!-- ========== DASHBOARD SECTION ========== -->
-        <section 
-            x-show="currentSection === 'dashboard'" 
-            x-transition:enter="transition ease-out duration-300" 
-            x-transition:enter-start="opacity-0 transform translate-y-4" 
-            x-transition:enter-end="opacity-100 transform translate-y-0" 
-            class="space-y-6"
-        >
+        <section x-show="currentSection === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
                 <p class="text-gray-600">HoÅŸ geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
@@ -330,10 +238,7 @@ $current_page = 'dashboard';
                         <i class="fas fa-plus-circle text-5xl mb-4 opacity-90"></i>
                         <h4 class="text-xl font-bold mb-2">Yeni Rezervasyon</h4>
                         <p class="text-blue-100 mb-6">AraÃ§ yÄ±kama hizmeti rezervasyonu oluÅŸturun</p>
-                        <button 
-                            @click="currentSection = 'carWashSelection'"
-                            class="btn-ghost bg-white text-blue-600 hover:bg-blue-50"
-                        >
+                        <button class="btn-ghost bg-white text-blue-600 hover:bg-blue-50">
                             <span>Rezervasyon Yap</span>
                             <i class="fas fa-arrow-right ml-2"></i>
                         </button>
@@ -343,10 +248,7 @@ $current_page = 'dashboard';
                         <i class="fas fa-car text-5xl mb-4 opacity-90"></i>
                         <h4 class="text-xl font-bold mb-2">AraÃ§ Ekle</h4>
                         <p class="text-green-100 mb-6">Yeni araÃ§ bilgisi kaydedin</p>
-                        <button 
-                            @click="currentSection = 'vehicles'"
-                            class="btn-ghost bg-white text-green-600 hover:bg-green-50"
-                        >
+                        <button class="btn-ghost bg-white text-green-600 hover:bg-green-50">
                             <span>AraÃ§ Ekle</span>
                             <i class="fas fa-arrow-right ml-2"></i>
                         </button>
@@ -356,13 +258,7 @@ $current_page = 'dashboard';
         </section>
         
         <!-- ========== VEHICLES SECTION ========== -->
-        <section 
-            x-show="currentSection === 'vehicles'" 
-            x-transition 
-            class="space-y-6" 
-            x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing â€” using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" 
-            style="display: none;"
-        >
+        <section x-show="currentSection === 'vehicles'" x-transition class="space-y-6" x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing â€” using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">AraÃ§larÄ±m</h2>
                 <p class="text-gray-600">KayÄ±tlÄ± araÃ§larÄ±nÄ±zÄ± yÃ¶netin</p>
@@ -371,11 +267,11 @@ $current_page = 'dashboard';
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <p class="text-sm text-gray-600" x-text="vehicles.length + ' kayÄ±tlÄ± araÃ§'"></p>
                 <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    <button @click="loadVehicles()" class="btn-outline">
+                    <button class="btn-outline">
                         <i class="fas fa-sync-alt mr-2"></i>
                         <span>Yenile</span>
                     </button>
-                    <button @click="openVehicleForm()" class="btn-primary gradient-bg border-0">
+                    <button class="btn-primary gradient-bg border-0">
                         <i class="fas fa-plus mr-2"></i>
                         <span>AraÃ§ Ekle</span>
                     </button>
@@ -387,12 +283,7 @@ $current_page = 'dashboard';
                 <template x-for="vehicle in vehicles" :key="vehicle.id">
                     <div class="card-hover">
                         <div class="flex items-start space-x-4 mb-4">
-                            <img 
-                                :src="vehicle.image_path || '/carwash_project/frontend/assets/images/default-car.png'" 
-                                :alt="vehicle.brand + ' ' + vehicle.model"
-                                class="w-20 h-20 rounded-xl object-cover bg-gray-100 flex-shrink-0"
-                                @error="$el.src='/carwash_project/frontend/assets/images/default-car.png'"
-                            >
+                            <img :src="vehicle.image_path || '/carwash_project/frontend/assets/images/default-car.png'" :alt="vehicle.brand + ' ' + vehicle.model" class="w-20 h-20 rounded-xl object-cover bg-gray-100 flex-shrink-0">
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-bold text-lg text-gray-900 truncate" x-text="vehicle.brand + ' ' + vehicle.model"></h4>
                                 <p class="text-sm text-gray-600 mt-1">
@@ -412,11 +303,11 @@ $current_page = 'dashboard';
                             </div>
                         </div>
                         <div class="flex space-x-2 pt-4 border-t border-gray-100">
-                            <button @click="editVehicle(vehicle)" class="flex-1 btn-ghost text-blue-600 hover:bg-blue-50">
+                            <button class="flex-1 btn-ghost text-blue-600 hover:bg-blue-50">
                                 <i class="fas fa-edit mr-1"></i>
                                 DÃ¼zenle
                             </button>
-                            <button @click="deleteVehicle(vehicle.id)" class="flex-1 btn-ghost text-red-600 hover:bg-red-50">
+                            <button class="flex-1 btn-ghost text-red-600 hover:bg-red-50">
                                 <i class="fas fa-trash mr-1"></i>
                                 Sil
                             </button>
@@ -429,7 +320,7 @@ $current_page = 'dashboard';
                     <div class="col-span-full text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-300">
                         <i class="fas fa-car text-6xl text-gray-300 mb-4"></i>
                         <p class="text-gray-500 text-lg mb-4">HenÃ¼z kayÄ±tlÄ± araÃ§ yok</p>
-                        <button @click="openVehicleForm()" class="btn-primary gradient-bg border-0">
+                        <button class="btn-primary gradient-bg border-0">
                             <i class="fas fa-plus mr-2"></i>
                             <span>Ä°lk AracÄ±nÄ±zÄ± Ekleyin</span>
                         </button>
@@ -438,57 +329,51 @@ $current_page = 'dashboard';
             </div>
             
             <!-- Vehicle Form Modal -->
-            <div 
-                x-show="showVehicleForm"
-                x-transition
-                class="modal-overlay"
-                style="display: none;"
-                @click.self="closeVehicleForm()"
-            >
+            <div x-show="showVehicleForm" x-transition class="modal-overlay" style="display: none;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div class="flex justify-between items-center">
                             <h3 class="text-2xl font-bold text-gray-900" x-text="editingVehicle ? 'AraÃ§ DÃ¼zenle' : 'Yeni AraÃ§ Ekle'"></h3>
-                            <button @click="closeVehicleForm()" class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100">
+                            <button class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100">
                                 <i class="fas fa-times text-2xl"></i>
                             </button>
                         </div>
                     </div>
                     
-                    <form @submit.prevent="saveVehicle()" class="modal-body space-y-6">
+                    <form class="modal-body space-y-6">
                         <label for="auto_label_118" class="sr-only">Csrf token</label><label for="auto_label_118" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" :value="csrfToken" id="auto_label_118">
                         <label for="auto_label_117" class="sr-only">Action</label><label for="auto_label_117" class="sr-only">Action</label><input type="hidden" name="action" :value="editingVehicle ? 'update' : 'create'" id="auto_label_117">
                         <label for="auto_label_116" class="sr-only">Id</label><label for="auto_label_116" class="sr-only">Id</label><input type="hidden" name="id" :value="editingVehicle?.id || ''" id="auto_label_116">
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="input-label">Marka <span class="text-red-500">*</span></label>
+                                <label class="input-label" for="auto_label_115">Marka <span class="text-red-500">*</span></label>
                                 <label for="auto_label_115" class="sr-only">Car brand</label><label for="auto_label_115" class="sr-only">Car brand</label><input type="text" name="car_brand" x-model="formData.brand" required class="input-field" placeholder="Toyota" id="auto_label_115">
                             </div>
                             
                             <div>
-                                <label class="input-label">Model <span class="text-red-500">*</span></label>
+                                <label class="input-label" for="auto_label_114">Model <span class="text-red-500">*</span></label>
                                 <label for="auto_label_114" class="sr-only">Car model</label><label for="auto_label_114" class="sr-only">Car model</label><input type="text" name="car_model" x-model="formData.model" required class="input-field" placeholder="Corolla" id="auto_label_114">
                             </div>
                             
                             <div>
-                                <label class="input-label">Plaka <span class="text-red-500">*</span></label>
+                                <label class="input-label" for="auto_label_113">Plaka <span class="text-red-500">*</span></label>
                                 <label for="auto_label_113" class="sr-only">License plate</label><label for="auto_label_113" class="sr-only">License plate</label><input type="text" name="license_plate" x-model="formData.license_plate" required class="input-field" placeholder="34 ABC 123" id="auto_label_113">
                             </div>
                             
                             <div>
-                                <label class="input-label">YÄ±l</label>
+                                <label class="input-label" for="auto_label_112">YÄ±l</label>
                                 <label for="auto_label_112" class="sr-only">Car year</label><label for="auto_label_112" class="sr-only">Car year</label><input type="number" name="car_year" x-model="formData.year" :max="new Date().getFullYear()" class="input-field" placeholder="2020" id="auto_label_112">
                             </div>
                             
                             <div>
-                                <label class="input-label">Renk</label>
+                                <label class="input-label" for="auto_label_111">Renk</label>
                                 <label for="auto_label_111" class="sr-only">Car color</label><label for="auto_label_111" class="sr-only">Car color</label><input type="text" name="car_color" x-model="formData.color" class="input-field" placeholder="Beyaz" id="auto_label_111">
                             </div>
                             
                             <div>
-                                <label class="input-label">AraÃ§ FotoÄŸrafÄ±</label>
-                                <label for="auto_label_110" class="sr-only">Vehicle image</label><label for="auto_label_110" class="sr-only">Vehicle image</label><input type="file" name="vehicle_image" @change="previewImage($event)" accept="image/*" class="input-field" id="auto_label_110">
+                                <label class="input-label" for="auto_label_110">AraÃ§ FotoÄŸrafÄ±</label>
+                                <label for="auto_label_110" class="sr-only">Vehicle image</label><label for="auto_label_110" class="sr-only">Vehicle image</label><input type="file" name="vehicle_image" accept="image/*" class="input-field" id="auto_label_110">
                             </div>
                         </div>
                         
@@ -498,7 +383,7 @@ $current_page = 'dashboard';
                         </div>
                         
                         <div class="modal-footer">
-                            <button type="button" @click="closeVehicleForm()" class="btn-ghost">Ä°ptal</button>
+                            <button type="button" class="btn-ghost">Ä°ptal</button>
                             <button type="submit" :disabled="loading" class="btn-primary gradient-bg border-0">
                                 <i class="fas" :class="loading ? 'fa-spinner fa-spin' : 'fa-save'"></i>
                                 <span x-text="loading ? 'Kaydediliyor...' : 'Kaydet'" class="ml-2"></span>
@@ -542,7 +427,8 @@ $current_page = 'dashboard';
                         }
                     }
                     ?>
-                    <label for="auto_label_109" class="sr-only">Csrf token</label><label for="auto_label_109" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); "\>" id="auto_label_109">">
+                    <label for="auto_label_109" class="sr-only">Csrf token</label>
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>" id="auto_label_109">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="profile_name_fixed" class="input-label">Ad Soyad</label>
@@ -582,11 +468,11 @@ $current_page = 'dashboard';
             <div class="card">
                 <form class="space-y-6">
                     <div>
-                        <label class="input-label">Konu</label>
+                        <label class="input-label" for="auto_174">Konu</label>
                         <label for="auto_174" class="sr-only">Sorununuzun kÄ±sa aÃ§Ä±klamasÄ±</label><input type="text" placeholder="Sorununuzun kÄ±sa aÃ§Ä±klamasÄ±" class="input-field" id="auto_174">
                     </div>
                     <div>
-                        <label class="input-label">Mesaj</label>
+                        <label class="input-label" for="auto_175">Mesaj</label>
                         <label for="auto_175" class="sr-only">Sorununuzu detaylÄ± olarak aÃ§Ä±klayÄ±n</label><textarea rows="6" placeholder="Sorununuzu detaylÄ± olarak aÃ§Ä±klayÄ±n" class="input-field resize-none" id="auto_175"></textarea>
                     </div>
                     <div class="flex justify-end">
@@ -601,10 +487,5 @@ $current_page = 'dashboard';
         
     </div>
 </main>
-
-</body>
-</html>
-
-
 
 

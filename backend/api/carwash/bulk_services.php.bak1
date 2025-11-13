@@ -1,0 +1,118 @@
+<?php
+
+require_once 'backend/includes/csrf_check.php';
+csrf_check(true);
+
+session_start();
+require_once '../../includes/db.php';
+require_once '../../includes/auth_check.php';
+
+header('Content-Type: application/json');
+// Merge JSON body into $_POST so tokens sent in JSON are validated
+$raw = file_get_contents('php://input');
+$parsed = json_decode($raw, true);
+if (is_array($parsed)) foreach ($parsed as $k => $v) if (!isset($_POST[$k])) $_POST[$k] = $v;
+
+// CSRF protection: centralized helper preferred; fallback kept during staged rollout
+$csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (file_exists($csrf_helper)) {
+    require_once $csrf_helper;
+    if (function_exists('require_valid_csrf')) {
+        require_valid_csrf();
+    }
+} else {
+    $csrfToken = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+    if (empty($_SESSION['csrf_token']) || empty($csrfToken) || !hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$csrfToken)) {
+        error_log('CSRF: missing or invalid token in carwash/bulk_services.php');
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit;
+    }
+}
+
+try {
+    if (!isset($_SESSION['carwash_id'])) {
+        throw new Exception('Unauthorized');
+    }
+
+    $action = $_POST['action'] ?? '';
+
+    switch ($action) {
+        case 'export':
+            // Export services to CSV
+            $stmt = $conn->prepare("
+                SELECT name, description, price, duration, category_id
+                FROM services 
+                WHERE carwash_id = ?
+            ");
+
+            $stmt->bind_param('i', $_SESSION['carwash_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            $filename = "services_export_" . date('Y-m-d') . ".csv";
+            header('Content-Type: text/csv');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+            $output = fopen('php://output', 'w');
+            fputcsv($output, ['Name', 'Description', 'Price', 'Duration', 'Category ID']);
+
+            while ($row = $result->fetch_assoc()) {
+                fputcsv($output, $row);
+            }
+
+            fclose($output);
+            exit;
+
+        case 'import':
+            if (!isset($_FILES['file'])) {
+                throw new Exception('No file uploaded');
+            }
+
+            $file = $_FILES['file']['tmp_name'];
+            if (($handle = fopen($file, "r")) !== FALSE) {
+                // Skip header row
+                fgetcsv($handle);
+
+                $conn->begin_transaction();
+
+                try {
+                    $stmt = $conn->prepare("
+                        INSERT INTO services (carwash_id, name, description, price, duration, category_id)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    ");
+
+                    while (($data = fgetcsv($handle)) !== FALSE) {
+                        $stmt->bind_param(
+                            'issdii',
+                            $_SESSION['carwash_id'],
+                            $data[0], // name
+                            $data[1], // description
+                            $data[2], // price
+                            $data[3], // duration
+                            $data[4]  // category_id
+                        );
+                        $stmt->execute();
+                    }
+
+                    $conn->commit();
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Services imported successfully'
+                    ]);
+                } catch (Exception $e) {
+                    $conn->rollback();
+                    throw $e;
+                }
+
+                fclose($handle);
+            }
+            break;
+    }
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

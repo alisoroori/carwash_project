@@ -1,13 +1,7 @@
 <?php
-require_once '../includes/db.php';
-require_once '../includes/payment_gateway.php';
 
-// Verify iyzico request
-$rawData = file_get_contents('php://input');
-$signature = $_SERVER['HTTP_X_IYZI_TOKEN'] ?? '';
+require_once '../includes/api_bootstrap.php';
 
-// Initialize payment gateway
-$gateway = new PaymentGateway($conn);
 
 try {
     // Verify signature

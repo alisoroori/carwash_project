@@ -1,25 +1,9 @@
 <?php
-require_once '../../includes/config.php';
-require_once '../../includes/security.php';
-require_once '../../includes/middleware.php';
-// Request helpers: JSON body merge + structured errors
-if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
-    require_once __DIR__ . '/../../includes/request_helpers.php';
-}
 
-header('Content-Type: application/json');
-session_start();
-// Idempotent JSON body merge: if request_helpers already handled this, this will be a no-op.
-$raw = file_get_contents('php://input');
-$parsed = json_decode($raw, true);
-if (is_array($parsed)) {
-    foreach ($parsed as $k => $v) {
-        if (!isset($_POST[$k])) $_POST[$k] = $v;
-    }
-}
 
-// CSRF protection: prefer centralized helper; keep inline fallback during rollout
-$csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+require_once '../includes/api_bootstrap.php';
+
+
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (file_exists($csrf_helper)) {
     require_once $csrf_helper;

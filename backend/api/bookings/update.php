@@ -1,6 +1,9 @@
 <?php
+
 declare(strict_types=1);
-header('Content-Type: application/json; charset=utf-8');
+
+require_once '../includes/api_bootstrap.php';
+
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 

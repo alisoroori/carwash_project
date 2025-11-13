@@ -2,10 +2,11 @@
 // ---------------- CONFIG ----------------
 define('BASE_PATH', 'C:/xampp2/htdocs/carwash_project');
 define('BASE_URL', 'http://localhost/carwash_project');
-define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'carwash_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+// Prefer environment variables for test DB settings. Falls back to sensible defaults.
+define('DB_HOST', getenv('DB_HOST') !== false ? getenv('DB_HOST') : '127.0.0.1');
+define('DB_NAME', getenv('DB_NAME') !== false ? getenv('DB_NAME') : 'carwash_db');
+define('DB_USER', getenv('DB_USER') !== false ? getenv('DB_USER') : 'root');
+define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
 
 // ---------------- DB CONNECTION ----------------
 $pdo = null;

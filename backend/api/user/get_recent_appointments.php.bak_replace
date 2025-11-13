@@ -1,0 +1,72 @@
+<?php
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\Classes\Logger')) {
+                    try {
+                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+session_start();
+require_once '../../includes/db.php';
+require_once '../../includes/auth_check.php';
+
+header('Content-Type: application/json');
+
+try {
+    if (!isset($_SESSION['user_id'])) {
+        throw new Exception('Unauthorized');
+    }
+
+    $userId = $_SESSION['user_id'];
+
+    $stmt = $conn->prepare("
+        SELECT 
+            a.id,
+            a.appointment_date,
+            a.status,
+            c.name as carwash_name,
+            s.name as service_name
+        FROM appointments a
+        JOIN carwash c ON a.carwash_id = c.id
+        JOIN services s ON a.service_id = s.id
+        WHERE a.user_id = ?
+        ORDER BY a.appointment_date DESC
+        LIMIT 5
+    ");
+
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $appointments = [];
+    while ($row = $result->fetch_assoc()) {
+        $appointments[] = $row;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'appointments' => $appointments
+    ]);
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

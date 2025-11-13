@@ -1,0 +1,95 @@
+<?php
+
+require_once 'backend/includes/csrf_check.php';
+csrf_check(true);
+
+require_once '../../includes/auth_check.php';
+require_once '../../includes/db.php';
+
+header('Content-Type: application/json');
+
+// Merge JSON body into $_POST so tokens sent in JSON are validated
+$raw = file_get_contents('php://input');
+$parsed = json_decode($raw, true);
+if (is_array($parsed)) foreach ($parsed as $k => $v) if (!isset($_POST[$k])) $_POST[$k] = $v;
+
+// CSRF protection: prefer centralized helper; fallback available during rollout
+$csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (file_exists($csrf_helper)) {
+    require_once $csrf_helper;
+    if (function_exists('require_valid_csrf')) {
+        require_valid_csrf();
+    }
+} else {
+    $csrfToken = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+    if (empty($_SESSION['csrf_token']) || empty($csrfToken) || !hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$csrfToken)) {
+        error_log('CSRF: missing or invalid token in services/save_service.php');
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit;
+    }
+}
+
+try {
+    if (!isset($_SESSION['carwash_id'])) {
+        throw new Exception('Unauthorized');
+    }
+
+    $data = $_POST;
+    $serviceId = $data['id'] ?? null;
+
+    if ($serviceId) {
+        // Update existing service
+        $stmt = $conn->prepare("
+            UPDATE services 
+            SET name = ?, description = ?, price = ?, 
+                duration = ?, category = ?, status = ?
+            WHERE id = ? AND carwash_id = ?
+        ");
+
+        $stmt->bind_param(
+            'ssdiisii',
+            $data['name'],
+            $data['description'],
+            $data['price'],
+            $data['duration'],
+            $data['category'],
+            $data['status'],
+            $serviceId,
+            $_SESSION['carwash_id']
+        );
+    } else {
+        // Create new service
+        $stmt = $conn->prepare("
+            INSERT INTO services 
+            (carwash_id, name, description, price, duration, category)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+
+        $stmt->bind_param(
+            'issdis',
+            $_SESSION['carwash_id'],
+            $data['name'],
+            $data['description'],
+            $data['price'],
+            $data['duration'],
+            $data['category']
+        );
+    }
+
+    if ($stmt->execute()) {
+        echo json_encode([
+            'success' => true,
+            'id' => $serviceId ?? $conn->insert_id
+        ]);
+    } else {
+        throw new Exception('Failed to save service');
+    }
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

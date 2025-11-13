@@ -31,18 +31,18 @@ while ($row = $working_hours->fetch_assoc()) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
+
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ã‡alÄ±ÅŸma Saatleri - AquaTR</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
 
-<body class="bg-gray-50">
+
+
     <!-- Navbar -->
     <nav class="bg-white shadow-lg mb-8">
         <div class="max-w-7xl mx-auto px-4">
@@ -64,8 +64,7 @@ while ($row = $working_hours->fetch_assoc()) {
             </div>
         <?php endif; ?>
 
-        <form id="workingHoursForm" action="process_working_hours.php" method="POST"
-            class="bg-white rounded-lg shadow-md p-6">
+        <form id="workingHoursForm" action="process_working_hours.php" method="POST" class="bg-white rounded-lg shadow-md p-6">
             <!-- Fixed auto_label_101: ensured valid hidden CSRF input and matching label -->
             <label for="auto_label_101" class="sr-only">CSRF token</label>
             <input type="hidden" id="auto_label_101" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
@@ -94,13 +93,13 @@ while ($row = $working_hours->fetch_assoc()) {
             ?>
                 <div class="mb-6 border-b pb-4 last:border-0">
                     <div class="flex items-center justify-between mb-4">
-                        <label class="text-lg font-medium text-gray-700">
+                        <label class="text-lg font-medium text-gray-700" for="<?php echo $chkId; ?>">
                             <?php echo $dayNames[$day]; ?>
                         </label>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <!-- Fixed auto_label_100: descriptive sr-only label and matching id -->
                             <label for="<?php echo $chkId; ?>" class="sr-only">Open toggle for <?php echo $dayNames[$day]; ?></label>
-                            <input type="checkbox" id="<?php echo $chkId; ?>" name="is_open[<?php echo $day; ?>]" class="sr-only peer" <?php echo $isOpen ? 'checked' : ''; ?>>
+                            <input type="checkbox" id="<?php echo $chkId; ?>" name="is_open[<?php echo $day; ?>]" class="sr-only peer" __php_block_12__>
                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 
                                      peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full 
                                      peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] 
@@ -113,21 +112,17 @@ while ($row = $working_hours->fetch_assoc()) {
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">AÃ§Ä±lÄ±ÅŸ</label>
+                            <label class="block text-sm font-medium text-gray-700" for="<?php echo $openId; ?>">AÃ§Ä±lÄ±ÅŸ</label>
                             <!-- Fixed auto_label_99: open time input has matching id -->
                             <label for="<?php echo $openId; ?>" class="sr-only">Open time for <?php echo $dayNames[$day]; ?></label>
-                            <input type="time" id="<?php echo $openId; ?>" name="open_time[<?php echo $day; ?>]"
-                                value="<?php echo $openTime; ?>"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
+                            <input type="time" id="<?php echo $openId; ?>" name="open_time[<?php echo $day; ?>]" value="<?php echo $openTime; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
                                           focus:border-blue-500 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">KapanÄ±ÅŸ</label>
+                            <label class="block text-sm font-medium text-gray-700" for="<?php echo $closeId; ?>">KapanÄ±ÅŸ</label>
                             <!-- Fixed auto_label_98: close time input has matching id -->
                             <label for="<?php echo $closeId; ?>" class="sr-only">Close time for <?php echo $dayNames[$day]; ?></label>
-                            <input type="time" id="<?php echo $closeId; ?>" name="close_time[<?php echo $day; ?>]"
-                                value="<?php echo $closeTime; ?>"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
+                            <input type="time" id="<?php echo $closeId; ?>" name="close_time[<?php echo $day; ?>]" value="<?php echo $closeTime; ?>" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
                                           focus:border-blue-500 focus:ring-blue-500">
                         </div>
                     </div>
@@ -168,9 +163,9 @@ while ($row = $working_hours->fetch_assoc()) {
                 });
         });
     </script>
-</body>
 
-</html>
+
+
 
 
 

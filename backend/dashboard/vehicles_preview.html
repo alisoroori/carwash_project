@@ -1,8 +1,8 @@
-<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Araç Görünümü — CarWash (Visual)</title>
   <style>
     :root{--bg:#f6f8fb;--card:#fff;--muted:#6b7280;--accent:#667eea}
@@ -46,8 +46,8 @@
     .err{color:#7f1d1d;background:#fff1f2;padding:8px;border-radius:8px}
     footer{margin-top:20px;color:var(--muted);font-size:0.85rem}
   </style>
-</head>
-<body>
+
+
   <div class="wrap">
     <header>
       <div class="logo">CW</div>
@@ -73,20 +73,20 @@
           <label for="formAction" class="sr-only">Action</label><input type="hidden" name="action" id="formAction" value="create">
           <label for="formVehicleId" class="sr-only">Vehicle id</label><input type="hidden" name="vehicle_id" id="formVehicleId" value="">
           <div class="form-row">
-            <div><label class="small">Marka</label><label for="car_brand" class="sr-only">Car brand</label><input type="text" name="car_brand" id="car_brand" required></div>
-            <div><label class="small">Model</label><label for="car_model" class="sr-only">Car model</label><input type="text" name="car_model" id="car_model"></div>
+            <div><label class="small" for="car_brand">Marka</label><label for="car_brand" class="sr-only">Car brand</label><input type="text" name="car_brand" id="car_brand" required></div>
+            <div><label class="small" for="car_model">Model</label><label for="car_model" class="sr-only">Car model</label><input type="text" name="car_model" id="car_model"></div>
           </div>
           <div style="margin-top:8px">
-            <label class="small">Plaka</label>
+            <label class="small" for="license_plate">Plaka</label>
             <label for="license_plate" class="sr-only">License plate</label><input type="text" name="license_plate" id="license_plate">
           </div>
           <div class="form-row" style="margin-top:8px">
-            <div><label class="small">Yıl</label><label for="car_year" class="sr-only">Car year</label><input type="number" name="car_year" id="car_year" min="1900" max="2099"></div>
-            <div><label class="small">Renk</label><label for="car_color" class="sr-only">Car color</label><input type="text" name="car_color" id="car_color"></div>
+            <div><label class="small" for="car_year">Yıl</label><label for="car_year" class="sr-only">Car year</label><input type="number" name="car_year" id="car_year" min="1900" max="2099"></div>
+            <div><label class="small" for="car_color">Renk</label><label for="car_color" class="sr-only">Car color</label><input type="text" name="car_color" id="car_color"></div>
           </div>
 
           <div style="margin-top:8px">
-            <label class="small">Resim (opsiyonel)</label>
+            <label class="small" for="vehicle_image">Resim (opsiyonel)</label>
             <label for="vehicle_image" class="sr-only">Vehicle image</label><input type="file" id="vehicle_image" name="vehicle_image" accept="image/*">
           </div>
 
@@ -177,7 +177,7 @@
     }
 
     async function showMessage(msg, type='info') {
-      messages.innerHTML = `<div class="${type==='error'?'err':'info'}">${msg}</div>`;
+      messages.innerHTML = `<div class="${type==='error'?'err':'info'}">${msg}`;
       setTimeout(()=>{ if (messages.firstChild) messages.removeChild(messages.firstChild); }, 6000);
     }
 
@@ -204,7 +204,7 @@
         // support different response shapes: top-level vehicles or data.vehicles
         const vehicles = Array.isArray(json.vehicles) ? json.vehicles : (json.data && Array.isArray(json.data.vehicles) ? json.data.vehicles : []);
         if (vehicles.length === 0) {
-          grid.innerHTML = '<div class="small">Kayıtlı araç bulunamadı.</div>';
+          grid.innerHTML = '<div class="small">Kayıtlı araç bulunamadı.';
           status.textContent = '';
           return;
         }
@@ -215,16 +215,16 @@
           let src = resolveVehicleImageUrl(v && v.image_path);
 
           el.innerHTML = `
-            <div class="thumb"><img loading="lazy" src="${escapeHtml(src)}" alt="${escapeHtml((v.brand||'')+' '+(v.model||''))}" onerror="handleImageError(this)"/></div>
+            <div class="thumb"><img loading="lazy" src="${escapeHtml(src)}" alt="${escapeHtml((v.brand||'')+' '+(v.model||''))}" onerror="handleImageError(this)"/>
             <div class="meta"><div>
-              <div class="title">${escapeHtml((v.brand||'') + ' ' + (v.model||''))}</div>
-              <div class="muted">${escapeHtml(v.license_plate||'—')}</div>
-            </div><div class="small">${escapeHtml(v.created_at||'')}</div></div>
-            <div class="small">${escapeHtml(v.color||'')} ${v.year? '• ' + escapeHtml(v.year) : ''}</div>
+              <div class="title">${escapeHtml((v.brand||'') + ' ' + (v.model||''))}
+              <div class="muted">${escapeHtml(v.license_plate||'—')}
+            <div class="small">${escapeHtml(v.created_at||'')}
+            <div class="small">${escapeHtml(v.color||'')} ${v.year? '• ' + escapeHtml(v.year) : ''}
             <div class="actions">
-              <button class="btn secondary" data-action="edit" data-id="${v.id}">Düzenle</button>
-              <button class="btn" data-action="delete" data-id="${v.id}">Sil</button>
-            </div>
+              <button class="btn secondary" data-action="edit" data-id="${v.id}">Düzenle
+              <button class="btn" data-action="delete" data-id="${v.id}">Sil
+            
           `;
           grid.appendChild(el);
         });
@@ -347,5 +347,5 @@
     // Initial load
     loadVehicles();
   </script>
-</body>
-</html>
+
+

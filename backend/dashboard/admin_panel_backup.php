@@ -611,8 +611,8 @@ include '../includes/dashboard_header.php';
             }
         }
     </style>
-</head>
-<body>
+
+
 
 <!-- Main Dashboard Container -->
 <div class="admin-container">
@@ -1060,16 +1060,16 @@ include '../includes/dashboard_header.php';
                 </div>
                 <div class="settings-form">
                     <div class="form-group">
-                        <label>Site Adı</label>
+                        <label for="auto_110">Site Adı</label>
                         <label for="auto_110" class="sr-only">Input</label><input type="text" value="Otopark Yönetim Sistemi" id="auto_110">
                     </div>
                     <div class="form-group">
-                        <label>Admin Email</label>
-               <label for="auto_111" class="sr-only">Email</label><input type="email" value="admin@otoparkdemotime.com" id="auto_111">ime.com">
+                        <label for="auto_111">Admin Email</label>
+               <label for="auto_111" class="sr-only">Email</label><input type="email" value="admin@otoparkdemotime.com" id="auto_111">ime.com"&gt;
                     </div>
                     <div class="form-group">
-                        <label>Varsayılan Saat Ücreti (₺)</label>
-      <label for="auto_112" class="sr-only">Input</label><input type="number" value="25" id="auto_112">umber" value="25">
+                        <label for="auto_112">Varsayılan Saat Ücreti (₺)</label>
+      <label for="auto_112" class="sr-only">Input</label><input type="number" value="25" id="auto_112">umber" value="25"&gt;
                     </div>
                     <button class="save-btn">Ayarları Kaydet</button>
                 </div>
@@ -1086,24 +1086,24 @@ include '../includes/dashboard_header.php';
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Yeni Otopark Ekle</h3>
-                <span class="close" id="closeCarwashModal">&times;</span>
+                <span class="close" id="closeCarwashModal">×</span>
             </div>
             <div class="modal-body">
                 <form id="carwashForm">
                     <div class="form-group">
-                        <label>Otopark Adı</label>
+                        <label for="carwashName">Otopark Adı</label>
                         <label for="carwashName" class="sr-only">Input</label><input type="text" id="carwashName" required>
                     </div>
                     <div class="form-group">
-                        <label>Adres</label>
+                        <label for="carwashAddress">Adres</label>
                         <label for="carwashAddress" class="sr-only">Input</label><textarea id="carwashAddress" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Kapasite</label>
+                        <label for="carwashCapacity">Kapasite</label>
                         <label for="carwashCapacity" class="sr-only">Input</label><input type="number" id="carwashCapacity" required>
                     </div>
                     <div class="form-group">
-                        <label>Saat Ücreti (₺)</label>
+                        <label for="carwashPrice">Saat Ücreti (₺)</label>
                         <label for="carwashPrice" class="sr-only">Input</label><input type="number" id="carwashPrice" required>
                     </div>
                     <div class="form-group">
@@ -1204,7 +1204,4 @@ include '../includes/dashboard_header.php';
 // Include the universal footer
 include '../includes/footer.php';
 ?>
-</body>
-</html>
-
 

@@ -1,13 +1,7 @@
 <?php
-require_once '../includes/db.php';
-require_once '../includes/config.php';
 
-// Ensure $conn is a PDO instance from db.php
-if (!isset($conn) || !($conn instanceof PDO)) {
-    throw new Exception('Database connection error.');
-}
+require_once '../includes/api_bootstrap.php';
 
-header('Content-Type: application/json');
 
 try {
     $query = isset($_GET['query']) ? trim($_GET['query']) : '';

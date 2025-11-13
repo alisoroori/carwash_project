@@ -294,7 +294,7 @@ include '../includes/header.php';
 
           <!-- User Type Selection - Moved to top -->
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
+            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_label_71">
               <i class="fas fa-user-tag mr-2 text-blue-600"></i>Hesap Türü
             </label>
             <label for="auto_label_71" class="sr-only">User type</label><label for="auto_label_71" class="sr-only">User type</label><select name="user_type" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none" id="auto_label_71">
@@ -307,34 +307,20 @@ include '../includes/header.php';
 
           <!-- Email Field -->
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
+            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_label_70">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi
             </label>
-            <label for="auto_label_70" class="sr-only">Email</label><label for="auto_label_70" class="sr-only">Email</label><input
-              type="email"
-              name="email"
-              placeholder="ornek@email.com"
-              required
-              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_70">
+            <label for="auto_label_70" class="sr-only">Email</label><label for="auto_label_70" class="sr-only">Email</label><input type="email" name="email" placeholder="ornek@email.com" required class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_70">
           </div>
 
           <!-- Password Field -->
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
+            <label class="block text-sm font-bold text-gray-700 mb-2" for="password">
               <i class="fas fa-lock mr-2 text-blue-600"></i>Şifre
             </label>
             <div class="relative">
-              <label for="password" class="sr-only">Password</label><input
-                type="password"
-                name="password"
-                id="password"
-                placeholder="Şifrenizi girin"
-                required
-                class="input-field w-full px-4 py-3 pr-12 rounded-lg focus:outline-none">
-              <button
-                type="button"
-                onclick="togglePassword()"
-                class="password-toggle">
+              <label for="password" class="sr-only">Password</label><input type="password" name="password" id="password" placeholder="Şifrenizi girin" required class="input-field w-full px-4 py-3 pr-12 rounded-lg focus:outline-none">
+              <button type="button" onclick="togglePassword()" class="password-toggle">
                 <i class="fas fa-eye" id="passwordToggle"></i>
               </button>
             </div>
@@ -352,9 +338,7 @@ include '../includes/header.php';
           </div>
 
           <!-- Submit Button -->
-          <button
-            type="submit"
-            class="btn-primary w-full text-white py-4 rounded-lg font-bold transition-all duration-300">
+          <button type="submit" class="btn-primary w-full text-white py-4 rounded-lg font-bold transition-all duration-300">
             <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
           </button>
         </form>
@@ -364,13 +348,11 @@ include '../includes/header.php';
           <p class="text-sm sm:text-base text-gray-600">Hesabınız yok mu?</p>
 
           <div class="space-y-3">
-            <a href="Customer_Registration.php"
-              class="btn-customer block w-full py-3 px-4 rounded-lg transition-all duration-300 font-semibold text-sm sm:text-base">
+            <a href="Customer_Registration.php" class="btn-customer block w-full py-3 px-4 rounded-lg transition-all duration-300 font-semibold text-sm sm:text-base">
               <i class="fas fa-user-plus mr-2"></i>Müşteri Kaydı
             </a>
 
-            <a href="Car_Wash_Registration.php"
-              class="btn-carwash block w-full py-3 px-4 rounded-lg transition-all duration-300 font-semibold text-sm sm:text-base">
+            <a href="Car_Wash_Registration.php" class="btn-carwash block w-full py-3 px-4 rounded-lg transition-all duration-300 font-semibold text-sm sm:text-base">
               <i class="fas fa-store mr-2"></i>İşletme Kaydı
             </a>
           </div>
@@ -479,7 +461,7 @@ include '../includes/header.php';
           // Add loading state to submit button
           const submitButton = this.querySelector('button[type="submit"]');
           if (submitButton) {
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Giriş yapılıyor...';
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2">Giriş yapılıyor...';
             submitButton.disabled = true;
           }
         });
@@ -495,8 +477,7 @@ include '../includes/header.php';
 
 <?php include '../includes/footer.php'; ?>
 
-<?php
-// Login POST handling (replace existing POST handling block)
+<?php // Login POST handling (replace existing POST handling block)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Ensure bootstrap/session/auth are available
     require_once __DIR__ . '/../includes/bootstrap.php';
@@ -525,18 +506,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Detect common typos and offer a harmless hint
         $suggestion = '';
         $lower = strtolower($email);
-        $typos = [
-            '/\.cpm\b/' => '.com',
-            '/\.con\b/' => '.com',
-            '/@gmial\./' => '@gmail.',
-            '/@gmal\./' => '@gmail.',
-        ];
-        foreach ($typos as $pattern => $fix) {
-            if (preg_match($pattern, $lower)) {
-                $suggestion = ' (E-posta alanında küçük bir yazım hatası var: belki "' . htmlspecialchars(str_ireplace(array_keys($typos), array_values($typos), $email), ENT_QUOTES) . '" olmalı?)';
-                break;
-            }
-        }
+    $typos = [
+      '/\.cpm\b/' => '.com',
+      '/\.con\b/' => '.com',
+      '/@gmial\./' => '@gmail.',
+      '/@gmal\./' => '@gmail.',
+    ];
+    foreach ($typos as $pattern => $fix) {
+      if (preg_match($pattern, $lower)) {
+        $suggestion = ' (E-posta alanında küçük bir yazım hatası var: belki "' . htmlspecialchars(str_ireplace(array_keys($typos), array_values($typos), $email), ENT_QUOTES) . '" olmalı?)';
+        break;
+      }
+    }
 
         $_SESSION['error_message'] = 'Lütfen geçerli bir e-posta adresi girin.' . $suggestion;
         header('Location: login.php');
@@ -544,14 +525,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Proceed to authenticate
-    $auth = new \App\Classes\Auth();
-    $result = $auth->login($emailSanitized, $password);
+  $auth = new \App\Classes\Auth();
+  $result = $auth->login($emailSanitized, $password);
 
     if (!empty($result['success'])) {
         // Success: redirect to return_to if safe, otherwise to dashboard
         // Basic safety: allow only internal paths
         $allowedBase = '/carwash_project';
-        $returnTo = $returnTo && strpos($returnTo, $allowedBase) === 0 ? $returnTo : '/carwash_project/backend/dashboard/customer/index.php';
+  $returnTo = $returnTo && strpos($returnTo, $allowedBase) === 0 ? $returnTo : '/carwash_project/backend/dashboard/customer/index.php';
         header('Location: ' . $returnTo);
         exit;
     }

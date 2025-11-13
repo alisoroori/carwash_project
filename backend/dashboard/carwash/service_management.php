@@ -11,17 +11,17 @@ if (!isset($_SESSION['carwash_id'])) {
 $carwash_id = $_SESSION['carwash_id'];
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
+
+
+
     <meta charset="UTF-8">
     <title>Service Management</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
 
-<body class="bg-gray-50">
+
+
     <div class="container mx-auto px-4 py-8">
         <!-- Add Service Button -->
         <div class="mb-6 flex justify-between items-center">
@@ -71,31 +71,26 @@ $carwash_id = $_SESSION['carwash_id'];
                 <form id="serviceForm" class="mt-4">
                     <label for="serviceId" class="sr-only">Id</label><input type="hidden" id="serviceId" name="id">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Service Name</label>
-                        <label for="serviceName" class="sr-only">Name</label><input type="text" id="serviceName" name="name" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <label class="block text-sm font-medium text-gray-700" for="serviceName">Service Name</label>
+                        <label for="serviceName" class="sr-only">Name</label><input type="text" id="serviceName" name="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Description</label>
-                        <label for="serviceDescription" class="sr-only">Description</label><textarea id="serviceDescription" name="description" rows="3"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                        <label class="block text-sm font-medium text-gray-700" for="serviceDescription">Description</label>
+                        <label for="serviceDescription" class="sr-only">Description</label><textarea id="serviceDescription" name="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Price (₺)</label>
-                            <label for="servicePrice" class="sr-only">Price</label><input type="number" id="servicePrice" name="price" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700" for="servicePrice">Price (₺)</label>
+                            <label for="servicePrice" class="sr-only">Price</label><input type="number" id="servicePrice" name="price" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Duration (min)</label>
-                            <label for="serviceDuration" class="sr-only">Duration</label><input type="number" id="serviceDuration" name="duration" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700" for="serviceDuration">Duration (min)</label>
+                            <label for="serviceDuration" class="sr-only">Duration</label><input type="number" id="serviceDuration" name="duration" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Category</label>
-                        <label for="serviceCategory" class="sr-only">Category</label><select id="serviceCategory" name="category" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <label class="block text-sm font-medium text-gray-700" for="serviceCategory">Category</label>
+                        <label for="serviceCategory" class="sr-only">Category</label><select id="serviceCategory" name="category" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                             <option value="exterior">Exterior</option>
                             <option value="interior">Interior</option>
                             <option value="full">Full Service</option>
@@ -103,12 +98,10 @@ $carwash_id = $_SESSION['carwash_id'];
                         </select>
                     </div>
                     <div class="flex justify-end space-x-2">
-                        <button type="button" onclick="closeModal()"
-                            class="px-4 py-2 text-gray-500 hover:text-gray-700">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-500 hover:text-gray-700">
                             Cancel
                         </button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                             Save
                         </button>
                     </div>
@@ -118,9 +111,9 @@ $carwash_id = $_SESSION['carwash_id'];
     </div>
 
     <script src="/carwash_project/frontend/js/carwash/service-management.js"></script>
-</body>
 
-</html>
+
+
 
 
 

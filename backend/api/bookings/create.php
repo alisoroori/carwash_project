@@ -1,9 +1,10 @@
 <?php
-declare(strict_types=1);
-// Create booking endpoint
-header('Content-Type: application/json; charset=utf-8');
 
-// Start session to get authenticated user
+declare(strict_types=1);
+
+require_once '../includes/api_bootstrap.php';
+
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -19,48 +20,37 @@ if (file_exists(__DIR__ . '/../../../vendor/autoload.php')) {
 }
 
 use App\Classes\Database;
+use App\Classes\Response;
 
-$response = ['success' => false, 'errors' => []];
-
-// Simple helper to send JSON and exit
-function sendJson($data) {
-    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
-}
+// We'll use the centralized Response class for structured JSON responses
 
 // Ensure user is logged in
 $userId = $_SESSION['user_id'] ?? null;
 if (!$userId) {
-    http_response_code(401);
-    $response['errors'][] = 'Unauthorized: please log in';
-    sendJson($response);
+    Response::unauthorized();
 }
 
 // Accept POST form submissions
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    $response['errors'][] = 'Method Not Allowed';
-    sendJson($response);
+    Response::error('Method Not Allowed', 405);
 }
 
 // CSRF validation via helper
-if (file_exists(__DIR__ . '/../../includes/csrf_protect.php')) {
-    require_once __DIR__ . '/../../includes/csrf_protect.php';
-    // ensure token exists for session-based flows
-    generate_csrf_token();
-    // will emit 403 and exit on failure
-    require_valid_csrf();
-} else {
-    // Fallback: inline check (legacy)
+        if (file_exists(__DIR__ . '/../../includes/csrf_protect.php')) {
+            require_once __DIR__ . '/../../includes/csrf_protect.php';
+            // ensure token exists for session-based flows
+            generate_csrf_token();
+            // will emit 403 and exit on failure
+            require_valid_csrf();
+        } else {
+            // Fallback: inline check (legacy)
     $csrfToken = $_POST['csrf_token'] ?? null;
     if (empty($csrfToken) && !empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
         $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'];
     }
     $sessionCsrf = $_SESSION['csrf_token'] ?? null;
     if (empty($csrfToken) || empty($sessionCsrf) || !hash_equals($sessionCsrf, $csrfToken)) {
-        http_response_code(403);
-        $response['errors'][] = 'Invalid CSRF token';
-        sendJson($response);
+        Response::error('Invalid CSRF token', 403);
     }
 }
 
@@ -77,8 +67,7 @@ if (!$date) $response['errors'][] = 'date is required';
 if (!$time) $response['errors'][] = 'time is required';
 
 if (!empty($response['errors'])) {
-    http_response_code(400);
-    sendJson($response);
+    Response::validationError($response['errors']);
 }
 
 try {
@@ -105,10 +94,7 @@ try {
             throw new Exception('Failed to create booking');
         }
 
-        $response['success'] = true;
-        $response['booking_id'] = $bookingId;
-        // Optionally store notes in a separate table or booking_notes column — not implemented here
-        sendJson($response);
+        Response::success('Booking created', ['booking_id' => $bookingId]);
     } else {
         // PDO fallback
         $host = getenv('DB_HOST') ?: '127.0.0.1';
@@ -136,16 +122,9 @@ try {
             'total_price' => $price
         ]);
 
-        $response['success'] = true;
-        $response['booking_id'] = (int)$pdo->lastInsertId();
-        sendJson($response);
+    Response::success('Booking created', ['booking_id' => (int)$pdo->lastInsertId()]);
     }
 } catch (Throwable $e) {
     error_log('bookings/create.php error: ' . $e->getMessage());
-    if (function_exists('send_structured_error_response')) {
-        send_structured_error_response($e, 500);
-    }
-    http_response_code(500);
-    $response['errors'][] = 'Internal server error';
-    sendJson($response);
+    Response::error('Internal server error', 500);
 }

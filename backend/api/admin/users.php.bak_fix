@@ -1,0 +1,106 @@
+<?php
+declare(strict_types=1);
+
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\\Classes\\Logger')) {
+                    try {
+                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+namespace App\Classes;
+
+// Notification Manager Class
+class NotificationManager
+{
+    private $conn;
+
+    public function __construct($conn)
+    {
+        $this->conn = $conn;
+    }
+
+    public function createNotification($userId, $title, $message, $type)
+    {
+        $stmt = $this->conn->prepare("
+            INSERT INTO notifications (user_id, title, message, type)
+            VALUES (?, ?, ?, ?)
+        ");
+
+        $stmt->bind_param('isss', $userId, $title, $message, $type);
+        return $stmt->execute();
+    }
+
+    public function getUserNotifications($userId, $limit = 10, $offset = 0)
+    {
+        $stmt = $this->conn->prepare("
+            SELECT *
+            FROM notifications
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        ");
+
+        $stmt->bind_param('iii', $userId, $limit, $offset);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function markAsRead($notificationId, $userId)
+    {
+        $stmt = $this->conn->prepare("
+            UPDATE notifications
+            SET status = 'read', read_at = NOW()
+            WHERE id = ? AND user_id = ?
+        ");
+
+        $stmt->bind_param('ii', $notificationId, $userId);
+        return $stmt->execute();
+    }
+
+    public function getUnreadCount($userId)
+    {
+        $stmt = $this->conn->prepare("
+            SELECT COUNT(*) as count
+            FROM notifications
+            WHERE user_id = ? AND status = 'unread'
+        ");
+
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        return (int) $stmt->get_result()->fetch_assoc()['count'];
+    }
+}
+
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use App\Classes\Auth;
+use App\Classes\Response;
+
+// Enforce admin role for this admin API endpoint.
+// If the user is not admin, Response::error(...) will send a 403 JSON and exit.
+Auth::requireRole('admin');
+
+// perform admin-only API actions, return JSON via Response::success / Response::error
+
+// Note: This file primarily defines helper classes and bootstraps admin utilities.
+// It does not directly handle HTTP request bodies in this location, so CSRF checks
+// are not added here. Any procedural endpoints that accept POST/PUT/DELETE under
+// the admin namespace should be patched individually to validate CSRF tokens.

@@ -270,34 +270,20 @@ include '../includes/header.php';
 
           <!-- Email Field -->
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
+            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_label_73">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi
             </label>
-            <label for="auto_label_73" class="sr-only">Email</label><label for="auto_label_73" class="sr-only">Email</label><input
-              type="email"
-              name="email"
-              placeholder="ornek@email.com"
-              required
-              class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_73">
+            <label for="auto_label_73" class="sr-only">Email</label><label for="auto_label_73" class="sr-only">Email</label><input type="email" name="email" placeholder="ornek@email.com" required class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_73">
           </div>
 
           <!-- Password Field -->
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
+            <label class="block text-sm font-bold text-gray-700 mb-2" for="password">
               <i class="fas fa-lock mr-2 text-blue-600"></i>Åžifre
             </label>
             <div class="relative">
-              <label for="password" class="sr-only">Password</label><input
-                type="password"
-                name="password"
-                id="password"
-                placeholder="Åžifrenizi girin"
-                required
-                class="input-field w-full px-4 py-3 pr-12 rounded-lg focus:outline-none">
-              <button
-                type="button"
-                onclick="togglePassword()"
-                class="password-toggle">
+              <label for="password" class="sr-only">Password</label><input type="password" name="password" id="password" placeholder="Åžifrenizi girin" required class="input-field w-full px-4 py-3 pr-12 rounded-lg focus:outline-none">
+              <button type="button" onclick="togglePassword()" class="password-toggle">
                 <i class="fas fa-eye" id="passwordToggle"></i>
               </button>
             </div>
@@ -315,9 +301,7 @@ include '../includes/header.php';
           </div>
 
           <!-- Submit Button -->
-          <button
-            type="submit"
-            class="btn-primary w-full text-white py-4 rounded-lg font-bold transition-all duration-300">
+          <button type="submit" class="btn-primary w-full text-white py-4 rounded-lg font-bold transition-all duration-300">
             <i class="fas fa-sign-in-alt mr-2"></i>GiriÅŸ Yap
           </button>
         </form>
@@ -419,7 +403,7 @@ include '../includes/header.php';
 
       // Add loading state to submit button
       const submitButton = this.querySelector('button[type="submit"]');
-      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>GiriÅŸ yapÄ±lÄ±yor...';
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2">GiriÅŸ yapÄ±lÄ±yor...';
       submitButton.disabled = true;
     });
 

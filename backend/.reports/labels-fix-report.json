@@ -1,0 +1,3236 @@
+{
+    "run_at": "2025-11-13T01:07:56+01:00",
+    "mode": "apply",
+    "files": [
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\about.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\admin\\create_user.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\admin\\create_user_direct.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\analytics_collector.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\content.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\export_reviews.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\get_pages.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\get_reports.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\get_report_detail.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\notifications.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\reports.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\update_report_status.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\users.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\api_endpoints.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\auth\\login.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\availability\\check_availability.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\booking\\create.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\booking\\get_timeslots.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\bookings\\create.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\bookings\\update.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\booking_process.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\add_service.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\batch_update_availability.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\bulk_services.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\create.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_reviews.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_review_stats.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_services.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_today_stats.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_weekly_performance.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\manage_availability.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\manage_categories.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\reply_to_review.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwashes\\list.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\create_booking.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\disputes\\reporting.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\disputes\\upload_evidence.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\download_invoice.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\download_receipt.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_available_times.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_orders.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_payments.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_payment_detail.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_profile.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_reservations.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\initiate_payment.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\locations\\search.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\locations\\update_provider_location.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\notifications\\get_notifications.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\process.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\process_payment.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\webhook.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\webhook_handler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment_webhook.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\process_payment.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\profile_update.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\reports\\reports.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\report_review.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\reviews\\submit_review.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\save_cart.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\search\\carwash.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\search\\find_carwash.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\search_carwash.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\get.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\get_services.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\list.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\save_service.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\update_password.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\user\\get_recent_appointments.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\webhooks\\dispute_tracker.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\apply_schema_fix.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\Car_Wash_Registration_process.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\Car_Wash_Registration_process_debug.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\check_and_fix_schema.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\check_table_structure.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\Customer_Registration_process.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\debug_registration.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\login_process.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\logout.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\profile_upload.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\quick_schema_check.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\register.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\register_process.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\welcome.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\booking\\booking.php",
+            "labels_checked": 1,
+            "changes": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\booking\\new_booking.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\AnalyticsServer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ApprovalNotifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\AuditLog.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Auth.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\AvailabilityChecker.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\AvailabilityMonitor.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\BackupManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\BackupVerifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\CacheManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\CalendarSync.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Config.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ContentAnalytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ContentApprovalWorkflow.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DataAggregator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Database.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DisputeCommunicationTemplates.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DisputeDocumentationGenerator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DisputeFollowup.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DisputeHandler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DisputeReportTemplates.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DisputeTrendAnalyzer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DisputeWorkflow.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DistancePriceCalculator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\DynamicPricingManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\EmailHelper.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\EmailManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ErrorAnalytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ErrorPatternAnalyzer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\EscalationNotifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ETACalculator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ETANotifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\FileUploader.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\from.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\GeofencingService.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ImageOptimizer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\InvoiceGenerator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\LocationFilter.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\LocationManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\LocationTracker.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Logger.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\MapsConfig.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\MessagePersistenceManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\name.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\NotificationAnalytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\NotificationChannelManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\NotificationHandler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\NotificationMetricsManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\NotificationPreferences.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\NotificationQueue.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\NotificationTemplateManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PackageCalculator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PackageManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PaymentDisputeAPI.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PaymentEmailTemplates.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PaymentGateway.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PaymentHelper.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PaymentManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PaymentNotifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PaymentTracker.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Permissions.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\PriorityNotificationProcessor.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ProfileImageHandler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ProfileManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\quick_schema_check.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\RBAC.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ReceiptGenerator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\RefundProcessor.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\RefundRulesConfig.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\RefundWorkflow.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ReportManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Response.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ReviewManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ReviewNotifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\RouteCalculator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ScheduleValidator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Security.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\SecurityMiddleware.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ServiceScheduler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Session.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\SlotValidator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\SMSHelper.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\SupportTicketIntegration.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\SyncRecoveryManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\TemplateConstants.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\TicketEscalationManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\TicketSynchronizer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\to.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\TransactionAnalytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\TransactionManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\TwoFactorAuth.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Validator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\VersionManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\WebhookQueue.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Websocket\\AnalyticsServer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Websocket\\DashboardWebSocket.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Websocket\\NotificationServer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\Websocket\\VisualizationServer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ZoneConflictDetector.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ZoneConflictResolver.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ZoneOverlapResolver.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ZonePricingManager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\classes\\ZoneValidator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\contact.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\controllers\\RegistrationController.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\cron\\backup_scheduler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\analytics_dashboard.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\dashboard.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\dispute_analytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\dispute_management.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\error_monitor.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\export_logs.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\export_logs_pdf.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\get_test_history.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\index.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\logs.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\maintenance.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\notification_monitor.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\payment_analytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\preview_template.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\pricing_analytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\rating_analytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\report_visualizer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\review_metrics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\review_moderation.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\review_reports.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\service_image_upload.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\test.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\transaction_dashboard.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\update_carwash_status.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\update_settings.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\upload_form.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Auth.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\availability.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\categories.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\dashboard.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\index.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\process_service.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\process_working_hours.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\reviews.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\toggle_service_status.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\update_booking_status.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\config.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\customer\\cancel_booking.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\customer\\get_services.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\customer\\index.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\customer\\my_bookings.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\customer\\process_booking.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\customer\\test_db.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Customer_Dashboard.php",
+            "labels_checked": 3,
+            "changes": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Customer_Dashboard_process.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Customer_Dashboard_Test.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\customer_profile test.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\fix-labels.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\full_dashboard_test.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\new_booking.php",
+            "labels_checked": 1,
+            "changes": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\serve_vehicle_image.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\test_customer_dashboard.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\test_profile_columns.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\user\\dashboard.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\vehicle_api.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\api_endpoints.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\approval_notifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\approval_workflow.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\AuditLog.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\auth.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\auth_check.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\auth_required.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\availability_checker.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\availability_monitor.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\backup_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\backup_verifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\bootstrap.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\cache_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\calendar_sync.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\carwash_checklist.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\classes\\Payment.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\classes\\PaymentGateway.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\config.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\content_analytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\csrf_protect.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dashboard_header.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dashboard_header_improved.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\data_aggregator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\db.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\db_config.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dispute_analytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dispute_communication.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dispute_documentation.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dispute_followup.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dispute_handler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dispute_workflow.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\dynamic_pricing.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\email_helper.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\email_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\email_templates.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\error_analytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\error_pattern_analyzer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\escalation_notifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\eta_calculator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\eta_notifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\footer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\functions.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\geofencing.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\header.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\image_handler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\image_optimizer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\image_upload.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\index-header.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\invoice_generator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\location_filter.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\location_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\location_tracker.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\login_process.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\logout.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\maps_config.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\message_persistence.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\middleware.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_analytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_channels.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_handler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_metrics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_preferences.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_queue.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_templates.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\notification_template_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\package_calculator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\package_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\payment_config.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\payment_dispute_api.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\payment_gateway.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\payment_helper.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\payment_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\payment_notifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\payment_tracker.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\pdf_generator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\permissions.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\price_calculator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\priority_notification_processor.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\profile_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\RBAC.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\receipt_generator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\refund_processor.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\refund_rules_config.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\refund_workflow.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\register_process.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\report_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\report_templates.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\request_helpers.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\review_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\review_notifier.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\route_calculator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\schedule_validator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\security.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\security_bootstrap.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\service_scheduler.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\slot_validator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\sms_helper.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\sms_template_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\support_ticket_integration.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\sync_recovery.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\template_constants.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\ticket_escalation.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\ticket_sync.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\transaction_analytics.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\transaction_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\TwoFactorAuth.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\universal_scripts.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\universal_styles.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\version_manager.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\webhook_queue.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\zone_conflict_detector.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\zone_conflict_resolver.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\zone_pricing.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\zone_resolver.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\includes\\zone_validator.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\index.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\middleware\\AccessControl.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\models\\Booking_Model.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\models\\Payment_Model.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\models\\Service_Model.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\models\\User_Model.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\scripts\\create_customer.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\scripts\\password_migration.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\scripts\\run_customer_tests.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\tests\\customer_dashboard_test.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\tests\\form_wiring_checker.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\tests\\vehicle_api_test.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\tests\\vehicle_form_test.php",
+            "labels_checked": 6,
+            "changes": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\tests\\vehicle_integration_test.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\websocket\\analytics_server.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\websocket\\DashboardWebSocket.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\websocket\\notification_server.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\websocket\\server.php",
+            "labels_checked": 0
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\websocket\\visualization_server.php",
+            "labels_checked": 0
+        }
+    ],
+    "modified": [
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\Car_Wash_Registration.php",
+            "changes": [
+                {
+                    "label_text": "İşletme Adı *",
+                    "action": "add-for",
+                    "for": "auto_label_32",
+                    "control": "input",
+                    "control_name": "business_name"
+                },
+                {
+                    "label_text": "İşletme E-postası *",
+                    "action": "add-for",
+                    "for": "auto_label_31",
+                    "control": "input",
+                    "control_name": "email"
+                },
+                {
+                    "label_text": "İşletme Telefonu *",
+                    "action": "add-for",
+                    "for": "auto_label_30",
+                    "control": "input",
+                    "control_name": "phone"
+                },
+                {
+                    "label_text": "Şifre *",
+                    "action": "add-for",
+                    "for": "password",
+                    "control": "input",
+                    "control_name": "password"
+                },
+                {
+                    "label_text": "Vergi Numarası *",
+                    "action": "add-for",
+                    "for": "auto_label_29",
+                    "control": "input",
+                    "control_name": "tax_number"
+                },
+                {
+                    "label_text": "Ruhsat Numarası *",
+                    "action": "add-for",
+                    "for": "auto_label_28",
+                    "control": "input",
+                    "control_name": "license_number"
+                },
+                {
+                    "label_text": "Sahip Adı Soyadı *",
+                    "action": "add-for",
+                    "for": "auto_label_27",
+                    "control": "input",
+                    "control_name": "owner_name"
+                },
+                {
+                    "label_text": "TC Kimlik Numarası *",
+                    "action": "add-for",
+                    "for": "auto_label_26",
+                    "control": "input",
+                    "control_name": "owner_id"
+                },
+                {
+                    "label_text": "Cep Telefonu *",
+                    "action": "add-for",
+                    "for": "auto_label_25",
+                    "control": "input",
+                    "control_name": "owner_phone"
+                },
+                {
+                    "label_text": "Doğum Tarihi",
+                    "action": "add-for",
+                    "for": "auto_label_24",
+                    "control": "input",
+                    "control_name": "birth_date"
+                },
+                {
+                    "label_text": "Şehir *",
+                    "action": "add-for",
+                    "for": "auto_label_23",
+                    "control": "select",
+                    "control_name": "city"
+                },
+                {
+                    "label_text": "İlçe *",
+                    "action": "add-for",
+                    "for": "auto_label_22",
+                    "control": "input",
+                    "control_name": "district"
+                },
+                {
+                    "label_text": "Adres Detayları *",
+                    "action": "add-for",
+                    "for": "auto_label_21",
+                    "control": "textarea",
+                    "control_name": "address"
+                },
+                {
+                    "label_text": "Dış Yıkama Fiyatı (₺)",
+                    "action": "add-for",
+                    "for": "auto_label_20",
+                    "control": "input",
+                    "control_name": "exterior_price"
+                },
+                {
+                    "label_text": "İç Temizlik Fiyatı (₺)",
+                    "action": "add-for",
+                    "for": "auto_label_18",
+                    "control": "input",
+                    "control_name": "interior_price"
+                },
+                {
+                    "label_text": "Tam Detaylandırma Fiyatı (₺)",
+                    "action": "add-for",
+                    "for": "auto_label_16",
+                    "control": "input",
+                    "control_name": "detailing_price"
+                },
+                {
+                    "label_text": "Çalışma Saatleri",
+                    "action": "add-for",
+                    "for": "auto_label_14",
+                    "control": "input",
+                    "control_name": "opening_time"
+                },
+                {
+                    "label_text": "Kapasite (Günlük araç sayısı)",
+                    "action": "add-for",
+                    "for": "auto_label_12",
+                    "control": "input",
+                    "control_name": "capacity"
+                },
+                {
+                    "label_text": "Özel Hizmetler\/Açıklama",
+                    "action": "add-for",
+                    "for": "auto_label_11",
+                    "control": "textarea",
+                    "control_name": "description"
+                },
+                {
+                    "label_text": "Profil Fotoğrafı",
+                    "action": "add-for",
+                    "for": "auto_label_10",
+                    "control": "input",
+                    "control_name": "profile_image"
+                },
+                {
+                    "label_text": "İşletme Logosu",
+                    "action": "add-for",
+                    "for": "auto_label_9",
+                    "control": "input",
+                    "control_name": "logo_image"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\create_user_quick.php",
+            "changes": [
+                {
+                    "label_text": "Role",
+                    "action": "add-for",
+                    "for": "auto_label_36",
+                    "control": "select",
+                    "control_name": "role"
+                },
+                {
+                    "label_text": "Email",
+                    "action": "add-for",
+                    "for": "auto_label_35",
+                    "control": "input",
+                    "control_name": "email"
+                },
+                {
+                    "label_text": "Password",
+                    "action": "add-for",
+                    "for": "auto_label_34",
+                    "control": "input",
+                    "control_name": "password"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\Customer_Registration.php",
+            "changes": [
+                {
+                    "label_text": "Ad Soyad *",
+                    "action": "add-for",
+                    "for": "auto_label_55",
+                    "control": "input",
+                    "control_name": "full_name"
+                },
+                {
+                    "label_text": "E-posta Adresi *",
+                    "action": "add-for",
+                    "for": "auto_label_54",
+                    "control": "input",
+                    "control_name": "email"
+                },
+                {
+                    "label_text": "Telefon Numarası *",
+                    "action": "add-for",
+                    "for": "auto_label_53",
+                    "control": "input",
+                    "control_name": "phone"
+                },
+                {
+                    "label_text": "Şifre *",
+                    "action": "add-for",
+                    "for": "password",
+                    "control": "input",
+                    "control_name": "password"
+                },
+                {
+                    "label_text": "Şifre Tekrar *",
+                    "action": "add-for",
+                    "for": "password_confirm",
+                    "control": "input",
+                    "control_name": "password_confirm"
+                },
+                {
+                    "label_text": "Şehir *",
+                    "action": "add-for",
+                    "for": "auto_label_51",
+                    "control": "select",
+                    "control_name": "city"
+                },
+                {
+                    "label_text": "Adres Detayları",
+                    "action": "add-for",
+                    "for": "auto_label_50",
+                    "control": "textarea",
+                    "control_name": "address"
+                },
+                {
+                    "label_text": "Marka *",
+                    "action": "add-for",
+                    "for": "auto_label_49",
+                    "control": "select",
+                    "control_name": "car_brand"
+                },
+                {
+                    "label_text": "Model *",
+                    "action": "add-for",
+                    "for": "auto_label_48",
+                    "control": "input",
+                    "control_name": "car_model"
+                },
+                {
+                    "label_text": "Model Yılı *",
+                    "action": "add-for",
+                    "for": "auto_label_47",
+                    "control": "select",
+                    "control_name": "car_year"
+                },
+                {
+                    "label_text": "Renk",
+                    "action": "add-for",
+                    "for": "auto_label_46",
+                    "control": "input",
+                    "control_name": "car_color"
+                },
+                {
+                    "label_text": "Plaka Numarası",
+                    "action": "add-for",
+                    "for": "auto_label_45",
+                    "control": "input",
+                    "control_name": "license_plate"
+                },
+                {
+                    "label_text": "Bildirim Tercihleri",
+                    "action": "add-for",
+                    "for": "auto_label_44",
+                    "control": "input",
+                    "control_name": "notifications[]"
+                },
+                {
+                    "label_text": "Hangi hizmetleri tercih edersiniz?",
+                    "action": "add-for",
+                    "for": "auto_label_41",
+                    "control": "input",
+                    "control_name": "services[]"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\forget_password.php",
+            "changes": [
+                {
+                    "label_text": "E-posta Adresi *",
+                    "action": "add-for",
+                    "for": "emailInput",
+                    "control": "input",
+                    "control_name": "email"
+                },
+                {
+                    "label_text": "Telefon Numarası *",
+                    "action": "add-for",
+                    "for": "phoneInput",
+                    "control": "input",
+                    "control_name": "phone"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\login.php",
+            "changes": [
+                {
+                    "label_text": "Hesap Türü",
+                    "action": "add-for",
+                    "for": "auto_label_71",
+                    "control": "select",
+                    "control_name": "user_type"
+                },
+                {
+                    "label_text": "E-posta Adresi",
+                    "action": "add-for",
+                    "for": "auto_label_70",
+                    "control": "input",
+                    "control_name": "email"
+                },
+                {
+                    "label_text": "Şifre",
+                    "action": "add-for",
+                    "for": "password",
+                    "control": "input",
+                    "control_name": "password"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\login_create_user.php",
+            "changes": [
+                {
+                    "label_text": "E-posta Adresi",
+                    "action": "add-for",
+                    "for": "auto_label_73",
+                    "control": "input",
+                    "control_name": "email"
+                },
+                {
+                    "label_text": "Åžifre",
+                    "action": "add-for",
+                    "for": "password",
+                    "control": "input",
+                    "control_name": "password"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\backup_scheduler.php",
+            "changes": [
+                {
+                    "label_text": "Frequency",
+                    "action": "add-for",
+                    "for": "frequency",
+                    "control": "select",
+                    "control_name": "frequency"
+                },
+                {
+                    "label_text": "Time",
+                    "action": "add-for",
+                    "for": "backupTime",
+                    "control": "input",
+                    "control_name": "time"
+                },
+                {
+                    "label_text": "Retention (days)",
+                    "action": "add-for",
+                    "for": "retention",
+                    "control": "input",
+                    "control_name": "retention"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\content_management.php",
+            "changes": [
+                {
+                    "label_text": "Başlık",
+                    "action": "add-for",
+                    "for": "pageTitle",
+                    "control": "input",
+                    "control_name": "title"
+                },
+                {
+                    "label_text": "URL",
+                    "action": "add-for",
+                    "for": "pageSlug",
+                    "control": "input",
+                    "control_name": "slug"
+                },
+                {
+                    "label_text": "İçerik",
+                    "action": "add-for",
+                    "for": "pageContent",
+                    "control": "textarea",
+                    "control_name": "content"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\settings.php",
+            "changes": [
+                {
+                    "label_text": "Site BaÅŸlÄ±ÄŸÄ±",
+                    "action": "add-for",
+                    "for": "auto_label_92",
+                    "control": "input",
+                    "control_name": "site_title"
+                },
+                {
+                    "label_text": "İletişim Email",
+                    "action": "add-for",
+                    "for": "auto_label_91",
+                    "control": "input",
+                    "control_name": "contact_email"
+                },
+                {
+                    "label_text": "İletişim Telefon",
+                    "action": "add-for",
+                    "for": "auto_label_90",
+                    "control": "input",
+                    "control_name": "contact_phone"
+                },
+                {
+                    "label_text": "Minimum Randevu Suresi (dakika)",
+                    "action": "add-for",
+                    "for": "auto_label_87",
+                    "control": "input",
+                    "control_name": "min_booking_duration"
+                },
+                {
+                    "label_text": "Minimum Randevu SÃ¼resi (dakika)",
+                    "action": "add-for",
+                    "for": "auto_label_87",
+                    "control": "input",
+                    "control_name": "min_booking_duration"
+                },
+                {
+                    "label_text": "Ä°ptal SÃ¼resi Limiti (saat)",
+                    "action": "add-for",
+                    "for": "auto_label_86",
+                    "control": "input",
+                    "control_name": "max_advance_booking_days"
+                },
+                {
+                    "label_text": "Maksimum Ã–nceden Rezervasyon (gÃ¼n)",
+                    "action": "add-for",
+                    "for": "auto_label_86",
+                    "control": "input",
+                    "control_name": "max_advance_booking_days"
+                },
+                {
+                    "label_text": "Ä°ptal SÃ¼resi Limiti (saat)",
+                    "action": "add-for",
+                    "for": "auto_label_85",
+                    "control": "input",
+                    "control_name": "cancellation_limit_hours"
+                },
+                {
+                    "label_text": "SMTP Sunucu",
+                    "action": "add-for",
+                    "for": "auto_label_82",
+                    "control": "input",
+                    "control_name": "smtp_host"
+                },
+                {
+                    "label_text": "SMTP Port",
+                    "action": "add-for",
+                    "for": "auto_label_81",
+                    "control": "input",
+                    "control_name": "smtp_port"
+                },
+                {
+                    "label_text": "SMTP Kullanıcı",
+                    "action": "add-for",
+                    "for": "auto_label_80",
+                    "control": "input",
+                    "control_name": "smtp_user"
+                },
+                {
+                    "label_text": "SMTP Şifre",
+                    "action": "add-for",
+                    "for": "auto_label_79",
+                    "control": "input",
+                    "control_name": "smtp_pass"
+                },
+                {
+                    "label_text": "SMTP Åžifre",
+                    "action": "add-for",
+                    "for": "auto_label_79",
+                    "control": "input",
+                    "control_name": "smtp_pass"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\sms_templates.php",
+            "changes": [
+                {
+                    "label_text": "Şablon Adı",
+                    "action": "add-for",
+                    "for": "templateName",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "İçerik",
+                    "action": "add-for",
+                    "for": "templateContent",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Durum",
+                    "action": "add-for",
+                    "for": "templateStatus",
+                    "control": "select",
+                    "control_name": null
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\template_editor.php",
+            "changes": [
+                {
+                    "label_text": "Template Name",
+                    "action": "add-for",
+                    "for": "templateName",
+                    "control": "input",
+                    "control_name": "name"
+                },
+                {
+                    "label_text": "Subject",
+                    "action": "add-for",
+                    "for": "templateSubject",
+                    "control": "input",
+                    "control_name": "subject"
+                },
+                {
+                    "label_text": "Template Type",
+                    "action": "add-for",
+                    "for": "templateType",
+                    "control": "select",
+                    "control_name": "type"
+                },
+                {
+                    "label_text": "HTML Content",
+                    "action": "add-for",
+                    "for": "templateContent",
+                    "control": "textarea",
+                    "control_name": "content"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\test_templates.php",
+            "changes": [
+                {
+                    "label_text": "Şablon Seçin",
+                    "action": "add-for",
+                    "for": "templateSelect",
+                    "control": "select",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Test Telefon Numarası",
+                    "action": "add-for",
+                    "for": "testPhone",
+                    "control": "input",
+                    "control_name": null
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\zone_pricing.php",
+            "changes": [
+                {
+                    "label_text": "Zone Name",
+                    "action": "add-for",
+                    "for": "zoneName",
+                    "control": "input",
+                    "control_name": "zone_name"
+                },
+                {
+                    "label_text": "Price Multiplier",
+                    "action": "add-for",
+                    "for": "multiplier",
+                    "control": "input",
+                    "control_name": "multiplier"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin_panel.php",
+            "changes": [
+                {
+                    "label_text": "Saat Dilimi",
+                    "action": "add-for",
+                    "for": "auto_19",
+                    "control": "select",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Dil",
+                    "action": "add-for",
+                    "for": "auto_21",
+                    "control": "select",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Para Birimi",
+                    "action": "add-for",
+                    "for": "auto_23",
+                    "control": "select",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Input",
+                    "action": "add-for",
+                    "for": "auto_24",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Input",
+                    "action": "add-for",
+                    "for": "auto_30",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Publishable Key",
+                    "action": "add-for",
+                    "for": "auto_33",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Secret Key",
+                    "action": "add-for",
+                    "for": "auto_35",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Client ID",
+                    "action": "add-for",
+                    "for": "auto_39",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Secret Key",
+                    "action": "add-for",
+                    "for": "auto_41",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "API Key",
+                    "action": "add-for",
+                    "for": "auto_45",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Secret Key",
+                    "action": "add-for",
+                    "for": "auto_47",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "SMTP Host",
+                    "action": "add-for",
+                    "for": "auto_49",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "SMTP Port",
+                    "action": "add-for",
+                    "for": "auto_51",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Encryption",
+                    "action": "add-for",
+                    "for": "auto_53",
+                    "control": "select",
+                    "control_name": null
+                },
+                {
+                    "label_text": "SMTP Username",
+                    "action": "add-for",
+                    "for": "auto_55",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "SMTP Password",
+                    "action": "add-for",
+                    "for": "auto_56",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Gönderen Numara",
+                    "action": "add-for",
+                    "for": "auto_62",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Firebase Server Key",
+                    "action": "add-for",
+                    "for": "auto_65",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Oturum Zaman Aşımı (dakika)",
+                    "action": "add-for",
+                    "for": "auto_69",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Maksimum BaÅarÄ±sÄ±z GiriÅ Denemesi",
+                    "action": "add-for",
+                    "for": "auto_71",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Åifre DeÄiÅtirme Periyodu (gÃ¼n)",
+                    "action": "add-for",
+                    "for": "auto_78",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Ä°zin Verilen IP Adresleri (her satÄ±rda bir IP)",
+                    "action": "add-for",
+                    "for": "auto_81",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Yedekleme SÄ±klÄ±ÄÄ±",
+                    "action": "add-for",
+                    "for": "auto_85",
+                    "control": "select",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Maksimum Yedek SayÄ±sÄ±",
+                    "action": "add-for",
+                    "for": "auto_89",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Input",
+                    "action": "add-for",
+                    "for": "auto_90",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Yerel Yedek KlasÃ¶rÃ¼",
+                    "action": "add-for",
+                    "for": "auto_93",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "ftp.example.com",
+                    "action": "add-for",
+                    "for": "auto_94",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "FTP Host",
+                    "action": "add-for",
+                    "for": "auto_97",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "FTP Username",
+                    "action": "add-for",
+                    "for": "auto_99",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "FTP Password",
+                    "action": "add-for",
+                    "for": "auto_100",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Konu",
+                    "action": "add-for",
+                    "for": "auto_102",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "GÃ¶vde",
+                    "action": "add-for",
+                    "for": "auto_103",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Konu",
+                    "action": "add-for",
+                    "for": "auto_105",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "GÃ¶vde",
+                    "action": "add-for",
+                    "for": "auto_106",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Konu",
+                    "action": "add-for",
+                    "for": "auto_108",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "GÃ¶vde",
+                    "action": "add-for",
+                    "for": "auto_109",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Otopark AdÄ±",
+                    "action": "add-for",
+                    "for": "carwashName",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Adres",
+                    "action": "add-for",
+                    "for": "carwashAddress",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Kapasite",
+                    "action": "add-for",
+                    "for": "carwashCapacity",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Saat Ãcreti (âº)",
+                    "action": "add-for",
+                    "for": "carwashPrice",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Hizmet AdÄ± *",
+                    "action": "add-for",
+                    "for": "serviceName",
+                    "control": "input",
+                    "control_name": "service_name"
+                },
+                {
+                    "label_text": "AÃ§Ä±klama",
+                    "action": "add-for",
+                    "for": "serviceDescription",
+                    "control": "textarea",
+                    "control_name": "description"
+                },
+                {
+                    "label_text": "Kategori *",
+                    "action": "add-for",
+                    "for": "serviceCategory",
+                    "control": "select",
+                    "control_name": "category"
+                },
+                {
+                    "label_text": "SÃ¼re (dakika) *",
+                    "action": "add-for",
+                    "for": "serviceDuration",
+                    "control": "input",
+                    "control_name": "duration"
+                },
+                {
+                    "label_text": "AraÃ§ Tipi FiyatlandÄ±rmasÄ± *",
+                    "action": "add-for",
+                    "for": "priceSedan",
+                    "control": "input",
+                    "control_name": "price_sedan"
+                },
+                {
+                    "label_text": "Sedan (âº) *",
+                    "action": "add-for",
+                    "for": "priceSedan",
+                    "control": "input",
+                    "control_name": "price_sedan"
+                },
+                {
+                    "label_text": "SUV (âº) *",
+                    "action": "add-for",
+                    "for": "priceSUV",
+                    "control": "input",
+                    "control_name": "price_suv"
+                },
+                {
+                    "label_text": "Kamyonet (âº) *",
+                    "action": "add-for",
+                    "for": "priceTruck",
+                    "control": "input",
+                    "control_name": "price_truck"
+                },
+                {
+                    "label_text": "SÄ±ralama",
+                    "action": "add-for",
+                    "for": "serviceOrder",
+                    "control": "input",
+                    "control_name": "sort_order"
+                },
+                {
+                    "label_text": "Durum *",
+                    "action": "add-for",
+                    "for": "serviceStatus",
+                    "control": "select",
+                    "control_name": "status"
+                },
+                {
+                    "label_text": "Ä°kon (Font Awesome sÄ±nÄ±fÄ±)",
+                    "action": "add-for",
+                    "for": "serviceIcon",
+                    "control": "input",
+                    "control_name": "icon"
+                },
+                {
+                    "label_text": "MÃ¼Återi SeÃ§in *",
+                    "action": "add-for",
+                    "for": "ticketCustomer",
+                    "control": "select",
+                    "control_name": "customer_id"
+                },
+                {
+                    "label_text": "Konu *",
+                    "action": "add-for",
+                    "for": "ticketSubject",
+                    "control": "input",
+                    "control_name": "subject"
+                },
+                {
+                    "label_text": "Kategori *",
+                    "action": "add-for",
+                    "for": "ticketCategory",
+                    "control": "select",
+                    "control_name": "category"
+                },
+                {
+                    "label_text": "Ãncelik *",
+                    "action": "add-for",
+                    "for": "ticketPriority",
+                    "control": "select",
+                    "control_name": "priority"
+                },
+                {
+                    "label_text": "Mesaj *",
+                    "action": "add-for",
+                    "for": "ticketMessage",
+                    "control": "textarea",
+                    "control_name": "message"
+                },
+                {
+                    "label_text": "Atanan KiÅi",
+                    "action": "add-for",
+                    "for": "ticketAssignedTo",
+                    "control": "select",
+                    "control_name": "assigned_to"
+                },
+                {
+                    "label_text": "Durum",
+                    "action": "add-for",
+                    "for": "ticketStatus",
+                    "control": "select",
+                    "control_name": "status"
+                },
+                {
+                    "label_text": "Dosya Ekle (Opsiyonel)",
+                    "action": "add-for",
+                    "for": "ticketAttachment",
+                    "control": "input",
+                    "control_name": "attachment"
+                },
+                {
+                    "label_text": "KullanÄ±cÄ± AdÄ± *",
+                    "action": "add-for",
+                    "for": "userName",
+                    "control": "input",
+                    "control_name": "username"
+                },
+                {
+                    "label_text": "Email Adresi *",
+                    "action": "add-for",
+                    "for": "userEmail",
+                    "control": "input",
+                    "control_name": "email"
+                },
+                {
+                    "label_text": "Åifre *",
+                    "action": "add-for",
+                    "for": "userPassword",
+                    "control": "input",
+                    "control_name": "password"
+                },
+                {
+                    "label_text": "Åifre Tekrar *",
+                    "action": "add-for",
+                    "for": "userPasswordConfirm",
+                    "control": "input",
+                    "control_name": "password_confirm"
+                },
+                {
+                    "label_text": "Tam AdÄ± *",
+                    "action": "add-for",
+                    "for": "userFullName",
+                    "control": "input",
+                    "control_name": "full_name"
+                },
+                {
+                    "label_text": "Telefon",
+                    "action": "add-for",
+                    "for": "userPhone",
+                    "control": "input",
+                    "control_name": "phone"
+                },
+                {
+                    "label_text": "Sayfa BaÅlÄ±ÄÄ± *",
+                    "action": "add-for",
+                    "for": "pageTitle",
+                    "control": "input",
+                    "control_name": "page_title"
+                },
+                {
+                    "label_text": "URL Slug *",
+                    "action": "add-for",
+                    "for": "pageSlug",
+                    "control": "input",
+                    "control_name": "page_slug"
+                },
+                {
+                    "label_text": "KÄ±sa AÃ§Ä±klama",
+                    "action": "add-for",
+                    "for": "pageDescription",
+                    "control": "textarea",
+                    "control_name": "page_description"
+                },
+                {
+                    "label_text": "Ana Ä°Ã§erik *",
+                    "action": "add-for",
+                    "for": "pageContent",
+                    "control": "textarea",
+                    "control_name": "page_content"
+                },
+                {
+                    "label_text": "Ãne ÃÄ±kan GÃ¶rsel (URL)",
+                    "action": "add-for",
+                    "for": "featuredImage",
+                    "control": "input",
+                    "control_name": "featured_image"
+                },
+                {
+                    "label_text": "Arka Plan Rengi",
+                    "action": "add-for",
+                    "for": "backgroundColor",
+                    "control": "input",
+                    "control_name": "background_color"
+                },
+                {
+                    "label_text": "Kategori *",
+                    "action": "add-for",
+                    "for": "pageCategory",
+                    "control": "select",
+                    "control_name": "page_category"
+                },
+                {
+                    "label_text": "Durum *",
+                    "action": "add-for",
+                    "for": "pageStatus",
+                    "control": "select",
+                    "control_name": "page_status"
+                },
+                {
+                    "label_text": "Dil *",
+                    "action": "add-for",
+                    "for": "pageLanguage",
+                    "control": "select",
+                    "control_name": "page_language"
+                },
+                {
+                    "label_text": "SÄ±ralama",
+                    "action": "add-for",
+                    "for": "pageOrder",
+                    "control": "input",
+                    "control_name": "page_order"
+                },
+                {
+                    "label_text": "Yazar",
+                    "action": "add-for",
+                    "for": "pageAuthor",
+                    "control": "select",
+                    "control_name": "page_author"
+                },
+                {
+                    "label_text": "Meta Anahtar Kelimeler",
+                    "action": "add-for",
+                    "for": "metaKeywords",
+                    "control": "input",
+                    "control_name": "meta_keywords"
+                },
+                {
+                    "label_text": "Robots Meta Tag",
+                    "action": "add-for",
+                    "for": "robotsMeta",
+                    "control": "select",
+                    "control_name": "robots_meta"
+                },
+                {
+                    "label_text": "Open Graph GÃ¶rseli",
+                    "action": "add-for",
+                    "for": "ogImage",
+                    "control": "input",
+                    "control_name": "og_image"
+                },
+                {
+                    "label_text": "Ãzel CSS",
+                    "action": "add-for",
+                    "for": "customCss",
+                    "control": "textarea",
+                    "control_name": "custom_css"
+                },
+                {
+                    "label_text": "Ãzel JavaScript",
+                    "action": "add-for",
+                    "for": "customJs",
+                    "control": "textarea",
+                    "control_name": "custom_js"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin_panel_backup.php",
+            "changes": [
+                {
+                    "label_text": "Site Adı",
+                    "action": "add-for",
+                    "for": "auto_110",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Admin Email",
+                    "action": "add-for",
+                    "for": "auto_111",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Varsayılan Saat Ücreti (₺)",
+                    "action": "add-for",
+                    "for": "auto_112",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Otopark Adı",
+                    "action": "add-for",
+                    "for": "carwashName",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Adres",
+                    "action": "add-for",
+                    "for": "carwashAddress",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Kapasite",
+                    "action": "add-for",
+                    "for": "carwashCapacity",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Saat Ücreti (₺)",
+                    "action": "add-for",
+                    "for": "carwashPrice",
+                    "control": "input",
+                    "control_name": null
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\services.php",
+            "changes": [
+                {
+                    "label_text": "Paket Adı",
+                    "action": "add-for",
+                    "for": "serviceName",
+                    "control": "input",
+                    "control_name": "name"
+                },
+                {
+                    "label_text": "Açıklama",
+                    "action": "add-for",
+                    "for": "serviceDescription",
+                    "control": "textarea",
+                    "control_name": "description"
+                },
+                {
+                    "label_text": "Fiyat (TL)",
+                    "action": "add-for",
+                    "for": "servicePrice",
+                    "control": "input",
+                    "control_name": "price"
+                },
+                {
+                    "label_text": "Süre (Dakika)",
+                    "action": "add-for",
+                    "for": "serviceDuration",
+                    "control": "input",
+                    "control_name": "duration"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\service_management.php",
+            "changes": [
+                {
+                    "label_text": "Service Name",
+                    "action": "add-for",
+                    "for": "serviceName",
+                    "control": "input",
+                    "control_name": "name"
+                },
+                {
+                    "label_text": "Description",
+                    "action": "add-for",
+                    "for": "serviceDescription",
+                    "control": "textarea",
+                    "control_name": "description"
+                },
+                {
+                    "label_text": "Price (₺)",
+                    "action": "add-for",
+                    "for": "servicePrice",
+                    "control": "input",
+                    "control_name": "price"
+                },
+                {
+                    "label_text": "Duration (min)",
+                    "action": "add-for",
+                    "for": "serviceDuration",
+                    "control": "input",
+                    "control_name": "duration"
+                },
+                {
+                    "label_text": "Category",
+                    "action": "add-for",
+                    "for": "serviceCategory",
+                    "control": "select",
+                    "control_name": "category"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\working_hours.php",
+            "changes": [
+                {
+                    "label_text": "__PHP_BLOCK_7__",
+                    "action": "add-for",
+                    "for": "__PHP_BLOCK_10__",
+                    "control": "input",
+                    "control_name": "is_open[__PHP_BLOCK_11__]"
+                },
+                {
+                    "label_text": "AÃ§Ä±lÄ±ÅŸ",
+                    "action": "add-for",
+                    "for": "__PHP_BLOCK_15__",
+                    "control": "input",
+                    "control_name": "open_time[__PHP_BLOCK_16__]"
+                },
+                {
+                    "label_text": "KapanÄ±ÅŸ",
+                    "action": "add-for",
+                    "for": "__PHP_BLOCK_20__",
+                    "control": "input",
+                    "control_name": "close_time[__PHP_BLOCK_21__]"
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Car_Wash_Dashboard.php",
+            "changes": [
+                {
+                    "label_text": "İşletme Adı",
+                    "action": "add-for",
+                    "for": "auto_114",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Adres",
+                    "action": "add-for",
+                    "for": "auto_115",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Telefon",
+                    "action": "add-for",
+                    "for": "auto_116",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Cep TelefonuPhone",
+                    "action": "add-for",
+                    "for": "auto_117",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "İşletme Logosu",
+                    "action": "add-for",
+                    "for": "logoUpload",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Çalışma Saatleri",
+                    "action": "add-for",
+                    "for": "auto_119",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Tarih",
+                    "action": "add-for",
+                    "for": "auto_151",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Saat",
+                    "action": "add-for",
+                    "for": "auto_152",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Notlar (Ä°steÄe BaÄlÄ±)",
+                    "action": "add-for",
+                    "for": "auto_153",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Ad Soyad",
+                    "action": "add-for",
+                    "for": "auto_155",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "E-posta",
+                    "action": "add-for",
+                    "for": "auto_156",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Telefon",
+                    "action": "add-for",
+                    "for": "auto_157",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Adres (Ä°steÄe BaÄlÄ±)MÃ¼Återi Adresi",
+                    "action": "add-for",
+                    "for": "auto_158",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Hizmet AdÄ±",
+                    "action": "add-for",
+                    "for": "auto_160",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "AÃ§Ä±klama",
+                    "action": "add-for",
+                    "for": "auto_161",
+                    "control": "textarea",
+                    "control_name": null
+                },
+                {
+                    "label_text": "SÃ¼re (dk)",
+                    "action": "add-for",
+                    "for": "auto_162",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Fiyat (âº)",
+                    "action": "add-for",
+                    "for": "auto_163",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Ad Soyad",
+                    "action": "add-for",
+                    "for": "auto_165",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "email@domain.com",
+                    "action": "add-for",
+                    "for": "auto_167",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "E-posta",
+                    "action": "add-for",
+                    "for": "auto_168",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Sertifika YÃ¼kle (Ä°steÄe BaÄlÄ±)",
+                    "action": "add-for",
+                    "for": "auto_170",
+                    "control": "input",
+                    "control_name": null
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Customer_Dashboard_Fixed.php",
+            "changes": [
+                {
+                    "label_text": "Marka *",
+                    "action": "add-for",
+                    "for": "auto_label_115",
+                    "control": "input",
+                    "control_name": "car_brand"
+                },
+                {
+                    "label_text": "Model *",
+                    "action": "add-for",
+                    "for": "auto_label_114",
+                    "control": "input",
+                    "control_name": "car_model"
+                },
+                {
+                    "label_text": "Plaka *",
+                    "action": "add-for",
+                    "for": "auto_label_113",
+                    "control": "input",
+                    "control_name": "license_plate"
+                },
+                {
+                    "label_text": "YÄ±l",
+                    "action": "add-for",
+                    "for": "auto_label_112",
+                    "control": "input",
+                    "control_name": "car_year"
+                },
+                {
+                    "label_text": "Renk",
+                    "action": "add-for",
+                    "for": "auto_label_111",
+                    "control": "input",
+                    "control_name": "car_color"
+                },
+                {
+                    "label_text": "AraÃ§ FotoÄŸrafÄ±",
+                    "action": "add-for",
+                    "for": "auto_label_110",
+                    "control": "input",
+                    "control_name": "vehicle_image"
+                },
+                {
+                    "label_text": "Konu",
+                    "action": "add-for",
+                    "for": "auto_174",
+                    "control": "input",
+                    "control_name": null
+                },
+                {
+                    "label_text": "Mesaj",
+                    "action": "add-for",
+                    "for": "auto_175",
+                    "control": "textarea",
+                    "control_name": null
+                }
+            ]
+        },
+        {
+            "file": "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\vehicles_preview.html",
+            "changes": [
+                {
+                    "label_text": "Marka",
+                    "action": "add-for",
+                    "for": "car_brand",
+                    "control": "input",
+                    "control_name": "car_brand"
+                },
+                {
+                    "label_text": "Model",
+                    "action": "add-for",
+                    "for": "car_model",
+                    "control": "input",
+                    "control_name": "car_model"
+                },
+                {
+                    "label_text": "Plaka",
+                    "action": "add-for",
+                    "for": "license_plate",
+                    "control": "input",
+                    "control_name": "license_plate"
+                },
+                {
+                    "label_text": "Yıl",
+                    "action": "add-for",
+                    "for": "car_year",
+                    "control": "input",
+                    "control_name": "car_year"
+                },
+                {
+                    "label_text": "Renk",
+                    "action": "add-for",
+                    "for": "car_color",
+                    "control": "input",
+                    "control_name": "car_color"
+                },
+                {
+                    "label_text": "Resim (opsiyonel)",
+                    "action": "add-for",
+                    "for": "vehicle_image",
+                    "control": "input",
+                    "control_name": "vehicle_image"
+                }
+            ]
+        }
+    ],
+    "php_lint": {
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\Car_Wash_Registration.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\Car_Wash_Registration.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\create_user_quick.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\create_user_quick.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\Customer_Registration.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\Customer_Registration.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\forget_password.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\forget_password.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\login.php": {
+            "output": [
+                "PHP Parse error:  syntax error, unexpected token \"=\", expecting \"]\" in C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\login.php on line 511",
+                "",
+                "Parse error: syntax error, unexpected token \"=\", expecting \"]\" in C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\login.php on line 511",
+                "Errors parsing C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\login.php"
+            ],
+            "exit": 255
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\login_create_user.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\auth\\login_create_user.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\backup_scheduler.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\backup_scheduler.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\content_management.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\content_management.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\settings.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\settings.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\sms_templates.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\sms_templates.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\template_editor.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\template_editor.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\test_templates.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\test_templates.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\zone_pricing.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin\\zone_pricing.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin_panel.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin_panel.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin_panel_backup.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\admin_panel_backup.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\services.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\services.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\service_management.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\service_management.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\working_hours.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\carwash\\working_hours.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Car_Wash_Dashboard.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Car_Wash_Dashboard.php"
+            ],
+            "exit": 0
+        },
+        "C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Customer_Dashboard_Fixed.php": {
+            "output": [
+                "No syntax errors detected in C:\\xampp\\htdocs\\carwash_project\\backend\\dashboard\\Customer_Dashboard_Fixed.php"
+            ],
+            "exit": 0
+        }
+    }
+}

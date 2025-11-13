@@ -1,0 +1,83 @@
+<?php
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\Classes\Logger')) {
+                    try {
+                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+session_start();
+require_once '../../includes/permissions.php';
+require_once '../../includes/auth_check.php';
+require_once '../../includes/db.php';
+
+class DisputeEvidenceHandler
+{
+    private $conn;
+    private $uploadDir = '../../uploads/disputes/';
+    private $allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    private $maxSize = 5242880; // 5MB
+
+    public function __construct($conn)
+    {
+        $this->conn = $conn;
+        $this->ensureUploadDirectory();
+    }
+
+    public function handleUpload($disputeId)
+    {
+        if (!isset($_FILES['evidence'])) {
+            throw new Exception('No file uploaded');
+        }
+
+        $file = $_FILES['evidence'];
+
+        // Validate file
+        $this->validateFile($file);
+
+        // Generate unique filename
+        $filename = $this->generateFilename($disputeId, $file);
+
+        // Save file
+        if (move_uploaded_file($file['tmp_name'], $this->uploadDir . $filename)) {
+            // Update dispute record
+            $this->updateDisputeEvidence($disputeId, $filename);
+            return ['success' => true, 'filename' => $filename];
+        }
+
+        throw new Exception('Failed to save file');
+    }
+
+    private function validateFile($file)
+    {
+        if ($file['size'] > $this->maxSize) {
+            throw new Exception('File too large');
+        }
+        if (!in_array($file['type'], $this->allowedTypes)) {
+            throw new Exception('Invalid file type');
+        }
+    }
+}
+
+// Note: This file defines the DisputeEvidenceHandler class used for handling
+// uploads. It does not itself handle the HTTP request here. Any procedural
+// endpoint that invokes this handler and accepts multipart POST uploads must
+// validate CSRF tokens (e.g., via backend/includes/csrf_protect.php) before
+// processing the upload.

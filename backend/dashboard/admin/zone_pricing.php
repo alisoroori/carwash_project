@@ -8,16 +8,16 @@ if ($_SESSION['user_role'] !== 'admin') {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
+
+
+
     <meta charset="UTF-8">
     <title>Zone Pricing Management</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
-</head>
 
-<body class="bg-gray-50">
+
+
     <div class="container mx-auto px-4 py-8">
         <!-- Zone Management Form -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -26,14 +26,12 @@ if ($_SESSION['user_role'] !== 'admin') {
                 <label for="zoneId" class="sr-only">Zone id</label><input type="hidden" id="zoneId" name="zone_id">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Zone Name</label>
-                        <label for="zoneName" class="sr-only">Zone name</label><input type="text" id="zoneName" name="zone_name" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <label class="block text-sm font-medium text-gray-700" for="zoneName">Zone Name</label>
+                        <label for="zoneName" class="sr-only">Zone name</label><input type="text" id="zoneName" name="zone_name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Price Multiplier</label>
-                        <label for="multiplier" class="sr-only">Multiplier</label><input type="number" id="multiplier" name="multiplier" step="0.1" min="1"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <label class="block text-sm font-medium text-gray-700" for="multiplier">Price Multiplier</label>
+                        <label for="multiplier" class="sr-only">Multiplier</label><input type="number" id="multiplier" name="multiplier" step="0.1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                 </div>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg">
@@ -52,9 +50,9 @@ if ($_SESSION['user_role'] !== 'admin') {
     </div>
 
     <script src="/carwash_project/frontend/js/admin/zone-pricing.js"></script>
-</body>
 
-</html>
+
+
 
 
 

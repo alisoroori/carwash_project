@@ -1,0 +1,130 @@
+<?php
+
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\Classes\Logger')) {
+                    try {
+                        App\Classes\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+require_once 'backend/includes/csrf_check.php';
+csrf_check(true);
+
+session_start();
+require_once '../../includes/auth_check.php';
+require_once '../../includes/db.php';
+
+class ReviewExporter
+{
+    private $conn;
+
+    public function __construct($conn)
+    {
+        $this->conn = $conn;
+    }
+
+    public function exportCSV($filters = [])
+    {
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="reviews_export_' . date('Y-m-d') . '.csv"');
+
+        $output = fopen('php://output', 'w');
+
+        // CSV Headers
+        fputcsv($output, [
+            'Review ID',
+            'CarWash',
+            'Customer',
+            'Rating',
+            'Comment',
+            'Date',
+            'Status'
+        ]);
+
+        $query = "
+            SELECT 
+                r.id,
+                c.name as carwash_name,
+                u.name as customer_name,
+                r.rating,
+                r.comment,
+                r.created_at,
+                r.status
+            FROM reviews r
+            JOIN carwash c ON r.carwash_id = c.id
+            JOIN users u ON r.user_id = u.id
+            WHERE 1=1
+        ";
+
+        // Add filters
+        if (!empty($filters['status'])) {
+            $query .= " AND r.status = '" . $filters['status'] . "'";
+        }
+        if (!empty($filters['date_from'])) {
+            $query .= " AND r.created_at >= '" . $filters['date_from'] . "'";
+        }
+
+        $result = $this->conn->query($query);
+
+        while ($row = $result->fetch_assoc()) {
+            fputcsv($output, [
+                $row['id'],
+                $row['carwash_name'],
+                $row['customer_name'],
+                $row['rating'],
+                $row['comment'],
+                $row['created_at'],
+                $row['status']
+            ]);
+        }
+
+        fclose($output);
+    }
+}
+
+// Handle export request
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Merge JSON body into $_POST so tokens sent in JSON are validated
+    $raw = file_get_contents('php://input');
+    $parsed = json_decode($raw, true);
+    if (is_array($parsed)) foreach ($parsed as $k => $v) if (!isset($_POST[$k])) $_POST[$k] = $v;
+
+    // CSRF protection: prefer centralized helper; fallback kept during rollout
+    $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
+    if (file_exists($csrf_helper)) {
+        require_once $csrf_helper;
+        if (function_exists('require_valid_csrf')) {
+            require_valid_csrf();
+        }
+    } else {
+        session_start();
+        $csrfToken = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
+        if (empty($_SESSION['csrf_token']) || empty($csrfToken) || !hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$csrfToken)) {
+            error_log('CSRF: missing or invalid token in admin/export_reviews.php');
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+            exit;
+        }
+    }
+
+    $exporter = new ReviewExporter($conn);
+    $filters = $_POST['filters'] ?? [];
+    $exporter->exportCSV($filters);
+}

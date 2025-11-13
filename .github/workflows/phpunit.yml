@@ -1,0 +1,53 @@
+name: Run PHPUnit tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: ''
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring
+
+      - name: Install composer
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare test DB
+        env:
+          DB_HOST: 127.0.0.1
+          DB_NAME: carwash_test
+          DB_USER: root
+          DB_PASS: ''
+        run: |
+          until mysql -h 127.0.0.1 -u root -e 'select 1' >/dev/null 2>&1; do sleep 1; done
+          mysql -h 127.0.0.1 -u root -e "CREATE DATABASE IF NOT EXISTS carwash_test;"
+          # Optionally run migrations if present
+
+      - name: Run PHPUnit
+        env:
+          DB_HOST: 127.0.0.1
+          DB_NAME: carwash_test
+          DB_USER: root
+          DB_PASS: ''
+        run: vendor/bin/phpunit --configuration phpunit.xml.dist --colors=always

@@ -1,0 +1,236 @@
+{
+    "meta": {
+        "dryRun": false,
+        "apply": true,
+        "timestamp": "2025-11-13T01:15:24+01:00"
+    },
+    "results": [
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\auth\\debug_registration.php",
+            "status": "manual_review_required"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\auth\\forget_password.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 5151,
+                    "insert": "\n      <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "=\"fas fa-mobile-alt mr-2\"></i>Telefon\r\n        </button>\r\n      </div>\r\n\r\n      <form id=\"resetForm\" action=\"forgot_password.php\" method=\"POST\" class=\"space-y-6\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\contact.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 6244,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "t-3xl font-bold text-gray-800 mb-6 lg:mb-8\">Bize Yaz\u0131n</h2>\r\n        \r\n        <form action=\"#\" method=\"POST\" class=\"bg-white p-8 md:p-10 rounded-lg shadow-lg\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\admin\\backup_scheduler.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 763,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "   <h2 class=\"text-lg font-semibold mb-4\">Backup Schedule</h2>\r\n                <form id=\"scheduleForm\" class=\"space-y-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\admin\\content_management.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 2441,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "\"fas fa-times\"></i>\r\n                </button>\r\n            </div>\r\n            <form id=\"pageForm\" class=\"space-y-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\admin\\logs.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 2685,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": " -->\r\n        <div class=\"bg-white rounded-lg shadow-md p-4 mb-6\">\r\n            <form id=\"filterForm\" class=\"flex flex-wrap gap-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\admin\\sms_templates.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 4271,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "\"text-lg font-medium text-gray-900 mb-4\">\u015eablon D\u00fczenle</h3>\r\n                <form id=\"templateForm\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\admin\\template_editor.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 1592,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "\r\n\r\n                <!-- Editor -->\r\n                <div>\r\n                    <form id=\"templateForm\" class=\"space-y-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\admin\\test_templates.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 1596,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "2 class=\"text-xl font-semibold mb-4\">Test Parametreleri</h2>\r\n\r\n                <form id=\"testForm\" class=\"space-y-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\admin\\zone_pricing.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 621,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "         <h2 class=\"text-xl font-semibold mb-4\">Add/Edit Zone</h2>\r\n            <form id=\"zoneForm\" class=\"space-y-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\admin_panel.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 282347,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "pan>\r\n            </div>\r\n            <div class=\"modal-body\">\r\n                <form id=\"carwashForm\""
+                },
+                {
+                    "formPos": 284696,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "pan>\r\n            </div>\r\n            <div class=\"modal-body\">\r\n                <form id=\"serviceForm\""
+                },
+                {
+                    "formPos": 291648,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "pan>\r\n            </div>\r\n            <div class=\"modal-body\">\r\n                <form id=\"ticketForm\""
+                },
+                {
+                    "formPos": 298094,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "pan>\r\n            </div>\r\n            <div class=\"modal-body\">\r\n                <form id=\"userForm\""
+                },
+                {
+                    "formPos": 303907,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "pan>\r\n            </div>\r\n            <div class=\"modal-body\">\r\n                <form id=\"cmsPageForm\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\admin_panel_backup.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 39601,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "pan>\r\n            </div>\r\n            <div class=\"modal-body\">\r\n                <form id=\"carwashForm\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\carwash\\availability.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 1172,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "   <h3 class=\"text-lg font-semibold mb-4\">Toplu G\u00c3\u00bcncelleme</h3>\r\n            <form id=\"batchUpdateForm\" class=\"space-y-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\carwash\\index.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 5811,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "lass=\"close\">&times;</span>\r\n            <h2>Add/Edit Service</h2>\r\n            <form id=\"serviceForm\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\carwash\\reviews.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 2625,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "3 class=\"text-lg font-medium\">De\u011ferlendirmeye Yan\u0131t Ver</h3>\r\n                <form id=\"replyForm\" class=\"mt-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\carwash\\services.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 1667,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "t-lg font-medium mb-4\" id=\"modalTitle\">Yeni Hizmet Paketi</h3>\r\n                <form id=\"serviceForm\" class=\"space-y-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\carwash\\service_management.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 2694,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": " leading-6 text-gray-900\" id=\"modalTitle\">Add New Service</h3>\r\n                <form id=\"serviceForm\" class=\"mt-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\Car_Wash_Dashboard.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 75165,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "     <h3 class=\"text-xl font-bold mb-6\">\u0130\u015fletme Bilgileri</h3>\r\n              <form class=\"space-y-4\""
+                },
+                {
+                    "formPos": 97197,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "00 rounded-lg focus:outline-none focus:border-blue-500\" id=\"auto_164\">\r\n        <form class=\"space-y-4\""
+                }
+            ]
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\tools/../backend\\dashboard\\customer\\index.php",
+            "status": "dryrun",
+            "patches": [
+                {
+                    "formPos": 4300,
+                    "insert": "\n        <input type=\"hidden\" name=\"csrf_token\" value=\"<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>\">\n",
+                    "snippetBefore": "lass=\"dashboard-section\">\r\n                <h2>My Profile</h2>\r\n                <form id=\"profileForm\" class=\"profile-form\""
+                }
+            ]
+        }
+    ]
+}

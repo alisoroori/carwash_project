@@ -1,0 +1,63 @@
+<?php
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\\Classes\\Logger')) {
+                    try {
+                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+session_start();
+require_once '../../includes/db.php';
+require_once '../../includes/auth_check.php';
+
+header('Content-Type: application/json');
+
+try {
+    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+        throw new Exception('Unauthorized');
+    }
+
+    // Read-only endpoint (GET). No CSRF check required for safe, idempotent GET requests.
+    // Keep this as GET-only; if state-changing verbs are added later, validate CSRF after session_start().
+
+    $stmt = $conn->prepare("
+        SELECT id, title, slug, status, created_at, updated_at
+        FROM pages
+        ORDER BY created_at DESC
+    ");
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $pages = [];
+    while ($row = $result->fetch_assoc()) {
+        $pages[] = $row;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'pages' => $pages
+    ]);
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

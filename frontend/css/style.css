@@ -114,6 +114,58 @@ footer {
     --background-color: #f8f9fa;
 }
 
+/* Header/Footer sizing for fixed header/footer layouts */
+:root {
+  --header-h: 64px; /* adjust if your header is taller */
+  --footer-h: 80px; /* adjust for footer height */
+}
+
+/* Ensure body content isn't covered by fixed header/footer */
+body {
+  padding-top: var(--header-h);
+  padding-bottom: var(--footer-h);
+}
+
+/* Header & Footer positioning and layering */
+header, #site-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-h);
+  z-index: 1100; /* keep above most content */
+  display: block;
+  background: inherit; /* preserve header background from components */
+}
+
+/* If you prefer a fixed header on some pages, add .fixed-header to body */
+body.fixed-header header, body.fixed-header #site-header {
+  position: fixed;
+}
+
+/* Footer default is in-flow; provide a utility to make it fixed */
+#site-footer {
+  position: relative;
+  z-index: 1000;
+  height: auto;
+}
+
+/* Use this class to make footer fixed to the bottom and avoid overlap */
+body.fixed-footer #site-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--footer-h);
+}
+
+/* Ensure main content area doesn't sit behind fixed header/footer
+   If you use a main wrapper, add margin/padding via --header-h/--footer-h */
+.main-content {
+  padding-top: calc(var(--header-h));
+  padding-bottom: calc(var(--footer-h));
+}
+
 /* Responsive container */
 .container {
     width: 100%;

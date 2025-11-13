@@ -1,6 +1,7 @@
 <?php
-header('Content-Type: application/json');
-require_once '../../includes/db.php';
+
+require_once '../includes/api_bootstrap.php';
+
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);

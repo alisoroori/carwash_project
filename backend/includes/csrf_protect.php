@@ -1,47 +1,49 @@
 <?php
 /**
  * CSRF protection helper
- * - generate_csrf_token(): ensures a token exists in session and returns it
- * - verify_csrf_token($token): returns bool
- * - require_valid_csrf(): emits 403 JSON and exits if token missing/invalid
+ * Provides session-based token generation, verification and utilities
  */
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-function generate_csrf_token(): string
-{
+function generate_csrf_token(int $length = 32): string {
     if (empty($_SESSION['csrf_token'])) {
         try {
-            // 32 bytes -> 64 hex chars
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            if (function_exists('random_bytes')) {
+                $_SESSION['csrf_token'] = bin2hex(random_bytes($length));
+            } else {
+                $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes($length));
+            }
         } catch (Exception $e) {
-            // Fallback to openssl if random_bytes unavailable
-            $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
+            $_SESSION['csrf_token'] = bin2hex(substr(sha1(uniqid((string)mt_rand(), true)), 0, $length));
         }
+        $_SESSION['csrf_token_time'] = time();
     }
-    return $_SESSION['csrf_token'];
+    return (string)$_SESSION['csrf_token'];
 }
 
-function verify_csrf_token(?string $token): bool
-{
-    if (empty($token)) return false;
-    if (empty($_SESSION['csrf_token'])) return false;
-    // Use hash_equals to mitigate timing attacks
+function get_csrf_token(): string {
+    return $_SESSION['csrf_token'] ?? generate_csrf_token();
+}
+
+function echo_csrf_input(): void {
+    $token = htmlspecialchars(get_csrf_token(), ENT_QUOTES, 'UTF-8');
+    echo "<input type=\"hidden\" name=\"csrf_token\" value=\"{$token}\">";
+}
+
+function verify_csrf_token(?string $token): bool {
+    if (empty($token) || empty($_SESSION['csrf_token'])) return false;
     return hash_equals((string)$_SESSION['csrf_token'], (string)$token);
 }
 
-function require_valid_csrf(): void
-{
-    // Accept token from POST body or X-CSRF-Token header
+function require_valid_csrf(): void {
     $token = $_POST['csrf_token'] ?? null;
     if (empty($token) && !empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
         $token = $_SERVER['HTTP_X_CSRF_TOKEN'];
     }
-
     if (!verify_csrf_token($token)) {
-        // Return JSON error and 403 status
         if (!headers_sent()) http_response_code(403);
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(['success' => false, 'errors' => ['Invalid CSRF token']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

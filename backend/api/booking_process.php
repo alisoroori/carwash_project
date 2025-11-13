@@ -1,27 +1,9 @@
 <?php
-// Temporary replacement for booking_process - will move into place
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../includes/bootstrap.php';
 
-use App\Classes\Session;
-use App\Classes\Auth;
-use App\Classes\Response;
-use App\Classes\Logger;
 
-if (class_exists(Session::class) && method_exists(Session::class, 'start')) Session::start(); else if (session_status() === PHP_SESSION_NONE) session_start();
+require_once '../includes/api_bootstrap.php';
 
-header('Content-Type: application/json; charset=utf-8');
 
-$method = $_SERVER['REQUEST_METHOD'] ?? 'POST';
-$contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
-if (in_array($method, ['POST','PUT','PATCH'], true) && stripos($contentType, 'application/json') !== false) {
-    $raw = file_get_contents('php://input');
-    $parsed = json_decode($raw, true);
-    if (is_array($parsed)) foreach ($parsed as $k => $v) if (!isset($_POST[$k])) $_POST[$k] = $v;
-}
-
-// CSRF protection: after JSON->POST merge and before auth checks
-$csrf_helper = __DIR__ . '/../includes/csrf_protect.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (file_exists($csrf_helper)) {
     require_once $csrf_helper;

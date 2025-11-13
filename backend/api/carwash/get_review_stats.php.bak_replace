@@ -1,0 +1,63 @@
+<?php
+
+// API bootstrap (added by tools/add_api_bootstrap.php)
+if (!defined('API_BOOTSTRAP_V1')) {
+    define('API_BOOTSTRAP_V1', true);
+    ob_start();
+    register_shutdown_function(function() {
+        try {
+            $out = (string) @ob_get_clean();
+            if ($out !== '') {
+                if (class_exists('App\Classes\Logger')) {
+                    try {
+                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                    } catch (Throwable $e) {
+                        error_log('Logger::warn failed: ' . $e->getMessage());
+                    }
+                } else {
+                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
+        }
+    });
+}
+session_start();
+require_once '../../includes/db.php';
+require_once '../../includes/auth_check.php';
+
+header('Content-Type: application/json');
+
+try {
+    if (!isset($_SESSION['carwash_id'])) {
+        throw new Exception('Unauthorized');
+    }
+
+    $carwashId = $_SESSION['carwash_id'];
+
+    // Get average rating and total reviews
+    $stmt = $conn->prepare("
+        SELECT 
+            AVG(rating) as average_rating,
+            COUNT(*) as total_reviews,
+            SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as recent_reviews,
+            SUM(CASE WHEN reply IS NOT NULL THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as response_rate
+        FROM reviews
+        WHERE carwash_id = ? AND status = 'approved'
+    ");
+
+    $stmt->bind_param('i', $carwashId);
+    $stmt->execute();
+    $stats = $stmt->get_result()->fetch_assoc();
+
+    echo json_encode([
+        'success' => true,
+        'stats' => $stats
+    ]);
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}

@@ -1,0 +1,36 @@
+name: PHP lint
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  php-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install git (for git ls-files)
+        run: sudo apt-get update && sudo apt-get install -y git
+
+      - name: Run php -l on tracked PHP files
+        run: |
+          set -e
+          files=$(git ls-files '*.php')
+          if [ -z "$files" ]; then
+            echo "No PHP files found"
+            exit 0
+          fi
+          ret=0
+          for f in $files; do
+            php -l "$f" || ret=1
+          done
+          exit $ret

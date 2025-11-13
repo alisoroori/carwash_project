@@ -114,9 +114,35 @@ if (!empty($_SESSION['logo_path'])) {
     }
   }
 }
+// Language detection: allow explicit session or GET override, else use Accept-Language
+// and fall back to Turkish ('tr') as the site default.
+$lang = 'tr';
+$dir = 'ltr';
+// Session override (set by auth or user preference)
+if (!empty($_SESSION['lang'])) {
+  $lang = $_SESSION['lang'];
+} elseif (!empty($_GET['lang'])) {
+  // allow simple language tag like 'tr' or 'en-US'
+  $lang = preg_replace('/[^a-zA-Z\-]/', '', $_GET['lang']);
+  // persist preference
+  $_SESSION['lang'] = $lang;
+} else {
+  // Parse Accept-Language header if available
+  if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+    $parts = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    if (!empty($parts[0])) {
+      $lang = strtolower(substr(trim($parts[0]), 0, 5));
+    }
+  }
+}
+// Determine direction based on primary language subtag
+$primary = substr($lang, 0, 2);
+$rtl_languages = array('ar','fa','he','ur','ps','sd','ug');
+$dir = in_array($primary, $rtl_languages, true) ? 'rtl' : 'ltr';
+
 ?>
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="<?php echo htmlspecialchars($lang, ENT_QUOTES, 'UTF-8'); ?>" dir="<?php echo $dir; ?>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -202,8 +228,11 @@ if (!empty($_SESSION['logo_path'])) {
     
     body {
       <?php if (!$is_dashboard): ?>
-      padding-top: 60px; /* Space for fixed header - reduced */
+      /* Use CSS variable so header height is centralized in CSS */
+      padding-top: var(--header-h);
       <?php endif; ?>
+      /* Reserve bottom space for footer (uses CSS var) */
+      padding-bottom: var(--footer-h);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     

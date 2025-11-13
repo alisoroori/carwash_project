@@ -9,16 +9,16 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
+
+
+
     <meta charset="UTF-8">
     <title>Backup Scheduler</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
-</head>
 
-<body class="bg-gray-50">
+
+
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-6">
             <h1 class="text-2xl font-bold mb-6">Backup Management</h1>
@@ -29,9 +29,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                 <form id="scheduleForm" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Frequency</label>
-                            <label for="frequency" class="sr-only">Frequency</label><select id="frequency" name="frequency" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700" for="frequency">Frequency</label>
+                            <label for="frequency" class="sr-only">Frequency</label><select id="frequency" name="frequency" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="daily">Daily</option>
                                 <option value="weekly">Weekly</option>
                                 <option value="monthly">Monthly</option>
@@ -39,21 +38,18 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Time</label>
-                            <label for="backupTime" class="sr-only">Time</label><input type="time" id="backupTime" name="time" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700" for="backupTime">Time</label>
+                            <label for="backupTime" class="sr-only">Time</label><input type="time" id="backupTime" name="time" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Retention (days)</label>
-                            <label for="retention" class="sr-only">Retention</label><input type="number" id="retention" name="retention" min="1" max="365" value="7"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700" for="retention">Retention (days)</label>
+                            <label for="retention" class="sr-only">Retention</label><input type="number" id="retention" name="retention" min="1" max="365" value="7" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
                     </div>
 
                     <div class="flex justify-end">
-                        <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                             Save Schedule
                         </button>
                     </div>
@@ -83,9 +79,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     </div>
 
     <script src="../../../frontend/js/admin/backup-scheduler.js"></script>
-</body>
 
-</html>
+
+
 
 
 

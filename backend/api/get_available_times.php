@@ -1,18 +1,9 @@
 <?php
-session_start();
-require_once '../includes/db.php';
-require_once '../includes/auth.php';
 
-header('Content-Type: application/json');
 
-// Ensure request method is POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    die(json_encode(['success' => false, 'error' => 'Method not allowed']));
-}
+require_once '../includes/api_bootstrap.php';
 
-// CSRF protection: prefer centralized helper; keep inline fallback while rolling out
-$csrf_helper = __DIR__ . '/includes/csrf_protect.php';
+
 if (session_status() === PHP_SESSION_NONE) session_start();
 // Merge JSON body into $_POST so tokens sent in JSON are validated
 $raw = file_get_contents('php://input');

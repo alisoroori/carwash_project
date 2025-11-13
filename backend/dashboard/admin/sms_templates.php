@@ -13,18 +13,18 @@ $templateManager = new SMSTemplateManager($conn);
 $templates = $templateManager->getAllTemplates();
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
+
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMS Şablonları - Admin Panel</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
 
-<body class="bg-gray-50">
+
+
     <!-- Navigation -->
     <nav class="bg-white shadow-lg mb-6">
         <div class="max-w-7xl mx-auto px-4">
@@ -68,8 +68,7 @@ $templates = $templateManager->getAllTemplates();
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <button onclick="editTemplate(<?= $template['id'] ?>)"
-                                            class="text-blue-600 hover:text-blue-900">
+                                        <button onclick="editTemplate(<?= $template['id'] ?>)" class="text-blue-600 hover:text-blue-900">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                     </td>
@@ -90,28 +89,25 @@ $templates = $templateManager->getAllTemplates();
                 <form id="templateForm">
                     <label for="templateId" class="sr-only">Input</label><input type="hidden" id="templateId">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Şablon Adı</label>
+                        <label class="block text-sm font-medium text-gray-700" for="templateName">Şablon Adı</label>
                         <label for="templateName" class="sr-only">Input</label><input type="text" id="templateName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">İçerik</label>
-                        <label for="templateContent" class="sr-only">Input</label><textarea id="templateContent" rows="4"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                        <label class="block text-sm font-medium text-gray-700" for="templateContent">İçerik</label>
+                        <label for="templateContent" class="sr-only">Input</label><textarea id="templateContent" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
                     </div>
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Durum</label>
+                        <label class="block text-sm font-medium text-gray-700" for="templateStatus">Durum</label>
                         <label for="templateStatus" class="sr-only">Input</label><select id="templateStatus" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                             <option value="1">Aktif</option>
                             <option value="0">Pasif</option>
                         </select>
                     </div>
                     <div class="mt-5 flex justify-end space-x-2">
-                        <button type="button" onclick="closeModal()"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
                             İptal
                         </button>
-                        <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">
                             Kaydet
                         </button>
                     </div>
@@ -161,9 +157,9 @@ $templates = $templateManager->getAllTemplates();
                 });
         });
     </script>
-</body>
 
-</html>
+
+
 
 
 

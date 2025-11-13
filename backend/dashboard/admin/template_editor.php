@@ -9,19 +9,19 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
 
-<head>
+
+
+
     <meta charset="UTF-8">
     <title>Email Template Editor</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
-</head>
 
-<body class="bg-gray-50">
+
+
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-6">
             <h1 class="text-2xl font-bold mb-6">Email Template Editor</h1>
@@ -44,21 +44,18 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                         <label for="templateId" class="sr-only">Id</label><input type="hidden" id="templateId" name="id">
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Template Name</label>
-                            <label for="templateName" class="sr-only">Name</label><input type="text" id="templateName" name="name" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700" for="templateName">Template Name</label>
+                            <label for="templateName" class="sr-only">Name</label><input type="text" id="templateName" name="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Subject</label>
-                            <label for="templateSubject" class="sr-only">Subject</label><input type="text" id="templateSubject" name="subject" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700" for="templateSubject">Subject</label>
+                            <label for="templateSubject" class="sr-only">Subject</label><input type="text" id="templateSubject" name="subject" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Template Type</label>
-                            <label for="templateType" class="sr-only">Type</label><select id="templateType" name="type" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700" for="templateType">Template Type</label>
+                            <label for="templateType" class="sr-only">Type</label><select id="templateType" name="type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="notification">Notification</option>
                                 <option value="approval">Approval</option>
                                 <option value="reminder">Reminder</option>
@@ -66,9 +63,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">HTML Content</label>
-                            <label for="templateContent" class="sr-only">Content</label><textarea id="templateContent" name="content" rows="20"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                            <label class="block text-sm font-medium text-gray-700" for="templateContent">HTML Content</label>
+                            <label for="templateContent" class="sr-only">Content</label><textarea id="templateContent" name="content" rows="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
                         </div>
 
                         <div>
@@ -79,12 +75,10 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                         </div>
 
                         <div class="flex justify-end space-x-2">
-                            <button type="button" id="previewBtn"
-                                class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                            <button type="button" id="previewBtn" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
                                 Preview
                             </button>
-                            <button type="submit"
-                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                                 Save Template
                             </button>
                         </div>
@@ -100,8 +94,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold">Template Preview</h3>
                 <button onclick="closePreview()" class="text-gray-500 hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
@@ -110,9 +104,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     </div>
 
     <script src="../../../frontend/js/admin/template-editor.js"></script>
-</body>
 
-</html>
+
+
 
 
 

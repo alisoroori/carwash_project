@@ -1509,8 +1509,8 @@ include '../includes/dashboard_header.php';
             color: #d97706;
         }
     </style>
-</head>
-<body>
+
+
 
 <!-- Mobile Menu Toggle Button -->
 <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()">
@@ -1596,7 +1596,7 @@ include '../includes/dashboard_header.php';
                     <li class="nav-item">
                         <a href="#reviews" class="nav-link" data-section="reviews">
                             <i class="fas fa-star"></i>
-                            <span>Yorumlar & Puanlar</span>
+                            <span>Yorumlar &amp; Puanlar</span>
                         </a>
                     </li>
                     
@@ -1628,7 +1628,7 @@ include '../includes/dashboard_header.php';
                     <li class="nav-item">
                         <a href="#security" class="nav-link" data-section="security">
                             <i class="fas fa-shield-alt"></i>
-                            <span>Güvenlik & Loglar</span>
+                            <span>Güvenlik &amp; Loglar</span>
                         </a>
                     </li>
                     
@@ -2483,7 +2483,7 @@ include '../includes/dashboard_header.php';
                         <option value="">Tüm Kategoriler</option>
                         <option value="wash">Yıkama</option>
                         <option value="detail">Detaylı Bakım</option>
-                        <option value="polish">Cilalama & Koruma</option>
+                        <option value="polish">Cilalama &amp; Koruma</option>
                         <option value="interior">İç Temizlik</option>
                     </select>
                     
@@ -2619,7 +2619,7 @@ include '../includes/dashboard_header.php';
                                         </div>
                                     </div>
                                 </td>
-                                <td><span class="type-badge" style="background: #dc354520; color: #dc3545;">Cilalama & Koruma</span></td>
+                                <td><span class="type-badge" style="background: #dc354520; color: #dc3545;">Cilalama &amp; Koruma</span></td>
                                 <td><strong>₺850</strong></td>
                                 <td>180 dk</td>
                                 <td>
@@ -2840,7 +2840,7 @@ include '../includes/dashboard_header.php';
             <section id="reviews" class="content-section">
                 <div class="section-header">
                     <div>
-                        <h2><i class="fas fa-star" style="color: #ffc107; margin-right: 12px;"></i>Yorumlar & Puanlar</h2>
+                        <h2><i class="fas fa-star" style="color: #ffc107; margin-right: 12px;"></i>Yorumlar &amp; Puanlar</h2>
                         <p>Müşteri yorumlarını yönet ve denetle</p>
                     </div>
                     <button class="add-btn" style="background: linear-gradient(135deg, #ffc107, #ff9800);">
@@ -3167,7 +3167,7 @@ include '../includes/dashboard_header.php';
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                                 <label for="auto_2" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_2">
-                       <label for="auto_3" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_3">5-10-19">
+                       <label for="auto_3" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_3">5-10-19"&gt;
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3272,7 +3272,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                       <label for="auto_5" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_5">.85rem;">
+                       <label for="auto_5" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_5">.85rem;"&gt;
                                     <option>Q3 2025</option>
                                     <option>Q2 2025</option>
                                     <option>Q1 2025</option>
@@ -3324,7 +3324,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-              <label for="auto_6" class="sr-only">Input</label><input type="month" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10" id="auto_6">" value="2025-10">
+              <label for="auto_6" class="sr-only">Input</label><input type="month" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10" id="auto_6">" value="2025-10"&gt;
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3381,7 +3381,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-     <label for="auto_7" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_7">85rem;" value="2025-10-01<label for="auto_8" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_8">-size: 0.85rem;" value="2025-10-19">
+     <label for="auto_7" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_7">85rem;" value="2025-10-01<label for="auto_8" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_8">-size: 0.85rem;" value="2025-10-19"&gt;
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3428,7 +3428,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-              <label for="auto_9" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_9">t-size: 0.85rem;">
+              <label for="auto_9" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_9">t-size: 0.85rem;"&gt;
                                     <option>Bu Ay</option>
                                     <option>Son 3 Ay</option>
                                     <option>Bu Yıl</option>
@@ -3479,7 +3479,7 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-     <label for="auto_10" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_10">x: 1; font-size: 0.85rem;">
+     <label for="auto_10" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_10">x: 1; font-size: 0.85rem;"&gt;
                                     <option>Tüm Otoparklar</option>
                                     <option>En İyi 10</option>
                                     <option>En Düşük 10</option>
@@ -3539,7 +3539,7 @@ include '../includes/dashboard_header.php';
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; margin-bottom: 12px;<label for="auto_11" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_11">tyle="flex: 1; font-size: 0.85rem;">
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;&lt;label for=" auto_11 class="sr-only">Input<select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_11">tyle="flex: 1; font-size: 0.85rem;"&gt;
                                     <option>Tüm Müşteriler</option>
                                     <option>Premium</option>
                                     <option>Standart</option>
@@ -3590,7 +3590,7 @@ include '../includes/dashboard_header.php';
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; margin-bott<label for="auto_12" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_12">: 1; font-size: 0.85rem;"<label for="auto_13" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_13">yle="flex: 1; font-size: 0.85rem;" value="2025-10-19">
+                            <div style="display: flex; gap: 8px; margin-bott&lt;label for=" auto_12 class="sr-only">Date<input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_12">: 1; font-size: 0.85rem;"<label for="auto_13" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_13">yle="flex: 1; font-size: 0.85rem;" value="2025-10-19"&gt;
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3646,7 +3646,7 @@ include '../includes/dashboard_header.php';
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; margin-bott<label for="auto_14" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_14">select" style="flex: 1; font-size: 0.85rem;">
+                            <div style="display: flex; gap: 8px; margin-bott&lt;label for=" auto_14 class="sr-only">Input<select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_14">select" style="flex: 1; font-size: 0.85rem;"&gt;
                                     <option>Son 12 Ay</option>
                                     <option>Bu Yıl</option>
                                     <option>Geçen Yıl</option>
@@ -3692,7 +3692,7 @@ include '../includes/dashboard_header.php';
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; ma<label for="auto_15" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_15">="filter-select" style="flex: 1; font-size: 0.85rem;">
+                            <div style="display: flex; gap: 8px; ma&lt;label for=" auto_15 class="sr-only">Input<select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_15">="filter-select" style="flex: 1; font-size: 0.85rem;"&gt;
                                     <option>Bu Çeyrek</option>
                                     <option>Geçen Çeyrek</option>
                                     <option>Yıllık</option>
@@ -4195,7 +4195,7 @@ include '../includes/dashboard_header.php';
             <section id="security" class="content-section">
                 <div class="section-header">
                     <div>
-                        <h2><i class="fas fa-shield-alt" style="color: #28a745; margin-right: 12px;"></i>Güvenlik & Sistem Logları</h2>
+                        <h2><i class="fas fa-shield-alt" style="color: #28a745; margin-right: 12px;"></i>Güvenlik &amp; Sistem Logları</h2>
                         <p>Sistem güvenliğini izle ve denetim kayıtlarını incele</p>
                     </div>
                     <button class="add-btn" style="background: linear-gradient(135deg, #28a745, #20c997);">
@@ -4601,39 +4601,39 @@ include '../includes/dashboard_header.php';
                         <i class="fas fa-globe"></i> Genel Ayarlar
                     </h3>
                     <div class="form-group">
-             <label for="auto_16" class="sr-only">Site adını girin</label><input type="text" value="CarWash Yönetim Sistemi" placeholder="Site adını girin" id="auto_16">ue="CarWash Yönetim Sistemi" placeholder="Site adını girin">
+             <label for="auto_16" class="sr-only">Site adını girin</label><input type="text" value="CarWash Yönetim Sistemi" placeholder="Site adını girin" id="auto_16">ue="CarWash Yönetim Sistemi" placeholder="Site adını girin"&gt;
                         <small style="color: #64748b;">Web sitesinde görünecek isim</small>
                     </div>
                     <div class="form-group">
-      <label for="auto_17" class="sr-only">admin@example.com</label><input type="email" value="admin@otoparkdemotime.com" placeholder="admin@example.com" id="auto_17">mail" value="admin@otoparkdemotime.com" placeholder="admin@example.com">
+      <label for="auto_17" class="sr-only">admin@example.com</label><input type="email" value="admin@otoparkdemotime.com" placeholder="admin@example.com" id="auto_17">mail" value="admin@otoparkdemotime.com" placeholder="admin@example.com"&gt;
                         <small style="color: #64748b;">Sistem bildirimleri bu adrese gönderilecek</small>
                     </div>
                     <div class="form-group">
-             <label for="auto_18" class="sr-only">Input</label><select id="auto_18">   <label>Saat Dilimi</label>
+             <label for="auto_18" class="sr-only">Input</label><select id="auto_18">   <label for="auto_19">Saat Dilimi</label>
                         <label for="auto_19" class="sr-only">Input</label><select id="auto_19">
                             <option value="Europe/Istanbul" selected>Europe/Istanbul (GMT+3)</option>
                             <option value="UTC">UTC (GMT+0)</option>
                             <option value="Europe/London">Europe/London (GMT+0)</option>
                         </select>
-                    </div>
-                    <div class="form-group<label for="auto_20" class="sr-only">Input</label><select id="auto_20">                    <label>Dil</label>
+                    </select></div>
+                    <div class="form-group&lt;label for=" auto_20>Input<select id="auto_20">                    <label for="auto_21">Dil</label>
                         <label for="auto_21" class="sr-only">Input</label><select id="auto_21">
                             <option value="tr" selected>Türkçe</option>
                             <option value="en">English</option>
                             <option value="fa">فارسی</option>
                         </select>
-                    </div>
-                    <div class="form-grou<label for="auto_22" class="sr-only">Input</label><select id="auto_22">                     <label>Para Birimi</label>
+                    </select></div>
+                    <div class="form-grou&lt;label for=" auto_22>Input<select id="auto_22">                     <label for="auto_23">Para Birimi</label>
                         <label for="auto_23" class="sr-only">Input</label><select id="auto_23">
                             <option value="TRY" selected>₺ Türk Lirası (TRY)</option>
                             <option value="USD">$ US Dollar (USD)</option>
                             <option value="EUR">€ Euro (EUR)</option>
                         </select>
-                    </div>
+                    </select></div>
                     <div class="form-group">
-                        <label style="display: flex<label for="auto_24" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_24">                  <label for="auto_25" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_25">
+                        <label style="display: flex&lt;label for=" auto_24 class="sr-only" for="auto_24">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_24">                  <label for="auto_25" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_25">
                             <span>Bakım Modu</span>
-                        </label>
+                        
                         <small style="color: #64748b;">Aktif olduğunda site ziyaretçilere kapalı olacak</small>
                     </div>
                     <button class="save-btn" style="margin-top: 1rem;">
@@ -4646,11 +4646,11 @@ include '../includes/dashboard_header.php';
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-credit-card"></i> Ödeme Ayarları
                     </h3>
-                    <div class="form-gro<label for="auto_26" class="sr-only">Input</label><input type="number" value="15" min="0" max="100" step="0.1" id="auto_26">el>
+                    <div class="form-gro&lt;label for=" auto_26>Input<input type="number" value="15" min="0" max="100" step="0.1" id="auto_26">el&gt;
                         <label for="auto_27" class="sr-only">Input</label><input type="number" value="15" min="0" max="100" step="0.1" id="auto_27">
                         <small style="color: #64748b;">Platform komisyon yüzdesi</small>
                     </div>
-                    <div class="form-gro<label for="auto_28" class="sr-only">Input</label><input type="number" value="50" min="0" id="auto_28">imum Ödeme Tutarı (₺)</label>
+                    <div class="form-gro&lt;label for=" auto_28>Input<input type="number" value="50" min="0" id="auto_28">imum Ödeme Tutarı (₺)
                         <label for="auto_29" class="sr-only">Input</label><input type="number" value="50" min="0" id="auto_29">
                         <small style="color: #64748b;">Tasfiye için minimum tutar</small>
                     </div>
@@ -4665,15 +4665,15 @@ include '../includes/dashboard_header.php';
                                 <h5 style="margin: 0;">Stripe</h5>
                                 <small style="color: #64748b;">Kredi kartı ödemeleri</small>
                             </div>
-                            <label style="d<label for="auto_30" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_30">argin: 0;">
+                            <label style="d&lt;label for=" auto_30 class="sr-only" for="auto_30">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_30">argin: 0;"&gt;
                                 <label for="auto_31" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_31">
                                 <span>Aktif</span>
-                            </label>
+                            
                         </div>
-                        <div class="form-group" st<label for="auto_32" class="sr-only">pk_live_...</label><input type="text" placeholder="pk_live_..." id="auto_32">            <label>Publishable Key</label>
+                        <div class="form-group" st for="auto_32">pk_live_...<input type="text" placeholder="pk_live_..." id="auto_32">            <label for="auto_33">Publishable Key</label>
                             <label for="auto_33" class="sr-only">pk_live_...</label><input type="text" placeholder="pk_live_..." id="auto_33">
                         </div>
-                        <div clas<label for="auto_34" class="sr-only">sk_live_...</label><input type="password" placeholder="sk_live_..." id="auto_34">                      <label>Secret Key</label>
+                        <div clas for="auto_34" class="sr-only">sk_live_...<input type="password" placeholder="sk_live_..." id="auto_34">                      <label for="auto_35">Secret Key</label>
                             <label for="auto_35" class="sr-only">sk_live_...</label><input type="password" placeholder="sk_live_..." id="auto_35">
                         </div>
                     </div>
@@ -4686,20 +4686,20 @@ include '../includes/dashboard_header.php';
                                 <h5 style="margin: 0;">PayPal</h5>
                                 <small style="color: #64748b;">PayPal ödemeleri</small>
                             </div>
-                <label for="auto_36" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_36">enter; gap: 8px; cursor: pointer; margin: 0;">
+                <label for="auto_36" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_36">enter; gap: 8px; cursor: pointer; margin: 0;"&gt;
                                 <label for="auto_37" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_37">
                                 <span>Aktif</span>
-                            </label>
+                            
                         </div>
-                 <label for="auto_38" class="sr-only">AXxxx...</label><input type="text" placeholder="AXxxx..." id="auto_38">in-bottom: 1rem;">
-                            <label>Client ID</label>
+                 <label for="auto_38" class="sr-only">AXxxx...</label><input type="text" placeholder="AXxxx..." id="auto_38">in-bottom: 1rem;"&gt;
+                            <label for="auto_39">Client ID</label>
                             <label for="auto_39" class="sr-only">AXxxx...</label><input type="text" placeholder="AXxxx..." id="auto_39">
                         </div>
-      <label for="auto_40" class="sr-only">ECxxx...</label><input type="password" placeholder="ECxxx..." id="auto_40">e="margin-bottom: 0;">
-                            <label>Secret Key</label>
+      <label for="auto_40" class="sr-only">ECxxx...</label><input type="password" placeholder="ECxxx..." id="auto_40">e="margin-bottom: 0;"&gt;
+                            <label for="auto_41">Secret Key</label>
                             <label for="auto_41" class="sr-only">ECxxx...</label><input type="password" placeholder="ECxxx..." id="auto_41">
                         </div>
-                    </div>
+                    </section></main></div>
 
                     <!-- iyzico -->
                     <div style="border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem;">
@@ -4708,15 +4708,15 @@ include '../includes/dashboard_header.php';
                             <div style="flex: 1;">
                                 <h5 style="margin: 0;">iyzico</h5>
                                 <small style="color: #64748b;">Türkiye kredi kartı ödemeleri</small>
-                         <label for="auto_42" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_42">lex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                         <label for="auto_42" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_42">lex; align-items: center; gap: 8px; cursor: pointer; margin: 0;"&gt;
                                 <label for="auto_43" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_43">
                                 <span>Aktif</span>
-                            </label>
-                    <label for="auto_44" class="sr-only">sandbox-xxx...</label><input type="text" placeholder="sandbox-xxx..." id="auto_44">form-group" style="margin-bottom: 1rem;">
-                            <label>API Key</label>
+                            
+                    <label for="auto_44" class="sr-only">sandbox-xxx...</label><input type="text" placeholder="sandbox-xxx..." id="auto_44">form-group" style="margin-bottom: 1rem;"&gt;
+                            <label for="auto_45">API Key</label>
                             <label for="auto_45" class="sr-only">sandbox-xxx...</label><input type="text" placeholder="sandbox-xxx..." id="auto_45">
-           <label for="auto_46" class="sr-only">sandbox-xxx...</label><input type="password" placeholder="sandbox-xxx..." id="auto_46">ass="form-group" style="margin-bottom: 0;">
-                            <label>Secret Key</label>
+           <label for="auto_46" class="sr-only">sandbox-xxx...</label><input type="password" placeholder="sandbox-xxx..." id="auto_46">ass="form-group" style="margin-bottom: 0;"&gt;
+                            <label for="auto_47">Secret Key</label>
                             <label for="auto_47" class="sr-only">sandbox-xxx...</label><input type="password" placeholder="sandbox-xxx..." id="auto_47">
                         </div>
                     </div>
@@ -4734,43 +4734,43 @@ include '../includes/dashboard_header.php';
                     
                     <!-- Email Notifications -->
                     <label for="auto_48" class="sr-only">smtp.example.com</label><input type="text" value="smtp.gmail.com" placeholder="smtp.example.com" id="auto_48">                <div class="form-group">
-                        <label>SMTP Host</label>
+                        <label for="auto_49">SMTP Host</label>
                         <label for="auto_49" class="sr-only">smtp.example.com</label><input type="text" value="smtp.gmail.com" placeholder="smtp.example.com" id="auto_49">
                     </div>
-                    <div st<label for="auto_50" class="sr-only">Input</label><input type="number" value="587" id="auto_50">-columns: 1fr 1fr; gap: 1rem;">
+                    <div st for="auto_50" class="sr-only">Input<input type="number" value="587" id="auto_50">-columns: 1fr 1fr; gap: 1rem;"&gt;
                         <div class="form-group">
-                            <label>SMTP Port</label>
+                            <label for="auto_51">SMTP Port</label>
                             <label for="auto_51" class="sr-only">Input</label><input type="number" value="587" id="auto_51">
                         </div>
-                        <div class="form-gr<label for="auto_52" class="sr-only">Input</label><select id="auto_52">                           <label>Encryption</label>
+                        <div class="form-gr&lt;label for=" auto_52>Input<select id="auto_52">                           <label for="auto_53">Encryption</label>
                             <label for="auto_53" class="sr-only">Input</label><select id="auto_53">
                                 <option value="tls" selected>TLS</option>
                                 <option value="ssl">SSL</option>
                                 <option value="none">None</option>
-                <label for="auto_54" class="sr-only">Input</label><input type="text" value="no-reply@otoparkdemotime.com" id="auto_54">                   </div>
+                <label for="auto_54" class="sr-only">Input</label><input type="text" value="no-reply@otoparkdemotime.com" id="auto_54">                   </select></select></div>
                     <div class="form-group">
-                        <label>SMTP Username</label>
+                        <label for="auto_55">SMTP Username</label>
                   <label for="auto_55" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_55">
                     </div>
                     <div class="form-group">
-                        <label>SMTP Password</label>
+                        <label for="auto_56">SMTP Password</label>
                         <label for="auto_56" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_56">
                     </div>
                     
                     <!-- SMS Notifications -->
-                    <h4 style="margin: 2<label for="auto_57" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_57">    <div class="form-group">
+                    <h4 style="margin: 2&lt;label for=" auto_57 class="sr-only">Input<input type="checkbox" checked style="width: auto; margin: 0;" id="auto_57">    <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <label for="auto_58" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_58">
                            <label for="auto_59" class="sr-only">ACxxxxxxxxxx</label><input type="text" placeholder="ACxxxxxxxxxx" id="auto_59">                     </label>
                     </div>
                     <div class="form-group">
-                        <label>Twilio Accoun<label for="auto_60" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_60">eholder="ACxxxxxxxxxx">
-                    </div>
+                        <label>Twilio Accoun<label for="auto_60" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_60">eholder="ACxxxxxxxxxx"&gt;
+                    </label></div>
                     <div class="form-group">
-                        <label>Twilio Auth Token<<label for="auto_61" class="sr-only">Phone</label><input type="tel" value="+905551234567" id="auto_61">type="password" placeholder="••••••••">
-                    </div>
+                        <label>Twilio Auth Token&lt;<label for="auto_61" class="sr-only">Phone</label><input type="tel" value="+905551234567" id="auto_61">type="password" placeholder="••••••••"&gt;
+                    </label></div>
                     <div class="form-group">
-                        <label>Gönderen Numara</label>
+                        <label for="auto_62">Gönderen Numara</label>
                         <label for="auto_62" class="sr-only">Phone</label><input type="tel" value="+905551234567" id="auto_62">
                     </div>
                     
@@ -4778,11 +4778,11 @@ include '../includes/dashboard_header.php';
         <label for="auto_63" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_63">ifications (Firebase)</h4>
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <label for="auto_64" class="sr-only">••••••••</label><input type="checkbox" style="width: auto; margin: 0;"<input type="password" placeholder="••••••••" id="auto_64">ktif Et</span>
+                            <label for="auto_64" class="sr-only">••••••••</label><input type="checkbox" style="width: auto; margin: 0;" placeholder="••••••••" id="auto_64">ktif Et
                         </label>
                     </div>
                     <div class="form-group">
-                        <label>Firebase Server Key</label>
+                        <label for="auto_65">Firebase Server Key</label>
                         <label for="auto_65" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_65">
                     </div>
                     
@@ -4928,61 +4928,65 @@ include '../includes/dashboard_header.php';
                 <!-- Security Settings Tab -->
                 <div id="securitytab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
-                        <i <label for="auto_66" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_66">         </h3>
+                        <i for="auto_66" class="sr-only">Input<input type="checkbox" checked style="width: auto; margin: 0;" id="auto_66">         </i></h3>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <label for="auto_67" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_67">
                             <span>İki Faktörlü Kimlik Doğrulama (2FA) Zorunlu</span>
                         </label>
-                    <label for="auto_68" class="sr-only">Input</label><input type="number" value="60" min="5" max="1440" id="auto_68">nıcıları için 2FA zorunlu olacak</small>
+                    <label for="auto_68" class="sr-only">Input</label><input type="number" value="60" min="5" max="1440" id="auto_68">nıcıları için 2FA zorunlu olacak
                     </div>
                     
                     <div class="form-group">
-                        <label>Oturum Zaman Aşımı (dakika)</label>
+                        <label for="auto_69">Oturum Zaman Aşımı (dakika)</label>
                         <label for="auto_69" class="sr-only">Input</label><input type="number" value="60" min="5" max="1440" id="auto_69">
-                   <label for="auto_70" class="sr-only">Input</label><input type="number" value="5" min="3" max="10" id="auto_70">�lmadığında otomatik çıkış süresi</small>
+                   <label for="auto_70" class="sr-only">Input</label><input type="number" value="5" min="3" max="10" id="auto_70">±lmadÄ±ÄÄ±nda otomatik Ã§Ä±kÄ±Å sÃ¼resi
                     </div>
                     
                     <div class="form-group">
-                        <label>Maksimum Başarısız Giriş Denemesi</label>
+                        <label for="auto_71">Maksimum BaÅarÄ±sÄ±z GiriÅ Denemesi</label>
                         <label for="auto_71" class="sr-only">Input</label><input type="number" value="5" min="3" max="10" id="auto_71">
-          <label for="auto_72" class="sr-only">Input</label><input type="number" value="30" min="5" max="1440" id="auto_72">ıda başarısız girişten sonra hesap kilitlenecek</small>
+          <label for="auto_72" class="sr-only">Input</label><input type="number" value="30" min="5" max="1440" id="auto_72">Ä±da baÅarÄ±sÄ±z giriÅten sonra hesap kilitlenecek
                     </div>
                     
                     <div class="form-group">
-                    <label for="auto_73" class="sr-only">Input</label><input type="number" value="8" min="6" max="20" id="auto_73">el>
+                    <label for="auto_73" class="sr-only">Input</label><input type="number" value="8" min="6" max="20" id="auto_73">el&gt;
                         <label for="auto_74" class="sr-only">Input</label><input type="number" value="30" min="5" max="1440" id="auto_74">
                     </div>
                     
                     <div class="form-group">
-                        <label>Minimum Şif<label for="auto_75" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_75">er" value="8" min="6" max="20">
-                    </div>
+                        <label>Minimum Åif<label for="auto_75" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_75">er" value="8" min="6" max="20"&gt;
+                    </label></div>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <label for="auto_76" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_76">
-                            <span>Şifre Karmaşıklık Kuralları</span>
-                   <label for="auto_77" class="sr-only">Input</label><input type="number" value="90" min="0" max="365" id="auto_77">e="color: #64748b;">Büyük/küçük harf, rakam ve özel karakter gerektirir</small>
-                    </div>
+                            <span>Åifre KarmaÅÄ±klÄ±k KurallarÄ±</span>
+                   <label for="auto_77" class="sr-only">Input</label><input type="number" value="90" min="0" max="365" id="auto_77">e="color: #64748b;"&gt;BÃ¼yÃ¼k/kÃ¼Ã§Ã¼k harf, rakam ve Ã¶zel karakter gerektirir
+                    </label></div>
                     
                     <div class="form-group">
-                        <label>Şifre Değiştirme Periyodu (gün)</label>
+                        <label for="auto_78">Åifre DeÄiÅtirme Periyodu (gÃ¼n)</label>
                         <label for="auto_78" class="sr-only">Input</label><input type="number" value="90" min="0" max="365" id="auto_78">
-                        <small style="color: #64748b;">0 girerek devre<label for="auto_79" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_79"> </div>
+                        <small style="color: #64748b;">0 girerek devre<label for="auto_79" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_79"> </small></div>
                     
                     <h4 style="margin: 2rem 0 1rem 0;">IP Beyaz Listesi</h4>
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <label for="auto_80" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_80">
-                            <span>IP Kısıtlaması Aktif</span>
+                            <span>IP KÄ±sÄ±tlamasÄ± Aktif</span>
                         </label>
-                        <small style="color: #64748b;">Sadece belirlenen IP adreslerinden erişime izin ver</small>
+                        <small style="color: #64748b;">Sadece belirlenen IP adreslerinden eriÅime izin ver</small>
                     </div>
                     
                     <div class="form-group">
-                        <label>İzin Verilen IP Adresleri (her satırda bir IP)</label>
-                        <label for="auto_81" class="sr-only">192.168.1.1&#10;192.168.1.2&#10;10.0.0.1</label><textarea rows="5" placeholder="192.168.1.1&#10;192.168.1.2&#10;10.0.0.1" id="auto_81"></textarea>
+                        <label for="auto_81">Ä°zin Verilen IP Adresleri (her satÄ±rda bir IP)</label>
+                        <label for="auto_81" class="sr-only">192.168.1.1
+192.168.1.2
+10.0.0.1</label><textarea rows="5" placeholder="192.168.1.1
+192.168.1.2
+10.0.0.1" id="auto_81"></textarea>
                     </div>
                     
                     <button class="save-btn" style="margin-top: 1rem;">
@@ -4992,7 +4996,7 @@ include '../includes/dashboard_header.php';
 
                 <!-- Backup Settings Tab -->
                 <div id="backuptab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
-                    <h3 style="margin-bottom: 1.5rem; color: #333; di<label for="auto_82" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_82">        <i class="fas fa-database"></i> Yedekleme Ayarları
+                    <h3 style="margin-bottom: 1.5rem; color: #333; di&lt;label for=" auto_82 class="sr-only">Input<input type="checkbox" checked style="width: auto; margin: 0;" id="auto_82">        <i class="fas fa-database"></i> Yedekleme AyarlarÄ±
                     </h3>
                     
                     <div class="form-group">
@@ -5000,75 +5004,75 @@ include '../includes/dashboard_header.php';
                             <label for="auto_83" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_83">
                             <span>Otomatik Yedekleme Aktif</span>
                         </label>
-                        <small style="color: #64748b;">Belirlenen zamanlarda otomatik yedek alınacak</small>
+                        <small style="color: #64748b;">Belirlenen zamanlarda otomatik yedek alÄ±nacak</small>
                     </div>
                     
-                    <div class="f<label for="auto_84" class="sr-only">Input</label><select id="auto_84">p">
-                        <label>Yedekleme Sıklığı</label>
+                    <div class="f&lt;label for=" auto_84>Input<select id="auto_84">p"&gt;
+                        <label for="auto_85">Yedekleme SÄ±klÄ±ÄÄ±</label>
                         <label for="auto_85" class="sr-only">Input</label><select id="auto_85">
                             <option value="hourly">Saatlik</option>
-                            <option value="daily" selected>Günlük</<label for="auto_86" class="sr-only">Time</label><input type="time" value="02:00" id="auto_86">    <option value="weekly">Haftalık</option>
-                            <option value="monthly">Aylık</option>
+                            <option value="daily" selected>GÃ¼nlÃ¼k<label for="auto_86" class="sr-only">Time</label><input type="time" value="02:00" id="auto_86">    </option><option value="weekly">HaftalÄ±k</option>
+                            <option value="monthly">AylÄ±k</option>
                         </select>
-                    </div>
+                    </select></div>
                     
                     <div class="form-group">
-                        <label>Yedeklem<label for="auto_87" class="sr-only">Input</label><input type="number" value="30" min="1" max="365" id="auto_87">pe="time" value="02:00">
-                        <small style="color: #64748b;">Yedekleme işleminin yapılacağı saat</small>
-                    </div>
+                        <label>Yedeklem<label for="auto_87" class="sr-only">Input</label><input type="number" value="30" min="1" max="365" id="auto_87">pe="time" value="02:00"&gt;
+                        <small style="color: #64748b;">Yedekleme iÅleminin yapÄ±lacaÄÄ± saat</small>
+                    </label></div>
                     
                     <div class="form-group">
-                        <label>Yedek Saklama Süresi (gün)<<label for="auto_88" class="sr-only">Input</label><input type="number" value="10" min="1" max="100" id="auto_88">er" value="30" min="1" max="365">
-                        <small style="color: #64748b;">Bu süreden eski yedekler otomatik silinecek</small>
-                    </div>
+                        <label>Yedek Saklama SÃ¼resi (gÃ¼n)&lt;<label for="auto_88" class="sr-only">Input</label><input type="number" value="10" min="1" max="100" id="auto_88">er" value="30" min="1" max="365"&gt;
+                        <small style="color: #64748b;">Bu sÃ¼reden eski yedekler otomatik silinecek</small>
+                    </label></div>
                     
                     <div class="form-group">
-                        <label>Maksimum Yedek Sayısı</label>
+                        <label for="auto_89">Maksimum Yedek SayÄ±sÄ±</label>
                <label for="auto_89" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_89">                  </div>
                     
                     <h4 style="margin: 2rem 0 1rem 0;">Yedek Depolama</h4>
                     
                     <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8<label for="auto_90" class="sr-only">Input</label><input type="text" value="/var/backups/carwash" id="auto_90">    <label for="auto_91" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_91">
+                        <label style="display: flex; align-items: center; gap: 8&lt;label for=" auto_90 class="sr-only" for="auto_90">Input</label><input type="text" value="/var/backups/carwash" id="auto_90">    <label for="auto_91" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_91">
                             <span>Yerel Sunucuda Sakla</span>
-                        </label>
+                        
                     </div>
                     
-     <label for="auto_92" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_92">          <label>Yerel Yedek Klasörü</label>
+     <label for="auto_92" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_92">          <label for="auto_93">Yerel Yedek KlasÃ¶rÃ¼</label>
                         <label for="auto_93" class="sr-only">Input</label><input type="text" value="/var/backups/carwash" id="auto_93">
                     </div>
                     
                     <div class="form-group">
-                        <label style="display: flex;<label for="auto_94" class="sr-only">ftp.example.com</label><input type="text" placeholder="ftp.example.com" id="auto_94">>
+                        <label style="display: flex;&lt;label for=" auto_94 class="sr-only" for="auto_94">ftp.example.com</label><input type="text" placeholder="ftp.example.com" id="auto_94">&gt;
                             <label for="auto_95" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_95">
-                            <span>Uzak Sunucuya Yükle (FTP/SFTP)</span>
-                        </label>
+                            <span>Uzak Sunucuya YÃ¼kle (FTP/SFTP)</span>
+                        
                     </div>
                     
-                    <div <label for="auto_96" class="sr-only">username</label><input type="text" placeholder="username" id="auto_96">   <label>FTP Host</label>
+                    <div for="auto_96" class="sr-only">username<input type="text" placeholder="username" id="auto_96">   <label for="auto_97">FTP Host</label>
                         <label for="auto_97" class="sr-only">ftp.example.com</label><input type="text" placeholder="ftp.example.com" id="auto_97">
                     </div>
                     
-       <label for="auto_98" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_98"> 1fr 1fr; gap: 1rem;">
+       <label for="auto_98" class="sr-only">â¢â¢â¢â¢â¢â¢â¢â¢</label><input type="password" placeholder="â¢â¢â¢â¢â¢â¢â¢â¢" id="auto_98"> 1fr 1fr; gap: 1rem;"&gt;
                         <div class="form-group">
-                            <label>FTP Username</label>
+                            <label for="auto_99">FTP Username</label>
                             <label for="auto_99" class="sr-only">username</label><input type="text" placeholder="username" id="auto_99">
                         </div>
                         <div class="form-group">
-                            <label>FTP Password</label>
-                            <label for="auto_100" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_100">
+                            <label for="auto_100">FTP Password</label>
+                            <label for="auto_100" class="sr-only">â¢â¢â¢â¢â¢â¢â¢â¢</label><input type="password" placeholder="â¢â¢â¢â¢â¢â¢â¢â¢" id="auto_100">
                         </div>
                     </div>
                     
                     <button class="save-btn" style="margin-top: 1rem;">
                         <i class="fas fa-save"></i> Kaydet
                     </button>
-                </div>
+                
 
                 <!-- Email Templates Tab -->
                 <div id="emailtab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-envelope"></i> Email Şablonları
+                        <i class="fas fa-envelope"></i> Email ÅablonlarÄ±
                     </h3>
                     
                     <div style="display: flex; flex-direction: column; gap: 1rem;">
@@ -5076,18 +5080,18 @@ include '../includes/dashboard_header.php';
                         <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div>
-                                    <h5 style="margin: 0;">Hoş Geldin Emaili</h5>
-                                    <small style="color: #64748b;">Yeni kullanıcı kaydında gönderilen email</<label for="auto_101" class="sr-only">Input</label><input type="text" value="CarWash'a Hoş Geldiniz!" id="auto_101">                            <button class="action-btn edit-btn">
-                                    <i class="fas fa-edit"></i> Düzenle
+                                    <h5 style="margin: 0;">HoÅ Geldin Emaili</h5>
+                                    <small style="color: #64748b;">Yeni kullanÄ±cÄ± kaydÄ±nda gÃ¶nderilen email<label for="auto_101" class="sr-only">Input</label><input type="text" value="CarWash'a HoÅ Geldiniz!" id="auto_101">                            <button class="action-btn edit-btn">
+                                    <i class="fas fa-edit"></i> DÃ¼zenle
                                 </button>
-                            </div>
+                            </small></div>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
-                                <label>Konu</label>
-                                <label for="auto_102" class="sr-only">Input</label><input type="text" value="CarWash'a Hoş Geldiniz!" id="auto_102">
+                                <label for="auto_102">Konu</label>
+                                <label for="auto_102" class="sr-only">Input</label><input type="text" value="CarWash'a HoÅ Geldiniz!" id="auto_102">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label>Gövde</label>
-                       <label for="auto_103" class="sr-only">Input</label><textarea rows="3" readonly id="auto_103">readonly>Merhaba {{user_name}}, CarWash ailesine hoş geldiniz!</textarea>
+                                <label for="auto_103">GÃ¶vde</label>
+                       <label for="auto_103" class="sr-only">Input</label><textarea rows="3" readonly id="auto_103">readonly&gt;Merhaba {{user_name}}, CarWash ailesine hoÅ geldiniz!</textarea>
                             </div>
                         </div>
                         
@@ -5095,18 +5099,18 @@ include '../includes/dashboard_header.php';
                         <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div>
-                                    <h5 style="margin: 0;">Sipariş Onayı</h5>
-                                    <small style="color: #64748b;">Sipariş oluşturulduğunda gönderile<label for="auto_104" class="sr-only">Input</label><input type="text" value="Siparişiniz Alındı - #{{order_id}}" id="auto_104">                        <button class="action-btn edit-btn">
-                                    <i class="fas fa-edit"></i> Düzenle
+                                    <h5 style="margin: 0;">SipariÅ OnayÄ±</h5>
+                                    <small style="color: #64748b;">SipariÅ oluÅturulduÄunda gÃ¶nderile<label for="auto_104" class="sr-only">Input</label><input type="text" value="SipariÅiniz AlÄ±ndÄ± - #{{order_id}}" id="auto_104">                        <button class="action-btn edit-btn">
+                                    <i class="fas fa-edit"></i> DÃ¼zenle
                                 </button>
-                            </div>
+                            </small></div>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
-                                <label>Konu</label>
-                                <label for="auto_105" class="sr-only">Input</label><input type="text" value="Siparişiniz Alındı - #{{order_id}}" id="auto_105">
+                                <label for="auto_105">Konu</label>
+                                <label for="auto_105" class="sr-only">Input</label><input type="text" value="SipariÅiniz AlÄ±ndÄ± - #{{order_id}}" id="auto_105">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label>Gövde</label>
-              <label for="auto_106" class="sr-only">Input</label><textarea rows="3" readonly id="auto_106">rows="3" readonly>Siparişiniz başarıyla alındı. Sipariş No: {{order_id}}</textarea>
+                                <label for="auto_106">GÃ¶vde</label>
+              <label for="auto_106" class="sr-only">Input</label><textarea rows="3" readonly id="auto_106">rows="3" readonly&gt;SipariÅiniz baÅarÄ±yla alÄ±ndÄ±. SipariÅ No: {{order_id}}</textarea>
                             </div>
                         </div>
                         
@@ -5114,61 +5118,61 @@ include '../includes/dashboard_header.php';
                         <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div>
-                                    <h5 style="margin: 0;">Şifre Sıfırlama</h5>
-                                    <small style="color: #64748b;">Şifre sıfırlama ta<label for="auto_107" class="sr-only">Input</label><input type="text" value="Şifre Sıfırlama Talebi" id="auto_107">     </div>
+                                    <h5 style="margin: 0;">Åifre SÄ±fÄ±rlama</h5>
+                                    <small style="color: #64748b;">Åifre sÄ±fÄ±rlama ta<label for="auto_107" class="sr-only">Input</label><input type="text" value="Åifre SÄ±fÄ±rlama Talebi" id="auto_107">     </small></div>
                                 <button class="action-btn edit-btn">
-                                    <i class="fas fa-edit"></i> Düzenle
+                                    <i class="fas fa-edit"></i> DÃ¼zenle
                                 </button>
                             </div>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
-                                <label>Konu</label>
-                                <label for="auto_108" class="sr-only">Input</label><input type="text" value="Şifre Sıfırlama Talebi" id="auto_108">
+                                <label for="auto_108">Konu</label>
+                                <label for="auto_108" class="sr-only">Input</label><input type="text" value="Åifre SÄ±fÄ±rlama Talebi" id="auto_108">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label>Gövde</label>
-     <label for="auto_109" class="sr-only">Input</label><textarea rows="3" readonly id="auto_109">textarea rows="3" readonly>Şifrenizi sıfırlamak için aşağıdaki linke tıklayın: {{reset_link}}</textarea>
+                                <label for="auto_109">GÃ¶vde</label>
+     <label for="auto_109" class="sr-only">Input</label><textarea rows="3" readonly id="auto_109">textarea rows="3" readonly&gt;Åifrenizi sÄ±fÄ±rlamak iÃ§in aÅaÄÄ±daki linke tÄ±klayÄ±n: {{reset_link}}</textarea>
                             </div>
                         </div>
                     </div>
                     
                     <div style="margin-top: 1.5rem; padding: 1rem; background: #667eea10; border-radius: 8px; border-left: 4px solid #667eea;">
-                        <p style="margin: 0; color: #333;"><strong>Kullanılabilir Değişkenler:</strong></p>
+                        <p style="margin: 0; color: #333;"><strong>KullanÄ±labilir DeÄiÅkenler:</strong></p>
                         <code style="display: block; margin-top: 0.5rem; font-size: 0.875rem;">
                             {{user_name}}, {{user_email}}, {{order_id}}, {{service_name}}, {{price}}, {{date}}, {{time}}, {{reset_link}}
                         </code>
                     </div>
                 </div>
-            </section>
-    </main>
+            
+    
 </div>
 
 <!-- Modals -->
 <!-- Add Car Wash Modal -->
-    <!-- Farsça: مودال افزودن کارواش. -->
-    <!-- Türkçe: Otopark Ekle Modalı. -->
+    <!-- FarsÃ§a: ÙÙØ¯Ø§Ù Ø§ÙØ²ÙØ¯Ù Ú©Ø§Ø±ÙØ§Ø´. -->
+    <!-- TÃ¼rkÃ§e: Otopark Ekle ModalÄ±. -->
     <!-- English: Add Car Wash Modal. -->
     <div id="carwashModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Yeni Otopark Ekle</h3>
-                <span class="close" id="closeCarwashModal">&times;</span>
+                <span class="close" id="closeCarwashModal">×</span>
             </div>
             <div class="modal-body">
                 <form id="carwashForm">
                     <div class="form-group">
-                        <label>Otopark Adı</label>
+                        <label for="carwashName">Otopark AdÄ±</label>
                         <label for="carwashName" class="sr-only">Input</label><input type="text" id="carwashName" required>
                     </div>
                     <div class="form-group">
-                        <label>Adres</label>
+                        <label for="carwashAddress">Adres</label>
                         <label for="carwashAddress" class="sr-only">Input</label><textarea id="carwashAddress" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Kapasite</label>
+                        <label for="carwashCapacity">Kapasite</label>
                         <label for="carwashCapacity" class="sr-only">Input</label><input type="number" id="carwashCapacity" required>
                     </div>
                     <div class="form-group">
-                        <label>Saat Ücreti (₺)</label>
+                        <label for="carwashPrice">Saat Ãcreti (âº)</label>
                         <label for="carwashPrice" class="sr-only">Input</label><input type="number" id="carwashPrice" required>
                     </div>
                     <div class="form-group">
@@ -5176,7 +5180,7 @@ include '../includes/dashboard_header.php';
                         <select id="carwashStatus" required title="Durum">
                             <option value="active">Aktif</option>
                             <option value="inactive">Pasif</option>
-                            <option value="maintenance">Bakımda</option>
+                            <option value="maintenance">BakÄ±mda</option>
                         </select>
                     </div>
                     <button type="submit" class="submit-btn">Otopark Ekle</button>
@@ -5186,76 +5190,76 @@ include '../includes/dashboard_header.php';
     </div>
 
 <!-- Add Service Modal -->
-    <!-- Farsça: مودال افزودن خدمات. -->
-    <!-- Türkçe: Hizmet Ekle Modalı. -->
+    <!-- FarsÃ§a: ÙÙØ¯Ø§Ù Ø§ÙØ²ÙØ¯Ù Ø®Ø¯ÙØ§Øª. -->
+    <!-- TÃ¼rkÃ§e: Hizmet Ekle ModalÄ±. -->
     <!-- English: Add Service Modal. -->
     <div id="serviceModal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
                 <h3><i class="fas fa-concierge-bell mr-2"></i>Yeni Hizmet Ekle</h3>
-                <span class="close" id="closeServiceModal">&times;</span>
+                <span class="close" id="closeServiceModal">×</span>
             </div>
             <div class="modal-body">
                 <form id="serviceForm">
                     <div class="form-group">
-                        <label><i class="fas fa-tag mr-1"></i>Hizmet Adı *</label>
-                        <label for="serviceName" class="sr-only">Service name</label><input type="text" id="serviceName" name="service_name" placeholder="Örn: Dış Yıkama" required>
+                        <label for="serviceName"><i class="fas fa-tag mr-1"></i>Hizmet AdÄ± *</label>
+                        <label for="serviceName" class="sr-only">Service name</label><input type="text" id="serviceName" name="service_name" placeholder="Ãrn: DÄ±Å YÄ±kama" required>
                     </div>
                     
                     <div class="form-group">
-                        <label><i class="fas fa-align-left mr-1"></i>Açıklama</label>
-                        <label for="serviceDescription" class="sr-only">Description</label><textarea id="serviceDescription" name="description" rows="3" placeholder="Hizmet açıklaması..."></textarea>
+                        <label for="serviceDescription"><i class="fas fa-align-left mr-1"></i>AÃ§Ä±klama</label>
+                        <label for="serviceDescription" class="sr-only">Description</label><textarea id="serviceDescription" name="description" rows="3" placeholder="Hizmet aÃ§Ä±klamasÄ±..."></textarea>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label><i class="fas fa-layer-group mr-1"></i>Kategori *</label>
+                            <label for="serviceCategory"><i class="fas fa-layer-group mr-1"></i>Kategori *</label>
                             <label for="serviceCategory" class="sr-only">Category</label><select id="serviceCategory" name="category" required>
-                                <option value="">Kategori Seçin</option>
-                                <option value="wash">Yıkama</option>
-                                <option value="detail">Detaylı Bakım</option>
-                                <option value="polish">Cilalama & Koruma</option>
-                                <option value="interior">İç Temizlik</option>
+                                <option value="">Kategori SeÃ§in</option>
+                                <option value="wash">YÄ±kama</option>
+                                <option value="detail">DetaylÄ± BakÄ±m</option>
+                                <option value="polish">Cilalama &amp; Koruma</option>
+                                <option value="interior">Ä°Ã§ Temizlik</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label><i class="fas fa-clock mr-1"></i>Süre (dakika) *</label>
+                            <label for="serviceDuration"><i class="fas fa-clock mr-1"></i>SÃ¼re (dakika) *</label>
                             <label for="serviceDuration" class="sr-only">Duration</label><input type="number" id="serviceDuration" name="duration" min="1" placeholder="30" required>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label><i class="fas fa-car mr-1"></i>Araç Tipi Fiyatlandırması *</label>
+                        <label for="priceSedan"><i class="fas fa-car mr-1"></i>AraÃ§ Tipi FiyatlandÄ±rmasÄ± *</label>
                         <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
                                 <div>
-                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;">Sedan (₺) *</label>
+                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;" for="priceSedan">Sedan (âº) *</label>
                                     <label for="priceSedan" class="sr-only">Price sedan</label><input type="number" id="priceSedan" name="price_sedan" min="0" step="0.01" placeholder="150" required style="margin-top: 0.25rem;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;">SUV (₺) *</label>
+                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;" for="priceSUV">SUV (âº) *</label>
                                     <label for="priceSUV" class="sr-only">Price suv</label><input type="number" id="priceSUV" name="price_suv" min="0" step="0.01" placeholder="180" required style="margin-top: 0.25rem;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;">Kamyonet (₺) *</label>
+                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;" for="priceTruck">Kamyonet (âº) *</label>
                                     <label for="priceTruck" class="sr-only">Price truck</label><input type="number" id="priceTruck" name="price_truck" min="0" step="0.01" placeholder="200" required style="margin-top: 0.25rem;">
                                 </div>
                             </div>
                             <small style="color: #666; font-size: 0.8rem;">
-                                <i class="fas fa-info-circle"></i> Her araç tipi için farklı fiyat belirleyebilirsiniz
+                                <i class="fas fa-info-circle"></i> Her araÃ§ tipi iÃ§in farklÄ± fiyat belirleyebilirsiniz
                             </small>
                         </div>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
+                            <label for="serviceOrder"><i class="fas fa-sort-numeric-up mr-1"></i>SÄ±ralama</label>
                             <label for="serviceOrder" class="sr-only">Sort order</label><input type="number" id="serviceOrder" name="sort_order" min="1" placeholder="1" value="1">
                         </div>
                         
                         <div class="form-group">
-                            <label><i class="fas fa-toggle-on mr-1"></i>Durum *</label>
+                            <label for="serviceStatus"><i class="fas fa-toggle-on mr-1"></i>Durum *</label>
                             <label for="serviceStatus" class="sr-only">Status</label><select id="serviceStatus" name="status" required>
                                 <option value="active">Aktif</option>
                                 <option value="inactive">Pasif</option>
@@ -5264,10 +5268,10 @@ include '../includes/dashboard_header.php';
                     </div>
                     
                     <div class="form-group">
-                        <label><i class="fas fa-icons mr-1"></i>İkon (Font Awesome sınıfı)</label>
+                        <label for="serviceIcon"><i class="fas fa-icons mr-1"></i>Ä°kon (Font Awesome sÄ±nÄ±fÄ±)</label>
                         <label for="serviceIcon" class="sr-only">Icon</label><input type="text" id="serviceIcon" name="icon" placeholder="fas fa-car" value="fas fa-car">
                         <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 0.25rem;">
-                            <i class="fas fa-lightbulb"></i> Örnek: fas fa-car, fas fa-broom, fas fa-star, fas fa-shield-alt
+                            <i class="fas fa-lightbulb"></i> Ãrnek: fas fa-car, fas fa-broom, fas fa-star, fas fa-shield-alt
                         </small>
                     </div>
                     
@@ -5280,86 +5284,86 @@ include '../includes/dashboard_header.php';
     </div>
 
 <!-- Add Ticket Modal -->
-    <!-- Farsça: مودال افزودن تیکت. -->
-    <!-- Türkçe: Destek Talebi Ekle Modalı. -->
+    <!-- FarsÃ§a: ÙÙØ¯Ø§Ù Ø§ÙØ²ÙØ¯Ù ØªÛÚ©Øª. -->
+    <!-- TÃ¼rkÃ§e: Destek Talebi Ekle ModalÄ±. -->
     <!-- English: Add Ticket Modal. -->
     <div id="ticketModal" class="modal">
         <div class="modal-content" style="max-width: 650px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #fd7e14, #dc3545);">
-                <h3><i class="fas fa-ticket-alt mr-2"></i>Yeni Destek Talebi Oluştur</h3>
-                <span class="close" id="closeTicketModal">&times;</span>
+                <h3><i class="fas fa-ticket-alt mr-2"></i>Yeni Destek Talebi OluÅtur</h3>
+                <span class="close" id="closeTicketModal">×</span>
             </div>
             <div class="modal-body">
                 <form id="ticketForm">
                     <div class="form-group">
-                        <label><i class="fas fa-user mr-1"></i>Müşteri Seçin *</label>
+                        <label for="ticketCustomer"><i class="fas fa-user mr-1"></i>MÃ¼Återi SeÃ§in *</label>
                         <label for="ticketCustomer" class="sr-only">Customer id</label><select id="ticketCustomer" name="customer_id" required>
-                            <option value="">Müşteri Seçin</option>
-                            <option value="1">Ahmet Yılmaz - ahmet@email.com</option>
+                            <option value="">MÃ¼Återi SeÃ§in</option>
+                            <option value="1">Ahmet YÄ±lmaz - ahmet@email.com</option>
                             <option value="2">Elif Kara - elif@email.com</option>
                             <option value="3">Mehmet Demir - mehmet@email.com</option>
-                            <option value="4">Zeynep Öztürk - zeynep@email.com</option>
+                            <option value="4">Zeynep ÃztÃ¼rk - zeynep@email.com</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label><i class="fas fa-heading mr-1"></i>Konu *</label>
+                        <label for="ticketSubject"><i class="fas fa-heading mr-1"></i>Konu *</label>
                         <label for="ticketSubject" class="sr-only">Subject</label><input type="text" id="ticketSubject" name="subject" placeholder="Talep konusu..." required>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label><i class="fas fa-tag mr-1"></i>Kategori *</label>
+                            <label for="ticketCategory"><i class="fas fa-tag mr-1"></i>Kategori *</label>
                             <label for="ticketCategory" class="sr-only">Category</label><select id="ticketCategory" name="category" required>
-                                <option value="">Kategori Seçin</option>
+                                <option value="">Kategori SeÃ§in</option>
                                 <option value="technical">Teknik Destek</option>
-                                <option value="billing">Ödeme & Fatura</option>
-                                <option value="service">Hizmet Soruları</option>
-                                <option value="complaint">Şikayet</option>
-                                <option value="other">Diğer</option>
+                                <option value="billing">Ãdeme &amp; Fatura</option>
+                                <option value="service">Hizmet SorularÄ±</option>
+                                <option value="complaint">Åikayet</option>
+                                <option value="other">DiÄer</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label><i class="fas fa-exclamation-circle mr-1"></i>Öncelik *</label>
+                            <label for="ticketPriority"><i class="fas fa-exclamation-circle mr-1"></i>Ãncelik *</label>
                             <label for="ticketPriority" class="sr-only">Priority</label><select id="ticketPriority" name="priority" required>
-                                <option value="">Öncelik Seçin</option>
-                                <option value="low">Düşük</option>
+                                <option value="">Ãncelik SeÃ§in</option>
+                                <option value="low">DÃ¼ÅÃ¼k</option>
                                 <option value="medium" selected>Orta</option>
-                                <option value="high">Yüksek</option>
+                                <option value="high">YÃ¼ksek</option>
                                 <option value="urgent">Acil</option>
                             </select>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label><i class="fas fa-align-left mr-1"></i>Mesaj *</label>
-                        <label for="ticketMessage" class="sr-only">Message</label><textarea id="ticketMessage" name="message" rows="5" placeholder="Talep detaylarını yazın..." required></textarea>
+                        <label for="ticketMessage"><i class="fas fa-align-left mr-1"></i>Mesaj *</label>
+                        <label for="ticketMessage" class="sr-only">Message</label><textarea id="ticketMessage" name="message" rows="5" placeholder="Talep detaylarÄ±nÄ± yazÄ±n..." required></textarea>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label><i class="fas fa-user-tag mr-1"></i>Atanan Kişi</label>
+                            <label for="ticketAssignedTo"><i class="fas fa-user-tag mr-1"></i>Atanan KiÅi</label>
                             <label for="ticketAssignedTo" class="sr-only">Assigned to</label><select id="ticketAssignedTo" name="assigned_to">
-                                <option value="">Atama Yapılmadı</option>
+                                <option value="">Atama YapÄ±lmadÄ±</option>
                                 <option value="1">Destek Ekibi - Ahmet</option>
-                                <option value="2">Destek Ekibi - Ayşe</option>
+                                <option value="2">Destek Ekibi - AyÅe</option>
                                 <option value="3">Destek Ekibi - Mehmet</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label><i class="fas fa-flag mr-1"></i>Durum</label>
+                            <label for="ticketStatus"><i class="fas fa-flag mr-1"></i>Durum</label>
                             <label for="ticketStatus" class="sr-only">Status</label><select id="ticketStatus" name="status">
                                 <option value="new" selected>Yeni</option>
-                                <option value="open">Açık</option>
+                                <option value="open">AÃ§Ä±k</option>
                                 <option value="in_progress">Devam Ediyor</option>
                             </select>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label><i class="fas fa-paperclip mr-1"></i>Dosya Ekle (Opsiyonel)</label>
+                        <label for="ticketAttachment"><i class="fas fa-paperclip mr-1"></i>Dosya Ekle (Opsiyonel)</label>
                         <label for="ticketAttachment" class="sr-only">Attachment</label><input type="file" id="ticketAttachment" name="attachment" accept="image/*,.pdf,.doc,.docx" style="padding: 8px;">
                         <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 0.25rem;">
                             <i class="fas fa-info-circle"></i> Maksimum dosya boyutu: 5MB
@@ -5367,7 +5371,7 @@ include '../includes/dashboard_header.php';
                     </div>
                     
                     <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #fd7e14, #dc3545);">
-                        <i class="fas fa-paper-plane mr-2"></i>Talebi Oluştur
+                        <i class="fas fa-paper-plane mr-2"></i>Talebi OluÅtur
                     </button>
                 </form>
             </div>
@@ -5375,60 +5379,60 @@ include '../includes/dashboard_header.php';
     </div>
 
 <!-- Add User Modal -->
-    <!-- Farsça: مودال افزودن کاربر. -->
-    <!-- Türkçe: Kullanıcı Ekle Modalı. -->
+    <!-- FarsÃ§a: ÙÙØ¯Ø§Ù Ø§ÙØ²ÙØ¯Ù Ú©Ø§Ø±Ø¨Ø±. -->
+    <!-- TÃ¼rkÃ§e: KullanÄ±cÄ± Ekle ModalÄ±. -->
     <!-- English: Add User Modal. -->
     <div id="userModal" class="modal">
         <div class="modal-content" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
-                <h3>Yeni Kullanıcı Ekle</h3>
-                <span class="close" id="closeUserModal">&times;</span>
+                <h3>Yeni KullanÄ±cÄ± Ekle</h3>
+                <span class="close" id="closeUserModal">×</span>
             </div>
             <div class="modal-body">
                 <form id="userForm">
                     <div class="form-group">
-                        <label>Kullanıcı Adı *</label>
+                        <label for="userName">KullanÄ±cÄ± AdÄ± *</label>
                         <label for="userName" class="sr-only">Username</label><input type="text" name="username" id="userName" required placeholder="kullanici_adi">
-                        <small style="color: #64748b;">Benzersiz kullanıcı adı</small>
+                        <small style="color: #64748b;">Benzersiz kullanÄ±cÄ± adÄ±</small>
                     </div>
                     
                     <div class="form-group">
-                        <label>Email Adresi *</label>
+                        <label for="userEmail">Email Adresi *</label>
                         <label for="userEmail" class="sr-only">Email</label><input type="email" name="email" id="userEmail" required placeholder="ornek@email.com">
                     </div>
                     
                     <div class="form-group">
-                        <label>Şifre *</label>
-                        <label for="userPassword" class="sr-only">Password</label><input type="password" name="password" id="userPassword" required placeholder="Güçlü şifre">
-                        <small style="color: #64748b;">En az 8 karakter, büyük/küçük harf ve rakam içermeli</small>
+                        <label for="userPassword">Åifre *</label>
+                        <label for="userPassword" class="sr-only">Password</label><input type="password" name="password" id="userPassword" required placeholder="GÃ¼Ã§lÃ¼ Åifre">
+                        <small style="color: #64748b;">En az 8 karakter, bÃ¼yÃ¼k/kÃ¼Ã§Ã¼k harf ve rakam iÃ§ermeli</small>
                     </div>
                     
                     <div class="form-group">
-                        <label>Şifre Tekrar *</label>
-                        <label for="userPasswordConfirm" class="sr-only">Password confirm</label><input type="password" name="password_confirm" id="userPasswordConfirm" required placeholder="Şifreyi tekrar girin">
+                        <label for="userPasswordConfirm">Åifre Tekrar *</label>
+                        <label for="userPasswordConfirm" class="sr-only">Password confirm</label><input type="password" name="password_confirm" id="userPasswordConfirm" required placeholder="Åifreyi tekrar girin">
                     </div>
                     
                     <div class="form-group">
-                        <label>Tam Adı *</label>
+                        <label for="userFullName">Tam AdÄ± *</label>
                         <label for="userFullName" class="sr-only">Full name</label><input type="text" name="full_name" id="userFullName" required placeholder="Ad Soyad">
                     </div>
                     
                     <div class="form-group">
-                        <label>Telefon</label>
+                        <label for="userPhone">Telefon</label>
                         <label for="userPhone" class="sr-only">Phone</label><input type="tel" name="phone" id="userPhone" placeholder="+90 555 123 4567">
                     </div>
                     
                     <div class="form-group">
                         <label for="userRole">Rol *</label>
                         <select name="role_id" id="userRole" required title="Rol">
-                            <option value="">Rol Seçin</option>
+                            <option value="">Rol SeÃ§in</option>
                             <option value="1">SuperAdmin - Tam Yetki</option>
-                            <option value="2">Admin - Yönetici</option>
-                            <option value="3">Manager - Müdür</option>
+                            <option value="2">Admin - YÃ¶netici</option>
+                            <option value="3">Manager - MÃ¼dÃ¼r</option>
                             <option value="4">Support - Destek</option>
-                            <option value="5">Auditor - Denetçi</option>
+                            <option value="5">Auditor - DenetÃ§i</option>
                         </select>
-                        <small style="color: #64748b;">Kullanıcının erişim seviyesini belirler</small>
+                        <small style="color: #64748b;">KullanÄ±cÄ±nÄ±n eriÅim seviyesini belirler</small>
                     </div>
                     
                     <div class="form-group">
@@ -5436,28 +5440,28 @@ include '../includes/dashboard_header.php';
                         <select name="status" id="userStatus" title="Durum">
                             <option value="active">Aktif</option>
                             <option value="inactive">Pasif</option>
-                            <option value="suspended">Askıya Alınmış</option>
+                            <option value="suspended">AskÄ±ya AlÄ±nmÄ±Å</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <label for="userRequire2FA" class="sr-only">Require 2fa</label><input type="checkbox" name="require_2fa" id="userRequire2FA" style="width: auto; margin: 0;">
-                            <span>İki Faktörlü Kimlik Doğrulama Zorunlu</span>
+                            <span>Ä°ki FaktÃ¶rlÃ¼ Kimlik DoÄrulama Zorunlu</span>
                         </label>
-                        <small style="color: #64748b;">Kullanıcı ilk girişte 2FA kurulumu yapacak</small>
+                        <small style="color: #64748b;">KullanÄ±cÄ± ilk giriÅte 2FA kurulumu yapacak</small>
                     </div>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <label for="userEmailVerified" class="sr-only">Email verified</label><input type="checkbox" name="email_verified" id="userEmailVerified" checked style="width: auto; margin: 0;">
-                            <span>Email Doğrulanmış Olarak İşaretle</span>
+                            <span>Email DoÄrulanmÄ±Å Olarak Ä°Åaretle</span>
                         </label>
                     </div>
                     
                     <button type="submit" class="submit-btn">
                         <i class="fas fa-user-plus"></i>
-                        Kullanıcı Oluştur
+                        KullanÄ±cÄ± OluÅtur
                     </button>
                 </form>
             </div>
@@ -5465,14 +5469,14 @@ include '../includes/dashboard_header.php';
     </div>
 
 <!-- Add CMS Page Modal -->
-    <!-- Farsça: مودال افزودن صفحه CMS. -->
-    <!-- Türkçe: CMS Sayfası Ekle Modalı. -->
+    <!-- FarsÃ§a: ÙÙØ¯Ø§Ù Ø§ÙØ²ÙØ¯Ù ØµÙØ­Ù CMS. -->
+    <!-- TÃ¼rkÃ§e: CMS SayfasÄ± Ekle ModalÄ±. -->
     <!-- English: Add CMS Page Modal. -->
     <div id="cmsPageModal" class="modal">
         <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header" style="background: linear-gradient(135deg, #764ba2, #667eea);">
-                <h3><i class="fas fa-file-alt mr-2"></i>Yeni Sayfa Oluştur</h3>
-                <span class="close" id="closeCmsPageModal">&times;</span>
+                <h3><i class="fas fa-file-alt mr-2"></i>Yeni Sayfa OluÅtur</h3>
+                <span class="close" id="closeCmsPageModal">×</span>
             </div>
             <div class="modal-body">
                 <form id="cmsPageForm">
@@ -5485,22 +5489,22 @@ include '../includes/dashboard_header.php';
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label><i class="fas fa-heading mr-1"></i>Sayfa Başlığı *</label>
-                                <label for="pageTitle" class="sr-only">Page title</label><input type="text" name="page_title" id="pageTitle" required placeholder="Örn: Hakkımızda">
-                                <small style="color: #64748b;">Sayfa başlığı (meta title)</small>
+                                <label for="pageTitle"><i class="fas fa-heading mr-1"></i>Sayfa BaÅlÄ±ÄÄ± *</label>
+                                <label for="pageTitle" class="sr-only">Page title</label><input type="text" name="page_title" id="pageTitle" required placeholder="Ãrn: HakkÄ±mÄ±zda">
+                                <small style="color: #64748b;">Sayfa baÅlÄ±ÄÄ± (meta title)</small>
                             </div>
                             
                             <div class="form-group">
-                                <label><i class="fas fa-link mr-1"></i>URL Slug *</label>
-                                <label for="pageSlug" class="sr-only">Page slug</label><input type="text" name="page_slug" id="pageSlug" required placeholder="Örn: hakkimizda">
-                                <small style="color: #64748b;">URL dostu metin (otomatik oluşturulur)</small>
+                                <label for="pageSlug"><i class="fas fa-link mr-1"></i>URL Slug *</label>
+                                <label for="pageSlug" class="sr-only">Page slug</label><input type="text" name="page_slug" id="pageSlug" required placeholder="Ãrn: hakkimizda">
+                                <small style="color: #64748b;">URL dostu metin (otomatik oluÅturulur)</small>
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label><i class="fas fa-align-left mr-1"></i>Kısa Açıklama</label>
-                            <label for="pageDescription" class="sr-only">Page description</label><textarea name="page_description" id="pageDescription" rows="2" placeholder="Sayfa meta açıklaması (SEO için önemli)"></textarea>
-                            <small style="color: #64748b;">150-160 karakter önerilir</small>
+                            <label for="pageDescription"><i class="fas fa-align-left mr-1"></i>KÄ±sa AÃ§Ä±klama</label>
+                            <label for="pageDescription" class="sr-only">Page description</label><textarea name="page_description" id="pageDescription" rows="2" placeholder="Sayfa meta aÃ§Ä±klamasÄ± (SEO iÃ§in Ã¶nemli)"></textarea>
+                            <small style="color: #64748b;">150-160 karakter Ã¶nerilir</small>
                         </div>
                     </div>
 
@@ -5508,12 +5512,12 @@ include '../includes/dashboard_header.php';
                     <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #667eea;">
                         <h4 style="margin: 0 0 16px 0; color: #667eea; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-file-code"></i>
-                            Sayfa İçeriği
+                            Sayfa Ä°Ã§eriÄi
                         </h4>
                         
                         <div class="form-group">
-                            <label><i class="fas fa-paragraph mr-1"></i>Ana İçerik *</label>
-                            <label for="pageContent" class="sr-only">Page content</label><textarea name="page_content" id="pageContent" rows="10" required placeholder="Sayfa içeriğini buraya yazın... HTML etiketleri kullanabilirsiniz."></textarea>
+                            <label for="pageContent"><i class="fas fa-paragraph mr-1"></i>Ana Ä°Ã§erik *</label>
+                            <label for="pageContent" class="sr-only">Page content</label><textarea name="page_content" id="pageContent" rows="10" required placeholder="Sayfa iÃ§eriÄini buraya yazÄ±n... HTML etiketleri kullanabilirsiniz."></textarea>
                             <small style="color: #64748b;">
                                 <i class="fas fa-lightbulb"></i> 
                                 HTML etiketleri desteklenir: &lt;h1&gt;, &lt;p&gt;, &lt;div&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;a&gt;, &lt;img&gt;
@@ -5522,13 +5526,13 @@ include '../includes/dashboard_header.php';
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label><i class="fas fa-image mr-1"></i>Öne Çıkan Görsel (URL)</label>
+                                <label for="featuredImage"><i class="fas fa-image mr-1"></i>Ãne ÃÄ±kan GÃ¶rsel (URL)</label>
                                 <label for="featuredImage" class="sr-only">Featured image</label><input type="url" name="featured_image" id="featuredImage" placeholder="https://example.com/image.jpg">
-                                <small style="color: #64748b;">Sayfa görseli URL'si</small>
+                                <small style="color: #64748b;">Sayfa gÃ¶rseli URL'si</small>
                             </div>
                             
                             <div class="form-group">
-                                <label><i class="fas fa-palette mr-1"></i>Arka Plan Rengi</label>
+                                <label for="backgroundColor"><i class="fas fa-palette mr-1"></i>Arka Plan Rengi</label>
                                 <label for="backgroundColor" class="sr-only">Background color</label><input type="color" name="background_color" id="backgroundColor" value="#ffffff" style="height: 45px; padding: 4px;">
                                 <small style="color: #64748b;">Sayfa arka plan rengi</small>
                             </div>
@@ -5539,53 +5543,53 @@ include '../includes/dashboard_header.php';
                     <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #28a745;">
                         <h4 style="margin: 0 0 16px 0; color: #28a745; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-cog"></i>
-                            Sayfa Ayarları
+                            Sayfa AyarlarÄ±
                         </h4>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label><i class="fas fa-list-alt mr-1"></i>Kategori *</label>
+                                <label for="pageCategory"><i class="fas fa-list-alt mr-1"></i>Kategori *</label>
                                 <label for="pageCategory" class="sr-only">Page category</label><select name="page_category" id="pageCategory" required>
-                                    <option value="">Kategori Seçin</option>
-                                    <option value="about">Hakkımızda</option>
+                                    <option value="">Kategori SeÃ§in</option>
+                                    <option value="about">HakkÄ±mÄ±zda</option>
                                     <option value="services">Hizmetler</option>
-                                    <option value="contact">İletişim</option>
-                                    <option value="help">Yardım & SSS</option>
+                                    <option value="contact">Ä°letiÅim</option>
+                                    <option value="help">YardÄ±m &amp; SSS</option>
                                     <option value="legal">Yasal</option>
                                     <option value="blog">Blog</option>
-                                    <option value="other">Diğer</option>
+                                    <option value="other">DiÄer</option>
                                 </select>
                             </div>
                             
                             <div class="form-group">
-                                <label><i class="fas fa-flag mr-1"></i>Durum *</label>
+                                <label for="pageStatus"><i class="fas fa-flag mr-1"></i>Durum *</label>
                                 <label for="pageStatus" class="sr-only">Page status</label><select name="page_status" id="pageStatus" required>
                                     <option value="draft">Taslak</option>
-                                    <option value="published" selected>Yayında</option>
-                                    <option value="archived">Arşivlendi</option>
+                                    <option value="published" selected>YayÄ±nda</option>
+                                    <option value="archived">ArÅivlendi</option>
                                 </select>
                             </div>
                             
                             <div class="form-group">
-                                <label><i class="fas fa-language mr-1"></i>Dil *</label>
+                                <label for="pageLanguage"><i class="fas fa-language mr-1"></i>Dil *</label>
                                 <label for="pageLanguage" class="sr-only">Page language</label><select name="page_language" id="pageLanguage" required>
-                                    <option value="tr" selected>Türkçe</option>
+                                    <option value="tr" selected>TÃ¼rkÃ§e</option>
                                     <option value="en">English</option>
-                                    <option value="ar">العربية</option>
-                                    <option value="fa">فارسی</option>
+                                    <option value="ar">Ø§ÙØ¹Ø±Ø¨ÙØ©</option>
+                                    <option value="fa">ÙØ§Ø±Ø³Û</option>
                                 </select>
                             </div>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
                             <div class="form-group">
-                                <label><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
+                                <label for="pageOrder"><i class="fas fa-sort-numeric-up mr-1"></i>SÄ±ralama</label>
                                 <label for="pageOrder" class="sr-only">Page order</label><input type="number" name="page_order" id="pageOrder" value="0" min="0" placeholder="0">
-                                <small style="color: #64748b;">Sayfa sıralama numarası (0 = en üstte)</small>
+                                <small style="color: #64748b;">Sayfa sÄ±ralama numarasÄ± (0 = en Ã¼stte)</small>
                             </div>
                             
                             <div class="form-group">
-                                <label><i class="fas fa-user-tie mr-1"></i>Yazar</label>
+                                <label for="pageAuthor"><i class="fas fa-user-tie mr-1"></i>Yazar</label>
                                 <label for="pageAuthor" class="sr-only">Page author</label><select name="page_author" id="pageAuthor">
                                     <option value="1" selected>Admin</option>
                                     <option value="2">Editor</option>
@@ -5599,20 +5603,20 @@ include '../includes/dashboard_header.php';
                     <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #ffc107;">
                         <h4 style="margin: 0 0 16px 0; color: #ffc107; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-search"></i>
-                            SEO Ayarları
+                            SEO AyarlarÄ±
                         </h4>
                         
                         <div class="form-group">
-                            <label><i class="fas fa-tag mr-1"></i>Meta Anahtar Kelimeler</label>
-                            <label for="metaKeywords" class="sr-only">Meta keywords</label><input type="text" name="meta_keywords" id="metaKeywords" placeholder="otopark, araç yıkama, temizlik, bakım">
-                            <small style="color: #64748b;">Virgülle ayrılmış anahtar kelimeler</small>
+                            <label for="metaKeywords"><i class="fas fa-tag mr-1"></i>Meta Anahtar Kelimeler</label>
+                            <label for="metaKeywords" class="sr-only">Meta keywords</label><input type="text" name="meta_keywords" id="metaKeywords" placeholder="otopark, araÃ§ yÄ±kama, temizlik, bakÄ±m">
+                            <small style="color: #64748b;">VirgÃ¼lle ayrÄ±lmÄ±Å anahtar kelimeler</small>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label><i class="fas fa-robot mr-1"></i>Robots Meta Tag</label>
+                                <label for="robotsMeta"><i class="fas fa-robot mr-1"></i>Robots Meta Tag</label>
                                 <label for="robotsMeta" class="sr-only">Robots meta</label><select name="robots_meta" id="robotsMeta">
-                                    <option value="index,follow" selected>Index, Follow (Önerilen)</option>
+                                    <option value="index,follow" selected>Index, Follow (Ãnerilen)</option>
                                     <option value="noindex,follow">No Index, Follow</option>
                                     <option value="index,nofollow">Index, No Follow</option>
                                     <option value="noindex,nofollow">No Index, No Follow</option>
@@ -5620,9 +5624,9 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div class="form-group">
-                                <label><i class="fas fa-share-alt mr-1"></i>Open Graph Görseli</label>
+                                <label for="ogImage"><i class="fas fa-share-alt mr-1"></i>Open Graph GÃ¶rseli</label>
                                 <label for="ogImage" class="sr-only">Og image</label><input type="url" name="og_image" id="ogImage" placeholder="https://example.com/og-image.jpg">
-                                <small style="color: #64748b;">Sosyal medya paylaşım görseli</small>
+                                <small style="color: #64748b;">Sosyal medya paylaÅÄ±m gÃ¶rseli</small>
                             </div>
                         </div>
                     </div>
@@ -5631,19 +5635,19 @@ include '../includes/dashboard_header.php';
                     <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #17a2b8;">
                         <h4 style="margin: 0 0 16px 0; color: #17a2b8; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-sliders-h"></i>
-                            Gelişmiş Ayarlar
+                            GeliÅmiÅ Ayarlar
                         </h4>
                         
                         <div class="form-group">
-                            <label><i class="fas fa-code mr-1"></i>Özel CSS</label>
+                            <label for="customCss"><i class="fas fa-code mr-1"></i>Ãzel CSS</label>
                             <label for="customCss" class="sr-only">Custom css</label><textarea name="custom_css" id="customCss" rows="4" placeholder=".my-class { color: blue; }"></textarea>
-                            <small style="color: #64748b;">Bu sayfa için özel CSS kodları</small>
+                            <small style="color: #64748b;">Bu sayfa iÃ§in Ã¶zel CSS kodlarÄ±</small>
                         </div>
                         
                         <div class="form-group">
-                            <label><i class="fas fa-file-code mr-1"></i>Özel JavaScript</label>
+                            <label for="customJs"><i class="fas fa-file-code mr-1"></i>Ãzel JavaScript</label>
                             <label for="customJs" class="sr-only">Custom js</label><textarea name="custom_js" id="customJs" rows="4" placeholder="console.log('Page loaded');"></textarea>
-                            <small style="color: #64748b;">Bu sayfa için özel JavaScript kodları</small>
+                            <small style="color: #64748b;">Bu sayfa iÃ§in Ã¶zel JavaScript kodlarÄ±</small>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px;">
@@ -5651,7 +5655,7 @@ include '../includes/dashboard_header.php';
                                 <label style="display: flex; align-items: center; cursor: pointer;">
                                     <label for="showInMenu" class="sr-only">Show in menu</label><input type="checkbox" name="show_in_menu" id="showInMenu" checked style="margin-right: 8px;">
                                     <i class="fas fa-bars mr-1"></i>
-                                    Menüde Göster
+                                    MenÃ¼de GÃ¶ster
                                 </label>
                             </div>
                             
@@ -5659,7 +5663,7 @@ include '../includes/dashboard_header.php';
                                 <label style="display: flex; align-items: center; cursor: pointer;">
                                     <label for="showInFooter" class="sr-only">Show in footer</label><input type="checkbox" name="show_in_footer" id="showInFooter" style="margin-right: 8px;">
                                     <i class="fas fa-shoe-prints mr-1"></i>
-                                    Footer'da Göster
+                                    Footer'da GÃ¶ster
                                 </label>
                             </div>
                             
@@ -5667,7 +5671,7 @@ include '../includes/dashboard_header.php';
                                 <label style="display: flex; align-items: center; cursor: pointer;">
                                     <label for="requireAuth" class="sr-only">Require auth</label><input type="checkbox" name="require_auth" id="requireAuth" style="margin-right: 8px;">
                                     <i class="fas fa-lock mr-1"></i>
-                                    Giriş Gerekli
+                                    GiriÅ Gerekli
                                 </label>
                             </div>
                         </div>
@@ -5677,11 +5681,11 @@ include '../includes/dashboard_header.php';
                     <div style="display: flex; gap: 12px; justify-content: flex-end;">
                         <button type="button" class="report-btn" onclick="document.getElementById('cmsPageModal').style.display='none'" style="background: #6c757d; padding: 12px 24px;">
                             <i class="fas fa-times"></i>
-                            İptal
+                            Ä°ptal
                         </button>
                         <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #764ba2, #667eea); display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-save"></i>
-                            Sayfayı Kaydet
+                            SayfayÄ± Kaydet
                         </button>
                     </div>
                 </form>
@@ -5691,8 +5695,8 @@ include '../includes/dashboard_header.php';
 
     <script>
         // Mobile Menu Toggle Functions
-        // Farsça: توابع تغییر منوی موبایل.
-        // Türkçe: Mobil Menü Geçiş Fonksiyonları.
+        // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ØªØºÛÛØ± ÙÙÙÛ ÙÙØ¨Ø§ÛÙ.
+        // TÃ¼rkÃ§e: Mobil MenÃ¼ GeÃ§iÅ FonksiyonlarÄ±.
         // English: Mobile Menu Toggle Functions.
         function toggleMobileMenu() {
             const sidebar = document.getElementById('sidebar');
@@ -5756,29 +5760,29 @@ include '../includes/dashboard_header.php';
         window.addEventListener('resize', checkScreenSize);
         
         // Navigation functionality
-        // Farsça: عملکرد ناوبری.
-        // Türkçe: Navigasyon işlevselliği.
+        // FarsÃ§a: Ø¹ÙÙÚ©Ø±Ø¯ ÙØ§ÙØ¨Ø±Û.
+        // TÃ¼rkÃ§e: Navigasyon iÅlevselliÄi.
         // English: Navigation functionality.
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 
                 // Remove active class from all nav items and sections
-                // Farsça: حذف کلاس فعال از همه آیتم‌های ناوبری و بخش‌ها.
-                // Türkçe: Tüm navigasyon öğelerinden ve bölümlerden aktif sınıfını kaldır.
+                // FarsÃ§a: Ø­Ø°Ù Ú©ÙØ§Ø³ ÙØ¹Ø§Ù Ø§Ø² ÙÙÙ Ø¢ÛØªÙâÙØ§Û ÙØ§ÙØ¨Ø±Û Ù Ø¨Ø®Ø´âÙØ§.
+                // TÃ¼rkÃ§e: TÃ¼m navigasyon Ã¶Äelerinden ve bÃ¶lÃ¼mlerden aktif sÄ±nÄ±fÄ±nÄ± kaldÄ±r.
                 // English: Remove active class from all nav items and sections.
                 document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
                 document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
                 
                 // Add active class to clicked nav item
-                // Farsça: اضافه کردن کلاس فعال به آیتم ناوبری کلیک شده.
-                // Türkçe: Tıklanan navigasyon öğesine aktif sınıfını ekle.
+                // FarsÃ§a: Ø§Ø¶Ø§ÙÙ Ú©Ø±Ø¯Ù Ú©ÙØ§Ø³ ÙØ¹Ø§Ù Ø¨Ù Ø¢ÛØªÙ ÙØ§ÙØ¨Ø±Û Ú©ÙÛÚ© Ø´Ø¯Ù.
+                // TÃ¼rkÃ§e: TÄ±klanan navigasyon Ã¶Äesine aktif sÄ±nÄ±fÄ±nÄ± ekle.
                 // English: Add active class to clicked nav item.
                 this.parentElement.classList.add('active');
                 
                 // Show corresponding section
-                // Farsça: نمایش بخش مربوطه.
-                // Türkçe: İlgili bölümü göster.
+                // FarsÃ§a: ÙÙØ§ÛØ´ Ø¨Ø®Ø´ ÙØ±Ø¨ÙØ·Ù.
+                // TÃ¼rkÃ§e: Ä°lgili bÃ¶lÃ¼mÃ¼ gÃ¶ster.
                 // English: Show corresponding section.
                 const sectionId = this.getAttribute('data-section');
                 document.getElementById(sectionId).classList.add('active');
@@ -5791,8 +5795,8 @@ include '../includes/dashboard_header.php';
         });
 
         // Modal functionality
-        // Farsça: عملکرد مودال.
-        // Türkçe: Modal işlevselliği.
+        // FarsÃ§a: Ø¹ÙÙÚ©Ø±Ø¯ ÙÙØ¯Ø§Ù.
+        // TÃ¼rkÃ§e: Modal iÅlevselliÄi.
         // English: Modal functionality.
         const carwashModal = document.getElementById('carwashModal');
         const addCarwashBtn = document.getElementById('addCarwashBtn');
@@ -5813,22 +5817,22 @@ include '../includes/dashboard_header.php';
         });
 
         // Form submission
-        // Farsça: ارسال فرم.
-        // Türkçe: Form gönderimi.
+        // FarsÃ§a: Ø§Ø±Ø³Ø§Ù ÙØ±Ù.
+        // TÃ¼rkÃ§e: Form gÃ¶nderimi.
         // English: Form submission.
         document.getElementById('carwashForm').addEventListener('submit', function(e) {
             e.preventDefault();
             // Here you would typically send data to PHP backend
-            // Farsça: در اینجا شما معمولاً داده‌ها را به بک‌اند PHP ارسال می‌کنید.
-            // Türkçe: Burada tipik olarak verileri PHP arka ucuna gönderirsiniz.
+            // FarsÃ§a: Ø¯Ø± Ø§ÛÙØ¬Ø§ Ø´ÙØ§ ÙØ¹ÙÙÙØ§Ù Ø¯Ø§Ø¯ÙâÙØ§ Ø±Ø§ Ø¨Ù Ø¨Ú©âØ§ÙØ¯ PHP Ø§Ø±Ø³Ø§Ù ÙÛâÚ©ÙÛØ¯.
+            // TÃ¼rkÃ§e: Burada tipik olarak verileri PHP arka ucuna gÃ¶nderirsiniz.
             // English: Here you would typically send data to PHP backend.
-            alert('Otopark başarıyla eklendi!');
+            alert('Otopark baÅarÄ±yla eklendi!');
             carwashModal.style.display = 'none';
         });
 
         // User Modal Functions
-        // Farsça: توابع مودال کاربر.
-        // Türkçe: Kullanıcı Modal Fonksiyonları.
+        // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ÙÙØ¯Ø§Ù Ú©Ø§Ø±Ø¨Ø±.
+        // TÃ¼rkÃ§e: KullanÄ±cÄ± Modal FonksiyonlarÄ±.
         // English: User Modal Functions.
         const userModal = document.getElementById('userModal');
         const addUserBtn = document.getElementById('addUserBtn');
@@ -5853,8 +5857,8 @@ include '../includes/dashboard_header.php';
         });
 
         // CMS Page Modal Functions
-        // Farsça: توابع مودال صفحه CMS.
-        // Türkçe: CMS Sayfası Modal Fonksiyonları.
+        // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ÙÙØ¯Ø§Ù ØµÙØ­Ù CMS.
+        // TÃ¼rkÃ§e: CMS SayfasÄ± Modal FonksiyonlarÄ±.
         // English: CMS Page Modal Functions.
         const cmsPageModal = document.getElementById('cmsPageModal');
         const addCmsPageBtn = document.getElementById('addCmsPageBtn');
@@ -5879,8 +5883,8 @@ include '../includes/dashboard_header.php';
         });
 
         // Auto-generate URL slug from page title (Turkish character support)
-        // Farsça: تولید خودکار URL از عنوان صفحه (پشتیبانی از کاراکترهای ترکی).
-        // Türkçe: Sayfa başlığından otomatik URL slug üretimi (Türkçe karakter desteği).
+        // FarsÃ§a: ØªÙÙÛØ¯ Ø®ÙØ¯Ú©Ø§Ø± URL Ø§Ø² Ø¹ÙÙØ§Ù ØµÙØ­Ù (Ù¾Ø´ØªÛØ¨Ø§ÙÛ Ø§Ø² Ú©Ø§Ø±Ø§Ú©ØªØ±ÙØ§Û ØªØ±Ú©Û).
+        // TÃ¼rkÃ§e: Sayfa baÅlÄ±ÄÄ±ndan otomatik URL slug Ã¼retimi (TÃ¼rkÃ§e karakter desteÄi).
         // English: Auto-generate URL slug from page title (Turkish character support).
         const pageTitleInput = document.getElementById('pageTitle');
         const pageSlugInput = document.getElementById('pageSlug');
@@ -5890,12 +5894,12 @@ include '../includes/dashboard_header.php';
                 let slug = this.value
                     .toLowerCase()
                     // Turkish character replacements
-                    .replace(/ğ/g, 'g')
-                    .replace(/ü/g, 'u')
-                    .replace(/ş/g, 's')
-                    .replace(/ı/g, 'i')
-                    .replace(/ö/g, 'o')
-                    .replace(/ç/g, 'c')
+                    .replace(/Ä/g, 'g')
+                    .replace(/Ã¼/g, 'u')
+                    .replace(/Å/g, 's')
+                    .replace(/Ä±/g, 'i')
+                    .replace(/Ã¶/g, 'o')
+                    .replace(/Ã§/g, 'c')
                     // Replace spaces and special characters with hyphens
                     .replace(/[^a-z0-9]+/g, '-')
                     // Remove leading and trailing hyphens
@@ -5906,8 +5910,8 @@ include '../includes/dashboard_header.php';
         }
 
         // CMS Page Form Validation and Submission
-        // Farsça: اعتبارسنجی و ارسال فرم صفحه CMS.
-        // Türkçe: CMS Sayfası Form Doğrulama ve Gönderimi.
+        // FarsÃ§a: Ø§Ø¹ØªØ¨Ø§Ø±Ø³ÙØ¬Û Ù Ø§Ø±Ø³Ø§Ù ÙØ±Ù ØµÙØ­Ù CMS.
+        // TÃ¼rkÃ§e: CMS SayfasÄ± Form DoÄrulama ve GÃ¶nderimi.
         // English: CMS Page Form Validation and Submission.
         const cmsPageForm = document.getElementById('cmsPageForm');
 
@@ -5924,32 +5928,32 @@ include '../includes/dashboard_header.php';
 
                 // Validation
                 if (title.length < 3) {
-                    alert('❌ Hata!\n\nSayfa başlığı en az 3 karakter olmalıdır.');
+                    alert('â Hata!\n\nSayfa baÅlÄ±ÄÄ± en az 3 karakter olmalÄ±dÄ±r.');
                     return;
                 }
 
                 if (title.length > 200) {
-                    alert('❌ Hata!\n\nSayfa başlığı maksimum 200 karakter olabilir.');
+                    alert('â Hata!\n\nSayfa baÅlÄ±ÄÄ± maksimum 200 karakter olabilir.');
                     return;
                 }
 
                 if (!slug.match(/^[a-z0-9-]+$/)) {
-                    alert('❌ Hata!\n\nURL slug sadece küçük harf, rakam ve tire (-) içerebilir.');
+                    alert('â Hata!\n\nURL slug sadece kÃ¼Ã§Ã¼k harf, rakam ve tire (-) iÃ§erebilir.');
                     return;
                 }
 
                 if (slug.length < 3) {
-                    alert('❌ Hata!\n\nURL slug en az 3 karakter olmalıdır.');
+                    alert('â Hata!\n\nURL slug en az 3 karakter olmalÄ±dÄ±r.');
                     return;
                 }
 
                 if (content.length < 50) {
-                    alert('❌ Hata!\n\nSayfa içeriği en az 50 karakter olmalıdır.');
+                    alert('â Hata!\n\nSayfa iÃ§eriÄi en az 50 karakter olmalÄ±dÄ±r.');
                     return;
                 }
 
                 if (!category) {
-                    alert('❌ Hata!\n\nLütfen bir kategori seçin.');
+                    alert('â Hata!\n\nLÃ¼tfen bir kategori seÃ§in.');
                     return;
                 }
 
@@ -5958,16 +5962,16 @@ include '../includes/dashboard_header.php';
                 const language = document.getElementById('pageLanguage').value;
 
                 // Success message (TODO: Replace with actual backend API call)
-                alert('✅ Başarılı!\n\n' +
-                      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
-                      '📄 Sayfa Başlığı: ' + title + '\n' +
-                      '🔗 URL Slug: ' + slug + '\n' +
-                      '📁 Kategori: ' + getCategoryName(category) + '\n' +
-                      '👁️ Durum: ' + getStatusName(status) + '\n' +
-                      '🌐 Dil: ' + language.toUpperCase() + '\n' +
-                      '📝 İçerik Uzunluğu: ' + content.length + ' karakter\n' +
-                      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
-                      'Sayfa başarıyla oluşturuldu!');
+                alert('â BaÅarÄ±lÄ±!\n\n' +
+                      'ââââââââââââââââââââââââââââââ\n' +
+                      'ð Sayfa BaÅlÄ±ÄÄ±: ' + title + '\n' +
+                      'ð URL Slug: ' + slug + '\n' +
+                      'ð Kategori: ' + getCategoryName(category) + '\n' +
+                      'ðï¸ Durum: ' + getStatusName(status) + '\n' +
+                      'ð Dil: ' + language.toUpperCase() + '\n' +
+                      'ð Ä°Ã§erik UzunluÄu: ' + content.length + ' karakter\n' +
+                      'ââââââââââââââââââââââââââââââ\n\n' +
+                      'Sayfa baÅarÄ±yla oluÅturuldu!');
 
                 // TODO: Backend Integration
                 // const formData = new FormData(this);
@@ -5978,17 +5982,17 @@ include '../includes/dashboard_header.php';
                 // .then(response => response.json())
                 // .then(data => {
                 //     if (data.success) {
-                //         alert('✅ Sayfa başarıyla oluşturuldu!');
+                //         alert('â Sayfa baÅarÄ±yla oluÅturuldu!');
                 //         cmsPageModal.style.display = 'none';
                 //         this.reset();
                 //         // Refresh the page list
                 //         location.reload();
                 //     } else {
-                //         alert('❌ Hata: ' + data.message);
+                //         alert('â Hata: ' + data.message);
                 //     }
                 // })
                 // .catch(error => {
-                //     alert('❌ Bir hata oluştu: ' + error.message);
+                //     alert('â Bir hata oluÅtu: ' + error.message);
                 // });
 
                 // Close modal and reset form
@@ -6000,13 +6004,13 @@ include '../includes/dashboard_header.php';
         // Helper function to get category name
         function getCategoryName(value) {
             const categories = {
-                'about': 'Hakkımızda',
+                'about': 'HakkÄ±mÄ±zda',
                 'services': 'Hizmetler',
-                'contact': 'İletişim',
-                'help': 'Yardım & SSS',
+                'contact': 'Ä°letiÅim',
+                'help': 'YardÄ±m & SSS',
                 'legal': 'Yasal',
                 'blog': 'Blog',
-                'other': 'Diğer'
+                'other': 'DiÄer'
             };
             return categories[value] || value;
         }
@@ -6015,15 +6019,15 @@ include '../includes/dashboard_header.php';
         function getStatusName(value) {
             const statuses = {
                 'draft': 'Taslak',
-                'published': 'Yayında',
-                'archived': 'Arşivlendi'
+                'published': 'YayÄ±nda',
+                'archived': 'ArÅivlendi'
             };
             return statuses[value] || value;
         }
 
         // Service Modal Functions
-        // Farsça: توابع مودال خدمات.
-        // Türkçe: Hizmet Modal Fonksiyonları.
+        // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ÙÙØ¯Ø§Ù Ø®Ø¯ÙØ§Øª.
+        // TÃ¼rkÃ§e: Hizmet Modal FonksiyonlarÄ±.
         // English: Service Modal Functions.
         const serviceModal = document.getElementById('serviceModal');
         const addServiceBtn = document.getElementById('addServiceBtn');
@@ -6048,8 +6052,8 @@ include '../includes/dashboard_header.php';
         });
 
         // Ticket Modal Functions
-        // Farsça: توابع مودال تیکت.
-        // Türkçe: Destek Talebi Modal Fonksiyonları.
+        // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ÙÙØ¯Ø§Ù ØªÛÚ©Øª.
+        // TÃ¼rkÃ§e: Destek Talebi Modal FonksiyonlarÄ±.
         // English: Ticket Modal Functions.
         const ticketModal = document.getElementById('ticketModal');
         const addTicketBtn = document.getElementById('addTicketBtn');
@@ -6074,8 +6078,8 @@ include '../includes/dashboard_header.php';
         });
 
         // Ticket Form Submission with Validation
-        // Farsça: ارسال فرم تیکت با اعتبارسنجی.
-        // Türkçe: Doğrulama ile Destek Talebi Formu Gönderimi.
+        // FarsÃ§a: Ø§Ø±Ø³Ø§Ù ÙØ±Ù ØªÛÚ©Øª Ø¨Ø§ Ø§Ø¹ØªØ¨Ø§Ø±Ø³ÙØ¬Û.
+        // TÃ¼rkÃ§e: DoÄrulama ile Destek Talebi Formu GÃ¶nderimi.
         // English: Ticket Form Submission with Validation.
         document.getElementById('ticketForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -6090,27 +6094,27 @@ include '../includes/dashboard_header.php';
             
             // Validation
             if (!customerId) {
-                alert('❌ Lütfen bir müşteri seçin!');
+                alert('â LÃ¼tfen bir mÃ¼Återi seÃ§in!');
                 return;
             }
             
             if (!subject || subject.length < 5) {
-                alert('❌ Konu en az 5 karakter olmalıdır!');
+                alert('â Konu en az 5 karakter olmalÄ±dÄ±r!');
                 return;
             }
             
             if (!category) {
-                alert('❌ Lütfen bir kategori seçin!');
+                alert('â LÃ¼tfen bir kategori seÃ§in!');
                 return;
             }
             
             if (!priority) {
-                alert('❌ Lütfen bir öncelik seviyesi seçin!');
+                alert('â LÃ¼tfen bir Ã¶ncelik seviyesi seÃ§in!');
                 return;
             }
             
             if (!message || message.length < 10) {
-                alert('❌ Mesaj en az 10 karakter olmalıdır!');
+                alert('â Mesaj en az 10 karakter olmalÄ±dÄ±r!');
                 return;
             }
             
@@ -6135,32 +6139,32 @@ include '../includes/dashboard_header.php';
             // .then(response => response.json())
             // .then(data => {
             //     if (data.success) {
-            //         alert('✅ Destek talebi başarıyla oluşturuldu!');
+            //         alert('â Destek talebi baÅarÄ±yla oluÅturuldu!');
             //         ticketModal.style.display = 'none';
             //         this.reset();
             //         // Reload tickets table
             //         location.reload();
             //     } else {
-            //         alert('❌ Hata: ' + data.message);
+            //         alert('â Hata: ' + data.message);
             //     }
             // })
             // .catch(error => {
-            //     alert('❌ Bir hata oluştu: ' + error.message);
+            //     alert('â Bir hata oluÅtu: ' + error.message);
             // });
             
             // For now, just show success message
             console.log('Creating ticket:', ticketData);
-            alert('✅ Destek talebi başarıyla oluşturuldu!\n\n' +
+            alert('â Destek talebi baÅarÄ±yla oluÅturuldu!\n\n' +
                   'Konu: ' + subject + '\n' +
                   'Kategori: ' + category + '\n' +
-                  'Öncelik: ' + priority);
+                  'Ãncelik: ' + priority);
             ticketModal.style.display = 'none';
             this.reset();
         });
 
         // Service Form Submission with Validation
-        // Farsça: ارسال فرم خدمات با اعتبارسنجی.
-        // Türkçe: Doğrulama ile Hizmet Formu Gönderimi.
+        // FarsÃ§a: Ø§Ø±Ø³Ø§Ù ÙØ±Ù Ø®Ø¯ÙØ§Øª Ø¨Ø§ Ø§Ø¹ØªØ¨Ø§Ø±Ø³ÙØ¬Û.
+        // TÃ¼rkÃ§e: DoÄrulama ile Hizmet Formu GÃ¶nderimi.
         // English: Service Form Submission with Validation.
         document.getElementById('serviceForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -6177,32 +6181,32 @@ include '../includes/dashboard_header.php';
             
             // Validation
             if (!serviceName || serviceName.length < 3) {
-                alert('❌ Hizmet adı en az 3 karakter olmalıdır!');
+                alert('â Hizmet adÄ± en az 3 karakter olmalÄ±dÄ±r!');
                 return;
             }
             
             if (!category) {
-                alert('❌ Lütfen bir kategori seçin!');
+                alert('â LÃ¼tfen bir kategori seÃ§in!');
                 return;
             }
             
             if (!duration || duration < 1) {
-                alert('❌ Hizmet süresi en az 1 dakika olmalıdır!');
+                alert('â Hizmet sÃ¼resi en az 1 dakika olmalÄ±dÄ±r!');
                 return;
             }
             
             if (!priceSedan || priceSedan <= 0) {
-                alert('❌ Sedan fiyatı geçerli bir değer olmalıdır!');
+                alert('â Sedan fiyatÄ± geÃ§erli bir deÄer olmalÄ±dÄ±r!');
                 return;
             }
             
             if (!priceSUV || priceSUV <= 0) {
-                alert('❌ SUV fiyatı geçerli bir değer olmalıdır!');
+                alert('â SUV fiyatÄ± geÃ§erli bir deÄer olmalÄ±dÄ±r!');
                 return;
             }
             
             if (!priceTruck || priceTruck <= 0) {
-                alert('❌ Kamyonet fiyatı geçerli bir değer olmalıdır!');
+                alert('â Kamyonet fiyatÄ± geÃ§erli bir deÄer olmalÄ±dÄ±r!');
                 return;
             }
             
@@ -6231,35 +6235,35 @@ include '../includes/dashboard_header.php';
             // .then(response => response.json())
             // .then(data => {
             //     if (data.success) {
-            //         alert('✅ Hizmet başarıyla oluşturuldu!');
+            //         alert('â Hizmet baÅarÄ±yla oluÅturuldu!');
             //         serviceModal.style.display = 'none';
             //         this.reset();
             //         // Reload services table
             //         location.reload();
             //     } else {
-            //         alert('❌ Hata: ' + data.message);
+            //         alert('â Hata: ' + data.message);
             //     }
             // })
             // .catch(error => {
-            //     alert('❌ Bir hata oluştu: ' + error.message);
+            //     alert('â Bir hata oluÅtu: ' + error.message);
             // });
             
             // For now, just show success message
             console.log('Creating service:', serviceData);
-            alert('✅ Hizmet başarıyla oluşturuldu!\n\n' +
+            alert('â Hizmet baÅarÄ±yla oluÅturuldu!\n\n' +
                   'Hizmet: ' + serviceName + '\n' +
                   'Kategori: ' + category + '\n' +
-                  'Süre: ' + duration + ' dk\n' +
-                  'Sedan: ₺' + priceSedan + '\n' +
-                  'SUV: ₺' + priceSUV + '\n' +
-                  'Kamyonet: ₺' + priceTruck);
+                  'SÃ¼re: ' + duration + ' dk\n' +
+                  'Sedan: âº' + priceSedan + '\n' +
+                  'SUV: âº' + priceSUV + '\n' +
+                  'Kamyonet: âº' + priceTruck);
             serviceModal.style.display = 'none';
             this.reset();
         });
 
         // User Form Submission with Validation
-        // Farsça: ارسال فرم کاربر با اعتبارسنجی.
-        // Türkçe: Doğrulama ile Kullanıcı Formu Gönderimi.
+        // FarsÃ§a: Ø§Ø±Ø³Ø§Ù ÙØ±Ù Ú©Ø§Ø±Ø¨Ø± Ø¨Ø§ Ø§Ø¹ØªØ¨Ø§Ø±Ø³ÙØ¬Û.
+        // TÃ¼rkÃ§e: DoÄrulama ile KullanÄ±cÄ± Formu GÃ¶nderimi.
         // English: User Form Submission with Validation.
         document.getElementById('userForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -6274,27 +6278,27 @@ include '../includes/dashboard_header.php';
             
             // Validation
             if (!username || username.length < 3) {
-                alert('Kullanıcı adı en az 3 karakter olmalıdır!');
+                alert('KullanÄ±cÄ± adÄ± en az 3 karakter olmalÄ±dÄ±r!');
                 return;
             }
             
             if (!email || !email.includes('@')) {
-                alert('Geçerli bir email adresi girin!');
+                alert('GeÃ§erli bir email adresi girin!');
                 return;
             }
             
             if (!password || password.length < 8) {
-                alert('Şifre en az 8 karakter olmalıdır!');
+                alert('Åifre en az 8 karakter olmalÄ±dÄ±r!');
                 return;
             }
             
             if (password !== passwordConfirm) {
-                alert('Şifreler eşleşmiyor!');
+                alert('Åifreler eÅleÅmiyor!');
                 return;
             }
             
             if (!roleId) {
-                alert('Lütfen bir rol seçin!');
+                alert('LÃ¼tfen bir rol seÃ§in!');
                 return;
             }
             
@@ -6304,7 +6308,7 @@ include '../includes/dashboard_header.php';
             const hasNumbers = /\d/.test(password);
             
             if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
-                alert('Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir!');
+                alert('Åifre en az bir bÃ¼yÃ¼k harf, bir kÃ¼Ã§Ã¼k harf ve bir rakam iÃ§ermelidir!');
                 return;
             }
             
@@ -6330,7 +6334,7 @@ include '../includes/dashboard_header.php';
             // .then(response => response.json())
             // .then(data => {
             //     if (data.success) {
-            //         alert('Kullanıcı başarıyla oluşturuldu!');
+            //         alert('KullanÄ±cÄ± baÅarÄ±yla oluÅturuldu!');
             //         userModal.style.display = 'none';
             //         this.reset();
             //         // Reload user table
@@ -6340,37 +6344,37 @@ include '../includes/dashboard_header.php';
             //     }
             // })
             // .catch(error => {
-            //     alert('Bir hata oluştu: ' + error.message);
+            //     alert('Bir hata oluÅtu: ' + error.message);
             // });
             
             // For now, just show success message
             console.log('Creating user:', userData);
-            alert('Kullanıcı başarıyla oluşturuldu!');
+            alert('KullanÄ±cÄ± baÅarÄ±yla oluÅturuldu!');
             userModal.style.display = 'none';
             this.reset();
         });
 
         // Search and filter functionality (basic implementation)
-        // Farsça: عملکرد جستجو و فیلتر (پیاده‌سازی پایه).
-        // Türkçe: Arama ve filtreleme işlevselliği (temel uygulama).
+        // FarsÃ§a: Ø¹ÙÙÚ©Ø±Ø¯ Ø¬Ø³ØªØ¬Ù Ù ÙÛÙØªØ± (Ù¾ÛØ§Ø¯ÙâØ³Ø§Ø²Û Ù¾Ø§ÛÙ).
+        // TÃ¼rkÃ§e: Arama ve filtreleme iÅlevselliÄi (temel uygulama).
         // English: Search and filter functionality (basic implementation).
         document.getElementById('carwashSearch').addEventListener('input', function() {
             // Implement search functionality
-            // Farsça: عملکرد جستجو را پیاده‌سازی کنید.
-            // Türkçe: Arama işlevselliğini uygulayın.
+            // FarsÃ§a: Ø¹ÙÙÚ©Ø±Ø¯ Ø¬Ø³ØªØ¬Ù Ø±Ø§ Ù¾ÛØ§Ø¯ÙâØ³Ø§Ø²Û Ú©ÙÛØ¯.
+            // TÃ¼rkÃ§e: Arama iÅlevselliÄini uygulayÄ±n.
             // English: Implement search functionality.
             console.log('Searching for:', this.value);
         });
 
         // Service Management Functions
-        // Farsça: توابع مدیریت خدمات.
-        // Türkçe: Hizmet Yönetimi Fonksiyonları.
+        // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ÙØ¯ÛØ±ÛØª Ø®Ø¯ÙØ§Øª.
+        // TÃ¼rkÃ§e: Hizmet YÃ¶netimi FonksiyonlarÄ±.
         // English: Service Management Functions.
         
         function editService(serviceId) {
             // TODO: Load service data and populate modal
             console.log('Editing service:', serviceId);
-            alert('🔧 Hizmet düzenleme özelliği yakında eklenecek!\n\nService ID: ' + serviceId);
+            alert('ð§ Hizmet dÃ¼zenleme Ã¶zelliÄi yakÄ±nda eklenecek!\n\nService ID: ' + serviceId);
             
             // Future implementation:
             // fetch('/backend/api/admin/services/' + serviceId)
@@ -6385,10 +6389,10 @@ include '../includes/dashboard_header.php';
         }
         
         function toggleServiceStatus(serviceId) {
-            if (confirm('Bu hizmetin durumunu değiştirmek istediğinizden emin misiniz?')) {
+            if (confirm('Bu hizmetin durumunu deÄiÅtirmek istediÄinizden emin misiniz?')) {
                 // TODO: Send to backend API
                 console.log('Toggling service status:', serviceId);
-                alert('✅ Hizmet durumu değiştirildi!\n\nService ID: ' + serviceId);
+                alert('â Hizmet durumu deÄiÅtirildi!\n\nService ID: ' + serviceId);
                 
                 // Future implementation:
                 // fetch('/backend/api/admin/services/' + serviceId + '/toggle-status', {
@@ -6397,7 +6401,7 @@ include '../includes/dashboard_header.php';
                 // .then(response => response.json())
                 // .then(data => {
                 //     if (data.success) {
-                //         alert('Durum değiştirildi!');
+                //         alert('Durum deÄiÅtirildi!');
                 //         location.reload();
                 //     }
                 // });
@@ -6405,10 +6409,10 @@ include '../includes/dashboard_header.php';
         }
         
         function deleteService(serviceId) {
-            if (confirm('⚠️ Bu hizmeti silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!')) {
+            if (confirm('â ï¸ Bu hizmeti silmek istediÄinizden emin misiniz?\n\nBu iÅlem geri alÄ±namaz!')) {
                 // TODO: Send to backend API
                 console.log('Deleting service:', serviceId);
-                alert('🗑️ Hizmet silindi!\n\nService ID: ' + serviceId);
+                alert('ðï¸ Hizmet silindi!\n\nService ID: ' + serviceId);
                 
                 // Future implementation:
                 // fetch('/backend/api/admin/services/' + serviceId, {
@@ -6427,8 +6431,8 @@ include '../includes/dashboard_header.php';
         }
 
         // Security Tabs Functionality
-        // Farsça: عملکرد تب‌های امنیتی.
-        // Türkçe: Güvenlik Sekmeleri İşlevselliği.
+        // FarsÃ§a: Ø¹ÙÙÚ©Ø±Ø¯ ØªØ¨âÙØ§Û Ø§ÙÙÛØªÛ.
+        // TÃ¼rkÃ§e: GÃ¼venlik Sekmeleri Ä°ÅlevselliÄi.
         // English: Security Tabs Functionality.
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -6458,8 +6462,8 @@ include '../includes/dashboard_header.php';
         });
 
         // Settings Tabs Functionality
-        // Farsça: عملکرد تب‌های تنظیمات.
-        // Türkçe: Ayarlar Sekmeleri İşlevselliği.
+        // FarsÃ§a: Ø¹ÙÙÚ©Ø±Ø¯ ØªØ¨âÙØ§Û ØªÙØ¸ÛÙØ§Øª.
+        // TÃ¼rkÃ§e: Ayarlar Sekmeleri Ä°ÅlevselliÄi.
         // English: Settings Tabs Functionality.
         document.querySelectorAll('.settings-tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -6503,8 +6507,8 @@ include '../includes/dashboard_header.php';
         });
 
         // Report Category Tabs Functionality
-        // Farsça: عملکرد تب‌های دسته‌بندی گزارش.
-        // Türkçe: Rapor Kategorisi Sekmeleri İşlevselliği.
+        // FarsÃ§a: Ø¹ÙÙÚ©Ø±Ø¯ ØªØ¨âÙØ§Û Ø¯Ø³ØªÙâØ¨ÙØ¯Û Ú¯Ø²Ø§Ø±Ø´.
+        // TÃ¼rkÃ§e: Rapor Kategorisi Sekmeleri Ä°ÅlevselliÄi.
         // English: Report Category Tabs Functionality.
         function showReportCategory(category) {
             // Hide all report categories
@@ -6534,12 +6538,12 @@ include '../includes/dashboard_header.php';
         }
 
         // Report Download Functionality
-        // Farsça: عملکرد دانلود گزارش.
-        // Türkçe: Rapor İndirme İşlevselliği.
+        // FarsÃ§a: Ø¹ÙÙÚ©Ø±Ø¯ Ø¯Ø§ÙÙÙØ¯ Ú¯Ø²Ø§Ø±Ø´.
+        // TÃ¼rkÃ§e: Rapor Ä°ndirme Ä°ÅlevselliÄi.
         // English: Report Download Functionality.
         function downloadReport(reportType, format) {
             // Show loading notification
-            const loadingMsg = `📊 ${reportType.toUpperCase()} raporu ${format.toUpperCase()} formatında hazırlanıyor...`;
+            const loadingMsg = `ð ${reportType.toUpperCase()} raporu ${format.toUpperCase()} formatÄ±nda hazÄ±rlanÄ±yor...`;
             console.log(loadingMsg);
             
             // TODO: Replace with actual backend API call
@@ -6569,42 +6573,42 @@ include '../includes/dashboard_header.php';
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
                 
-                alert('✅ Rapor başarıyla indirildi!');
+                alert('â Rapor baÅarÄ±yla indirildi!');
             })
             .catch(error => {
                 console.error('Download error:', error);
-                alert('❌ Rapor indirme hatası: ' + error.message);
+                alert('â Rapor indirme hatasÄ±: ' + error.message);
             });
             */
             
             // Temporary simulation for demonstration
             const reportNames = {
                 'revenue': 'Gelir Raporu',
-                'payment': 'Ödeme Analizi',
+                'payment': 'Ãdeme Analizi',
                 'tax': 'Vergi Raporu',
                 'commission': 'Komisyon Raporu',
-                'orders': 'Sipariş Raporu',
-                'services': 'Hizmet Performansı',
-                'carwash': 'Otopark Performansı',
-                'customers': 'Müşteri Analizi',
-                'reviews': 'Değerlendirme Raporu',
-                'analytics': 'Kapsamlı Analiz',
-                'executive': 'Yönetici Özeti'
+                'orders': 'SipariÅ Raporu',
+                'services': 'Hizmet PerformansÄ±',
+                'carwash': 'Otopark PerformansÄ±',
+                'customers': 'MÃ¼Återi Analizi',
+                'reviews': 'DeÄerlendirme Raporu',
+                'analytics': 'KapsamlÄ± Analiz',
+                'executive': 'YÃ¶netici Ãzeti'
             };
             
             const formatIcons = {
-                'pdf': '📄',
-                'excel': '📊',
-                'csv': '📋',
-                'pptx': '📽️'
+                'pdf': 'ð',
+                'excel': 'ð',
+                'csv': 'ð',
+                'pptx': 'ð½ï¸'
             };
             
             // Simulate download delay
             setTimeout(() => {
-                alert(`${formatIcons[format]} ${reportNames[reportType]} - ${format.toUpperCase()} formatında başarıyla indirildi!\n\n` +
-                      `📅 Tarih: ${new Date().toLocaleDateString('tr-TR')}\n` +
-                      `⏰ Saat: ${new Date().toLocaleTimeString('tr-TR')}\n\n` +
-                      `💡 Not: Gerçek uygulamada bu dosya otomatik olarak indirilecektir.`);
+                alert(`${formatIcons[format]} ${reportNames[reportType]} - ${format.toUpperCase()} formatÄ±nda baÅarÄ±yla indirildi!\n\n` +
+                      `ð Tarih: ${new Date().toLocaleDateString('tr-TR')}\n` +
+                      `â° Saat: ${new Date().toLocaleTimeString('tr-TR')}\n\n` +
+                      `ð¡ Not: GerÃ§ek uygulamada bu dosya otomatik olarak indirilecektir.`);
                 
                 console.log(`Downloaded: ${reportNames[reportType]} as ${format.toUpperCase()}`);
             }, 500);
@@ -6669,9 +6673,9 @@ include '../includes/dashboard_header.php';
             new Chart(revenueCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                    labels: ['Pzt', 'Sal', 'Ãar', 'Per', 'Cum', 'Cmt', 'Paz'],
                     datasets: [{
-                        label: 'Günlük Gelir (₺)',
+                        label: 'GÃ¼nlÃ¼k Gelir (âº)',
                         data: [35000, 42000, 38000, 45000, 52000, 48000, 45680],
                         borderColor: '#667eea',
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
@@ -6693,7 +6697,7 @@ include '../includes/dashboard_header.php';
                             intersect: false,
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': ₺' + context.parsed.y.toLocaleString('tr-TR');
+                                    return context.dataset.label + ': âº' + context.parsed.y.toLocaleString('tr-TR');
                                 }
                             }
                         }
@@ -6703,7 +6707,7 @@ include '../includes/dashboard_header.php';
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return '₺' + (value/1000) + 'K';
+                                    return 'âº' + (value/1000) + 'K';
                                 }
                             }
                         }
@@ -6718,9 +6722,9 @@ include '../includes/dashboard_header.php';
             new Chart(usersCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Müşteriler', 'Otopark Sahipleri', 'Sürücüler'],
+                    labels: ['MÃ¼Återiler', 'Otopark Sahipleri', 'SÃ¼rÃ¼cÃ¼ler'],
                     datasets: [{
-                        label: 'Kullanıcı Dağılımı',
+                        label: 'KullanÄ±cÄ± DaÄÄ±lÄ±mÄ±',
                         data: [158, 24, 45],
                         backgroundColor: [
                             '#667eea',
@@ -6763,8 +6767,5 @@ include '../includes/dashboard_header.php';
 // Include the universal footer
 include '../includes/footer.php';
 ?>
-</body>
-</html>
 
-
-
+</div>

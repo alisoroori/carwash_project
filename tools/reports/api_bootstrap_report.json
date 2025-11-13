@@ -1,0 +1,349 @@
+{
+    "meta": {
+        "dryRun": false,
+        "apply": true,
+        "timestamp": "2025-11-13T01:30:38+01:00"
+    },
+    "results": [
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\analytics_collector.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\analytics_collector.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\content.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\content.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\export_reviews.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\export_reviews.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\get_pages.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\get_pages.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\get_reports.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\get_reports.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\get_report_detail.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\get_report_detail.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\notifications.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\notifications.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\reports.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\reports.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\update_report_status.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\update_report_status.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\users.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\admin\\users.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\api_endpoints.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\api_endpoints.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\auth\\login.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\auth\\login.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\availability\\check_availability.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\availability\\check_availability.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\booking\\create.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\booking\\create.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\booking\\get_timeslots.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\booking\\get_timeslots.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\bookings\\create.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\bookings\\create.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\bookings\\list.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\bookings\\list.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\bookings\\update.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\bookings\\update.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\booking_process.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\booking_process.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\add_service.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\add_service.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\batch_update_availability.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\batch_update_availability.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\bulk_services.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\bulk_services.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\create.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\create.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_reviews.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_reviews.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_review_stats.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_review_stats.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_services.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_services.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_today_stats.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_today_stats.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_weekly_performance.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\get_weekly_performance.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\manage_availability.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\manage_availability.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\manage_categories.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\manage_categories.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\reply_to_review.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwash\\reply_to_review.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwashes\\list.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\carwashes\\list.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\create_booking.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\create_booking.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\disputes\\reporting.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\disputes\\reporting.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\disputes\\upload_evidence.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\disputes\\upload_evidence.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\download_invoice.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\download_invoice.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\download_receipt.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\download_receipt.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_available_times.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_available_times.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_orders.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_orders.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_payments.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_payments.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_payment_detail.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_payment_detail.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_profile.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_profile.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_reservations.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\get_reservations.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\initiate_payment.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\initiate_payment.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\locations\\search.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\locations\\search.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\locations\\update_provider_location.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\locations\\update_provider_location.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\notifications\\get_notifications.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\notifications\\get_notifications.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\process.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\process.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\process_payment.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\process_payment.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\webhook.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\webhook.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\webhook_handler.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment\\webhook_handler.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment_webhook.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\payment_webhook.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\process_payment.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\process_payment.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\profile_update.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\profile_update.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\reports\\reports.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\reports\\reports.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\report_review.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\report_review.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\reviews\\submit_review.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\reviews\\submit_review.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\save_cart.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\save_cart.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\search\\carwash.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\search\\carwash.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\search\\find_carwash.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\search\\find_carwash.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\search_carwash.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\search_carwash.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\get.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\get.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\get_services.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\get_services.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\list.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\list.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\save_service.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\services\\save_service.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\update_password.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\update_password.php.bak1"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\user\\get_recent_appointments.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\user\\get_recent_appointments.php.bak"
+        },
+        {
+            "path": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\webhooks\\dispute_tracker.php",
+            "status": "modified",
+            "backup": "C:\\xampp\\htdocs\\carwash_project\\backend\\api\\webhooks\\dispute_tracker.php.bak"
+        }
+    ]
+}
