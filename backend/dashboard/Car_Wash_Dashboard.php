@@ -144,8 +144,17 @@ $custom_header_content = '
 </div>
 ';
 
+// Provide language attributes for the header and include the universal dashboard header
+if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
+  require_once __DIR__ . '/../includes/lang_helper.php';
+  $html_lang_attrs = get_lang_dir_attrs_for_file(__FILE__);
+}
 // Include the universal dashboard header
 include '../includes/dashboard_header.php';
+// Escaping helpers
+if (file_exists(__DIR__ . '/../includes/escape.php')) {
+  require_once __DIR__ . '/../includes/escape.php';
+}
 ?>
 
 <!-- Dashboard Specific Styles -->
@@ -1812,7 +1821,7 @@ include '../includes/dashboard_header.php';
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2" for="logoUpload">İşletme Logosu</label>
                   <div class="flex items-center space-x-4">
-                    <img id="currentLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Current Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
+                    <img id="currentLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo e_attr($page_title ?? 'CarWash'); ?>" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
                     <label for="logoUpload" class="sr-only">Choose file</label><input type="file" id="logoUpload" class="hidden" accept="image/*" onchange="previewLogo(event)">
                     <button type="button" onclick="document.getElementById('logoUpload').click()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
                       <i class="fas fa-upload mr-2"></i>Logo Yükle
@@ -2054,7 +2063,8 @@ include '../includes/dashboard_header.php';
               <option>ÃÄ±rak</option>
               <option>Resepsiyonist</option>
               <option>YÃ¶netici</option>
-              <!-- FarsÃ§a: ÙÙÙØ¹ÛØª Ø±Ø§ÙÙØ¯Ù Ø§Ø¶Ø§ÙÙ Ø´Ø¯. --><label for="auto_166" class="sr-only">0555 123 4567</label><input type="tel" placeholder="0555 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_166">r
+              <!-- FarsÃ§a: ÙÙÙØ¹ÛØª Ø±Ø§ÙÙØ¯Ù Ø§Ø¶Ø§ÙÙ Ø´Ø¯. -->
+<label for="auto_166" class="sr-only">0555 123 4567</label><input type="tel" placeholder="0555 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_166">r
             </select>
           </div>
           <div>

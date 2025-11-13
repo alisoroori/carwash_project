@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../includes/bootstrap.php';
 
@@ -8,6 +8,9 @@ use App\Classes\Auth;
 
 // Initialize session and require auth
 Session::start();
+// Ensure CSRF helper is available for forms and AJAX
+$csrf_helper = __DIR__ . '/../../includes/csrf_helper.php';
+if (file_exists($csrf_helper)) require_once $csrf_helper;
 Auth::requireAuth();
 
 // Ensure the user is a customer
@@ -19,14 +22,46 @@ if (empty($userId) || !Auth::hasRole('customer')) {
 
 // Get customer's bookings (use PSR-4 Database)
 $db = Database::getInstance();
+// Pagination: accept ?page=
+require_once __DIR__ . '/../../includes/paginator.php';
+use App\Includes\Paginator;
+
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$perPage = 10;
+$p = new Paginator($page, $perPage);
+
+$countRow = $db->fetchOne('SELECT COUNT(*) as c FROM bookings WHERE user_id = :uid', ['uid' => $userId]);
+$total = 0;
+if (is_array($countRow)) {
+    $total = isset($countRow['c']) ? (int)$countRow['c'] : (int)array_values($countRow)[0];
+} elseif (is_int($countRow) || is_numeric($countRow)) {
+    $total = (int)$countRow;
+}
+$p->setTotal($total);
+
 $stmt = $db->prepare("SELECT b.*, c.business_name as business_name, c.contact_phone as profile_phone, s.name as service_name, s.price as service_price
     FROM bookings b
     LEFT JOIN carwash_profiles c ON b.carwash_id = c.id
     LEFT JOIN services s ON b.service_id = s.id
     WHERE b.user_id = :uid
-    ORDER BY b.booking_date DESC, b.booking_time DESC");
-$stmt->execute(['uid' => $userId]);
+    ORDER BY b.booking_date DESC, b.booking_time DESC
+    LIMIT :limit OFFSET :offset");
+
+$params = [
+    'uid' => $userId,
+    'limit' => $p->getLimit(),
+    'offset' => $p->getOffset()
+];
+
+$stmt->execute($params);
 $bookings = $stmt->fetchAll();
+
+// If AJAX, return JSON payload with meta + data
+if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    header('Content-Type: application/json');
+    echo json_encode(['meta' => $p->getMeta(), 'data' => $bookings]);
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -56,6 +91,8 @@ $bookings = $stmt->fetchAll();
     </nav>
 
     <div class="max-w-6xl mx-auto px-4">
+        <?php // Emit a hidden csrf token input so JS can read it for AJAX POSTs ?>
+        <?php if (function_exists('getCsrfTokenField')) echo getCsrfTokenField(); ?>
         <h1 class="text-3xl font-bold text-gray-800 mb-8">RandevularÄ±m</h1>
 
         <?php if (isset($_SESSION['success'])): ?>
@@ -134,12 +171,14 @@ $bookings = $stmt->fetchAll();
     <script>
         function cancelBooking(bookingId) {
             if (confirm('Randevuyu iptal etmek istediÄŸinizden emin misiniz?')) {
+                const csrfEl = document.querySelector('input[name="csrf_token"]');
+                const csrfToken = csrfEl ? csrfEl.value : '';
                 fetch('cancel_booking.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
-                        body: `booking_id=${bookingId}`
+                        body: `booking_id=${bookingId}&csrf_token=${encodeURIComponent(csrfToken)}`
                     })
                     .then(response => response.json())
                     .then(data => {

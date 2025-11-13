@@ -1,6 +1,10 @@
 <?php
 session_start();
 require_once __DIR__ . '/../includes/bootstrap.php';
+// Escaping helpers
+if (file_exists(__DIR__ . '/../includes/escape.php')) {
+    require_once __DIR__ . '/../includes/escape.php';
+}
 
 use App\Classes\Auth;
 use App\Classes\Database;
@@ -51,9 +55,16 @@ if (!isset($base_url)) {
     }
 }
 ?>
+<?php
+// Ensure language attributes are computed for this page
+if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
+    require_once __DIR__ . '/../includes/lang_helper.php';
+    $html_lang_attrs = get_lang_dir_attrs_for_file(__FILE__);
+}
+?>
 
 <!DOCTYPE html>
-<html lang="tr" class="scroll-smooth">
+<html <?php echo $html_lang_attrs ?? 'lang="en"'; ?> class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,654 +72,23 @@ if (!isset($base_url)) {
     
     <!-- TailwindCSS - Production Build -->
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
+    <!-- Local dashboard component styles -->
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/frontend/css/dashboard/components.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Lightweight API utilities used by many frontend modules (defines window.apiCall) -->
+    <script defer src="<?php echo $base_url; ?>/frontend/js/api-utils.js"></script>
     <!-- Vehicle manager & local Alpine factories (load before Alpine so factories can register) -->
     <script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
     <script defer src="<?php echo $base_url; ?>/frontend/js/alpine-components.js"></script>
     <!-- Alpine.js for interactive components -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Lazy-section loader (loads dashboard fragments when they come into view) -->
+    <script defer src="<?php echo $base_url; ?>/frontend/js/section-loader.js"></script>
     
-    <style>
-        /* ================================
-           CSS CUSTOM PROPERTIES (Theme Variables)
-           ================================ */
-        :root {
-            /* Layout Dynamic Heights (computed by JS) */
-            --header-height: 80px;           /* Fixed header height */
-            --footer-height: 0px;            /* Default, updated by JS */
-            --sidebar-width: 250px;          /* Fixed sidebar width (desktop) */
-            
-            /* Primary Colors */
-            --color-primary: #2563eb;        /* Blue-600 */
-            --color-primary-light: #3b82f6; /* Blue-500 */
-            --color-primary-dark: #1d4ed8;  /* Blue-700 */
-            --color-primary-50: #eff6ff;
-            --color-primary-100: #dbeafe;
-            --color-primary-200: #bfdbfe;
-            
-            /* Secondary Colors */
-            --color-secondary: #9333ea;       /* Purple-600 */
-            --color-secondary-light: #a855f7; /* Purple-500 */
-            --color-secondary-dark: #7e22ce;  /* Purple-700 */
-            --color-secondary-50: #faf5ff;
-            --color-secondary-100: #f3e8ff;
-            
-            /* Success */
-            --color-success: #10b981;        /* Green-500 */
-            --color-success-light: #34d399;  /* Green-400 */
-            --color-success-bg: #f0fdf4;     /* Green-50 */
-            
-            /* Error */
-            --color-error: #ef4444;          /* Red-500 */
-            --color-error-light: #f87171;    /* Red-400 */
-            --color-error-bg: #fef2f2;       /* Red-50 */
-            
-            /* Warning */
-            --color-warning: #f59e0b;        /* Amber-500 */
-            --color-warning-light: #fbbf24;  /* Amber-400 */
-            --color-warning-bg: #fffbeb;     /* Amber-50 */
-            
-            /* Neutral */
-            --color-gray-50: #f9fafb;
-            --color-gray-100: #f3f4f6;
-            --color-gray-200: #e5e7eb;
-            --color-gray-300: #d1d5db;
-            --color-gray-400: #9ca3af;
-            --color-gray-500: #6b7280;
-            --color-gray-600: #4b5563;
-            --color-gray-700: #374151;
-            --color-gray-800: #1f2937;
-            --color-gray-900: #111827;
-            
-            /* Text Colors */
-            --text-primary: var(--color-gray-900);
-            --text-secondary: var(--color-gray-600);
-            --text-inverse: #ffffff;
-            
-            /* Background Colors */
-            --bg-body: var(--color-gray-50);
-            --bg-card: #ffffff;
-            --bg-sidebar: linear-gradient(to bottom, var(--color-primary), var(--color-secondary));
-            
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            
-            /* Border Radius */
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --radius-2xl: 1.5rem;
-            
-            /* Transitions */
-            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        /* ================================
-           CUSTOM SCROLLBAR
-           ================================ */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--color-gray-100);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--color-gray-300);
-            border-radius: var(--radius-sm);
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--color-gray-400);
-        }
-        
-        /* Smooth transitions */
-        * {
-            transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
-        }
-        
-        /* Prevent body scroll when mobile menu open */
-        body.menu-open {
-            overflow: hidden !important;
-            position: fixed;
-            width: 100%;
-        }
-        
-        /* ================================
-           ANIMATIONS
-           ================================ */
-        /* Mobile sidebar animations */
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes slideOutLeft {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
-        }
-        
-        /* ================================
-           BUTTONS - Consistent States
-           ================================ */
-        .btn-primary {
-            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
-            color: var(--text-inverse);
-            transition: all var(--transition-base);
-        }
-        
-        .btn-primary:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-1px);
-        }
-        
-        .btn-primary:active {
-            box-shadow: var(--shadow-md);
-            transform: translateY(0);
-        }
-        
-        .btn-primary:focus {
-            outline: 2px solid var(--color-primary-200);
-            outline-offset: 2px;
-        }
-        
-        .btn-secondary {
-            background-color: var(--bg-card);
-            color: var(--color-primary);
-            border: 2px solid var(--color-primary);
-            transition: all var(--transition-base);
-        }
-        
-        .btn-secondary:hover {
-            background-color: var(--color-primary-50);
-        }
-        
-        .btn-secondary:active {
-            background-color: var(--color-primary-100);
-        }
-        
-        .btn-secondary:focus {
-            outline: 2px solid var(--color-primary-200);
-            outline-offset: 2px;
-        }
-        
-        /* ================================
-           SIDEBAR STYLING
-           ================================ */
-        #customer-sidebar {
-            background: var(--bg-sidebar);
-            position: fixed !important;
-            top: var(--header-height);                      /* Start below header */
-            bottom: 0;                      /* Extend to bottom of viewport */
-            left: 0;
-            width: 250px;                   /* Fixed width on desktop */
-            overflow: hidden;               /* Remove internal scrolling */
-            z-index: 30 !important;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(to bottom, #2563eb, #7c3aed);
-            transition: transform 0.3s ease;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.12);
-            padding: 0;
-        }
-        
-        /* Ensure sidebar is hidden off-screen on mobile by default */
-        @media (max-width: 1023px) {
-            #customer-sidebar {
-                transition: transform var(--transition-slow);
-            }
-        }
-        
-        /* Ensure all menu items fit within the sidebar */
-        #customer-sidebar nav {
-            flex: 1;                          /* Allow menu to grow and shrink */
-            padding: 1rem;                    /* Add spacing for better readability */
-        }
 
-        #customer-sidebar nav a {
-            display: block;                   /* Ensure links take full width */
-            padding: 0.5rem 1rem;             /* Add padding for better touch targets */
-            color: white;                     /* Ensure text is visible */
-            text-decoration: none;            /* Remove underline */
-            border-radius: 0.25rem;           /* Add slight rounding for aesthetics */
-        }
-
-        #customer-sidebar nav a:hover {
-            background-color: rgba(255, 255, 255, 0.1); /* Highlight on hover */
-        }
-        
-        /* ================================
-           CARDS & CONTAINERS
-           ================================ */
-        .card {
-            background-color: var(--bg-card);
-            border-radius: var(--radius-2xl);
-            box-shadow: var(--shadow-md);
-            transition: all var(--transition-base);
-        }
-        
-        .card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-        
-        /* ================================
-           FORM INPUT STATES
-           ================================ */
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-        }
-        
-        input.error, textarea.error, select.error {
-            border-color: var(--color-error) !important;
-            background-color: var(--color-error-bg);
-        }
-        
-        input.success, textarea.success, select.success {
-            border-color: var(--color-success) !important;
-            background-color: var(--color-success-bg);
-        }
-        
-        input::placeholder, textarea::placeholder {
-            color: var(--color-gray-400);
-        }
-        
-        /* Form validation messages */
-        .form-error {
-            color: var(--color-error);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-        
-        .form-success {
-            color: var(--color-success);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-        
-        /* ================================
-           TEXT UTILITIES
-           ================================ */
-        .text-primary {
-            color: var(--color-primary);
-        }
-        
-        .text-secondary {
-            color: var(--color-secondary);
-        }
-        
-        .bg-primary {
-            background-color: var(--color-primary);
-        }
-        
-        .bg-secondary {
-            background-color: var(--color-secondary);
-        }
-        
-        .bg-gradient-primary {
-            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
-        }
-        
-        /* ================================
-           COMPLETE FIXED SIDEBAR LAYOUT
-           ================================ */
-        
-        /* === 1. Fixed Header (80px height) === */
-        header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height) !important;        /* Fixed header height */
-            z-index: 50 !important;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        /* === 2. Fixed Sidebar (Left Side) === */
-        #customer-sidebar {
-            position: fixed !important;
-            top: var(--header-height);      /* Start below header */
-            bottom: 0;                      /* Extend to bottom of viewport */
-            left: 0;
-            width: 250px;                   /* Fixed width on desktop */
-            overflow: hidden;               /* Remove internal scrolling */
-            z-index: 30 !important;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(to bottom, #2563eb, #7c3aed);
-            transition: transform 0.3s ease;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.12);
-            padding: 0;
-        }
-        
-        /* Sidebar Profile Section */
-        #customer-sidebar .flex-shrink-0:first-of-type {
-            padding: 1rem;
-        }
-        
-        /* Sidebar Profile Image - 80x80px on desktop */
-        #customer-sidebar img#sidebarProfileImage {
-            width: 80px !important;
-            height: 80px !important;
-            border-radius: 50%;
-            object-fit: cover;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* Header profile image - reduced size (header-only) */
-        #userAvatarTop {
-            width: 60px !important;
-            height: 60px !important;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-        }
-
-        /* Header profile container sizing (matches image sizes) */
-        #headerProfileContainer {
-            width: 60px;
-            height: 60px;
-        }
-
-        /* Site logo sizing is controlled globally in universal styles to enforce
-           a single source-of-truth (80px). Removed local #siteLogo rules so the
-           global CSS in backend/includes/universal_styles.php can apply. */
-        
-        /* Sidebar Navigation Menu */
-        #customer-sidebar nav {
-            flex: 1;                          /* Allow menu to grow and shrink */
-            padding: 1rem;                    /* Add spacing for better readability */
-        }
-
-        #customer-sidebar nav a {
-            display: block;                   /* Ensure links take full width */
-            padding: 0.5rem 1rem;             /* Add padding for better touch targets */
-            color: white;                     /* Ensure text is visible */
-            text-decoration: none;            /* Remove underline */
-            border-radius: 0.25rem;           /* Add slight rounding for aesthetics */
-        }
-
-        #customer-sidebar nav a:hover {
-            background-color: rgba(255, 255, 255, 0.1); /* Highlight on hover */
-        }
-        
-        /* === 3. Main Content Area === */
-        #main-content {
-            position: relative;              /* Normal document flow */
-            margin-left: 250px;             /* Offset by sidebar width */
-            margin-top: var(--header-height);               /* Start below header */
-            min-height: calc(100vh - var(--header-height)); /* Full viewport minus header */
-            z-index: 1;
-            background: #f9fafb;
-        }
-        
-        /* === 4. Footer (Full Width - Standard Implementation) === */
-        footer, #site-footer {
-            position: relative;              /* Normal document flow */
-            z-index: 40 !important;
-            width: 100%;
-            margin-left: 0 !important;       /* Full width - no sidebar offset */
-            background: #111827;             /* bg-gray-900 */
-        }
-        
-        /* ================================
-           RESPONSIVE BREAKPOINTS
-           ================================ */
-        
-        /* === Small Screens (<900px): Reduce sidebar to 200px === */
-        @media (max-width: 899px) and (min-width: 768px) {
-            :root {
-                --sidebar-width: 200px;     /* Narrower sidebar */
-            }
-            
-            #customer-sidebar {
-                width: 200px;
-            }
-            
-            #customer-sidebar img#sidebarProfileImage {
-                width: 64px !important;     /* Smaller profile image */
-                height: 64px !important;
-            }
-
-            #userAvatarTop {
-                width: 48px !important;
-                height: 48px !important;
-            }
-
-            #headerProfileContainer {
-                width: 48px;
-                height: 48px;
-            }
-
-            /* Logo sizing is handled globally; local overrides removed. */
-            
-            #main-content {
-                margin-left: 200px;
-            }
-            
-            footer, #site-footer {
-                margin-left: 0 !important;       /* Full width footer */
-            }
-        }
-        
-        /* === Desktop Layout (≥900px) === */
-        @media (min-width: 900px) {
-            /* Desktop: keep the sidebar in-flow so the document height grows
-               and the full menu is visible without internal scrolling. Use
-               sticky to keep it visible under the fixed header while still
-               occupying space so the footer attaches directly after it. */
-            #customer-sidebar {
-                position: -webkit-sticky !important;
-                position: sticky !important;
-                top: var(--header-height) !important;
-                height: auto !important;                /* Let content determine height */
-                overflow: visible !important;           /* Show all menu items */
-                transform: translateX(0) !important;    /* Always visible */
-                align-self: stretch !important;         /* Stretch to match main column */
-                bottom: auto !important;                /* Ensure no bottom clipping */
-                /* Make sidebar span from header down to footer using CSS vars */
-                min-height: calc(100vh - var(--header-height) - var(--footer-height)) !important;
-            }
-
-            /* Main content should offset using the sidebar width variable */
-            #main-content {
-                margin-left: var(--sidebar-width) !important;
-                margin-top: var(--header-height) !important;
-            }
-        }
-
-        /* Remove any default gaps around html/body and ensure layout stacks
-           without extra spacing so footer attaches immediately after columns */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Ensure the flex container stretches children so columns match height
-           and the sidebar visually connects to the footer. Target the
-           immediate wrapper used on this page. */
-        .flex.flex-1 {
-            align-items: stretch;
-        }
-
-        /* Remove extra spacing above footer and ensure it sits flush */
-        footer, #site-footer {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
-
-        /* Ensure main content doesn't add extra bottom spacing */
-        #main-content {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-            /* Footer must sit below both columns with no left margin */
-            footer, #site-footer {
-                margin-left: 0 !important;
-            }
-        }
-        
-        /* === Mobile Layout (<768px) === */
-        @media (max-width: 767px) {
-            #customer-sidebar {
-                width: 250px;
-                transform: translateX(-100%);    /* Hidden by default */
-                overflow-y: auto !important;     /* Allow scroll on mobile */
-                bottom: 0;                       /* Full height */
-                top: var(--header-height);
-                z-index: 48;                    /* Above main content but below header (header z-50) */
-            }
-            
-            #customer-sidebar img#sidebarProfileImage {
-                width: 64px !important;         /* Smaller on mobile */
-                height: 64px !important;
-            }
-
-            /* Header avatar smaller on mobile */
-            #userAvatarTop {
-                width: 48px !important;
-                height: 48px !important;
-            }
-
-            #headerProfileContainer {
-                width: 48px;
-                height: 48px;
-            }
-
-            /* Logo sizing is handled globally; local overrides removed. */
-            
-            #main-content {
-                margin-left: 0;                 /* Full width content */
-                margin-top: var(--header-height);
-            }
-            
-            footer, #site-footer {
-                margin-left: 0 !important;      /* Full width footer */
-            }
-        }
-        }
-
-        /* Mobile (<=900px) explicit rules to ensure hamburger menu visibility and layering */
-        @media (max-width: 900px) {
-            /* Ensure header stays on top */
-            header {
-                z-index: 50 !important;
-            }
-
-            /* Sidebar becomes a slide-in mobile panel beneath header */
-            #customer-sidebar {
-                position: fixed !important;
-                top: var(--header-height);
-                left: 0;
-                height: calc(100vh - var(--header-height));
-                width: 80%; /* take most of the screen on small devices */
-                max-width: 320px;
-                transform: translateX(-100%);
-                transition: transform 300ms ease-in-out;
-                box-shadow: 4px 0 20px rgba(0,0,0,0.25);
-                z-index: 48; /* below header but above main content */
-            }
-
-            /* When mobile menu is open (class applied), show it */
-            #customer-sidebar.mobile-open {
-                transform: translateX(0) !important;
-            }
-
-            /* Overlay backdrop sits below the sidebar but above main content */
-            .mobile-menu-backdrop-dashboard {
-                position: fixed;
-                top: var(--header-height);
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.45);
-                z-index: 47;
-                display: none;
-            }
-
-            .mobile-menu-backdrop-dashboard.active {
-                display: block;
-            }
-
-            /* Ensure the hamburger button is visible */
-            .hamburger-toggle-dashboard {
-                display: inline-flex !important;
-            }
-        }
-        /* Hide scrollbar but keep scroll functionality if needed */
-        #customer-sidebar::-webkit-scrollbar {
-            width: 0;
-            display: none;
-        }
-        
-        #customer-sidebar {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        
-        /* Smooth scrollbar for main content only */
-        #main-content::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        #main-content::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-        }
-        
-        #main-content::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-        }
-        
-        #main-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
-        }
-    </style>
 </head>
 
 <body 
@@ -718,9 +98,9 @@ if (!isset($base_url)) {
 >
 
 <!-- ================================
-     HEADER - Fixed at Top (80px height)
-     ================================ -->
-<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm flex-none" style="height: var(--header-height);">
+    HEADER - Fixed at Top (80px height)
+    ================================ -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm flex-none header-fixed-height">
     <div class="flex items-center justify-between h-full px-4 lg:px-6">
         
         <!-- Mobile Menu Button -->
@@ -733,7 +113,7 @@ if (!isset($base_url)) {
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!mobileMenuOpen">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="mobileMenuOpen" style="display: none;">
+            <svg class="w-6 h-6 hidden-inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="mobileMenuOpen">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
         </button>
@@ -741,8 +121,8 @@ if (!isset($base_url)) {
         <!-- Logo -->
             <div class="flex items-center space-x-3">
             <!-- Main header logo placed before the site title -->
-            <div>
-                <img id="siteLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="MyCar logo" class="logo-image object-contain rounded-xl shadow-md header-logo sidebar-logo" />
+                <div>
+                <img id="siteLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo e_attr($page_title ?? 'MyCar'); ?>" class="logo-image object-contain rounded-xl shadow-md header-logo sidebar-logo" />
             </div>
             <div class="hidden sm:block">
                 <h1 class="text-lg font-bold text-gray-900 leading-tight">MyCar</h1>
@@ -761,16 +141,16 @@ if (!isset($base_url)) {
             >
                 <!-- Header profile image (updates when user uploads new image) -->
                 <div id="headerProfileContainer" class="rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                    <img id="userAvatarTop" src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                    <div id="userAvatarFallback" class="text-white font-semibold text-sm" style="display: none;">
-                        <?php echo strtoupper(substr($user_name, 0, 1)); ?>
+                    <img id="userAvatarTop" src="<?php echo !empty($user_profile_image) ? e_attr($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" alt="<?php echo e_attr($user_name); ?>" class="object-cover w-full h-full" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div id="userAvatarFallback" class="text-white font-semibold text-sm hidden-inline">
+                        <?php echo e_html(strtoupper(substr($user_name, 0, 1))); ?>
                     </div>
                 </div>
 
                 <!-- Small company logo placed before the user name for quick branding -->
 
 
-                <span class="hidden md:block text-sm font-medium text-gray-700 max-w-[150px] truncate"><?php echo htmlspecialchars($user_name); ?></span>
+                <span class="hidden md:block text-sm font-medium text-gray-700 max-w-[150px] truncate"><?php echo e_html($user_name); ?></span>
                 <i class="fas fa-chevron-down text-xs text-gray-400 hidden md:block"></i>
             </button>
             
@@ -783,16 +163,15 @@ if (!isset($base_url)) {
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95"
-                class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 overflow-hidden z-50"
-                style="display: none;"
+                class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 overflow-hidden z-50 hidden-inline"
             >
                 <!-- User Info Header -->
                 <div class="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
                     <p class="text-sm font-semibold text-gray-900 truncate">
-                        <?php echo htmlspecialchars($user_name); ?>
+                        <?php echo e_html($user_name); ?>
                     </p>
                     <p class="text-xs text-gray-600 truncate">
-                        <?php echo htmlspecialchars($user_email); ?>
+                        <?php echo e_html($user_email); ?>
                     </p>
                 </div>
                 
@@ -835,8 +214,7 @@ if (!isset($base_url)) {
     x-transition:leave="transition-opacity ease-in duration-200"
     x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0"
-    class="fixed inset-0 bg-black bg-opacity-60 z-[45] lg:hidden"
-    style="display: none;"
+    class="fixed inset-0 bg-black bg-opacity-60 z-[45] lg:hidden overlay-hidden"
     aria-hidden="true"
     role="button"
     aria-label="Close sidebar"
@@ -875,14 +253,14 @@ if (!isset($base_url)) {
                 <div class="w-20 h-20 mx-auto mb-2 rounded-full overflow-hidden shadow-lg ring-2 ring-white ring-opacity-30">
                     <img 
                         id="sidebarProfileImage" 
-                        src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" 
-                        alt="<?php echo htmlspecialchars($user_name); ?>"
+                        src="<?php echo !empty($user_profile_image) ? e_attr($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" 
+                        alt="<?php echo e_attr($user_name); ?>"
                         class="w-full h-full object-cover"
                         onerror="this.src='/carwash_project/frontend/assets/img/default-user.png'"
                     >
                 </div>
-                <h3 class="text-sm font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
-                <p class="text-xs text-blue-100 opacity-90 truncate mt-1"><?php echo htmlspecialchars($user_email); ?></p>
+                <h3 class="text-sm font-bold text-white truncate"><?php echo e_html($user_name); ?></h3>
+                <p class="text-xs text-blue-100 opacity-90 truncate mt-1"><?php echo e_html($user_email); ?></p>
             </div>
         </div>
         
@@ -1018,7 +396,7 @@ if (!isset($base_url)) {
         <section x-show="currentSection === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
-                <p class="text-gray-600">Hoş geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
+                <p class="text-gray-600">Hoş geldiniz, <?php echo e_html($user_name); ?>!</p>
             </div>
             
             <!-- Stats Grid - Responsive with consistent spacing -->
@@ -1112,6 +490,13 @@ if (!isset($base_url)) {
         
         <!-- ========== VEHICLES SECTION ========== -->
     <section x-show="currentSection === 'vehicles'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing � using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" style="display: none;">
+        <!-- Deferred vehicles section: will be lazy-loaded when scrolled into view -->
+        <div class="deferred-section" data-load-url="<?php echo $base_url; ?>/backend/dashboard/sections/vehicles_section.php" id="vehicles-deferred" aria-label="Araçlarım" role="region">
+            <div class="p-6 bg-white rounded-md shadow-sm text-sm text-gray-500">İçerik yükleniyor…</div>
+        </div>
+        <noscript>
+            <?php include __DIR__ . '/sections/vehicles_section.php'; ?>
+        </noscript>
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Araçlarım</h2>
                 <p class="text-gray-600">Araçlarınızı yönetin</p>
@@ -1417,7 +802,7 @@ if (!isset($base_url)) {
                                 <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
                                     <img 
                                         id="profileImagePreview" 
-                                        src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/images/default-avatar.svg'; ?>" 
+                                        src="<?php echo !empty($user_profile_image) ? e_attr($user_profile_image) : '/carwash_project/frontend/images/default-avatar.svg'; ?>" 
                                         alt="Profile" 
                                         class="w-full h-full object-cover"
                                         onerror="this.src='/carwash_project/frontend/images/default-avatar.svg'"
@@ -1452,7 +837,7 @@ if (!isset($base_url)) {
                                 type="text"
                                 id="profile_name"
                                 name="name"
-                                value="<?php echo htmlspecialchars($user_name); ?>"
+                                value="<?php echo e_attr($user_name); ?>"
                                 required
                                 autocomplete="name"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
@@ -1469,7 +854,7 @@ if (!isset($base_url)) {
                                 type="email"
                                 id="profile_email"
                                 name="email"
-                                value="<?php echo htmlspecialchars($user_email); ?>"
+                                value="<?php echo e_attr($user_email); ?>"
                                 required
                                 autocomplete="email"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"

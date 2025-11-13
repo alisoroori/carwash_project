@@ -1,20 +1,33 @@
 <?php
 session_start();
+// CSRF helper
+$csrf_helper = __DIR__ . '/../../includes/csrf_helper.php';
+if (file_exists($csrf_helper)) require_once $csrf_helper;
 require_once '../../includes/db.php';
 
 // Set JSON response header
 header('Content-Type: application/json');
+// API response helpers
+if (file_exists(__DIR__ . '/../../includes/api_response.php')) {
+    require_once __DIR__ . '/../../includes/api_response.php';
+}
+
+// CSRF validation for POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    if (empty($_SESSION['csrf_token']) || !is_string($token) || !function_exists('hash_equals') || !hash_equals((string)$_SESSION['csrf_token'], (string)$token)) {
+        api_error('Invalid CSRF token', 403);
+    }
+}
 
 // Check admin authentication
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
-    exit();
+    api_error('Unauthorized access', 403);
 }
 
 // Validate action parameter
 if (!isset($_POST['action'])) {
-    echo json_encode(['success' => false, 'error' => 'Missing action parameter']);
-    exit();
+    api_error('Missing action parameter', 400);
 }
 
 try {
@@ -40,15 +53,9 @@ try {
     // Log maintenance action
     logMaintenanceAction($action);
 
-    echo json_encode([
-        'success' => true,
-        'message' => 'Maintenance action completed successfully'
-    ]);
+    api_success('Maintenance action completed successfully');
 } catch (Exception $e) {
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+    api_error($e->getMessage(), 500);
 }
 
 /**

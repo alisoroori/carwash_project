@@ -92,6 +92,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Normalize legacy session keys into canonical $_SESSION['role']
+if (file_exists(__DIR__ . '/session_normalize.php')) {
+    require_once __DIR__ . '/session_normalize.php';
+}
+
 // Load CSRF helper (creates/generates token if missing)
 if (file_exists(__DIR__ . '/csrf_protect.php')) {
     require_once __DIR__ . '/csrf_protect.php';

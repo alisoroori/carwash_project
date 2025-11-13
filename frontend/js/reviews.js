@@ -172,26 +172,23 @@ class ReviewComponent {
             const comment = formData.get('comment');
 
             try {
-                const response = await fetch('/carwash_project/backend/api/reviews/submit_review.php', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'same-origin',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-                });
-
-                // Use safeJson and verify HTTP OK
-                const data = await safeJson(response);
-                if (!response.ok) {
-                    console.warn('[ReviewForms] Submission failed HTTP:', response.status, data);
-                    alert(data?.message || `Server error: ${response.status}`);
-                    return;
-                }
-
-                if (data && data.success) {
-                    await this.loadReviews();
-                    form.reset();
-                } else {
-                    alert(data?.message || data?.error || 'Değerlendirme gönderilemedi');
+                try {
+                    const resObj = await apiCall('/carwash_project/backend/api/reviews/submit_review.php', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    });
+                    const data = resObj.data;
+                    if (data && data.success) {
+                        await this.loadReviews();
+                        form.reset();
+                    } else {
+                        alert(data?.message || data?.error || 'Değerlendirme gönderilemedi');
+                    }
+                } catch (err) {
+                    console.warn('[ReviewForms] Submission failed:', err);
+                    alert(err.message || 'Sistem hatası');
                 }
             } catch (error) {
                 console.error('Error submitting review:', error);
@@ -216,12 +213,15 @@ class ReviewComponent {
 
     async loadReviews() {
         try {
-            const response = await fetch(`../backend/api/get_reviews.php?carwash_id=${this.carwashId}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                this.renderReviews(data.reviews);
-                this.renderStats(data.stats);
+            try {
+                const resObj = await apiCall(`../backend/api/get_reviews.php?carwash_id=${this.carwashId}`);
+                const data = resObj.data;
+                if (data && data.success) {
+                    this.renderReviews(data.reviews);
+                    this.renderStats(data.stats);
+                }
+            } catch (err) {
+                console.error('Error loading reviews:', err);
             }
         } catch (error) {
             console.error('Error loading reviews:', error);

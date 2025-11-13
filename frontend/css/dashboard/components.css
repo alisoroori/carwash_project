@@ -1,0 +1,113 @@
+/* Extracted from Customer_Dashboard.php inline styles
+   Moved here to reduce inline CSS and centralize component styles
+*/
+:root {
+    /* Layout Dynamic Heights (computed by JS) */
+    --header-height: 80px;
+    --footer-height: 0px;
+    --sidebar-width: 250px;
+    /* Colors and utilities (copied from inline block) */
+    --color-primary: #2563eb;
+    --color-secondary: #9333ea;
+    --color-success: #10b981;
+    --color-error: #ef4444;
+    --text-primary: #111827;
+    --bg-body: #f9fafb;
+    --bg-card: #ffffff;
+    --radius-2xl: 1.5rem;
+}
+
+/* Reusable helpers used by migrated inline attributes */
+.header-fixed-height {
+    height: var(--header-height);
+}
+
+.hidden-inline {
+    display: none;
+}
+
+.avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+}
+
+.btn-primary {
+    background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+    color: #fff;
+}
+
+.section-hidden {
+    display: none;
+}
+
+.modal-hidden {
+    display: none;
+}
+
+/* Small utilities used by the page */
+.flex-align-gap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.canvas-max-300 {
+    max-height: 300px;
+}
+
+.message-hidden {
+    display: none;
+}
+
+/* ensure overlays hidden by default */
+.overlay-hidden { display: none; }
+
+/* table link color */
+.table-link-blue { color: #667eea; }
+
+/* price highlight */
+.price-highlight { color: #667eea; font-size: 1.05rem; }
+
+/* pagination container */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding: 16px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.pagination-btn { padding: 8px 12px; }
+
+/* generic status border helper */
+.status-border-left-green { border-left-color: #28a745; }
+
+/* small icon color helpers */
+.icon-blue-mr { color: #667eea; margin-right: 12px; }
+.icon-blue { color: #667eea; }
+.icon-green { color: #28a745; }
+.icon-red { color: #dc3545; }
+
+/* stat icon gradients */
+.stat-icon-grad-1 { background: linear-gradient(135deg, #667eea20, #764ba220); }
+.stat-icon-grad-2 { background: linear-gradient(135deg, #28a74520, #20c99720); }
+.stat-icon-grad-3 { background: linear-gradient(135deg, #dc354520, #c8233320); }
+.stat-icon-grad-4 { background: linear-gradient(135deg, #ffc10720, #ff663320); }
+
+/* Additional status-border helpers */
+.status-border-left-red { border-left-color: #dc3545; }
+.status-border-left-blue { border-left-color: #667eea; }
+.status-border-left-amber { border-left-color: #ffc107; }
+
+/* Amber icon color */
+.icon-amber { color: #ffc107; }

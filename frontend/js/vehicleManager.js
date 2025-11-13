@@ -29,23 +29,19 @@ function createVehicleManagerFactory() {
 
         async loadVehicles() {
             try {
-                const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', {
+                const resObj = await apiCall('/carwash_project/backend/dashboard/vehicle_api.php?action=list', {
                     method: 'GET',
                     credentials: 'same-origin',
                     headers: { 'Accept': 'application/json' }
                 });
-
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-                const data = await response.json();
-                this.vehicles = data.vehicles || data.data?.vehicles || [];
-
+                const data = resObj.data;
+                this.vehicles = data?.vehicles || data?.data?.vehicles || [];
                 const statEl = document.getElementById('vehicleStatCount');
                 if (statEl) statEl.textContent = this.vehicles.length;
             } catch (err) {
                 console.error('Load vehicles error:', err);
                 this.vehicles = [];
-                this.showMessage('Araçlar yüklenemedi', 'error');
+                this.showMessage(err.message || 'Araçlar yüklenemedi', 'error');
             }
         },
 
@@ -93,21 +89,19 @@ function createVehicleManagerFactory() {
                 // Ensure csrf present
                 if (!fd.has('csrf_token') && this.csrfToken) fd.append('csrf_token', this.csrfToken);
 
-                const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+                const resObj = await apiCall('/carwash_project/backend/dashboard/vehicle_api.php', {
                     method: 'POST',
                     credentials: 'same-origin',
                     body: fd
                 });
 
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
-                const data = await res.json();
-                if (data.success || data.status === 'success') {
+                const data = resObj.data;
+                if (data?.success || data?.status === 'success') {
                     this.showMessage(this.editingVehicle ? 'Araç güncellendi' : 'Araç eklendi', 'success');
                     await this.loadVehicles();
                     setTimeout(() => this.closeVehicleForm(), 1500);
                 } else {
-                    throw new Error(data.message || 'İşlem başarısız');
+                    throw new Error(data?.message || 'İşlem başarısız');
                 }
             } catch (err) {
                 console.error('Save vehicle error:', err);
@@ -128,20 +122,17 @@ function createVehicleManagerFactory() {
                 fd.append('id', id);
                 if (this.csrfToken) fd.append('csrf_token', this.csrfToken);
 
-                const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+                const resObj = await apiCall('/carwash_project/backend/dashboard/vehicle_api.php', {
                     method: 'POST',
                     credentials: 'same-origin',
                     body: fd
                 });
-
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
-                const data = await res.json();
-                if (data.success || data.status === 'success') {
+                const data = resObj.data;
+                if (data?.success || data?.status === 'success') {
                     this.showMessage('Araç başarıyla silindi', 'success');
                     await this.loadVehicles();
                 } else {
-                    throw new Error(data.message || 'Silme işlemi başarısız');
+                    throw new Error(data?.message || 'Silme işlemi başarısız');
                 }
             } catch (err) {
                 console.error('Delete vehicle error:', err);

@@ -1,5 +1,8 @@
 <?php
 session_start();
+// CSRF helper
+$csrf_helper = __DIR__ . '/../../includes/csrf_helper.php';
+if (file_exists($csrf_helper)) require_once $csrf_helper;
 require_once '../../includes/db.php';
 // Request helpers: JSON body parsing + structured error responses
 if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
@@ -9,18 +12,27 @@ if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
 // Set JSON response header
 header('Content-Type: application/json');
 
+// API response helpers
+if (file_exists(__DIR__ . '/../../includes/api_response.php')) {
+    require_once __DIR__ . '/../../includes/api_response.php';
+}
+
 // Check authentication
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'carwash') {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
-    exit();
+    api_error('Not authenticated', 403);
 }
 
 // Validate input parameters
 if (!isset($_POST['service_id']) || !isset($_POST['current_status'])) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Missing required parameters']);
-    exit();
+    api_error('Missing required parameters', 400);
+}
+
+// CSRF validation
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    if (empty($_SESSION['csrf_token']) || !is_string($token) || !function_exists('hash_equals') || !hash_equals((string)$_SESSION['csrf_token'], (string)$token)) {
+        api_error('Invalid CSRF token', 403);
+    }
 }
 
 try {
@@ -82,17 +94,11 @@ try {
     // Commit transaction
     $conn->commit();
 
-    $response = [
-        'success' => true,
-        'message' => 'Service status updated successfully',
-        'new_status' => $new_status
-    ];
-
+    $payload = ['new_status' => $new_status];
     if (isset($warning)) {
-        $response['warning'] = $warning;
+        $payload['warning'] = $warning;
     }
-
-    echo json_encode($response);
+    api_success('Service status updated successfully', $payload);
 } catch (Throwable $e) {
     if (isset($conn) && method_exists($conn, 'rollback')) {
         try { $conn->rollback(); } catch (Throwable $_) { }
@@ -100,7 +106,5 @@ try {
     if (function_exists('send_structured_error_response')) {
         send_structured_error_response($e, 500);
     }
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error_type' => get_class($e), 'message' => $e->getMessage()]);
-    exit;
+    api_error($e->getMessage(), 500);
 }

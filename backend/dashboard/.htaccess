@@ -1,0 +1,19 @@
+<IfModule mod_authz_core.c>
+    # Deny access to test/debug/backup files
+    <FilesMatch "(?i)^(.*(\.bak(\.|$)|\.log$|.*preview.*\.html$|.*test.*\.php$|.*_Test\.php$|.*debug.*|.*backup.*\.php$))">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    # Apache 2.2 fallback
+    <FilesMatch "(?i)^(.*(\.bak(\.|$)|\.log$|.*preview.*\.html$|.*test.*\.php$|.*_Test\.php$|.*debug.*|.*backup.*\.php$))">
+        Order Allow,Deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Extra safety: block direct listing of backups by extension
+<Files ~ "(?i)\.bak(\.|$)">
+    Require all denied
+</Files>

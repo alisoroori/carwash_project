@@ -101,7 +101,7 @@
         container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:3rem;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#667eea;"></i><p style="margin-top:1rem;color:#6b7280;">Araçlar yükleniyor...</p></div>';
 
         try {
-            const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', {
+            const resObj = await apiCall('/carwash_project/backend/dashboard/vehicle_api.php?action=list', {
                 method: 'GET',
                 credentials: 'same-origin',
                 headers: {
@@ -110,24 +110,7 @@
                 }
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const contentType = response.headers.get('content-type');
-            let json = null;
-
-            if (contentType && contentType.includes('application/json')) {
-                json = await response.json();
-            } else {
-                const text = await response.text();
-                console.warn('Non-JSON response received:', text.substring(0, 200));
-                try {
-                    json = JSON.parse(text);
-                } catch (e) {
-                    throw new Error('Sunucudan geçersiz yanıt alındı');
-                }
-            }
+            const json = resObj.data || null;
 
             // Normalize response
             let vehicles = [];

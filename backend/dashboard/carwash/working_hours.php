@@ -1,14 +1,24 @@
-﻿<?php
+<?php
 session_start();
 require_once '../../includes/db.php';
+?>
 
-// Check authentication
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'carwash') {
-    header('Location: ../../auth/login.php');
-    exit();
+<?php
+// Provide language attributes and ensure proper HTML opening tag is present
+if (file_exists(__DIR__ . '/../../includes/lang_helper.php')) {
+    require_once __DIR__ . '/../../includes/lang_helper.php';
+    $html_lang_attrs = get_lang_dir_attrs_for_file(__FILE__);
 }
+?>
 
-// Get carwash details
+<!DOCTYPE html>
+<html <?php echo $html_lang_attrs ?? 'lang="en"'; ?> >
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ã‡alÄ±ÅŸma Saatleri - AquaTR</title>
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 $stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE owner_id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();

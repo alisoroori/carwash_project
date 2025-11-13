@@ -191,6 +191,9 @@ $dir = in_array($primary, $rtl_languages, true) ? 'rtl' : 'ltr';
   <?php endif; ?>
 
   <!-- Vehicle manager factory (load before Alpine so factories can register before Alpine initializes) -->
+  <!-- Lightweight API utilities used by many frontend modules (defines window.apiCall) -->
+  <script defer src="<?php echo $base_url; ?>/frontend/js/api-utils.js"></script>
+  <!-- Vehicle manager factory (load before Alpine so factories can register before Alpine initializes) -->
   <script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
   <!-- Alpine.js: prefer local vendor copy, fall back to CDN -->
   <?php if (file_exists(__DIR__ . '/../../frontend/vendor/alpinejs/cdn.min.js')): ?>

@@ -14,18 +14,16 @@ class BookingManager {
 
     async loadServices() {
         try {
-            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.booking.services}`);
-            if (!response.ok) throw new Error('Failed to fetch services');
-            
-            const data = await response.json();
-            if (data.success) {
+            const resObj = await apiCall(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.booking.services}`);
+            const data = resObj.data;
+            if (data && data.success) {
                 this.renderServices(data.services);
             } else {
-                throw new Error(data.error);
+                throw new Error(data?.error || 'Failed to load services');
             }
         } catch (error) {
             console.error('Error loading services:', error);
-            this.showError('Failed to load services. Please try again.');
+            this.showError(error.message || 'Failed to load services. Please try again.');
         }
     }
 
@@ -35,14 +33,12 @@ class BookingManager {
             url.searchParams.append('service_id', serviceId);
             url.searchParams.append('date', date);
 
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Failed to fetch timeslots');
-            
-            const data = await response.json();
-            if (data.success) {
+            const resObj = await apiCall(url);
+            const data = resObj.data;
+            if (data && data.success) {
                 this.renderTimeslots(data.timeslots);
             } else {
-                throw new Error(data.error);
+                throw new Error(data?.error || 'Failed to fetch timeslots');
             }
         } catch (error) {
             console.error('Error loading timeslots:', error);
@@ -52,7 +48,7 @@ class BookingManager {
 
     async createBooking(bookingData) {
         try {
-            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.booking.create}`, {
+            const resObj = await apiCall(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.booking.create}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -60,13 +56,11 @@ class BookingManager {
                 body: JSON.stringify(bookingData)
             });
 
-            if (!response.ok) throw new Error('Failed to create booking');
-            
-            const data = await response.json();
-            if (data.success) {
+            const data = resObj.data;
+            if (data && data.success) {
                 return data.booking_id;
             } else {
-                throw new Error(data.error);
+                throw new Error(data?.error || 'Failed to create booking');
             }
         } catch (error) {
             console.error('Error creating booking:', error);

@@ -1,9 +1,21 @@
 <?php
 session_start();
+// CSRF helper
+$csrf_helper = __DIR__ . '/../../includes/csrf_helper.php';
+if (file_exists($csrf_helper)) require_once $csrf_helper;
 require_once '../../includes/db.php';
 
 // Set JSON response header
 header('Content-Type: application/json');
+
+// CSRF validation for POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    if (empty($_SESSION['csrf_token']) || !is_string($token) || !function_exists('hash_equals') || !hash_equals((string)$_SESSION['csrf_token'], (string)$token)) {
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit();
+    }
+}
 
 // Check admin authentication
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {

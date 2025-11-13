@@ -122,39 +122,21 @@ async function handleFormSubmission(formElement, options = {}) {
             }
         }
 
-        let response;
+        // Use apiCall wrapper which normalizes JSON parsing and non-OK responses
+        let data;
         try {
-            response = await fetch(submitUrl, fetchOptions);
-        } catch (networkError) {
-            console.error('Network error during form submission:', networkError);
-            window.showNotification('Network error: failed to reach server', 'error');
+            const resObj = await apiCall(submitUrl, fetchOptions);
+            data = resObj.data;
+        } catch (err) {
+            console.error('Network error during form submission:', err);
+            window.showNotification(err.message || 'Network error: failed to reach server', 'error');
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.removeAttribute('data-cw-disabled');
                 submitBtn.classList && submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
             }
             if (typeof options.onError === 'function') {
-                options.onError('Network error', null, formElement);
-            }
-            return;
-        }
-
-        const data = await safeJson(response);
-
-        if (!response.ok) {
-            let message = 'Server error';
-            if (data && data.error) message = data.error;
-            else if (data && data.message) message = data.message;
-            else if (response.statusText) message = `${response.status} ${response.statusText}`;
-            window.showNotification(message, 'error');
-
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.removeAttribute('data-cw-disabled');
-                submitBtn.classList && submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
-            }
-            if (typeof options.onError === 'function') {
-                options.onError(message, data, formElement);
+                options.onError(err.message || 'Network error', err.data || null, formElement);
             }
             return;
         }
@@ -323,13 +305,8 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch(e) { /* ignore */ }
 
         try {
-            const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', { method: 'POST', body: fd, credentials: 'same-origin' });
-            const data = await safeJson(res);
-            if (!res.ok) {
-                const msg = (data && (data.error || data.message)) || (`Sunucu hatası: ${res.status}`);
-                window.showNotification(msg, 'error');
-                return;
-            }
+            const resObj = await apiCall('/carwash_project/backend/dashboard/vehicle_api.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+            const data = resObj.data;
             if (data && (data.success === true || data.success === '1' || data.status === 'success')) {
                 // remove DOM card if present
                 try { const card = document.querySelector(`[data-vehicle-id="${vehicleId}"]`); if (card) card.remove(); } catch(e){}
@@ -341,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (err) {
             console.error('Delete vehicle error:', err);
-            window.showNotification('Araç silinirken bir hata oluştu.', 'error');
+            window.showNotification(err.message || 'Araç silinirken bir hata oluştu.', 'error');
         }
     };
 })();

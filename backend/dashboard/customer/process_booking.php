@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../includes/bootstrap.php';
 
@@ -49,23 +49,21 @@ $carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, add
 
         <form id="bookingForm" action="process_booking.php" method="POST" class="bg-white rounded-lg shadow-md p-6">
             <?php
-            // Ensure CSRF token is available in session and emit hidden input for non-AJAX form submissions.
+            // Use centralized CSRF helper for token field
             if (session_status() === PHP_SESSION_NONE) session_start();
-            if (empty($_SESSION['csrf_token'])) {
-                $csrf_helper = __DIR__ . '/../../includes/csrf_protect.php';
-                if (file_exists($csrf_helper)) {
-                    require_once $csrf_helper;
-                    if (function_exists('generate_csrf_token')) {
-                        generate_csrf_token();
-                    }
-                } else {
+            $csrf_helper = __DIR__ . '/../../includes/csrf_helper.php';
+            if (file_exists($csrf_helper)) {
+                require_once $csrf_helper;
+                echo getCsrfTokenField();
+            } else {
+                // Fallback: ensure token exists and emit basic hidden input
+                if (empty($_SESSION['csrf_token'])) {
                     try { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
                     catch (Exception $e) { $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32)); }
                 }
+                echo '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($_SESSION['csrf_token']) . '" />';
             }
             ?>
-            <label for="auto_label_104" class="sr-only">Csrf token</label>
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>" id="auto_label_104" />
             <!-- Step 1: Select CarWash -->
             <div class="booking-step" id="step1">
                 <h2 class="text-xl font-semibold mb-4">1. AraÃ§ YÄ±kama Merkezi SeÃ§in</h2>

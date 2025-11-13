@@ -1,5 +1,8 @@
 <?php
 session_start();
+// CSRF helper
+$csrf_helper = __DIR__ . '/../../includes/csrf_helper.php';
+if (file_exists($csrf_helper)) require_once $csrf_helper;
 require_once '../../includes/db.php';
 // Request helpers
 if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
@@ -7,17 +10,25 @@ if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
 }
 
 header('Content-Type: application/json');
+// API response helpers
+if (file_exists(__DIR__ . '/../../includes/api_response.php')) {
+    require_once __DIR__ . '/../../includes/api_response.php';
+}
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
-    exit();
+    api_error('Not authenticated', 403);
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['booking_id'])) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid request']);
-    exit();
+    api_error('Invalid request', 400);
+}
+
+// CSRF validation for POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    if (empty($_SESSION['csrf_token']) || !is_string($token) || !function_exists('hash_equals') || !hash_equals((string)$_SESSION['csrf_token'], (string)$token)) {
+        api_error('Invalid CSRF token', 403);
+    }
 }
 
 try {
@@ -49,12 +60,10 @@ try {
         throw new Exception('Randevu iptal edilemedi.');
     }
 
-    echo json_encode(['success' => true]);
+    api_success('Booking cancelled');
 } catch (Throwable $e) {
     if (function_exists('send_structured_error_response')) {
         send_structured_error_response($e, 500);
     }
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error_type' => get_class($e), 'message' => $e->getMessage()]);
-    exit;
+    api_error($e->getMessage(), 500);
 }

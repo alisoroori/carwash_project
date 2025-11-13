@@ -1,40 +1,48 @@
 <?php
 session_start();
 require_once '../../includes/db.php';
+// Escaping helpers
+if (file_exists(__DIR__ . '/../../includes/escape.php')) {
+    require_once __DIR__ . '/../../includes/escape.php';
+}
 
-// Check admin authentication
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    header('Location: ../../auth/login.php');
-    exit();
+// Ensure language helper is available and use it for this page
+if (file_exists(__DIR__ . '/../../includes/lang_helper.php')) {
+    require_once __DIR__ . '/../../includes/lang_helper.php';
 }
 
 // Pagination settings
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$per_page = 20;
-$offset = ($page - 1) * $per_page;
+require_once '../../includes/paginator.php';
+use App\Includes\Paginator;
 
-// Get total logs count
-$total_logs = $conn->query("SELECT COUNT(*) as count FROM admin_logs")->fetch_assoc()['count'];
-$total_pages = ceil($total_logs / $per_page);
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$per_page = 20;
+$p = new Paginator($page, $per_page);
+$offset = $p->getOffset();
+$limit = $p->getLimit();
+
+// Get total logs count and set paginator total
+$total_logs = (int)$conn->query("SELECT COUNT(*) as count FROM admin_logs")->fetch_assoc()['count'];
+$p->setTotal($total_logs);
+$total_pages = $p->getTotalPages();
 
 // Get logs with pagination
-$stmt = $conn->prepare("
-    SELECT 
-        al.*,
-        u.name as admin_name,
-        u.email as admin_email
-    FROM admin_logs al
-    JOIN users u ON al.admin_id = u.id
-    ORDER BY al.created_at DESC
-    LIMIT ? OFFSET ?
-");
-$stmt->bind_param("ii", $per_page, $offset);
+$stmt = $conn->prepare("SELECT al.*, u.name as admin_name, u.email as admin_email FROM admin_logs al JOIN users u ON al.admin_id = u.id ORDER BY al.created_at DESC LIMIT ? OFFSET ?");
+$stmt->bind_param("ii", $limit, $offset);
 $stmt->execute();
 $logs = $stmt->get_result();
+
+// If request is AJAX (XHR), return JSON with meta + data
+if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    $rows = $logs->fetch_all(MYSQLI_ASSOC);
+    header('Content-Type: application/json');
+    echo json_encode(['meta' => $p->getMeta(), 'data' => $rows]);
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
-<html lang="tr">
+<html <?php echo (function_exists('get_lang_dir_attrs_for_file') ? get_lang_dir_attrs_for_file(__FILE__) : 'lang="en"'); ?> >
 
 <head>
     <meta charset="UTF-8">
@@ -53,13 +61,13 @@ $logs = $stmt->get_result();
                     <i class="fas fa-arrow-left"></i> Panele Dön
                 </a>
                 <div class="flex items-center space-x-4">
-                    <button onclick="exportLogs()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    <button type="button" class="export-logs-btn bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" data-format="" aria-label="Dışa Aktar">
                         <i class="fas fa-download"></i> Dışa Aktar
                     </button>
-                    <button onclick="exportLogs('csv')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    <button type="button" class="export-logs-btn bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" data-format="csv" aria-label="CSV">
                         <i class="fas fa-file-csv"></i> CSV
                     </button>
-                    <button onclick="exportLogs('pdf')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    <button type="button" class="export-logs-btn bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" data-format="pdf" aria-label="PDF">
                         <i class="fas fa-file-pdf"></i> PDF
                     </button>
                 </div>
@@ -106,14 +114,14 @@ $logs = $stmt->get_result();
                     <?php while ($log = $logs->fetch_assoc()): ?>
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <?php echo date('d.m.Y H:i:s', strtotime($log['created_at'])); ?>
+                                <?php echo e_html(date('d.m.Y H:i:s', strtotime($log['created_at']))); ?>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm font-medium text-gray-900">
-                                    <?php echo htmlspecialchars($log['admin_name']); ?>
+                                    <?php echo e_html($log['admin_name']); ?>
                                 </div>
                                 <div class="text-sm text-gray-500">
-                                    <?php echo htmlspecialchars($log['admin_email']); ?>
+                                    <?php echo e_html($log['admin_email']); ?>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
@@ -150,11 +158,7 @@ $logs = $stmt->get_result();
     </div>
 
     <script>
-        function exportLogs(format) {
-            const exportUrl = format === 'pdf' ? 'export_logs_pdf.php' : 'export_logs.php';
-            window.location.href = exportUrl;
-        }
-
+        // Keep the existing filter behavior; export actions are handled by frontend/js/dashboard-events.js
         document.getElementById('filterForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
@@ -162,6 +166,8 @@ $logs = $stmt->get_result();
             window.location.href = '?' + params.toString();
         });
     </script>
+
+    <script src="/carwash_project/frontend/js/dashboard-events.js"></script>
 
     <?php
     function getActionClass($action)
@@ -201,7 +207,7 @@ $logs = $stmt->get_result();
             if (is_array($value)) {
                 $value = implode(', ', $value);
             }
-            $output[] = ucfirst($key) . ': ' . $value;
+            $output[] = e_html(ucfirst($key)) . ': ' . e_html($value);
         }
 
         return implode('<br>', $output);

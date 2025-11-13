@@ -20,8 +20,17 @@ $dashboard_type = 'admin';  // Specify this is the admin dashboard
 $page_title = 'Yönetici Paneli - CarWash';
 $current_page = 'dashboard';
 
+// Provide language attributes for the header and include the universal dashboard header
+if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
+    require_once __DIR__ . '/../includes/lang_helper.php';
+    $html_lang_attrs = get_lang_dir_attrs_for_file(__FILE__);
+}
 // Include the universal dashboard header
 include '../includes/dashboard_header.php';
+?>
+<!-- Lazy-section loader (loads dashboard fragments when they come into view) -->
+<script defer src="<?php echo $base_url; ?>/frontend/js/section-loader.js"></script>
+<?php
 ?>
 
 <!-- Dashboard Specific Styles -->
@@ -1654,16 +1663,24 @@ include '../includes/dashboard_header.php';
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
                     <div>
-                        <h2><i class="fas fa-tachometer-alt" style="color: #667eea; margin-right: 12px;"></i>Dashboard</h2>
+                        <h2><i class="fas fa-tachometer-alt icon-blue-mr"></i>Dashboard</h2>
                         <p>Sistem genel bakış ve istatistikler</p>
                     </div>
                 </div>
                 
+                <!-- Key Stats Cards (lazy-loaded fragment) -->
+                <div class="deferred-section" data-load-url="<?php echo $base_url; ?>/backend/dashboard/sections/analytics_section.php" id="analytics-deferred" aria-label="Analytics" role="region">
+                    <div class="p-6 bg-white rounded-md shadow-sm text-sm text-gray-500">Grafikler yükleniyor…</div>
+                </div>
+                <noscript>
+                    <?php if (file_exists(__DIR__ . '/sections/analytics_section.php')) include __DIR__ . '/sections/analytics_section.php'; ?>
+                </noscript>
+
                 <!-- Key Stats Cards -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
-                            <i class="fas fa-clipboard-list" style="color: #667eea;"></i>
+                        <div class="stat-icon stat-icon-grad-1">
+                            <i class="fas fa-clipboard-list icon-blue"></i>
                         </div>
                         <div class="stat-info">
                             <h3>156</h3>
@@ -1673,8 +1690,8 @@ include '../includes/dashboard_header.php';
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
-                            <i class="fas fa-hourglass-half" style="color: #28a745;"></i>
+                        <div class="stat-icon stat-icon-grad-2">
+                            <i class="fas fa-hourglass-half icon-green"></i>
                         </div>
                         <div class="stat-info">
                             <h3>24</h3>
@@ -1684,8 +1701,8 @@ include '../includes/dashboard_header.php';
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #dc354520, #c8233320);">
-                            <i class="fas fa-times-circle" style="color: #dc3545;"></i>
+                        <div class="stat-icon stat-icon-grad-3">
+                            <i class="fas fa-times-circle icon-red"></i>
                         </div>
                         <div class="stat-info">
                             <h3>8</h3>
@@ -1695,8 +1712,8 @@ include '../includes/dashboard_header.php';
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #ff663320);">
-                            <i class="fas fa-lira-sign" style="color: #ffc107;"></i>
+                        <div class="stat-icon stat-icon-grad-4">
+                            <i class="fas fa-lira-sign icon-amber"></i>
                         </div>
                         <div class="stat-info">
                             <h3>₺45,680</h3>
@@ -1710,12 +1727,12 @@ include '../includes/dashboard_header.php';
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div class="activity-section">
                         <h3><i class="fas fa-chart-line mr-2"></i>Gelir Trendi (Son 7 Gün)</h3>
-                        <canvas id="revenueChart" style="max-height: 300px;"></canvas>
+                        <canvas id="revenueChart" class="canvas-max-300"></canvas>
                     </div>
                     
                     <div class="activity-section">
                         <h3><i class="fas fa-users mr-2"></i>Aktif Kullanıcılar</h3>
-                        <canvas id="usersChart" style="max-height: 300px;"></canvas>
+                        <canvas id="usersChart" class="canvas-max-300"></canvas>
                     </div>
                 </div>
 
@@ -1723,23 +1740,23 @@ include '../includes/dashboard_header.php';
                 <div class="activity-section">
                     <h3><i class="fas fa-bell mr-2"></i>Son Bildirimler</h3>
                     <div class="activity-list">
-                        <div class="activity-item" style="border-left-color: #28a745;">
-                            <i class="fas fa-shopping-cart" style="color: #28a745;"></i>
+                        <div class="activity-item status-border-left-green">
+                            <i class="fas fa-shopping-cart icon-green"></i>
                             <span><strong>Yeni Sipariş:</strong> Ahmet Yılmaz - Tam Detaylandırma</span>
                             <time>5 dakika önce</time>
                         </div>
-                        <div class="activity-item" style="border-left-color: #dc3545;">
-                            <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                        <div class="activity-item status-border-left-red">
+                            <i class="fas fa-exclamation-triangle icon-red"></i>
                             <span><strong>Ödeme Hatası:</strong> Kart işlemi başarısız - Sipariş #1245</span>
                             <time>15 dakika önce</time>
                         </div>
-                        <div class="activity-item" style="border-left-color: #667eea;">
-                            <i class="fas fa-headset" style="color: #667eea;"></i>
+                        <div class="activity-item status-border-left-blue">
+                            <i class="fas fa-headset icon-blue"></i>
                             <span><strong>Destek Talebi:</strong> Elif Kara - Sipariş takibi sorunu</span>
                             <time>1 saat önce</time>
                         </div>
-                        <div class="activity-item" style="border-left-color: #ffc107;">
-                            <i class="fas fa-star" style="color: #ffc107;"></i>
+                        <div class="activity-item status-border-left-amber">
+                            <i class="fas fa-star icon-amber"></i>
                             <span><strong>Yeni Yorum:</strong> 5 yıldız - "Harika hizmet!"</span>
                             <time>2 saat önce</time>
                         </div>

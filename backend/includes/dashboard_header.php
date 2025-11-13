@@ -139,8 +139,16 @@ if (!empty($_SESSION['logo_path'])) {
     }
 }
 ?>
+<?php
+// Include language helper and prefer a page-provided $html_lang_attrs when available.
+if (file_exists(__DIR__ . '/lang_helper.php')) {
+    require_once __DIR__ . '/lang_helper.php';
+}
+// Determine attributes: allow the including script to set $html_lang_attrs before including this file.
+$html_attrs = $html_lang_attrs ?? (function_exists('get_lang_dir_attrs_for_file') ? get_lang_dir_attrs_for_file($_SERVER['SCRIPT_FILENAME'] ?? __FILE__) : 'lang="en"');
+?>
 <!DOCTYPE html>
-<html lang="tr">
+<html <?php echo $html_attrs; ?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

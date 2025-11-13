@@ -131,10 +131,12 @@ function userLogin($username_email, $password) {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['email'] = $user['email'];
-        $_SESSION['user_role'] = $user['role'];
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['username'] = $user['username'];
+    $_SESSION['email'] = $user['email'];
+    // Set canonical role plus legacy alias for compatibility
+    $_SESSION['user_role'] = $user['role'];
+    $_SESSION['role'] = $user['role'];
         
         // Farsça: به‌روزرسانی آخرین ورود.
         // Türkçe: Son girişi güncelle.

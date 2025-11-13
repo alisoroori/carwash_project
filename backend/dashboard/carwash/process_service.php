@@ -1,5 +1,8 @@
 <?php
 session_start();
+// CSRF helper
+$csrf_helper = __DIR__ . '/../../includes/csrf_helper.php';
+if (file_exists($csrf_helper)) require_once $csrf_helper;
 require_once '../../includes/db.php';
 // Request helpers (JSON body merge + structured error responses)
 if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
@@ -14,6 +17,16 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'carwash') {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Not authenticated']);
     exit();
+}
+
+// CSRF validation for POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    if (empty($_SESSION['csrf_token']) || !is_string($token) || !function_exists('hash_equals') || !hash_equals((string)$_SESSION['csrf_token'], (string)$token)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+        exit();
+    }
 }
 
 // Get carwash ID

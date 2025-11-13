@@ -38,10 +38,11 @@ class Auth {
             session_start();
         }
 
-        // Set session variables
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_role'] = $user['role'];
-        $_SESSION['user_name'] = $user['full_name'];
+    // Set session variables (write canonical key 'role' and keep legacy key for transition)
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['user_role'] = $user['role'];
+    $_SESSION['role'] = $user['role'];
+    $_SESSION['user_name'] = $user['full_name'];
 
         // Remove sensitive data before returning
         unset($user['password']);

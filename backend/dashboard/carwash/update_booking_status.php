@@ -1,5 +1,8 @@
 <?php
 session_start();
+// CSRF helper
+$csrf_helper = __DIR__ . '/../../includes/csrf_helper.php';
+if (file_exists($csrf_helper)) require_once $csrf_helper;
 require_once '../../includes/db.php';
 // Request helpers
 if (file_exists(__DIR__ . '/../../includes/request_helpers.php')) {
@@ -20,6 +23,16 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'carwash') {
 if (!isset($_POST['booking_id']) || !isset($_POST['status'])) {
     echo json_encode(['success' => false, 'error' => 'Missing required fields']);
     exit();
+}
+
+// CSRF validation for POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    if (empty($_SESSION['csrf_token']) || !is_string($token) || !function_exists('hash_equals') || !hash_equals((string)$_SESSION['csrf_token'], (string)$token)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit();
+    }
 }
 
 $booking_id = filter_var($_POST['booking_id'], FILTER_SANITIZE_NUMBER_INT);

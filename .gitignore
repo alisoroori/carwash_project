@@ -40,3 +40,7 @@ build/
 
 # Ignore local environment overrides
 .env.php
+
+# Backups created by scripts (do not commit)
+/backend/backups/
+/backend/backups/raw_bak_archive/
