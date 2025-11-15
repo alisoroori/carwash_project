@@ -1962,6 +1962,143 @@ if (!isset($base_url)) {
             </div>
         </section>
         
+        <!-- ========== CARWASH SELECTION SECTION (Dynamic) ========== -->
+        <section x-show="currentSection === 'carWashSelection'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
+            <div class="mb-8 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Araç Yıkama Seçimi</h2>
+                    <p class="text-gray-600">Yakınınızdaki işletmeleri seçin ve rezervasyon başlatın</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="refreshCarwashesBtn" class="px-4 py-2 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">Yenile</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
+                <div id="carwashSelectionContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Carwash cards are rendered here by JS -->
+                </div>
+
+                <div id="noCarwashesMessage" class="hidden text-gray-600 text-center py-6">Seçiminize uygun oto yıkama bulunamadı.</div>
+            </div>
+
+            <script>
+                (function(){
+                    'use strict';
+
+                    const container = document.getElementById('carwashSelectionContainer');
+                    const noMsg = document.getElementById('noCarwashesMessage');
+                    const refreshBtn = document.getElementById('refreshCarwashesBtn');
+
+                    function makeCard(cw) {
+                        const id = 'carwash_radio_' + cw.id;
+                        const logo = cw.logo || '/carwash_project/frontend/assets/img/default-user.png';
+                        return `
+                            <div class="border rounded p-4 hover:border-blue-500 cursor-pointer carwash-card" data-id="${cw.id}">
+                                <div class="flex items-start gap-3">
+                                    <img src="${logo}" alt="${escapeHtml(cw.name)}" class="w-16 h-16 rounded-lg object-cover bg-gray-100 flex-shrink-0" onerror="this.src='/carwash_project/frontend/assets/images/default-car.png'" />
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-semibold text-lg truncate">${escapeHtml(cw.name)}</h3>
+                                        <p class="text-sm text-gray-600 truncate">${escapeHtml(cw.address || (cw.district ? cw.district + ', ' + cw.city : cw.city || ''))}</p>
+                                        <p class="text-xs text-gray-500 mt-1">${cw.rating ? (cw.rating.toFixed ? cw.rating.toFixed(1) : cw.rating) : '-' } ⭐</p>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex items-center justify-end">
+                                    <a href="/carwash_project/backend/booking/new_booking.php?carwash_id=${cw.id}" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg">Rezervasyon Yap</a>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    function escapeHtml(str) {
+                        if (!str) return '';
+                        return String(str).replace(/[&<>"'`]/g, function (s) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#96;'})[s]; });
+                    }
+
+                    async function loadCarwashes() {
+                        container.innerHTML = '<div class="col-span-full text-center py-6">Yükleniyor...</div>';
+                        noMsg.classList.add('hidden');
+                        try {
+                            const res = await fetch('/carwash_project/backend/api/carwashes/list.php', { credentials: 'same-origin' });
+
+                            // If unauthorized, show friendly message (likely session expired)
+                            if (res.status === 401) {
+                                console.warn('carwashes API returned 401 - user may need to login');
+                                container.innerHTML = '<div class="col-span-full text-center text-yellow-600 py-6">Oturumunuz sona ermiş olabilir. Lütfen tekrar giriş yapın.</div>';
+                                return;
+                            }
+
+                            // Guard: ensure server returned JSON
+                            const ct = res.headers.get('Content-Type') || '';
+                            if (!res.ok) {
+                                // Try to read text body for debugging
+                                const txt = await res.text();
+                                console.error('carwashes list fetch failed:', res.status, txt);
+                                container.innerHTML = '<div class="col-span-full text-center text-red-600 py-6">Liste yüklenemedi. Lütfen yenileyin.</div>';
+                                return;
+                            }
+
+                            if (ct.indexOf('application/json') === -1) {
+                                const textBody = await res.text();
+                                console.error('Unexpected non-JSON response from carwashes API:', textBody);
+                                container.innerHTML = '<div class="col-span-full text-center text-red-600 py-6">Sunucu beklenmeyen bir yanıt döndü. Konsolu kontrol edin.</div>';
+                                return;
+                            }
+
+                            const data = await res.json();
+                            if (!Array.isArray(data) || data.length === 0) {
+                                container.innerHTML = '';
+                                noMsg.classList.remove('hidden');
+                                return;
+                            }
+
+                            container.innerHTML = data.map(cw => makeCard(cw)).join('');
+
+                            // Attach click handlers to cards for keyboard accessibility
+                            container.querySelectorAll('.carwash-card').forEach(card => {
+                                card.addEventListener('click', function(e){
+                                    // follow the reserve link on click
+                                    const link = this.querySelector('a');
+                                    if (link) window.location.href = link.href;
+                                });
+                                card.setAttribute('tabindex','0');
+                                card.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); } });
+                            });
+
+                        } catch (err) {
+                            console.error('Failed to load carwashes:', err);
+                            container.innerHTML = '<div class="col-span-full text-center text-red-600 py-6">Liste yüklenemedi. Lütfen yenileyin.</div>';
+                        }
+                    }
+
+                    // Refresh button
+                    if (refreshBtn) refreshBtn.addEventListener('click', loadCarwashes);
+
+                    // Load when section is shown: listen for Alpine section change via simple polling for currentSection
+                    // (This keeps coupling low and is robust if Alpine not available at time of definition)
+                    let lastKnown = null;
+                    setInterval(function(){
+                        try {
+                            const bodyX = document.body && document.body.__x && document.body.__x.$data;
+                            const current = bodyX ? bodyX.currentSection : (window.__currentSectionFallback || null);
+                            if (current === 'carWashSelection' && lastKnown !== current) {
+                                loadCarwashes();
+                            }
+                            lastKnown = current;
+                        } catch (e) { /* ignore */ }
+                    }, 600);
+
+                    // Initial load if already on section
+                    document.addEventListener('DOMContentLoaded', function(){
+                        const bodyX = document.body && document.body.__x && document.body.__x.$data;
+                        const current = bodyX ? bodyX.currentSection : (window.__currentSectionFallback || null);
+                        if (current === 'carWashSelection') loadCarwashes();
+                    });
+
+                })();
+            </script>
+        </section>
+
         <!-- Other sections (reservations, carWashSelection, history) would follow the same pattern -->
         
         </div> <!-- END: Max-width container -->
