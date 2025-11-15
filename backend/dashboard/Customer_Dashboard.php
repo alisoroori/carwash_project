@@ -83,6 +83,62 @@ if (!isset($base_url)) {
     <script defer src="<?php echo $base_url; ?>/frontend/js/api-utils.js"></script>
     <script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
     <script defer src="<?php echo $base_url; ?>/frontend/js/alpine-components.js"></script>
+    <!-- Lightweight Alpine data factory for profile section (defines profileSection) -->
+    <script>
+        (function(){
+            // Build initial profile data safely via json_encode to avoid attribute quoting issues
+            const profileInit = <?php echo json_encode([
+                'editMode' => false,
+                'profileData' => [
+                    'name' => $user_name,
+                    'email' => $user_email,
+                    'username' => $userData['username'] ?? $_SESSION['username'] ?? '',
+                    'phone' => $user_phone,
+                    'home_phone' => $user_home_phone,
+                    'national_id' => $user_national_id,
+                    'driver_license' => $user_driver_license,
+                    'city' => $user_city,
+                    'address' => $user_address,
+                    'profile_image' => !empty($user_profile_image) ? $user_profile_image : ($base_url . '/frontend/images/default-avatar.svg')
+                ]
+            ], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?>;
+
+            // Expose factory used by Alpine's x-data="profileSection()"
+            function profileSection() {
+                const state = {
+                    editMode: profileInit.editMode || false,
+                    profileData: profileInit.profileData || {},
+                    toggleEdit() {
+                        this.editMode = !this.editMode;
+                        if (!this.editMode) {
+                            // Clear password fields when exiting edit mode
+                            const form = document.getElementById('profileForm');
+                            if (form) {
+                                ['current_password','new_password','confirm_password'].forEach(n => {
+                                    const f = form.querySelector(`[name="${n}"]`);
+                                    if (f) f.value = '';
+                                });
+                            }
+                        }
+                    },
+                    updateProfile(data) {
+                        if (!data || typeof data !== 'object') return;
+                        Object.keys(data).forEach(k => {
+                            if (k === 'profile_image') {
+                                this.profileData.profile_image = data[k];
+                            } else if (data[k] !== undefined) {
+                                this.profileData[k] = data[k];
+                            }
+                        });
+                    }
+                };
+                return state;
+            }
+
+            // Make factory globally available (Alpine will call it by name)
+            window.profileSection = profileSection;
+        })();
+    </script>
     <!-- Alpine.js for interactive components -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
@@ -1373,13 +1429,97 @@ if (!isset($base_url)) {
         </section>
         
         <!-- ========== PROFILE SECTION ========== -->
-        <section x-show="currentSection === 'profile'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
-            <div class="mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Profil Ayarları</h2>
-                <p class="text-gray-600">Hesap bilgilerinizi güncelleyin</p>
+        <section 
+            x-show="currentSection === 'profile'" 
+            x-transition:enter="transition ease-out duration-300" 
+            x-transition:enter-start="opacity-0 transform translate-y-4" 
+            x-transition:enter-end="opacity-100 transform translate-y-0" 
+            class="space-y-6" 
+            style="display: none;"
+            x-data="profileSection()"
+        >
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Profil Ayarları</h2>
+                    <p class="text-gray-600" x-text="editMode ? 'Bilgilerinizi güncelleyin' : 'Profil bilgilerinizi görüntüleyin'"></p>
+                </div>
+                <button 
+                    x-show="!editMode"
+                    @click="toggleEdit()"
+                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2"
+                >
+                    <i class="fas fa-edit"></i>
+                    <span>Düzenle</span>
+                </button>
             </div>
             
-            <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
+            <!-- VIEW MODE: Display Profile Info -->
+            <div 
+                x-show="!editMode"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8"
+            >
+                <div class="space-y-6">
+                    <!-- Profile Header -->
+                    <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
+                        <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
+                            <img 
+                                :src="profileData.profile_image" 
+                                alt="Profile" 
+                                class="w-full h-full object-cover"
+                                onerror="this.src='/carwash_project/frontend/images/default-avatar.svg'"
+                            >
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900" x-text="profileData.name"></h3>
+                            <p class="text-gray-600 mt-1" x-text="profileData.email"></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-gray-500">Kullanıcı Adı</label>
+                            <p class="text-base text-gray-900" x-text="profileData.username || '-'"></p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-gray-500">Telefon</label>
+                            <p class="text-base text-gray-900" x-text="profileData.phone || '-'"></p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-gray-500">Ev Telefonu</label>
+                            <p class="text-base text-gray-900" x-text="profileData.home_phone || '-'"></p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-gray-500">T.C. Kimlik No</label>
+                            <p class="text-base text-gray-900" x-text="profileData.national_id || '-'"></p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-gray-500">Sürücü Belgesi No</label>
+                            <p class="text-base text-gray-900" x-text="profileData.driver_license || '-'"></p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-gray-500">Şehir</label>
+                            <p class="text-base text-gray-900" x-text="profileData.city || '-'"></p>
+                        </div>
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="text-sm font-semibold text-gray-500">Adres</label>
+                            <p class="text-base text-gray-900" x-text="profileData.address || '-'"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- EDIT MODE: Profile Form -->
+            <div 
+                x-show="editMode"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8"
+            >
                 <form id="profileForm" class="space-y-6" enctype="multipart/form-data" method="POST">
                     <input type="hidden" name="action" value="update_profile">
                     <?php
@@ -1664,6 +1804,7 @@ if (!isset($base_url)) {
                     <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
                         <button 
                             type="button"
+                            @click="toggleEdit()"
                             class="w-full sm:w-auto h-11 px-6 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:bg-gray-100 transition-colors"
                         >
                             İptal
@@ -2190,39 +2331,93 @@ if (!isset($base_url)) {
             if (result.success) {
                 clearFormErrors();
                 if (errorMsg) { errorMsg.classList.add('hidden'); }
-                // Always show canonical success notification
-                try { showSuccess('Profil başarıyla güncellendi'); } catch (e) {}
+                
+                // Show success notification with subtitle
+                try { showSuccess('Profil Başarıyla Güncellendi!', 'Değişiklikler kaydedildi'); } catch (e) {}
 
-                // Update form fields from server authoritative response if provided
+                // Get Alpine.js component data
+                const profileSection = document.querySelector("section[x-show=\"currentSection === 'profile'\"]");
+                const alpineData = profileSection?.__x?.$data;
+
+                // Prepare updated profile data
+                const updatedData = {};
+                
+                // Get data from server response or form fields
                 if (result.data) {
-                    try {
-                        if (result.data.email) {
-                            const em = profileForm.querySelector('[name="email"]'); if (em) em.value = result.data.email;
-                        }
-                        if (result.data.username) {
-                            const un = profileForm.querySelector('[name="username"]'); if (un) un.value = result.data.username;
-                        }
-                        if (result.data.name) {
-                            const nm = profileForm.querySelector('[name="name"]'); if (nm) nm.value = result.data.name;
-                        }
-                        if (result.data.phone) {
-                            const ph = profileForm.querySelector('[name="phone"]'); if (ph) ph.value = result.data.phone;
-                        }
-                    } catch (e) { console.warn('Could not apply server-returned profile fields', e); }
+                    updatedData.name = result.data.name || profileForm.querySelector('[name="name"]')?.value;
+                    updatedData.email = result.data.email || profileForm.querySelector('[name="email"]')?.value;
+                    updatedData.username = result.data.username || profileForm.querySelector('[name="username"]')?.value;
+                    updatedData.phone = result.data.phone !== undefined ? result.data.phone : profileForm.querySelector('[name="phone"]')?.value;
+                    updatedData.home_phone = result.data.home_phone !== undefined ? result.data.home_phone : profileForm.querySelector('[name="home_phone"]')?.value;
+                    updatedData.national_id = result.data.national_id !== undefined ? result.data.national_id : profileForm.querySelector('[name="national_id"]')?.value;
+                    updatedData.driver_license = result.data.driver_license !== undefined ? result.data.driver_license : profileForm.querySelector('[name="driver_license"]')?.value;
+                    updatedData.city = result.data.city !== undefined ? result.data.city : profileForm.querySelector('[name="city"]')?.value;
+                    updatedData.address = result.data.address !== undefined ? result.data.address : profileForm.querySelector('[name="address"]')?.value;
+                } else {
+                    // Fallback: get all values from form
+                    updatedData.name = profileForm.querySelector('[name="name"]')?.value;
+                    updatedData.email = profileForm.querySelector('[name="email"]')?.value;
+                    updatedData.username = profileForm.querySelector('[name="username"]')?.value;
+                    updatedData.phone = profileForm.querySelector('[name="phone"]')?.value;
+                    updatedData.home_phone = profileForm.querySelector('[name="home_phone"]')?.value;
+                    updatedData.national_id = profileForm.querySelector('[name="national_id"]')?.value;
+                    updatedData.driver_license = profileForm.querySelector('[name="driver_license"]')?.value;
+                    updatedData.city = profileForm.querySelector('[name="city"]')?.value;
+                    updatedData.address = profileForm.querySelector('[name="address"]')?.value;
                 }
-                // Update avatars and localStorage (support different response shapes)
+                
+                // Handle profile image update
                 const newImage = (result.data && result.data.image) ? result.data.image : (result.avatarUrl || result.data?.avatarUrl || null);
                 if (newImage) {
                     const imageUrl = newImage + (newImage.includes('?') ? '&' : '?') + 'v=' + Date.now();
+                    updatedData.profile_image = imageUrl;
+                    
+                    // Update all image instances
                     const topAvatar = document.getElementById('userAvatarTop');
                     if (topAvatar) topAvatar.src = imageUrl;
                     const sidebarImg = document.getElementById('sidebarProfileImage');
                     if (sidebarImg) sidebarImg.src = imageUrl;
                     if (profileImagePreview) profileImagePreview.src = imageUrl;
-                    try { localStorage.setItem('carwash_profile_image', imageUrl); localStorage.setItem('carwash_profile_image_ts', Date.now().toString()); } catch(e){}
+                    try { 
+                        localStorage.setItem('carwash_profile_image', imageUrl); 
+                        localStorage.setItem('carwash_profile_image_ts', Date.now().toString()); 
+                    } catch(e){}
                 }
+                
+                // Update Alpine.js reactive profile data
+                if (alpineData && typeof alpineData.updateProfile === 'function') {
+                    alpineData.updateProfile(updatedData);
+                    // Close edit mode and show view mode
+                    alpineData.editMode = false;
+                }
+                
+                // Update form fields with server data for next edit
+                if (result.data) {
+                    Object.keys(updatedData).forEach(key => {
+                        const field = profileForm.querySelector(`[name="${key}"]`);
+                        if (field && updatedData[key] !== undefined) {
+                            field.value = updatedData[key];
+                        }
+                    });
+                }
+                
+                // Clear password fields
+                ['current_password', 'new_password', 'confirm_password'].forEach(name => {
+                    const field = profileForm.querySelector(`[name="${name}"]`);
+                    if (field) field.value = '';
+                });
+                
+                // Update original values for change detection
+                originalValues.name = updatedData.name;
+                originalValues.email = updatedData.email;
+                originalValues.username = updatedData.username;
+                originalValues.national_id = updatedData.national_id;
 
-                profileForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Smooth scroll to profile section
+                if (profileSection) {
+                    profileSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                
                 // Ensure profile tab remains active
                 activateProfileTab();
             } else {
