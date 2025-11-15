@@ -1900,6 +1900,14 @@ if (!isset($base_url)) {
     const successMsg = document.getElementById('profile-success');
     const errorMsg = document.getElementById('profile-error');
 
+    // Store original values for change detection
+    const originalValues = {
+        name: (profileForm.querySelector('[name="name"]')?.value || '').trim(),
+        email: (profileForm.querySelector('[name="email"]')?.value || '').trim(),
+        username: (profileForm.querySelector('[name="username"]')?.value || '').trim(),
+        national_id: (profileForm.querySelector('[name="national_id"]')?.value || '').trim()
+    };
+
     function clearFieldHighlights() {
         const fields = ['profile_name','profile_email','profile_username','profile_national_id','profile_image','current_password','new_password','confirm_password'];
         fields.forEach(id => {
@@ -2017,6 +2025,7 @@ if (!isset($base_url)) {
     if (!profileForm) return;
 
     // Client-side validation before submitting
+    // Only validate fields that have changed from their original values (matches backend behavior)
     function clientValidate() {
         const errs = [];
         const fields = {};
@@ -2027,26 +2036,39 @@ if (!isset($base_url)) {
         const new_password = (profileForm.querySelector('[name="new_password"]')?.value || '').trim();
         const confirm_password = (profileForm.querySelector('[name="confirm_password"]')?.value || '').trim();
 
-        if (name.length < 2 || name.length > 50 || !/^[\p{L}0-9 _]+$/u.test(name)) {
-            errs.push('Display name must be 2–50 characters and contain only letters, numbers, or spaces.');
-            fields['name'] = true;
+        // Only validate name if it changed
+        if (name !== originalValues.name) {
+            if (name.length < 2 || name.length > 50 || !/^[\p{L}0-9 _]+$/u.test(name)) {
+                errs.push('Display name must be 2–50 characters and contain only letters, numbers, or spaces.');
+                fields['name'] = true;
+            }
         }
 
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-            errs.push('Invalid email format.');
-            fields['email'] = true;
+        // Only validate email if it changed
+        if (email !== originalValues.email) {
+            if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                errs.push('Invalid email format.');
+                fields['email'] = true;
+            }
         }
 
-        if (!/^[A-Za-z0-9_]{3,}$/.test(username)) {
-            errs.push('Username must be at least 3 characters and contain no spaces.');
-            fields['username'] = true;
+        // Only validate username if it changed
+        if (username !== originalValues.username) {
+            if (!/^[A-Za-z0-9_]{3,}$/.test(username)) {
+                errs.push('Username must be at least 3 characters and contain no spaces.');
+                fields['username'] = true;
+            }
         }
 
-        if (!/^[0-9]{11}$/.test(national_id)) {
-            errs.push('T.C. Kimlik No 11 haneli olmalıdır');
-            fields['national_id'] = true;
+        // Only validate national_id if it changed
+        if (national_id !== originalValues.national_id) {
+            if (!/^[0-9]{11}$/.test(national_id)) {
+                errs.push('T.C. Kimlik No 11 haneli olmalıdır');
+                fields['national_id'] = true;
+            }
         }
 
+        // Always validate password if user is trying to change it
         if (new_password) {
             if (new_password.length < 8 || !/[A-Za-z]/.test(new_password) || !/[0-9]/.test(new_password)) {
                 errs.push('New password must be at least 8 characters and contain letters and numbers.');
