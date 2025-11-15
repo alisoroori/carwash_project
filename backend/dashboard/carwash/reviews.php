@@ -63,7 +63,8 @@ $carwashId = $_SESSION['carwash_id'];
             <div class="mt-3">
                 <h3 class="text-lg font-medium">Değerlendirmeye Yanıt Ver</h3>
                 <form id="replyForm" class="mt-4">
-                    <label for="auto_label_97" class="sr-only">Reply</label><label for="auto_label_97" class="sr-only">Reply</label><textarea name="reply" rows="4"
+                    <label for="auto_label_97" class="sr-only">Reply</label>
+                    <textarea name="reply" rows="4"
                         class="w-full rounded-md border-gray-300 shadow-sm"
                         placeholder="Yanıtınızı yazın..." id="auto_label_97"></textarea>
                     <div class="mt-4 flex justify-end space-x-2">

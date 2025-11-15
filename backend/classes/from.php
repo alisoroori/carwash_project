@@ -2,12 +2,18 @@
 declare(strict_types=1);
 
 namespace App\Classes;
+?>
+<script>
+  // Responsive header/index JavaScript moved into a pure HTML/JS section.
+  // This file previously contained stray PHP declarations at the top; closing
+  // the PHP block keeps the original JS intact while making the file parse.
 
-class from all nav links
+  // Update active nav links by href
+  function updateActiveNavLink(activeHref) {
     document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
       link.classList.remove('active');
     });
-    
+
     // Add active class to current nav links
     document.querySelectorAll(`a[href="${activeHref}"]`).forEach(link => {
       if (link.classList.contains('nav-link') || link.classList.contains('mobile-nav-link')) {
@@ -38,7 +44,7 @@ class from all nav links
     sections.forEach(section => {
       observer.observe(section);
     });
-    
+
     return observer;
   }
 
@@ -53,7 +59,7 @@ class from all nav links
 
     document.addEventListener('touchend', function(event) {
       touchEndY = event.changedTouches[0].screenY;
-      
+
       const menu = document.getElementById('mobileMenu');
       if (menu && menu.classList.contains('active')) {
         // Swipe up to close menu
@@ -71,11 +77,11 @@ class from all nav links
         const originalContent = this.innerHTML;
         const spinner = '<i class="fas fa-spinner fa-spin mr-2"></i>';
         const loadingText = isMobile ? 'Yükleniyor...' : 'Yükleniyor...';
-        
+
         this.innerHTML = spinner + loadingText;
         this.style.pointerEvents = 'none';
         this.style.opacity = '0.8';
-        
+
         // Restore after a short delay if still on page
         setTimeout(() => {
           this.innerHTML = originalContent;
@@ -90,14 +96,14 @@ class from all nav links
   if (touchDevice) {
     const userMenuButton = document.querySelector('.user-menu-button');
     const userMenu = document.querySelector('.user-menu');
-    
+
     if (userMenuButton && userMenu) {
       userMenuButton.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         userMenu.classList.toggle('active');
       });
-      
+
       document.addEventListener('click', function(event) {
         if (!userMenu.contains(event.target)) {
           userMenu.classList.remove('active');
@@ -118,14 +124,14 @@ class from all nav links
   document.addEventListener('DOMContentLoaded', function() {
     updateResponsiveVariables();
     createIntersectionObserver();
-    
+
     // Add enhanced touch feedback for mobile
     if (touchDevice) {
       document.querySelectorAll('.nav-link, .mobile-nav-link, .cta-button, .secondary-button').forEach(element => {
         element.addEventListener('touchstart', function() {
           this.style.transform = 'scale(0.98)';
         }, { passive: true });
-        
+
         element.addEventListener('touchend', function() {
           setTimeout(() => {
             this.style.transform = '';
@@ -133,7 +139,7 @@ class from all nav links
         }, { passive: true });
       });
     }
-    
+
     console.log('CarWash Responsive Index Header loaded successfully!');
     console.log('Device type:', isMobile ? 'Mobile' : isTablet ? 'Tablet' : 'Desktop');
     console.log('Touch device:', touchDevice);
@@ -154,7 +160,7 @@ class from all nav links
   // Performance optimization: Debounced scroll handler
   let scrollTimeout;
   let lastScrollY = window.scrollY;
-  
+
   window.addEventListener('scroll', function() {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(function() {

@@ -44,11 +44,13 @@ $package = $stmt->get_result()->fetch_assoc();
 
             <!-- Booking Form -->
             <form id="packageBookingForm" class="bg-white rounded-lg shadow-lg p-6">
-                <label for="auto_label_122" class="sr-only">Package id</label><label for="auto_label_122" class="sr-only">Package id</label><input type="hidden" name="package_id" value="<?= $package_id "\>" id="auto_label_122">">
+                <label for="auto_label_122" class="sr-only">Package id</label>
+                <input type="hidden" name="package_id" value="<?= htmlspecialchars($package_id) ?>" id="auto_label_122">
 
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700">Select Date</label>
-                    <label for="auto_label_121" class="sr-only">Date</label><label for="auto_label_121" class="sr-only">Date</label><input type="date" name="date" required min="<?= date('Y-m-d') "\>" id="auto_label_121">"
+                    <label for="auto_label_121" class="sr-only">Date</label>
+                    <input type="date" name="date" required min="<?= date('Y-m-d') ?>" id="auto_label_121"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
 

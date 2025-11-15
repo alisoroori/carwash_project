@@ -123,7 +123,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2" for="auto_label_36">Role</label>
-            <label for="auto_label_36" class="sr-only">Role</label><label for="auto_label_36" class="sr-only">Role</label><select name="role" class="input-field w-full px-4 py-3 rounded-lg" id="auto_label_36">
+            <label for="auto_label_36" class="sr-only">Role</label>
+            <select name="role" class="input-field w-full px-4 py-3 rounded-lg" id="auto_label_36">
               <?php foreach ($roles as $r): ?>
                 <option value="<?php echo $r; ?>" __php_block_9__><?php echo ucfirst($r); ?></option>
               <?php endforeach; ?>
@@ -139,7 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2" for="auto_label_34">Password</label>
-            <label for="auto_label_34" class="sr-only">Password</label><label for="auto_label_34" class="sr-only">Password</label><input type="password" name="password" class="input-field w-full px-4 py-3 rounded-lg" required id="auto_label_34" placeholder="Password">
+            <label for="auto_label_34" class="sr-only">Password</label>
+            <input type="password" name="password" class="input-field w-full px-4 py-3 rounded-lg" required id="auto_label_34" placeholder="Password">
           </div>
 
           <button type="submit" class="btn-primary w-full py-3 rounded-lg font-bold">Create User</button>

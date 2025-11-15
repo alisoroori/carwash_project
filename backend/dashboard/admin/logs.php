@@ -82,11 +82,13 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
         <div class="bg-white rounded-lg shadow-md p-4 mb-6">
             <form id="filterForm" class="flex flex-wrap gap-4">
                 <div class="flex-1">
-                    <label for="auto_label_78" class="sr-only">Search</label><label for="auto_label_78" class="sr-only">Search</label><input type="text" name="search" placeholder="Ara..."
+                    <label for="auto_label_78" class="sr-only">Search</label>
+                    <input type="text" name="search" placeholder="Ara..."
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="auto_label_78">
                 </div>
                 <div class="w-48">
-                    <label for="auto_label_77" class="sr-only">Action</label><label for="auto_label_77" class="sr-only">Action</label><select name="action" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="auto_label_77">
+                    <label for="auto_label_77" class="sr-only">Action</label>
+                    <select name="action" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" id="auto_label_77">
                         <option value="">Tüm İşlemler</option>
                         <option value="update_settings">Ayar Güncelleme</option>
                         <option value="clear_cache">Önbellek Temizleme</option>

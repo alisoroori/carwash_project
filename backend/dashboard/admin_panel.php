@@ -3398,7 +3398,10 @@ include '../includes/dashboard_header.php';
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-     <label for="auto_7" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_7">85rem;" value="2025-10-01<label for="auto_8" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_8">-size: 0.85rem;" value="2025-10-19"&gt;
+                                <label for="auto_7" class="sr-only">Date From</label>
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_7">
+                                <label for="auto_8" class="sr-only">Date To</label>
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_8">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3607,7 +3610,11 @@ include '../includes/dashboard_header.php';
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; margin-bott&lt;label for=" auto_12 class="sr-only">Date<input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_12">: 1; font-size: 0.85rem;"<label for="auto_13" class="sr-only">Date</label><input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_13">yle="flex: 1; font-size: 0.85rem;" value="2025-10-19"&gt;
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <label for="auto_12" class="sr-only">Date From</label>
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_12">
+                                <label for="auto_13" class="sr-only">Date To</label>
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_13">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -5044,19 +5051,24 @@ include '../includes/dashboard_header.php';
                     </label></div>
                     
                     <div class="form-group">
-                        <label for="auto_89">Maksimum Yedek SayÄ±sÄ±</label>
-               <label for="auto_89" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_89">                  </div>
-                    
-                    <h4 style="margin: 2rem 0 1rem 0;">Yedek Depolama</h4>
-                    
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8&lt;label for=" auto_90 class="sr-only" for="auto_90">Input</label><input type="text" value="/var/backups/carwash" id="auto_90">    <label for="auto_91" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_91">
-                            <span>Yerel Sunucuda Sakla</span>
-                        
+                        <label for="auto_89">Maksimum Yedek Sayısı</label>
+                        <div>
+                            <label for="auto_89" class="sr-only">Input</label>
+                            <input type="checkbox" checked style="width: auto; margin: 0;" id="auto_89">
+                        </div>
                     </div>
-                    
-     <label for="auto_92" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_92">          <label for="auto_93">Yerel Yedek KlasÃ¶rÃ¼</label>
-                        <label for="auto_93" class="sr-only">Input</label><input type="text" value="/var/backups/carwash" id="auto_93">
+
+                    <h4 style="margin: 2rem 0 1rem 0;">Yedek Depolama</h4>
+
+                    <div class="form-group">
+                        <label for="auto_90" class="block">Yedek Klasörü</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="auto_90" class="sr-only">Backup path</label>
+                            <input type="text" value="/var/backups/carwash" id="auto_90" class="w-full px-3 py-2 border rounded-lg">
+                            <label for="auto_91" class="sr-only">Use local storage</label>
+                            <input type="checkbox" checked id="auto_91" style="width: auto; margin: 0;">
+                            <span>Yerel Sunucuda Sakla</span>
+                        </div>
                     </div>
                     
                     <div class="form-group">

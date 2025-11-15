@@ -139,16 +139,8 @@ if (!empty($_SESSION['logo_path'])) {
     }
 }
 ?>
-<?php
-// Include language helper and prefer a page-provided $html_lang_attrs when available.
-if (file_exists(__DIR__ . '/lang_helper.php')) {
-    require_once __DIR__ . '/lang_helper.php';
-}
-// Determine attributes: allow the including script to set $html_lang_attrs before including this file.
-$html_attrs = $html_lang_attrs ?? (function_exists('get_lang_dir_attrs_for_file') ? get_lang_dir_attrs_for_file($_SERVER['SCRIPT_FILENAME'] ?? __FILE__) : 'lang="en"');
-?>
 <!DOCTYPE html>
-<html <?php echo $html_attrs; ?>>
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -174,6 +166,10 @@ $html_attrs = $html_lang_attrs ?? (function_exists('get_lang_dir_attrs_for_file'
             --dashboard-secondary: #111827;
             --dashboard-gradient: #1f2937;
             --shadow-elevation: 0 4px 12px rgba(0, 0, 0, 0.15);
+            /* Layout variables — JS will update --header-height on load/resize */
+            --header-height: 64px; /* sensible default */
+            --footer-height: 0px;
+            --sidebar-width: 250px;
         }
         
         * {
@@ -629,6 +625,75 @@ $html_attrs = $html_lang_attrs ?? (function_exists('get_lang_dir_attrs_for_file'
                 display: none !important;
             }
         }
+
+        /* Ensure main content starts below the header so it never scrolls under it */
+        main, #main-content {
+            padding-top: var(--header-height);
+            scroll-padding-top: calc(var(--header-height) + 8px);
+        }
+
+        /* ===========================
+           HIGH-PRIORITY HEADER AVATAR OVERRIDES
+           Purpose: enforce fixed, circular avatar sizing in header
+           and prevent any other stylesheet or inline rule from
+           causing the avatar to become oversized or overlap.
+           These rules use high-specificity selectors and !important
+           to ensure they win against other author styles.
+        =========================== */
+
+        /* Enforce fixed header avatar size and prevent overflow */
+        #user-avatar-top,
+        #userAvatarTop,
+        .header-profile-img,
+        .dashboard-header img.profile-img,
+        .dashboard-header .profile-img,
+        .dashboard-header .user-avatar img,
+        .dashboard-header .user-avatar {
+            width: 50px !important;
+            height: 50px !important;
+            max-width: 50px !important;
+            max-height: 50px !important;
+            min-width: 50px !important;
+            min-height: 50px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            flex-shrink: 0 !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Smaller devices: slightly smaller avatar */
+        @media (max-width: 768px) {
+            #user-avatar-top,
+            #userAvatarTop,
+            .header-profile-img,
+            .dashboard-header img.profile-img,
+            .dashboard-header .profile-img,
+            .dashboard-header .user-avatar img,
+            .dashboard-header .user-avatar {
+                width: 40px !important;
+                height: 40px !important;
+                max-width: 40px !important;
+                max-height: 40px !important;
+                min-width: 40px !important;
+                min-height: 40px !important;
+            }
+        }
+
+        /* Ensure header container alignment prevents overlap */
+        .dashboard-header {
+            position: relative !important;
+            overflow: visible !important;
+            align-items: center !important;
+        }
+
+        /* Avoid generic img rules from shrinking or stretching header avatars */
+        .dashboard-header img {
+            max-width: none !important;
+            max-height: none !important;
+        }
     </style>
 </head>
 <body>
@@ -645,9 +710,7 @@ $html_attrs = $html_lang_attrs ?? (function_exists('get_lang_dir_attrs_for_file'
                         <i class="fas <?php echo $dashboard_icon; ?> text-white text-lg"></i>
                     </div>
                     <div class="flex flex-col">
-                        
-                       <img src="<?php echo htmlspecialchars($logo_src, ENT_QUOTES, 'UTF-8'); ?>" alt="Site Logo" class="logo-image header-logo">
-                         <span class="dashboard-badge">
+                        <span class="dashboard-badge">
                             <span class="logo-text">MYCAR</span> <?php echo $dashboard_label; ?>
                         </span>
                     </div>
@@ -887,6 +950,63 @@ document.querySelectorAll('.user-menu-button').forEach(button => {
 });
 
 console.log('âœ… Dashboard Header: Loaded successfully for <?php echo strtoupper($dashboard_type); ?> dashboard');
+</script>
+
+<!-- Central layout height updater: sets --header-height, --footer-height, and --sidebar-width -->
+<script>
+/* Layout sync: compute header/footer/sidebar and expose via CSS variables */
+(function() {
+    'use strict';
+
+    function computeSidebarWidth() {
+        const vw = window.innerWidth;
+        if (vw < 640) return 250;
+        if (vw < 900) return 220;
+        return 250;
+    }
+
+    function updateLayoutHeights() {
+        const root = document.documentElement;
+        const headerEl = document.querySelector('.dashboard-header') || document.querySelector('header');
+        let headerH = 64;
+        if (headerEl) {
+            const r = headerEl.getBoundingClientRect();
+            if (r && r.height) headerH = Math.round(r.height);
+        }
+        root.style.setProperty('--header-height', headerH + 'px');
+
+        const footerEl = document.querySelector('#site-footer');
+        if (footerEl) {
+            const fh = Math.round(footerEl.getBoundingClientRect().height) || 0;
+            root.style.setProperty('--footer-height', fh + 'px');
+        }
+
+        const sidebarW = computeSidebarWidth();
+        root.style.setProperty('--sidebar-width', sidebarW + 'px');
+    }
+
+    // Initial update
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateLayoutHeights);
+    } else {
+        updateLayoutHeights();
+    }
+
+    // Resize debounce
+    let t;
+    window.addEventListener('resize', function() {
+        clearTimeout(t);
+        t = setTimeout(updateLayoutHeights, 200);
+    });
+
+    // Also update after full page load (images/fonts)
+    window.addEventListener('load', function() {
+        setTimeout(updateLayoutHeights, 120);
+    });
+
+    // Expose on window for legacy callers
+    window.updateLayoutHeights = updateLayoutHeights;
+})();
 </script>
 
 

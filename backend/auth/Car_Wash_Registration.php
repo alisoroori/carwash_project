@@ -57,9 +57,25 @@ include '../includes/header.php';
     height: 1px;
     background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
   }
+
+  /* Form spacing to prevent overlap with header/footer */
+  .registration-form-wrapper {
+    margin-top: 100px;
+    margin-bottom: 100px;
+    padding: 2rem 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .registration-form-wrapper {
+      margin-top: 80px;
+      margin-bottom: 80px;
+      padding: 1rem 0.5rem;
+    }
+  }
 </style>
 
 <!-- Registration Form -->
+<div class="registration-form-wrapper">
 <div class="max-w-5xl mx-auto">
   <div class="form-container rounded-2xl shadow-2xl p-8 animate-fade-in-up">
     <!-- Header -->
@@ -384,6 +400,7 @@ include '../includes/header.php';
       </div>
     </div>
   </div>
+</div>
 
   <script>
     // Farsça: تابع برای تغییر دید رمز عبور.

@@ -297,7 +297,8 @@ include '../includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_label_71">
               <i class="fas fa-user-tag mr-2 text-blue-600"></i>Hesap Türü
             </label>
-            <label for="auto_label_71" class="sr-only">User type</label><label for="auto_label_71" class="sr-only">User type</label><select name="user_type" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none" id="auto_label_71">
+            <label for="auto_label_71" class="sr-only">User type</label>
+            <select name="user_type" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none" id="auto_label_71">
               <option value="">Hesap türünüzü seçin</option>
               <option value="customer">Müşteri</option>
               <option value="carwash">Araç Yıkama İşletmesi</option>
@@ -310,7 +311,8 @@ include '../includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_label_70">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi
             </label>
-            <label for="auto_label_70" class="sr-only">Email</label><label for="auto_label_70" class="sr-only">Email</label><input type="email" name="email" placeholder="ornek@email.com" required class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_70">
+            <label for="auto_label_70" class="sr-only">Email</label>
+            <input type="email" name="email" placeholder="ornek@email.com" required class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_70">
           </div>
 
           <!-- Password Field -->

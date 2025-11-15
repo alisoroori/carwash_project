@@ -12,7 +12,7 @@ if (!defined('API_BOOTSTRAP_V1')) {
             if ($out !== '') {
                 if (class_exists('App\Classes\Logger')) {
                     try {
-                        App\\Classes\\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
+                        \App\Classes\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
                     } catch (Throwable $e) {
                         error_log('Logger::warn failed: ' . $e->getMessage());
                     }

@@ -7,7 +7,21 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../includes/bootstrap.php';
+// Resolve bootstrap path robustly: this fragment lives in
+// backend/dashboard/sections/, while bootstrap.php is in backend/includes/
+$bootstrapPath = dirname(__DIR__, 2) . '/includes/bootstrap.php';
+if (!file_exists($bootstrapPath)) {
+    // Fallback for older PHP versions or unexpected layouts
+    $bootstrapPath = __DIR__ . '/../../includes/bootstrap.php';
+}
+if (!file_exists($bootstrapPath)) {
+    // If bootstrap cannot be found, emit a clear error and stop to avoid
+    // fatal errors later when classes are referenced.
+    http_response_code(500);
+    echo '<div class="p-4 bg-red-50 border border-red-200 rounded">Server configuration error: bootstrap.php not found.</div>';
+    exit;
+}
+require_once $bootstrapPath;
 use App\Classes\Auth;
 use App\Classes\Database;
 

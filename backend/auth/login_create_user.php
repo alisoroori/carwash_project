@@ -273,7 +273,8 @@ include '../includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_label_73">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi
             </label>
-            <label for="auto_label_73" class="sr-only">Email</label><label for="auto_label_73" class="sr-only">Email</label><input type="email" name="email" placeholder="ornek@email.com" required class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_73">
+            <label for="auto_label_73" class="sr-only">Email</label>
+            <input type="email" name="email" placeholder="ornek@email.com" required class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_73">
           </div>
 
           <!-- Password Field -->

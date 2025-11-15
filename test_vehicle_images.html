@@ -36,24 +36,30 @@
     <div class="test-section">
         <h2>Step 3: Test Image Upload</h2>
         <form id="uploadForm" enctype="multipart/form-data">
-            <label for="auto_label_152" class="sr-only">Action</label><label for="auto_label_152" class="sr-only">Action</label><input type="hidden" name="action" value="create" id="auto_label_152">
+            <input type="hidden" name="action" value="create" id="auto_label_152">
             <div style="margin-bottom: 10px;">
-                <label>Brand: <label for="auto_label_151" class="sr-only">Brand</label><label for="auto_label_151" class="sr-only">Brand</label><input type="text" name="brand" value="TestBrand" required id="auto_label_151" placeholder="Brand"></label>
+                <label for="auto_label_151">Brand</label>
+                <input type="text" name="brand" value="TestBrand" required id="auto_label_151" placeholder="Brand">
             </div>
             <div style="margin-bottom: 10px;">
-                <label>Model: <label for="auto_label_150" class="sr-only">Model</label><label for="auto_label_150" class="sr-only">Model</label><input type="text" name="model" value="TestModel" required id="auto_label_150" placeholder="Model"></label>
+                <label for="auto_label_150">Model</label>
+                <input type="text" name="model" value="TestModel" required id="auto_label_150" placeholder="Model">
             </div>
             <div style="margin-bottom: 10px;">
-                <label>License Plate: <label for="auto_label_149" class="sr-only">License plate</label><label for="auto_label_149" class="sr-only">License plate</label><input type="text" name="license_plate" value="TEST123" required id="auto_label_149" placeholder="License plate"></label>
+                <label for="auto_label_149">License Plate</label>
+                <input type="text" name="license_plate" value="TEST123" required id="auto_label_149" placeholder="License plate">
             </div>
             <div style="margin-bottom: 10px;">
-                <label>Year: <label for="auto_label_148" class="sr-only">Year</label><label for="auto_label_148" class="sr-only">Year</label><input type="number" name="year" value="2024" id="auto_label_148"></label>
+                <label for="auto_label_148">Year</label>
+                <input type="number" name="year" value="2024" id="auto_label_148">
             </div>
             <div style="margin-bottom: 10px;">
-                <label>Color: <label for="auto_label_147" class="sr-only">Color</label><label for="auto_label_147" class="sr-only">Color</label><input type="text" name="color" value="Red" id="auto_label_147" placeholder="Color"></label>
+                <label for="auto_label_147">Color</label>
+                <input type="text" name="color" value="Red" id="auto_label_147" placeholder="Color">
             </div>
             <div style="margin-bottom: 10px;">
-                <label>Vehicle Image: <label for="auto_label_146" class="sr-only">Vehicle image</label><label for="auto_label_146" class="sr-only">Vehicle image</label><input type="file" name="vehicle_image" accept="image/*" required id="auto_label_146"></label>
+                <label for="auto_label_146">Vehicle Image</label>
+                <input type="file" name="vehicle_image" accept="image/*" required id="auto_label_146">
             </div>
             <button type="submit">Upload Test Vehicle</button>
         </form>

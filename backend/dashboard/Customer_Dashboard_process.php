@@ -261,7 +261,7 @@ try {
             
             // Handle profile update including optional profile photo upload
             $name = trim((string)($_POST['name'] ?? ''));
-            $surname = trim((string)($_POST['surname'] ?? ''));
+            $username = trim((string)($_POST['username'] ?? ''));
             $email = trim((string)($_POST['email'] ?? ''));
             $phone = trim((string)($_POST['phone'] ?? ''));
             $home_phone = trim((string)($_POST['home_phone'] ?? ''));
@@ -269,27 +269,279 @@ try {
             $driver_license = trim((string)($_POST['driver_license'] ?? ''));
             $address = trim((string)($_POST['address'] ?? ''));
             $city = trim((string)($_POST['city'] ?? ''));
+            $current_password = $_POST['current_password'] ?? '';
+            $new_password = $_POST['new_password'] ?? '';
+            $confirm_password = $_POST['confirm_password'] ?? '';
 
-            // Validation: Required fields
             $errors = [];
-            if (empty($name)) $errors[] = 'Ad Soyad gereklidir';
-            if (empty($email)) $errors[] = 'E-posta gereklidir';
-            if (empty($home_phone)) $errors[] = 'Ev telefonu gereklidir';
-            if (empty($national_id)) $errors[] = 'T.C. Kimlik No gereklidir';
-            
-            // Validate National ID format (11 digits)
-            if (!empty($national_id) && !preg_match('/^[0-9]{11}$/', $national_id)) {
-                $errors[] = 'T.C. Kimlik No 11 haneli olmalıdır';
+            $fieldErrors = []; // map field => message for client-side highlighting
+
+            // Fetch current user values to detect whether fields changed
+            $currentUser = ['username' => null, 'email' => null, 'name' => null];
+            try {
+                $cuStmt = $dbConn->prepare('SELECT username, email, name FROM users WHERE id = :id LIMIT 1');
+                $cuStmt->execute([':id' => $user_id]);
+                $row = $cuStmt->fetch(PDO::FETCH_ASSOC);
+                if ($row) {
+                    $currentUser['username'] = $row['username'] ?? null;
+                    $currentUser['email'] = $row['email'] ?? null;
+                    $currentUser['name'] = $row['name'] ?? null;
+                }
+            } catch (Throwable $e) {
+                // Non-fatal - proceed without change-detection if DB read fails
+                error_log('Could not fetch current user for change-detection: ' . $e->getMessage());
             }
-            
-            if (!empty($errors)) {
+
+            // Detect image-only update. Support common file keys: avatar, profile_image, profile_photo
+            $hasAvatarFile = !empty($_FILES['avatar']) && is_array($_FILES['avatar']) && ($_FILES['avatar']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+            $hasProfileImageFile = !empty($_FILES['profile_image']) && is_array($_FILES['profile_image']) && ($_FILES['profile_image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+            $hasProfilePhotoFile = !empty($_FILES['profile_photo']) && is_array($_FILES['profile_photo']) && ($_FILES['profile_photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+            $hasAnyFile = $hasAvatarFile || $hasProfileImageFile || $hasProfilePhotoFile;
+
+            $isImageOnlyUpdate = false;
+            if ($hasAnyFile) {
+                $postedUsername = $username;
+                $postedEmail = $email;
+                $postedName = $name;
+                $isImageOnlyUpdate = empty($new_password)
+                    && ($postedUsername === ($currentUser['username'] ?? $postedUsername))
+                    && ($postedEmail === ($currentUser['email'] ?? $postedEmail))
+                    && ($postedName === ($currentUser['name'] ?? $postedName));
+            }
+
+            // Detect if no meaningful changes were submitted (no file and no changed fields)
+            $changesDetected = $hasAnyFile
+                || ($name !== ($currentUser['name'] ?? ''))
+                || ($username !== ($currentUser['username'] ?? ''))
+                || ($email !== ($currentUser['email'] ?? ''))
+                || $phone !== ''
+                || $home_phone !== ''
+                || $national_id !== ''
+                || $driver_license !== ''
+                || $address !== ''
+                || $city !== ''
+                || !empty($new_password);
+
+            if (!$changesDetected) {
                 ob_end_clean();
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => implode(', ', $errors)], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                // Return explicit 'no changes' response (client expects JSON)
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'No changes detected.'
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                 exit;
             }
 
-            // Accept file under 'profile_image' or 'profile_photo' or fallback to first file
+            // If image-only update, validate only the uploaded image and persist it, then return early with JSON
+            if ($isImageOnlyUpdate) {
+                // Determine uploaded file array
+                $uploadedFile = null;
+                if ($hasAvatarFile) $uploadedFile = $_FILES['avatar'];
+                elseif ($hasProfileImageFile) $uploadedFile = $_FILES['profile_image'];
+                elseif ($hasProfilePhotoFile) $uploadedFile = $_FILES['profile_photo'];
+
+                $imgErrors = [];
+                $imgFieldErrors = [];
+                $maxSize = 3 * 1024 * 1024; // 3MB
+
+                if (!$uploadedFile || ($uploadedFile['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                    $imgErrors[] = 'No avatar file uploaded.';
+                    $imgFieldErrors['avatar'] = 'missing';
+                } else {
+                    $tmp = $uploadedFile['tmp_name'] ?? '';
+                    $origName = $uploadedFile['name'] ?? '';
+                    $fsize = (int)($uploadedFile['size'] ?? 0);
+
+                    if (!is_uploaded_file($tmp)) {
+                        $imgErrors[] = 'Uploaded avatar appears invalid.';
+                        $imgFieldErrors['avatar'] = 'invalid_upload';
+                    } else {
+                        $info = @getimagesize($tmp);
+                        $mime = $info['mime'] ?? '';
+                        $allowed = ['image/jpeg' => ['jpg','jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp']];
+                        if (!$info || !isset($allowed[$mime])) {
+                            $imgErrors[] = 'Avatar must be a JPG, PNG, or WEBP image.';
+                            $imgFieldErrors['avatar'] = 'unsupported_type';
+                        }
+
+                        if ($fsize > $maxSize) {
+                            $imgErrors[] = 'Avatar exceeds maximum size of 3MB.';
+                            $imgFieldErrors['avatar'] = 'too_large';
+                        }
+                    }
+                }
+
+                if (!empty($imgErrors)) {
+                    ob_end_clean();
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Validation failed',
+                        'errors' => $imgErrors,
+                        'fieldErrors' => $imgFieldErrors
+                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    exit;
+                }
+
+                // Passed image validation - move file into uploads and update DB
+                $uploadDir = __DIR__ . '/../uploads/profile_images/';
+                if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
+                $safeExt = preg_replace('/[^a-z0-9]/', '', strtolower(pathinfo($uploadedFile['name'] ?? '', PATHINFO_EXTENSION)));
+                if ($safeExt === '') $safeExt = 'jpg';
+                $filename = 'profile_' . $user_id . '_' . time() . '.' . $safeExt;
+                $dest = $uploadDir . $filename;
+
+                if (!@move_uploaded_file($uploadedFile['tmp_name'], $dest)) {
+                    ob_end_clean();
+                    http_response_code(500);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Could not save uploaded avatar on server.',
+                        'errors' => ['Server error storing avatar.'],
+                        'fieldErrors' => ['avatar' => 'store_failed']
+                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    exit;
+                }
+
+                // Remove old image file if exists
+                try {
+                    if (!empty($existingImage)) {
+                        $oldPath = __DIR__ . '/..' . parse_url($existingImage, PHP_URL_PATH);
+                        if (file_exists($oldPath) && is_file($oldPath)) @unlink($oldPath);
+                    }
+                } catch (Throwable $e) {
+                    // non-fatal
+                }
+
+                $webPath = '/carwash_project/backend/uploads/profile_images/' . $filename;
+
+                // Persist to DB (user_profiles preferred, fallback to users table)
+                try {
+                    if ($dbConn instanceof PDO) {
+                        $u = $dbConn->prepare('UPDATE user_profiles SET profile_image = :img WHERE user_id = :id');
+                        $u->execute([':img' => $webPath, ':id' => $user_id]);
+                        if ($u->rowCount() === 0) {
+                            $i = $dbConn->prepare('INSERT INTO user_profiles (user_id, profile_image) VALUES (:id, :img)');
+                            $i->execute([':id' => $user_id, ':img' => $webPath]);
+                        }
+                        // Also update users table for backward compatibility
+                        $dbConn->prepare('UPDATE users SET profile_image = :img WHERE id = :id')->execute([':img' => $webPath, ':id' => $user_id]);
+                    }
+                } catch (Throwable $e) {
+                    // non-fatal DB error: continue but log
+                    error_log('Could not persist avatar path: ' . $e->getMessage());
+                }
+
+                // Update session
+                $_SESSION['profile_image'] = $webPath;
+
+                // Return success JSON per requirements
+                ob_end_clean();
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Profile image updated successfully',
+                    'avatarUrl' => $webPath
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                exit;
+            }
+
+            // --- Display name validation (only if changed) ---
+            if ($name !== ($currentUser['name'] ?? '')) {
+                if ($name === '') {
+                    $errors[] = 'Display name must be 2–50 characters and contain only letters, numbers, or spaces.';
+                    $fieldErrors['name'] = 'required';
+                } elseif (mb_strlen($name) < 2 || mb_strlen($name) > 50 || !preg_match('/^[\p{L}0-9 _]+$/u', $name)) {
+                    $errors[] = 'Display name must be 2–50 characters and contain only letters, numbers, or spaces.';
+                    $fieldErrors['name'] = 'invalid';
+                }
+            }
+
+            // --- Username (validate only if modified) ---
+            if ($username !== ($currentUser['username'] ?? '')) {
+                if ($username === '') {
+                    $errors[] = 'Username must be at least 3 characters and contain no spaces.';
+                    $fieldErrors['username'] = 'required';
+                } elseif (!preg_match('/^[A-Za-z0-9_]{3,}$/', $username)) {
+                    $errors[] = 'Username must be at least 3 characters and contain no spaces.';
+                    $fieldErrors['username'] = 'invalid';
+                } else {
+                    // check uniqueness
+                    try {
+                        $stmt = $dbConn->prepare('SELECT id FROM users WHERE username = :username AND id != :id LIMIT 1');
+                        $stmt->execute([':username' => $username, ':id' => $user_id]);
+                        if ($stmt->fetch(PDO::FETCH_ASSOC)) {
+                            $errors[] = 'This username is already taken.';
+                            $fieldErrors['username'] = 'duplicate';
+                        }
+                    } catch (Throwable $e) {
+                        // ignore DB uniqueness check failure for now, log it
+                        error_log('Username uniqueness check failed: ' . $e->getMessage());
+                    }
+                }
+            }
+
+            // --- Email validation (only if changed) ---
+            if ($email !== ($currentUser['email'] ?? '')) {
+                if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $errors[] = 'Invalid email format.';
+                    $fieldErrors['email'] = 'invalid';
+                } else {
+                    try {
+                        $stmt = $dbConn->prepare('SELECT id FROM users WHERE email = :email AND id != :id LIMIT 1');
+                        $stmt->execute([':email' => $email, ':id' => $user_id]);
+                        if ($stmt->fetch(PDO::FETCH_ASSOC)) {
+                            $errors[] = 'This email is already taken.';
+                            $fieldErrors['email'] = 'duplicate';
+                        }
+                    } catch (Throwable $e) {
+                        error_log('Email uniqueness check failed: ' . $e->getMessage());
+                    }
+                }
+            }
+
+            // --- National ID validation ---
+            if ($national_id === '') {
+                $errors[] = 'T.C. Kimlik No gereklidir';
+                $fieldErrors['national_id'] = 'required';
+            } elseif (!preg_match('/^[0-9]{11}$/', $national_id)) {
+                $errors[] = 'T.C. Kimlik No 11 haneli olmalıdır';
+                $fieldErrors['national_id'] = 'invalid';
+            }
+
+            // --- Password change handling ---
+            $doPasswordChange = ($current_password !== '' || $new_password !== '' || $confirm_password !== '');
+            if ($doPasswordChange) {
+                // Fetch stored hash
+                try {
+                    $pwdStmt = $dbConn->prepare('SELECT password FROM users WHERE id = :id LIMIT 1');
+                    $pwdStmt->execute([':id' => $user_id]);
+                    $storedHash = $pwdStmt->fetchColumn();
+                    if (!$storedHash || !password_verify($current_password, $storedHash)) {
+                        $errors[] = 'Current password is incorrect.';
+                        $fieldErrors['current_password'] = 'mismatch';
+                    }
+                } catch (Throwable $e) {
+                    $errors[] = 'Could not verify current password.';
+                    error_log('Password verify error: ' . $e->getMessage());
+                }
+
+                if (strlen($new_password) < 8 || !preg_match('/[A-Za-z]/', $new_password) || !preg_match('/[0-9]/', $new_password)) {
+                    $errors[] = 'New password must be at least 8 characters and contain letters and numbers.';
+                    $fieldErrors['new_password'] = 'weak';
+                }
+
+                if ($new_password === $current_password) {
+                    $errors[] = 'New password must not be the same as the old password.';
+                    $fieldErrors['new_password'] = 'same_as_old';
+                }
+
+                if ($new_password !== $confirm_password) {
+                    $errors[] = 'New password and confirmation do not match.';
+                    $fieldErrors['confirm_password'] = 'mismatch';
+                }
+            }
+
+            // --- Profile image validation ---
             $uploaded = null;
             if (!empty($_FILES['profile_image']) && is_array($_FILES['profile_image']) && ($_FILES['profile_image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
                 $uploaded = $_FILES['profile_image'];
@@ -301,54 +553,224 @@ try {
             }
 
             $webPath = null;
+
+            // If no uploaded file, check if user already has a profile image
+            try {
+                $existingImage = null;
+                $imgStmt = $dbConn->prepare('SELECT COALESCE(up.profile_image, u.profile_image, NULL) AS img FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :id LIMIT 1');
+                $imgStmt->execute([':id' => $user_id]);
+                $row = $imgStmt->fetch(PDO::FETCH_ASSOC);
+                if ($row && !empty($row['img'])) $existingImage = $row['img'];
+            } catch (Throwable $e) {
+                error_log('Could not check existing profile image: ' . $e->getMessage());
+            }
+
             if ($uploaded) {
-                // Validate uploaded file
-                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-                $maxSize = 2 * 1024 * 1024; // 2MB
-                
-                if (!in_array($uploaded['type'], $allowedTypes)) {
-                    ob_end_clean();
-                    http_response_code(400);
-                    echo json_encode(['success' => false, 'message' => 'Geçersiz dosya türü. JPG, PNG veya WEBP yükleyin.'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                    exit;
+                $maxSize = 3 * 1024 * 1024; // 3MB per spec
+                $fsize = (int)($uploaded['size'] ?? 0);
+                $tmp = $uploaded['tmp_name'] ?? '';
+                $origName = $uploaded['name'] ?? '';
+
+                // Validate file actually uploaded
+                if (!is_uploaded_file($tmp)) {
+                    $errors[] = 'Profile image is invalid, too large, or unsupported. Upload JPG, PNG, or WEBP under 3MB.';
+                    $fieldErrors['profile_image'] = 'invalid_upload';
+                } else {
+                    // Use getimagesize to validate image and mime
+                    $imgInfo = @getimagesize($tmp);
+                    $mime = $imgInfo['mime'] ?? '';
+                    $allowed = ['image/jpeg' => ['jpg','jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp']];
+                    if (!$imgInfo || !isset($allowed[$mime])) {
+                        $errors[] = 'Profile image is invalid, too large, or unsupported. Upload JPG, PNG, or WEBP under 3MB.';
+                        $fieldErrors['profile_image'] = 'unsupported_type';
+                    } else {
+                        // extension check
+                        $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+                        $validExts = $allowed[$mime];
+                        if ($ext === '') {
+                            // fallback: choose first allowed ext
+                            $ext = $validExts[0];
+                        }
+                        if (!in_array($ext, $validExts, true)) {
+                            $errors[] = 'Profile image is invalid, too large, or unsupported. Upload JPG, PNG, or WEBP under 3MB.';
+                            $fieldErrors['profile_image'] = 'ext_mismatch';
+                        }
+
+                        // Allow server-side resize attempt for files larger than $maxSize up to $allowedUploadMax
+                        $allowedUploadMax = 10 * 1024 * 1024; // 10MB input cap
+                        if ($fsize > $allowedUploadMax) {
+                            $errors[] = 'Profile image exceeds the maximum allowed upload size of 10MB.';
+                            $fieldErrors['profile_image'] = 'too_large_input';
+                        }
+                    }
                 }
-                
-                if ($uploaded['size'] > $maxSize) {
-                    ob_end_clean();
-                    http_response_code(400);
-                    echo json_encode(['success' => false, 'message' => 'Dosya boyutu 2MB\'dan küçük olmalıdır.'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                    exit;
+            } else {
+                if (empty($existingImage)) {
+                    $errors[] = 'Profile image is missing.';
+                    $fieldErrors['profile_image'] = 'missing';
                 }
-                
+            }
+
+            // If validation errors, respond with array of errors and field hints
+            if (!empty($errors)) {
+                ob_end_clean();
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $errors,
+                    'fieldErrors' => $fieldErrors
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                exit;
+            }
+
+            // If we reach here, validations passed. If file uploaded, store it now.
+            if ($uploaded) {
                 $uploadDir = __DIR__ . '/../uploads/profile_images/';
                 if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
-                $ext = pathinfo($uploaded['name'] ?? '', PATHINFO_EXTENSION);
-                $filename = 'profile_' . $user_id . '_' . time() . ($ext ? '.' . $ext : '');
+                $safeExt = preg_replace('/[^a-z0-9]/', '', strtolower(pathinfo($uploaded['name'] ?? '', PATHINFO_EXTENSION)));
+                if ($safeExt === '') $safeExt = 'jpg';
+                $filename = 'profile_' . $user_id . '_' . time() . '.' . $safeExt;
                 $dest = $uploadDir . $filename;
-                
-                if (is_uploaded_file($uploaded['tmp_name'])) {
-                    // Delete old profile image if exists
-                    try {
-                        if ($dbConn instanceof PDO) {
-                            $oldStmt = $dbConn->prepare('SELECT profile_image FROM users WHERE id = :id');
-                            $oldStmt->execute([':id' => $user_id]);
-                            $oldImage = $oldStmt->fetchColumn();
-                            if ($oldImage) {
-                                $oldPath = __DIR__ . '/../..' . str_replace('/carwash_project', '', $oldImage);
-                                if (file_exists($oldPath)) @unlink($oldPath);
-                            }
-                        }
-                    } catch (Exception $e) {
-                        error_log('Could not delete old profile image: ' . $e->getMessage());
+
+                // Helper: attempt to resize/compress an image to meet $maxSize using GD
+                $attemptResize = function($source, $target, $mime, $maxBytes) {
+                    if (!function_exists('imagecreatetruecolor')) return false;
+                    // Create source image
+                    switch ($mime) {
+                        case 'image/jpeg':
+                            if (!function_exists('imagecreatefromjpeg')) return false;
+                            $srcImg = @imagecreatefromjpeg($source);
+                            break;
+                        case 'image/png':
+                            if (!function_exists('imagecreatefrompng')) return false;
+                            $srcImg = @imagecreatefrompng($source);
+                            break;
+                        case 'image/webp':
+                            if (!function_exists('imagecreatefromwebp')) return false;
+                            $srcImg = @imagecreatefromwebp($source);
+                            break;
+                        default:
+                            return false;
                     }
-                    
-                    if (@move_uploaded_file($uploaded['tmp_name'], $dest)) {
-                        // Store with /carwash_project prefix for consistency
-                        $webPath = '/carwash_project/backend/uploads/profile_images/' . $filename;
-                    } else {
-                        error_log('profile upload move failed for user ' . $user_id);
+                    if (!$srcImg) return false;
+
+                    $w = imagesx($srcImg);
+                    $h = imagesy($srcImg);
+                    // Target max width to reduce size
+                    $maxW = 1600;
+                    $scale = ($w > $maxW) ? ($maxW / $w) : 1.0;
+                    $tw = max(1, (int)($w * $scale));
+                    $th = max(1, (int)($h * $scale));
+
+                    $dst = imagecreatetruecolor($tw, $th);
+                    if ($mime === 'image/png' || $mime === 'image/webp') {
+                        imagealphablending($dst, false);
+                        imagesavealpha($dst, true);
+                        $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+                        imagefilledrectangle($dst, 0, 0, $tw, $th, $transparent);
+                    }
+
+                    imagecopyresampled($dst, $srcImg, 0, 0, 0, 0, $tw, $th, $w, $h);
+
+                    // Attempt save with decreasing quality if needed
+                    $quality = 85;
+                    $saved = false;
+                    while ($quality >= 30) {
+                        switch ($mime) {
+                            case 'image/jpeg':
+                                @imagejpeg($dst, $target, $quality);
+                                break;
+                            case 'image/png':
+                                // map quality(0-100) to compression level 0-9
+                                $comp = (int)round((100 - $quality) / 11.1111); if ($comp < 0) $comp = 0; if ($comp > 9) $comp = 9;
+                                @imagepng($dst, $target, $comp);
+                                break;
+                            case 'image/webp':
+                                @imagewebp($dst, $target, $quality);
+                                break;
+                        }
+
+                        clearstatcache(true, $target);
+                        if (file_exists($target) && filesize($target) <= $maxBytes) { $saved = true; break; }
+                        $quality -= 10;
+                    }
+
+                    imagedestroy($srcImg);
+                    imagedestroy($dst);
+                    return $saved;
+                };
+
+                // Delete old profile image if exists
+                try {
+                    if ($dbConn instanceof PDO) {
+                        $oldStmt = $dbConn->prepare('SELECT COALESCE(up.profile_image, u.profile_image, NULL) AS img FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :id LIMIT 1');
+                        $oldStmt->execute([':id' => $user_id]);
+                        $oldRow = $oldStmt->fetch(PDO::FETCH_ASSOC);
+                        $oldImage = $oldRow['img'] ?? null;
+                        if ($oldImage) {
+                            $oldPath = __DIR__ . '/../..' . str_replace('/carwash_project', '', $oldImage);
+                            if ($oldPath && file_exists($oldPath)) @unlink($oldPath);
+                        }
+                    }
+                } catch (Exception $e) {
+                    error_log('Could not delete old profile image: ' . $e->getMessage());
+                }
+
+                // Decide how to persist file: move directly if small, otherwise attempt server-side resize/compression
+                $imgInfo2 = @getimagesize($uploaded['tmp_name']);
+                $mime2 = $imgInfo2['mime'] ?? '';
+                $inputSize = (int)($uploaded['size'] ?? 0);
+                if ($inputSize <= $maxSize) {
+                    if (!@move_uploaded_file($uploaded['tmp_name'], $dest)) {
+                        ob_end_clean();
+                        http_response_code(500);
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Failed to save uploaded file on the server.',
+                            'errors' => ['Server error storing uploaded image.'],
+                            'fieldErrors' => ['profile_image' => 'store_failed']
+                        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        exit;
+                    }
+                } else {
+                    // Attempt to resize/compress server-side (only if GD present)
+                    // If GD is not available, fail fast with a clear message
+                    if (!function_exists('imagecreatetruecolor')) {
+                        ob_end_clean();
+                        http_response_code(500);
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Server does not have image processing available (GD disabled). Please enable GD or upload an image under 3MB.',
+                            'errors' => ['Server image processing unavailable'],
+                            'fieldErrors' => ['profile_image' => 'gd_disabled']
+                        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        exit;
+                    }
+
+                    $resized = false;
+                    try {
+                        $resized = $attemptResize($uploaded['tmp_name'], $dest, $mime2, $maxSize);
+                    } catch (Throwable $e) {
+                        error_log('Image resize error: ' . $e->getMessage());
+                        $resized = false;
+                    }
+
+                    if (!$resized) {
+                        // If resize failed, return validation error (too large)
+                        ob_end_clean();
+                        http_response_code(400);
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Profile image is too large and could not be resized. Please upload an image under 3MB or enable server-side image functions.',
+                            'errors' => ['Profile image is invalid, too large, or unsupported. Upload JPG, PNG, or WEBP under 3MB.'],
+                            'fieldErrors' => ['profile_image' => 'too_large']
+                        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        exit;
                     }
                 }
+
+                $webPath = '/carwash_project/backend/uploads/profile_images/' . $filename;
             }
 
             // Persist profile info using PDO or mysqli fallback
@@ -376,9 +798,10 @@ try {
                         'home_phone = :home_phone',
                         'national_id = :national_id',
                         'driver_license = :driver_license',
-                        'email = :email'
+                        'email = :email',
+                        'username = :username'
                     ];
-                    
+
                     $params = [
                         ':name' => $name,
                         ':phone' => $phone,
@@ -386,9 +809,16 @@ try {
                         ':national_id' => $national_id,
                         ':driver_license' => $driver_license,
                         ':email' => $email,
+                        ':username' => $username,
                         ':id' => $user_id
                     ];
-                    
+
+                    if (!empty($doPasswordChange) && !empty($new_password)) {
+                        $hashed = password_hash($new_password, PASSWORD_DEFAULT);
+                        $updateFields[] = 'password = :password';
+                        $params[':password'] = $hashed;
+                    }
+
                     if ($webPath) {
                         $updateFields[] = 'profile_image = :profile_image';
                         $params[':profile_image'] = $webPath;
@@ -454,6 +884,8 @@ try {
                     // Update session variables
                     $_SESSION['name'] = $name;
                     $_SESSION['email'] = $email;
+                    if (!empty($username)) $_SESSION['username'] = $username;
+                    if (!empty($webPath)) $_SESSION['profile_image'] = $webPath;
                     
                 } else {
                     // assume mysqli-like
@@ -490,6 +922,8 @@ try {
                         // Update session
                         $_SESSION['name'] = $name;
                         $_SESSION['email'] = $email;
+                        if (!empty($username)) $_SESSION['username'] = $username;
+                        if (!empty($webPath)) $_SESSION['profile_image'] = $webPath;
                     } else {
                         throw new RuntimeException('No DB connection available for profile update');
                     }
@@ -505,19 +939,22 @@ try {
                 exit;
                 
             } catch (Throwable $e) {
+                // Ensure a safe JSON error is returned for unexpected exceptions during profile update
                 ob_end_clean();
                 error_log('Profile update error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
                 error_log('Profile update stack trace: ' . $e->getTraceAsString());
                 http_response_code(500);
-                echo json_encode([
-                    'success' => false, 
-                    'message' => 'Profil güncellenirken bir hata oluştu: ' . $e->getMessage(),
-                    'debug' => [
-                        'error' => $e->getMessage(),
-                        'file' => basename($e->getFile()),
-                        'line' => $e->getLine()
-                    ]
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                $payload = [
+                    'success' => false,
+                    'message' => 'Unexpected server error',
+                    'error_detail' => $e->getMessage()
+                ];
+                // Include trace only in development mode
+                $env = strtolower((string)(getenv('APP_ENV') ?: (defined('APP_ENV') ? APP_ENV : 'production')));
+                if (in_array($env, ['dev', 'development'], true)) {
+                    $payload['trace'] = $e->getTraceAsString();
+                }
+                echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                 exit;
             }
             break;
@@ -546,7 +983,11 @@ try {
         error_log('Customer_Dashboard_process error: ' . $e->getMessage());
     }
     $env = strtolower((string)(getenv('APP_ENV') ?: (defined('APP_ENV') ? APP_ENV : 'production')));
-    $payload = ['success' => false, 'error_type' => get_class($e), 'message' => $e->getMessage()];
+    $payload = [
+        'success' => false,
+        'message' => 'Unexpected server error',
+        'error_detail' => $e->getMessage()
+    ];
     if (in_array($env, ['dev', 'development'], true)) $payload['trace'] = $e->getTraceAsString();
     http_response_code(500);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

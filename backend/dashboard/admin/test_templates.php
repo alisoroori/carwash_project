@@ -135,15 +135,15 @@ $templates = $templateManager->getAllTemplates();
             container.innerHTML = '';
 
             const variables = JSON.parse(template.variables);
-            variables.forEach(variable => {
+            variables.forEach((variable, i) => {
+                const inputId = 'tmpl_var_' + i;
                 const div = document.createElement('div');
                 div.innerHTML = `
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        ${variable}
-                    
-                    <label for="auto_label_95" class="sr-only">${variable}<label for="auto_label_95" class="sr-only">${variable}<input type="text" name="${variable}"
-                           class="w-full rounded-md border-gray-300 shadow-sm"
-                           placeholder="Değer girin..." id="auto_label_95">
+                    <label class="block text-sm font-medium text-gray-700 mb-2" for="${inputId}">${variable}</label>
+                    <label for="${inputId}" class="sr-only">${variable}</label>
+                    <input type="text" name="${variable}" id="${inputId}"
+                        class="w-full rounded-md border-gray-300 shadow-sm"
+                        placeholder="Değer girin...">
                 `;
                 container.appendChild(div);
             });

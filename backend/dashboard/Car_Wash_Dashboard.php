@@ -144,17 +144,8 @@ $custom_header_content = '
 </div>
 ';
 
-// Provide language attributes for the header and include the universal dashboard header
-if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
-  require_once __DIR__ . '/../includes/lang_helper.php';
-  $html_lang_attrs = get_lang_dir_attrs_for_file(__FILE__);
-}
 // Include the universal dashboard header
 include '../includes/dashboard_header.php';
-// Escaping helpers
-if (file_exists(__DIR__ . '/../includes/escape.php')) {
-  require_once __DIR__ . '/../includes/escape.php';
-}
 ?>
 
 <!-- Dashboard Specific Styles -->
@@ -1790,38 +1781,44 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
               <h3 class="text-xl font-bold mb-6">İşletme Bilgileri</h3>
               <form class="space-y-4">
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_114">İşletme Adı</label>
-         <label for="auto_114" class="sr-only">Input</label><input type="text" value="CarWash Merkez" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_114">lue-500"&gt;
+                  <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Adı</label>
+                  <label for="auto_114" class="sr-only">Input</label>
+                  <input type="text" value="CarWash Merkez" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_114">
                 </div>
 
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_115">Adres</label>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
                   <label for="auto_115" class="sr-only">Input</label><textarea rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_115">İstanbul, Kadıköy, Moda Mahallesi, No: 123</textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_116">Telefon</label>
-  <label for="auto_116" class="sr-only">Phone</label><input type="tel" value="0216 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_116">:border-blue-500"&gt;
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
+                    <label for="auto_116" class="sr-only">Phone</label>
+                    <input type="tel" value="0216 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_116">
                   </div>
                   <!-- Farsça: فیلد شماره تلفن همراه. -->
                   <!-- Türkçe: Cep Telefonu Numarası Alanı. -->
                   <!-- English: Mobile Phone Number Field. -->
                   <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_117">Cep TelefonuPhone</label><input type="tel" value="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_117">one focus:border-blue-500"&gt;
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Cep Telefonu</label>
+                    <label for="auto_117" class="sr-only">Phone</label>
+                    <input type="tel" value="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_117">
                   </div>
                 </div>
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_118">Email</label><input type="email" value="info@carwashmerkez.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_118">outline-none focus:border-blue-500"&gt;
+                  <label class="block text-sm font-bold text-gray-700 mb-2">Email</label>
+                  <label for="auto_118" class="sr-only">Email</label>
+                  <input type="email" value="info@carwashmerkez.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_118">
                 </div>
 
                 <!-- Farsça: گزینه بارگذاری لوگو. -->
                 <!-- Türkçe: Logo Yükleme Seçeneği. -->
                 <!-- English: Upload Logo Option. -->
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2" for="logoUpload">İşletme Logosu</label>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Logosu</label>
                   <div class="flex items-center space-x-4">
-                    <img id="currentLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo e_attr($page_title ?? 'CarWash'); ?>" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
+                    <img id="currentLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Current Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
                     <label for="logoUpload" class="sr-only">Choose file</label><input type="file" id="logoUpload" class="hidden" accept="image/*" onchange="previewLogo(event)">
                     <button type="button" onclick="document.getElementById('logoUpload').click()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
                       <i class="fas fa-upload mr-2"></i>Logo Yükle
@@ -1833,42 +1830,77 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
                 <!-- Türkçe: Her Gün İçin Çalışma Saatleri. -->
                 <!-- English: Working Hours for Each Day. -->
                 <div>
-                  <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_119">Çalışma Saatleri</label>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">Çalışma Saatleri</label>
                   <div class="space-y-2">
                     <div class="flex items-center space-x-2">
-                      <span class="w-24 text-gray-6&lt;label for=" auto_119>Time<input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_119">00" class="w-24 px-3 py-2 border rounded-lg"&gt;
-      <label for="auto_120" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_120">alue="20:00" class="w-24 px-3 py-2 border rounded-lg"&gt;
-                    </span></div>
+                      <span class="w-24 text-gray-600">Pazartesi:</span>
+                      <label for="auto_119" class="sr-only">Başlangıç</label>
+                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_119">
+                      <span class="mx-2">-</span>
+                      <label for="auto_120" class="sr-only">Bitiş</label>
+                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_120">
+                    </div>
+
                     <div class="flex items-center space-x-2">
-                      <span c for="auto_121" class="sr-only">Time<input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_121">="time" value="08:00" class="w-24 px-3 py-2 border ro<label for="auto_122" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_122">nput type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg"&gt;
-                    </span></div>
+                      <span class="w-24 text-gray-600">Salı:</span>
+                      <label for="auto_121" class="sr-only">Başlangıç</label>
+                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_121">
+                      <span class="mx-2">-</span>
+                      <label for="auto_122" class="sr-only">Bitiş</label>
+                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_122">
+                    </div>
+
                     <div class="flex items-center space-x-2">
-                <label for="auto_123" class="sr-only">Time</label><input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_123">       <label for="auto_124" class="sr-only">Time</label><input type="time" value="08:00" class="w-24 p&lt;input type=" time id="auto_124">                <label for="auto_125" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_125">
+                      <span class="w-24 text-gray-600">Çarşamba:</span>
+                      <label for="auto_123" class="sr-only">Başlangıç</label>
+                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_123">
+                      <span class="mx-2">-</span>
+                      <label for="auto_124" class="sr-only">Bitiş</label>
+                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_124">
                     </div>
-                    <div class="flex items-center space-x-2" for="auto_126">Time<input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_126">&gt;
-                      <label for="auto_127" class="sr-only">Time</label><input type="time" value="08&lt;input type=" time class="w-24 px-3 py-2 border rounded-lg" id="auto_127">n&gt;-
-                      <label for="auto_128" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_128">
+
+                    <div class="flex items-center space-x-2">
+                      <span class="w-24 text-gray-600">Perşembe:</span>
+                      <label for="auto_125" class="sr-only">Başlangıç</label>
+                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_125">
+                      <span class="mx-2">-</span>
+                      <label for="auto_126" class="sr-only">Bitiş</label>
+                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_126">
                     </div>
-                    <div class="flex &lt;label for=" auto_129>Time<input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_129">y-600"&gt;Cuma:
-                      <label for="auto_130" class="sr-only">Time</label><input typ type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_130">              <span>-</span>
-                      <label for="auto_131" class="sr-only">Time</label><input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_131">
+
+                    <div class="flex items-center space-x-2">
+                      <span class="w-24 text-gray-600">Cuma:</span>
+                      <label for="auto_127" class="sr-only">Başlangıç</label>
+                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_127">
+                      <span class="mx-2">-</span>
+                      <label for="auto_128" class="sr-only">Bitiş</label>
+                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_128">
                     </div>
-                    <div for="auto_132" class="sr-only">Time<input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_132">w-24 text-gray-600"&gt;Cumartesi:
-              <label for="auto_133" class="sr-only">Time</label><input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_133">ded-lg"&gt;
-                      <span>-</span>
-                      <label for="auto_134" class="sr-only">Time</label><input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_134">
+
+                    <div class="flex items-center space-x-2">
+                      <span class="w-24 text-gray-600">Cumartesi:</span>
+                      <label for="auto_129" class="sr-only">Başlangıç</label>
+                      <input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_129">
+                      <span class="mx-2">-</span>
+                      <label for="auto_130" class="sr-only">Bitiş</label>
+                      <input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_130">
                     </div>
-  <label for="auto_135" class="sr-only">Time</label><input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_135">         <span class="w-24 text-gray-600">Pazar:Time<input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_136">3 py-2 border rounded-lg"&gt;
-                      <span>-</span>
-                      <label for="auto_137" class="sr-only">Time</label><input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_137">
-                    </span></div>
+
+                    <div class="flex items-center space-x-2">
+                      <span class="w-24 text-gray-600">Pazar:</span>
+                      <label for="auto_131" class="sr-only">Başlangıç</label>
+                      <input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_131">
+                      <span class="mx-2">-</span>
+                      <label for="auto_132" class="sr-only">Bitiş</label>
+                      <input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_132">
+                    </div>
                   </div>
-                </form></div>
+                </div>
 
                 <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all">
                   <i class="fas fa-save mr-2"></i>Bilgileri Güncelle
                 </button>
-              
+              </form>
             </div>
 
             <div class="bg-white rounded-2xl p-6 shadow-lg">
@@ -1876,22 +1908,22 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
               <div class="space-y-4">
                 <label class="flex items-center justify-between p-4 border rounded-lg">
                   <div>
-                    <h4 class="font-bold">Otomatik Fatural<label for="auto_138" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_138">n sonra otomatik fatura oluştur
-                  </h4></div>
+                    <h4 class="font-bold">Otomatik Fatural<label for="auto_138" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_138">n sonra otomatik fatura oluştur</p>
+                  </div>
                   <label for="auto_139" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_139">
                 </label>
 
                 <label class="flex items-center justify-between p-4 border rounded-lg">
                   <div>
-                    <h4 class for="auto_140">Input<input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_140">Müşterilere SMS ile hatırlatma gönder
-                  </h4></div>
+                    <h4 class<label for="auto_140" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_140">Müşterilere SMS ile hatırlatma gönder</p>
+                  </div>
                   <label for="auto_141" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_141">
                 </label>
 
                 <label class="flex items-center justify-between p-4 border rounded-lg">
                   <div>
-                    <h4 cl for="auto_142" class="sr-only">Input<input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_142">y-600"&gt;Rezervasyon onayları için e-posta gönder
-                  </h4></div>
+                    <h4 cl<label for="auto_142" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_142">y-600">Rezervasyon onayları için e-posta gönder</p>
+                  </div>
                   <label for="auto_143" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_143">
                 </label>
 
@@ -1918,9 +1950,9 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
                 </div>
               </div>
             </div>
-          </section></main></div>
-        
-      
+          </div>
+        </section>
+      </main>
 
     <!-- Notification Panel -->
     <!-- Farsça: پنل اعلان‌ها. -->
@@ -1963,128 +1995,175 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
     <!-- Farsça: مودال رزرو دستی. -->
     <!-- Türkçe: Manuel Rezervasyon Modalı. -->
     <!-- English: Manual Reservation Modal. -->
-    <div id="manualReservationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div id="manualReservationModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
       <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-        <h3 class="text-xl font-bol&lt;label for=" auto_146>Müşteri adını girin<input type="text" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_146">mb-2"&gt;Müşteri Adı Soyadı
-            <label for="auto_147" class="sr-only">Müşteri adını girin</label><input type="text" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border &lt;input type=" tel id="auto_147">ont-bold text-gray-700 mb-2"&gt;Müşteri Telefonu
-            <label for="auto_148" class="sr-only">05XX XXX XX XX</label><input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_148">
-          </h3></div>
+        <h3 class="text-xl font-bold mb-4">Müşteri Bilgileri</h3>
+        <div class="space-y-4">
+          <div>
+            <label for="auto_146" class="sr-only">Müşteri adını girin</label>
+            <input type="text" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_146">
+          </div>
+          <div>
+            <label for="auto_147" class="sr-only">Müşteri telefonu</label>
+            <input type="text" placeholder="Müşteri telefonu" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_147">
+          </div>
+          <div>
+            <label for="auto_148" class="sr-only">Alternatif telefon</label>
+            <input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_148">
+          </div>
+        </div>
+      </div>
           <div>
             <label for="manualServiceSelect" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
             <select id="manualServiceSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Hizmet seçin" aria-label="Hizmet seçin">
               <option>Dış Yıkama + İç Temizlik</option>
-              <option>Tam DetaylandÄ<label for="auto_149" class="sr-only">34 ABC 123</label><input type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_149">"block text-sm font-bold text-gray-700 mb-2"&gt;AraÃ§ PlakasÄ±
-            <label for="auto_150" class="sr-only">34 ABC 123</label><input type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded&lt;input type=" date id="auto_150">       <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_151">Tarih</label>
-              <label for="auto_151" class="sr-only">Input</label><input type="date&lt;input type=" time class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_151">iv&gt;
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_152">Saat</label>
-              <label for="auto_152" class="sr-only">Time</label><input type="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_152">
+              <option>Tam Detaylandırma</option>
+            </select>
+
+            <div class="mt-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">Araç Plakası</label>
+              <label for="auto_149" class="sr-only">Araç Plakası</label>
+              <input type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_149">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
+                <label for="auto_151" class="sr-only">Tarih</label>
+                <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_151">
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
+                <label for="auto_152" class="sr-only">Saat</label>
+                <input type="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_152">
+              </div>
             </div>
           </div>
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_153">Notlar (Ä°steÄe BaÄlÄ±)</label>
-   <label for="auto_153" class="sr-only">Input</label><textarea rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_153">lue-500"&gt;</textarea>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Notlar (İsteğe Bağlı)</label>
+            <label for="auto_153" class="sr-only">Input</label>
+            <textarea rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_153"></textarea>
           </div>
           <div class="flex space-x-3">
-            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Rezervasyon OluÅtur</button>
-            <button type="button" onclick="closeManualReservationModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">Ä°ptal</button>
+            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Rezervasyon Oluştur</button>
+            <button type="button" onclick="closeManualReservationModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
           </div>
-        
-      </option></select></div>
-    </div>
-
-    <!-- FarsÃ§a: ÙÙØ¯Ø§Ù Ø§ÙØ²ÙØ¯Ù ÙØ´ØªØ±Û. -->
-    <!-- TÃ¼rkÃ§e: MÃ¼Återi Ekle ModalÄ±. -->
-    <!-- English: Customer Add Modal. -->
-    <div id="customerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-white rounded-&lt;label for=" auto_154>MÃ¼Återi AdÄ± SoyadÄ±<input type="text" placeholder="MÃ¼Återi AdÄ± SoyadÄ±" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_154">        <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_155">Ad Soyad</label>
-            <label for="auto_155" class="sr-only">email@example.com</label><input type="text" placeholder="&lt;input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_155">   <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_156">E-posta</label>
-            <label for="auto_156" class="sr-only">05XX XXX XX XX</label><input type="email&lt;input type=" tel placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_156">/div&gt;
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_157">Telefon</label>
-            <label for="auto_157" class="sr-only">05XX XXX XX XX</label><input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_157">
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_158">Adres (Ä°steÄe BaÄlÄ±)MÃ¼Återi Adresi</label><textarea rows="2" placeholder="MÃ¼Återi Adresi" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_158">:border-blue-500"&gt;</textarea>
-          </div>
-          <div class="flex space-x-3">
-            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">MÃ¼Återi Ekle</button>
-            <button type="button" onclick="closeCustomerModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">Ä°ptal</button>
-          </div>
-        
+        </form>
       </div>
     </div>
 
-    <!-- FarsÃ§a: ÙÙØ¯Ø§Ù Ø®Ø¯ÙØ§Øª. -->
-    <!-- TÃ¼rkÃ§e: Hizmet ModalÄ±. -->
-    <!-- English: Service Modal. -->
-    <div id="serviceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <d for="auto_159" class="sr-only">Hizmet adÄ±nÄ± girin<input type="text" placeholder="Hizmet adÄ±nÄ± girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_159">4"&gt;
+    <!-- Farsça: مودال افزودن مشتری. -->
+    <!-- Türkçe: Müşteri Ekle Modalı. -->
+    <!-- English: Customer Add Modal. -->
+    <div id="customerModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+        <h3 class="text-xl font-bold mb-4">Yeni Müşteri Ekle</h3>
+        <form id="customerForm" class="space-y-4">
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_160">Hizmet AdÄ±</label>
-            <label for="auto_160" class="sr-only">Hizmet adÄ±nÄ± girin</label><input type="text" placeholder="Hizmet adÄ±nÄ± girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_160">
+            <label for="auto_154" class="sr-only">Müşteri Adı Soyadı</label>
+            <input type="text" id="auto_154" placeholder="Müşteri Adı Soyadı" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
           </div>
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_161">AÃ§Ä±klama</label>
-            <label for="auto_161" class="sr-only">Hizmet aÃ§Ä±klamasÄ±</label><textarea rows="3" placeholder="Hizmet aÃ§Ä±klamasÄ±" class="w-full px&lt;input type=" number id="auto_161">rid grid-cols-2 gap-4"&gt;
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_162">SÃ¼re (dk)</label>
-   <label for="auto_162" class="sr-only">150</label><input type="number" placeholder="150" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_162">blue-500"&gt;
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_163">Fiyat (âº)</label>
-              <label for="auto_163" class="sr-only">150</label><input type="number" placeholder="150" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_163">
-            </div>
-          </textarea></div>
+            <label for="auto_155" class="sr-only">E-posta</label>
+            <input type="email" id="auto_155" placeholder="email@example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label for="auto_156" class="sr-only">Telefon</label>
+            <input type="tel" id="auto_156" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label for="auto_158" class="sr-only">Adres</label>
+            <textarea id="auto_158" rows="2" placeholder="Müşteri Adresi" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+          </div>
           <div class="flex space-x-3">
-            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
-            <button type="button" onclick="closeServiceModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">Ä°ptal</button>
+            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Müşteri Ekle</button>
+            <button type="button" onclick="closeCustomerModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
           </div>
-        
-      </d></div>
+        </form>
+      </div>
     </div>
 
-    <!-- FarsÃ§a: ÙÙØ¯Ø§Ù Ù¾Ø±Ø³ÙÙ. -->
-    <!-- TÃ¼rkÃ§e: Personel ModalÄ±. -->
-    <!-- English: Staff Modal. -->
-    <div id="staffModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justi&lt;label for=" auto_164>Ad soyad girin<input type="text" placeholder="Ad soyad girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_164">
-        <form class="space-y-4">
+    <!-- Farsça: مودال خدمات. -->
+    <!-- Türkçe: Hizmet Modalı. -->
+    <!-- English: Service Modal. -->
+    <div id="serviceModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+        <h3 class="text-xl font-bold mb-4">Yeni Hizmet Ekle</h3>
+        <form id="serviceForm" class="space-y-4">
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_165">Ad Soyad</label>
-            <label for="auto_165" class="sr-only">Ad soyad girin</label><input type="text" placeholder="Ad soyad girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_165">
+            <label for="auto_160" class="sr-only">Hizmet Adı</label>
+            <input type="text" id="auto_160" placeholder="Hizmet Adı" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label for="auto_161" class="sr-only">Hizmet Açıklaması</label>
+            <textarea id="auto_161" rows="3" placeholder="Hizmet açıklaması" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="auto_162" class="sr-only">Süre (dk)</label>
+              <input type="number" id="auto_162" placeholder="150" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label for="auto_163" class="sr-only">Fiyat (₺)</label>
+              <input type="number" id="auto_163" placeholder="150" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+          <div class="flex space-x-3">
+            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
+            <button type="button" onclick="closeServiceModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Farsça: مودال پرسنل. -->
+    <!-- Türkçe: Personel Modalı. -->
+    <!-- English: Staff Modal. -->
+    <div id="staffModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+        <h3 class="text-xl font-bold mb-4">Personel Ekle</h3>
+        <form id="staffForm" class="space-y-4">
+          <div>
+            <label for="auto_165" class="sr-only">Ad Soyad</label>
+            <input type="text" id="auto_165" placeholder="Ad Soyad" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
           </div>
           <div>
             <label for="staffPositionSelect" class="block text-sm font-bold text-gray-700 mb-2">Pozisyon</label>
-            <select id="staffPositionSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Pozisyon seÃ§in" aria-label="Pozisyon seÃ§in">
+            <select id="staffPositionSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Pozisyon seçin" aria-label="Pozisyon seçin">
               <option>Teknisyen</option>
               <option>Senior Teknisyen</option>
-              <option>ÃÄ±rak</option>
+              <option>Çırak</option>
               <option>Resepsiyonist</option>
-              <option>YÃ¶netici</option>
-              <!-- FarsÃ§a: ÙÙÙØ¹ÛØª Ø±Ø§ÙÙØ¯Ù Ø§Ø¶Ø§ÙÙ Ø´Ø¯. -->
-<label for="auto_166" class="sr-only">0555 123 4567</label><input type="tel" placeholder="0555 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_166">r
+              <option>Yönetici</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-bold text-gr&lt;label for=" auto_167 for="auto_167">email@domain.com</label><input type="email" placeholder="email@domain.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_167">:outline-none focus:border-blue-500"&gt;
+            <label for="auto_166" class="sr-only">Telefon</label>
+            <input type="tel" id="auto_166" placeholder="0555 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
           </div>
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_168">E-posta</label>
-            <label for="auto_168" class="sr-only">email@domain.com</label><input type="email" placeholder="email@domain.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_168">
-        <label for="auto_169" class="sr-only">Choose file</label><input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" accept=".pdf,.doc,.docx,.jpg,.png" id="auto_169">sh: Upload Certificate Field. --&gt;
+            <label for="auto_167" class="sr-only">E-posta</label>
+            <input type="email" id="auto_167" placeholder="email@domain.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+          </div>
+          <div class="flex space-x-3">
+            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
+            <button type="button" onclick="closeStaffModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+            <!-- cleaned stray labels from earlier merge corruption -->
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2" for="auto_170">Sertifika YÃ¼kle (Ä°steÄe BaÄlÄ±)</label>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Sertifika Yükle (İsteğe Bağlı)</label>
             <label for="auto_170" class="sr-only">Choose file</label><input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" accept=".pdf,.doc,.docx,.jpg,.png" id="auto_170">
           </div>
           <div class="flex space-x-3">
             <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
-            <button type="button" onclick="closeStaffModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">Ä°ptal</button>
+            <button type="button" onclick="closeStaffModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
           </div>
-        
+        </form>
       </div>
-    </form></div>
+    </div>
 
     <script>
       // Mobile Sidebar Functions
@@ -2118,8 +2197,8 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
         document.body.style.overflow = ''; // Restore scrolling
       }
 
-      // FarsÃ§a: ØªØ§Ø¨Ø¹ Ø¨Ø±Ø§Û ÙÙØ§ÛØ´ Ø¨Ø®Ø´âÙØ§Û ÙØ®ØªÙÙ Ø¯Ø§Ø´Ø¨ÙØ±Ø¯.
-      // TÃ¼rkÃ§e: Kontrol panelinin farklÄ± bÃ¶lÃ¼mlerini gÃ¶stermek iÃ§in fonksiyon.
+      // Farsça: تابع برای نمایش بخش‌های مختلف داشبورد.
+      // Türkçe: Kontrol panelinin farklı bölümlerini göstermek için fonksiyon.
       // English: Function to show different sections of the dashboard.
       function showSection(sectionId) {
         // Hide all sections
@@ -2144,14 +2223,14 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
         }
       }
 
-      // FarsÃ§a: Ø¨Ø§Ø±Ú¯Ø°Ø§Ø±Û Ø§ÙÙÛÙ: ÙÙØ§ÛØ´ Ø¯Ø§Ø´Ø¨ÙØ±Ø¯.
-      // TÃ¼rkÃ§e: Ä°lk yÃ¼kleme: kontrol panelini gÃ¶ster.
+      // Farsça: بارگذاری اولیه: نمایش داشبورد.
+      // Türkçe: İlk yükleme: kontrol panelini göster.
       // English: Initial load: show dashboard.
       document.addEventListener('DOMContentLoaded', () => {
         showSection('dashboard');
         // Set initial toggle state based on localStorage or default
-        // FarsÃ§a: ÙØ¶Ø¹ÛØª Ø§ÙÙÛÙ Ø³ÙØ¦ÛÚ Ø±Ø§ Ø¨Ø± Ø§Ø³Ø§Ø³ localStorage ÛØ§ Ù¾ÛØ´âÙØ±Ø¶ ØªÙØ¸ÛÙ Ú©ÙÛØ¯.
-        // TÃ¼rkÃ§e: BaÅlangÄ±Ã§taki geÃ§iÅ durumunu localStorage veya varsayÄ±lan deÄere gÃ¶re ayarla.
+        // Farsça: وضعیت اولیه سوئیچ را بر اساس localStorage یا پیش‌فرض تنظیم کنید.
+        // Türkçe: Başlangıçtaki geçiş durumunu localStorage veya varsayılan değere göre ayarla.
         // English: Set initial toggle state based on localStorage or default.
         const status = localStorage.getItem('workplaceStatus');
         const toggle = document.getElementById('workplaceStatus');
@@ -2163,8 +2242,8 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
         toggleWorkplaceStatus(); // Apply initial styling
       });
 
-      // FarsÃ§a: ØªÙØ§Ø¨Ø¹ Ù¾ÙÙ Ø§Ø¹ÙØ§Ù.
-      // TÃ¼rkÃ§e: Bildirim Paneli fonksiyonlarÄ±.
+      // Farsça: توابع پنل اعلان.
+      // Türkçe: Bildirim Paneli fonksiyonları.
       // English: Notification Panel functions.
       function toggleNotifications() {
         const panel = document.getElementById('notificationPanel');
@@ -2175,8 +2254,8 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
         document.getElementById('notificationPanel').classList.add('hidden');
       }
 
-      // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ÙÙØ¯Ø§Ù Ø®Ø¯ÙØ§Øª.
-      // TÃ¼rkÃ§e: Hizmet ModalÄ± fonksiyonlarÄ±.
+      // Farsça: توابع مودال خدمات.
+      // Türkçe: Hizmet Modalı fonksiyonları.
       // English: Service Modal functions.
       function openServiceModal() {
         document.getElementById('serviceModal').classList.remove('hidden');
@@ -2186,8 +2265,8 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
         document.getElementById('serviceModal').classList.add('hidden');
       }
 
-      // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ÙÙØ¯Ø§Ù Ù¾Ø±Ø³ÙÙ.
-      // TÃ¼rkÃ§e: Personel ModalÄ± fonksiyonlarÄ±.
+      // Farsça: توابع مودال پرسنل.
+      // Türkçe: Personel Modalı fonksiyonları.
       // English: Staff Modal functions.
       function openStaffModal() {
         document.getElementById('staffModal').classList.remove('hidden');
@@ -2197,8 +2276,8 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
         document.getElementById('staffModal').classList.add('hidden');
       }
 
-      // FarsÃ§a: ØªØ§Ø¨Ø¹ ØªØºÛÛØ± ÙØ¶Ø¹ÛØª ÙØ­Ù Ú©Ø§Ø±.
-      // TÃ¼rkÃ§e: Ä°Åyeri Durumu GeÃ§iÅ Fonksiyonu.
+      // Farsça: تابع تغییر وضعیت محل کار.
+      // Türkçe: İşyeri Durumu Geçiş Fonksiyonu.
       // English: Workplace Status Toggle Function.
       function toggleWorkplaceStatus() {
         const toggle = document.getElementById('workplaceStatus');
@@ -2210,27 +2289,27 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
           localStorage.setItem('workplaceStatus', 'on');
           if (statusIndicator) {
             statusIndicator.className = 'status-indicator status-open';
-            statusText.textContent = 'AÃ§Ä±k';
+            statusText.textContent = 'Açık';
           }
           if (toggleLabel) {
-            toggleLabel.textContent = 'Ä°Åletme AÃ§Ä±k';
+            toggleLabel.textContent = 'İşletme Açık';
           }
           console.log('Workplace is now OPEN (Green)');
         } else {
           localStorage.setItem('workplaceStatus', 'off');
           if (statusIndicator) {
             statusIndicator.className = 'status-indicator status-closed';
-            statusText.textContent = 'KapalÄ±';
+            statusText.textContent = 'Kapalı';
           }
           if (toggleLabel) {
-            toggleLabel.textContent = 'Ä°Åletme KapalÄ±';
+            toggleLabel.textContent = 'İşletme Kapalı';
           }
           console.log('Workplace is now CLOSED (Red)');
         }
       }
 
-      // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ÙÙØ¯Ø§Ù Ø±Ø²Ø±Ù Ø¯Ø³ØªÛ.
-      // TÃ¼rkÃ§e: Manuel Rezervasyon ModalÄ± fonksiyonlarÄ±.
+      // Farsça: توابع مودال رزرو دستی.
+      // Türkçe: Manuel Rezervasyon Modalı fonksiyonları.
       // English: Manual Reservation Modal functions.
       function openManualReservationModal() {
         document.getElementById('manualReservationModal').classList.remove('hidden');
@@ -2240,19 +2319,23 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
         document.getElementById('manualReservationModal').classList.add('hidden');
       }
 
-      // FarsÃ§a: ØªÙØ§Ø¨Ø¹ ÙÙØ¯Ø§Ù Ø§ÙØ²ÙØ¯Ù ÙØ´ØªØ±Û.
-      // TÃ¼rkÃ§e: MÃ¼Återi Ekle ModalÄ± fonksiyonlarÄ±.
+      // Farsça: توابع مودال افزودن مشتری.
+      // Türkçe: Müşteri Ekle Modalı fonksiyonları.
       // English: Customer Add Modal functions.
       function openCustomerModal() {
-        document.getElementById('customerModal').classList.remove('hidden');
+        const modal = document.getElementById('customerModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
       }
 
       function closeCustomerModal() {
-        document.getElementById('customerModal').classList.add('hidden');
+        const modal = document.getElementById('customerModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
       }
 
-      // FarsÃ§a: ØªÙØ¸ÛÙØ§Øª - Ù¾ÛØ´âÙÙØ§ÛØ´ Ø¨Ø§Ø±Ú¯Ø°Ø§Ø±Û ÙÙÚ¯Ù.
-      // TÃ¼rkÃ§e: Ayarlar - Logo YÃ¼kleme Ãnizlemesi.
+      // Farsça: تنظیمات - پیش‌نمایش بارگذاری لوگو.
+      // Türkçe: Ayarlar - Logo Yükleme Önizlemesi.
       // English: Settings - Logo Upload Preview.
       function previewLogo(event) {
         const reader = new FileReader();
@@ -2300,12 +2383,9 @@ if (file_exists(__DIR__ . '/../includes/escape.php')) {
         }
       }
     </script>
- <!-- End Dashboard Layout -->
+</div> <!-- End Dashboard Layout -->
 
 <?php 
 // Include the universal footer
 include '../includes/footer.php'; 
 ?>
-
-
-

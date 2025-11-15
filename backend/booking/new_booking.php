@@ -103,8 +103,10 @@ if (!$isPartial) include __DIR__ . '/../includes/dashboard_header.php';
   ?>
 
   <form id="newBookingForm" class="space-y-4" method="post" action="/carwash_project/backend/api/bookings/create.php">
-    <label for="auto_label_76" class="sr-only">Csrf token</label><label for="auto_label_76" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); "\>" id="auto_label_76">">
-    <label for="auto_label_75" class="sr-only">Action</label><label for="auto_label_75" class="sr-only">Action</label><input type="hidden" name="action" value="create_reservation" id="auto_label_75">
+  <label for="auto_label_76" class="sr-only">Csrf token</label>
+  <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" id="auto_label_76">
+  <label for="auto_label_75" class="sr-only">Action</label>
+  <input type="hidden" name="action" value="create_reservation" id="auto_label_75">
 
     <div>
       <label for="citySelect" class="block text-sm font-bold mb-2">Åžehir</label>

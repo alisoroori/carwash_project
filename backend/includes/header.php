@@ -587,12 +587,7 @@ $dir = in_array($primary, $rtl_languages, true) ? 'rtl' : 'ltr';
         <?php if (!$is_dashboard): ?>
         padding-top: 56px;
         <?php endif; ?>
-      }
-      
-      .header-elite, .dashboard-header {
-        padding: 0.5rem 0;
-      }
-      
+
       .header-elite .py-4, .dashboard-header .py-4 {
         padding-top: 0.75rem !important;
         padding-bottom: 0.75rem !important;
@@ -1171,6 +1166,40 @@ $dir = in_array($primary, $rtl_languages, true) ? 'rtl' : 'ltr';
   </header>
 <?php endif; ?>
 
+<!-- Inert polyfill & helper: ensures background content becomes inert when mobile menus/dialogs open -->
+<script src="https://unpkg.com/wicg-inert@3.1.1/dist/inert.min.js"></script>
+<script>
+// Provides a global helper used by mobile menu code to toggle inert (with aria-hidden fallback)
+window.setInertState = function(isInert) {
+  try {
+    var primary = document.querySelector('main') || document.getElementById('app') || document.querySelector('.container');
+    var footer = document.querySelector('footer');
+
+    if (typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype) {
+      if (primary) primary.inert = !!isInert;
+      if (footer) footer.inert = !!isInert;
+      return;
+    }
+
+    if (window.ShadyDOM || window.wicgInert || typeof window.__wicg_inert !== 'undefined') {
+      if (primary) primary.inert = !!isInert;
+      if (footer) footer.inert = !!isInert;
+      return;
+    }
+
+    // Fallback: use aria-hidden as a last resort
+    if (primary) {
+      if (isInert) primary.setAttribute('aria-hidden', 'true'); else primary.removeAttribute('aria-hidden');
+    }
+    if (footer) {
+      if (isInert) footer.setAttribute('aria-hidden', 'true'); else footer.removeAttribute('aria-hidden');
+    }
+  } catch (e) {
+    console.warn('setInertState error', e);
+  }
+};
+</script>
+
 <script>
 // Enhanced Universal Header JavaScript with Progressive Enhancement
 document.addEventListener('DOMContentLoaded', function() {
@@ -1214,6 +1243,8 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Prevent body scroll
       document.body.style.overflow = 'hidden';
+      // Make background inert for assistive tech
+      try { if (typeof window.setInertState === 'function') window.setInertState(true); } catch (e) {}
       
       // Focus management
       setTimeout(() => {
@@ -1242,6 +1273,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Restore body scroll
       document.body.style.overflow = '';
+      try { if (typeof window.setInertState === 'function') window.setInertState(false); } catch (e) {}
       
       // Return focus to button
       if (mobileMenuBtn) mobileMenuBtn.focus();

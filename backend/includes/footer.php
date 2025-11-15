@@ -287,20 +287,12 @@ $current_year = date('Y');
     if (!footer) return;
     const footerHeight = footer.offsetHeight || 0;
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-    // Only apply inline bottom for narrow viewports where the sidebar
-    // behaves as a fixed/overlay element (mobile/tablet). On desktop the
-    // sidebar is in-flow/sticky and should not receive an inline bottom.
-    if (viewportWidth < 900) {
-      document.querySelectorAll('.sidebar-fixed').forEach(el => {
-        // apply inline bottom to override utility classes like bottom-0
-        el.style.bottom = footerHeight + 'px';
-      });
-    } else {
-      // Clear any inline bottoms on desktop so sticky/in-flow sidebar works
-      document.querySelectorAll('.sidebar-fixed').forEach(el => {
-        el.style.bottom = '';
-      });
-    }
+    // Apply inline bottom so fixed sidebars stop above the footer and do not overlap it.
+    // This ensures consistent behavior across viewport sizes; CSS still controls
+    // the primary layout while this script only adjusts bottom spacing to avoid overlap.
+    document.querySelectorAll('.sidebar-fixed').forEach(el => {
+      el.style.bottom = footerHeight + 'px';
+    });
   }
 
   window.addEventListener('load', adjustSidebarsToFooter);

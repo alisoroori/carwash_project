@@ -33,6 +33,8 @@
         mobileMenuOverlay.classList.remove('hidden');
         body.classList.add('menu-open');
         body.style.overflow = 'hidden';
+        // Make background inert for accessibility (if helper available)
+        try { if (typeof window.setInertState === 'function') window.setInertState(true); } catch (e) {}
         
         // Focus trap
         mobileMenuPanel.querySelector('a, button').focus();
@@ -43,6 +45,7 @@
         mobileMenuOverlay.classList.add('hidden');
         body.classList.remove('menu-open');
         body.style.overflow = '';
+        try { if (typeof window.setInertState === 'function') window.setInertState(false); } catch (e) {}
         
         // Return focus to menu button
         mobileMenuBtn?.focus();

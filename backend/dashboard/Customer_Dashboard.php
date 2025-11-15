@@ -1,10 +1,6 @@
 <?php
-session_start();
+
 require_once __DIR__ . '/../includes/bootstrap.php';
-// Escaping helpers
-if (file_exists(__DIR__ . '/../includes/escape.php')) {
-    require_once __DIR__ . '/../includes/escape.php';
-}
 
 use App\Classes\Auth;
 use App\Classes\Database;
@@ -55,40 +51,662 @@ if (!isset($base_url)) {
     }
 }
 ?>
-<?php
-// Ensure language attributes are computed for this page
-if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
-    require_once __DIR__ . '/../includes/lang_helper.php';
-    $html_lang_attrs = get_lang_dir_attrs_for_file(__FILE__);
-}
-?>
 
 <!DOCTYPE html>
-<html <?php echo $html_lang_attrs ?? 'lang="en"'; ?> class="scroll-smooth">
+<html lang="tr" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($page_title); ?></title>
     
+    <!-- CSRF Token Meta Tag for JavaScript -->
+    <meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
+    
     <!-- TailwindCSS - Production Build -->
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
-    <!-- Local dashboard component styles -->
-    <link rel="stylesheet" href="<?php echo $base_url; ?>/frontend/css/dashboard/components.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Lightweight API utilities used by many frontend modules (defines window.apiCall) -->
-    <script defer src="<?php echo $base_url; ?>/frontend/js/api-utils.js"></script>
+    <!-- Initialize Global CONFIG object with CSRF token -->
+    <script>
+        window.CONFIG = window.CONFIG || {};
+        window.CONFIG.CSRF_TOKEN = '<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>';
+        window.CONFIG.BASE_URL = '<?php echo htmlspecialchars($base_url, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>';
+    </script>
+    
+    <!-- CSRF Helper - Auto-inject CSRF tokens in all POST requests -->
+    <script defer src="<?php echo $base_url; ?>/frontend/js/csrf-helper.js"></script>
+    
     <!-- Vehicle manager & local Alpine factories (load before Alpine so factories can register) -->
+    <!-- Ensure api-utils is loaded before vehicleManager (provides window.apiCall) -->
+    <script defer src="<?php echo $base_url; ?>/frontend/js/api-utils.js"></script>
     <script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
     <script defer src="<?php echo $base_url; ?>/frontend/js/alpine-components.js"></script>
     <!-- Alpine.js for interactive components -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- Lazy-section loader (loads dashboard fragments when they come into view) -->
-    <script defer src="<?php echo $base_url; ?>/frontend/js/section-loader.js"></script>
     
+    <style>
+        /* ================================
+           CSS CUSTOM PROPERTIES (Theme Variables)
+           ================================ */
+        :root {
+            /* Layout Dynamic Heights (computed by JS) */
+            --header-height: 80px;           /* Fixed header height */
+            /* Footer removed from this page; no footer height variable needed */
+            --sidebar-width: 250px;          /* Fixed sidebar width (desktop) */
+            
+            /* Primary Colors */
+            --color-primary: #2563eb;        /* Blue-600 */
+            --color-primary-light: #3b82f6; /* Blue-500 */
+            --color-primary-dark: #1d4ed8;  /* Blue-700 */
+            --color-primary-50: #eff6ff;
+            --color-primary-100: #dbeafe;
+            --color-primary-200: #bfdbfe;
+            
+            /* Secondary Colors */
+            --color-secondary: #9333ea;       /* Purple-600 */
+            --color-secondary-light: #a855f7; /* Purple-500 */
+            --color-secondary-dark: #7e22ce;  /* Purple-700 */
+            --color-secondary-50: #faf5ff;
+            --color-secondary-100: #f3e8ff;
+            
+            /* Success */
+            --color-success: #10b981;        /* Green-500 */
+            --color-success-light: #34d399;  /* Green-400 */
+            --color-success-bg: #f0fdf4;     /* Green-50 */
+            
+            /* Error */
+            --color-error: #ef4444;          /* Red-500 */
+            --color-error-light: #f87171;    /* Red-400 */
+            --color-error-bg: #fef2f2;       /* Red-50 */
+            
+            /* Warning */
+            --color-warning: #f59e0b;        /* Amber-500 */
+            --color-warning-light: #fbbf24;  /* Amber-400 */
+            --color-warning-bg: #fffbeb;     /* Amber-50 */
+            
+            /* Neutral */
+            --color-gray-50: #f9fafb;
+            --color-gray-100: #f3f4f6;
+            --color-gray-200: #e5e7eb;
+            --color-gray-300: #d1d5db;
+            --color-gray-400: #9ca3af;
+            --color-gray-500: #6b7280;
+            --color-gray-600: #4b5563;
+            --color-gray-700: #374151;
+            --color-gray-800: #1f2937;
+            --color-gray-900: #111827;
+            
+            /* Text Colors */
+            --text-primary: var(--color-gray-900);
+            --text-secondary: var(--color-gray-600);
+            --text-inverse: #ffffff;
+            
+            /* Background Colors */
+            --bg-body: var(--color-gray-50);
+            --bg-card: #ffffff;
+            --bg-sidebar: linear-gradient(to bottom, var(--color-primary), var(--color-secondary));
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            /* Ensure root-level layout sizing is robust for fixed children */
+            /* (Non-functional layout assist: does not change visuals) */
+            --layout-root-height: 100vh;
+        }
 
+        /* Ensure html/body occupy full height for fixed layout calculations */
+        html, body {
+            height: 100%;
+        }
+        
+        /* ================================
+           CUSTOM SCROLLBAR
+           ================================ */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--color-gray-100);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-gray-300);
+            border-radius: var(--radius-sm);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-gray-400);
+        }
+        
+        /* Smooth transitions */
+        * {
+            transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        /* Prevent body scroll when mobile menu open */
+        body.menu-open {
+            overflow: hidden !important;
+            position: fixed;
+            width: 100%;
+        }
+        
+        /* ================================
+           ANIMATIONS
+           ================================ */
+        /* Mobile sidebar animations */
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutLeft {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        
+        /* ================================
+           BUTTONS - Consistent States
+           ================================ */
+        .btn-primary {
+            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+            color: var(--text-inverse);
+            transition: all var(--transition-base);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary:active {
+            box-shadow: var(--shadow-md);
+            transform: translateY(0);
+        }
+        
+        .btn-primary:focus {
+            outline: 2px solid var(--color-primary-200);
+            outline-offset: 2px;
+        }
+        
+        .btn-secondary {
+            background-color: var(--bg-card);
+            color: var(--color-primary);
+            border: 2px solid var(--color-primary);
+            transition: all var(--transition-base);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--color-primary-50);
+        }
+        
+        .btn-secondary:active {
+            background-color: var(--color-primary-100);
+        }
+        
+        .btn-secondary:focus {
+            outline: 2px solid var(--color-primary-200);
+            outline-offset: 2px;
+        }
+        
+        /* ================================
+           SIDEBAR STYLING
+           ================================ */
+        #customer-sidebar {
+            background: var(--bg-sidebar);
+        }
+        
+        /* Ensure sidebar is hidden off-screen on mobile by default */
+        @media (max-width: 1023px) {
+            #customer-sidebar {
+                transition: transform var(--transition-slow);
+            }
+        }
+        
+        /* ================================
+           CARDS & CONTAINERS
+           ================================ */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-base);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        
+        /* ================================
+           FORM INPUT STATES
+           ================================ */
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+        }
+        
+        input.error, textarea.error, select.error {
+            border-color: var(--color-error) !important;
+            background-color: var(--color-error-bg);
+        }
+        
+        input.success, textarea.success, select.success {
+            border-color: var(--color-success) !important;
+            background-color: var(--color-success-bg);
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: var(--color-gray-400);
+        }
+        
+        /* Form validation messages */
+        .form-error {
+            color: var(--color-error);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-success {
+            color: var(--color-success);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* ================================
+           TEXT UTILITIES
+           ================================ */
+        .text-primary {
+            color: var(--color-primary);
+        }
+        
+        .text-secondary {
+            color: var(--color-secondary);
+        }
+        
+        .bg-primary {
+            background-color: var(--color-primary);
+        }
+        
+        .bg-secondary {
+            background-color: var(--color-secondary);
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+        }
+        
+        /* ================================
+           COMPLETE FIXED SIDEBAR LAYOUT
+           ================================ */
+        
+        /* === 1. Fixed Header (80px height) === */
+        header {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px !important;        /* Fixed header height */
+            z-index: 50 !important;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+            /* === 2. Fixed Sidebar (Left Side) === */
+        #customer-sidebar {
+            position: fixed !important;
+            top: var(--header-height);      /* Start below header */
+            bottom: 0; /* No footer on this page */
+            left: 0;
+            width: 250px;                   /* Fixed width on desktop */
+            overflow: hidden !important;     /* NO internal scrolling */
+            z-index: 30 !important;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to bottom, #2563eb, #7c3aed);
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.12);
+            padding: 0;
+            height: calc(100vh - var(--header-height));
+        }
+        
+        /* Sidebar Profile Section */
+        #customer-sidebar .flex-shrink-0:first-of-type {
+            padding: 1rem;
+        }
+        
+        /* Sidebar Profile Image - match header profile (60x60 on desktop) */
+        #customer-sidebar img#sidebarProfileImage {
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Header profile image - reduced size (header-only) */
+        #userAvatarTop {
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Header profile container sizing (matches image sizes) */
+        #headerProfileContainer {
+            width: 60px;
+            height: 60px;
+        }
+
+        /* Site logo sizing is controlled globally in universal styles to enforce
+           a single source-of-truth (80px). Removed local #siteLogo rules so the
+           global CSS in backend/includes/universal_styles.php can apply. */
+        
+        /* Sidebar Navigation Menu */
+        #customer-sidebar nav {
+            flex: 1;
+            padding: 0.75rem;
+            overflow: visible;
+        }
+
+          /* Compact sidebar adjustments to avoid vertical overflow
+              - Sidebar is fixed below the header using CSS vars
+           - Reduce font-size and line-height slightly
+           - Reduce paddings for profile and nav items
+           - Ensure no vertical scrollbar appears on desktop (mobile overrides allow scrolling)
+           These changes are intentionally minimal and limited to the sidebar only.
+        */
+        #customer-sidebar {
+            /* Keep visual sizing compact */
+            font-size: 13px; /* slightly smaller text to fit more content */
+            line-height: 1.15;
+
+            /* Layout: fixed below the header, anchored to viewport bottom */
+            position: fixed !important;
+            top: var(--header-height);
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            box-sizing: border-box;
+
+            /* Desktop: hide internal scrollbar; mobile rules below re-enable scrolling */
+            overflow-y: hidden !important; /* prevent vertical scrollbar on desktop */
+            z-index: 49; /* sit below header (z-50) but above main content */
+        }
+
+        #customer-sidebar .flex-shrink-0:first-of-type {
+            padding: 0.6rem; /* slightly reduce profile padding */
+        }
+
+        #customer-sidebar img#sidebarProfileImage {
+            width: 60px !important;
+            height: 60px !important;
+        }
+
+        #customer-sidebar nav {
+            padding: 0.5rem; /* tighten nav padding */
+        }
+
+        #customer-sidebar nav a {
+            padding-top: .45rem;
+            padding-bottom: .45rem;
+        }
+
+        #customer-sidebar .flex-1 > * { margin-bottom: .25rem; }
+
+        #customer-sidebar .flex-shrink-0.p-3 { padding: .5rem; }
+        
+        /* === 3. Main Content Area === */
+        #main-content {
+            /* Fix the main content area so it sits below the fixed header
+               and scrolls independently (behaves like the fixed sidebar). */
+            position: fixed !important;
+            top: var(--header-height);
+            left: var(--sidebar-width);
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
+            /* Ensure internal scrolling respects the fixed header */
+            scroll-padding-top: var(--header-height);
+            /* Explicit height to match sidebar (top + bottom anchors already set) */
+            height: calc(100vh - var(--header-height));
+            /* keep background and stacking order as before */
+            z-index: 1;
+            background: #f9fafb;
+        }
+        
+        /* Footer removed from this page - no styles required */
+        
+        /* ================================
+           RESPONSIVE BREAKPOINTS
+           ================================ */
+        
+        /* === Small Screens (<900px): Reduce sidebar to 200px === */
+        @media (max-width: 899px) and (min-width: 768px) {
+            :root {
+                --sidebar-width: 200px;     /* Narrower sidebar */
+            }
+            
+            #customer-sidebar {
+                width: 200px;
+            }
+            
+            #customer-sidebar img#sidebarProfileImage {
+                width: 48px !important;     /* Match header avatar on small screens */
+                height: 48px !important;
+            }
+
+            #userAvatarTop {
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            #headerProfileContainer {
+                width: 48px;
+                height: 48px;
+            }
+
+            /* Logo sizing is handled globally; local overrides removed. */
+            
+            #main-content {
+                /* Match the fixed layout using the sidebar variable */
+                left: var(--sidebar-width);
+                right: 0;
+                top: var(--header-height);
+                bottom: 0;
+                position: fixed !important;
+                overflow-y: auto;
+                box-sizing: border-box;
+                scroll-padding-top: var(--header-height);
+                height: calc(100vh - var(--header-height));
+            }
+            
+            /* Footer removed from this page */
+        }
+        
+        /* === Desktop Layout (≥900px) === */
+        @media (min-width: 900px) {
+            #customer-sidebar {
+                transform: translateX(0) !important;  /* Always visible */
+            }
+        }
+        
+        /* === Mobile Layout (<768px) === */
+        @media (max-width: 767px) {
+            #customer-sidebar {
+                width: 250px;
+                transform: translateX(-100%);    /* Hidden by default */
+                overflow-y: auto !important;     /* Allow scroll on mobile */
+                top: var(--header-height);
+                bottom: 0;
+                height: calc(100vh - var(--header-height));
+                z-index: 48;                    /* Above main content but below header (header z-50) */
+            }
+            
+            #customer-sidebar img#sidebarProfileImage {
+                width: 48px !important;         /* Smaller on mobile */
+                height: 48px !important;
+            }
+
+            /* Header avatar smaller on mobile */
+            #userAvatarTop {
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            #headerProfileContainer {
+                width: 48px;
+                height: 48px;
+            }
+
+            /* Logo sizing is handled globally; local overrides removed. */
+            
+            #main-content {
+                /* Mobile: full width fixed area below header */
+                position: fixed !important;
+                top: var(--header-height);
+                left: 0;
+                right: 0;
+                bottom: 0;
+                overflow-y: auto;
+                box-sizing: border-box;
+                scroll-padding-top: var(--header-height);
+                height: calc(100vh - var(--header-height));
+            }
+            
+            /* Footer removed from this page */
+        }
+        }
+
+        /* Mobile (<=900px) explicit rules to ensure hamburger menu visibility and layering */
+        @media (max-width: 900px) {
+            /* Ensure header stays on top */
+            header {
+                z-index: 50 !important;
+            }
+
+            /* Sidebar becomes a slide-in mobile panel beneath header */
+            #customer-sidebar {
+                position: fixed !important;
+                top: var(--header-height);
+                left: 0;
+                height: calc(100vh - var(--header-height));
+                width: 80%; /* take most of the screen on small devices */
+                max-width: 320px;
+                transform: translateX(-100%);
+                transition: transform 300ms ease-in-out;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.25);
+                z-index: 48; /* below header but above main content */
+            }
+
+            /* When mobile menu is open (class applied), show it */
+            #customer-sidebar.mobile-open {
+                transform: translateX(0) !important;
+            }
+
+            /* Overlay backdrop sits below the sidebar but above main content */
+            .mobile-menu-backdrop-dashboard {
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.45);
+                z-index: 47;
+                display: none;
+            }
+
+            .mobile-menu-backdrop-dashboard.active {
+                display: block;
+            }
+
+            /* Ensure the hamburger button is visible */
+            .hamburger-toggle-dashboard {
+                display: inline-flex !important;
+            }
+        }
+        /* Hide scrollbar but keep scroll functionality if needed */
+        #customer-sidebar::-webkit-scrollbar {
+            width: 0;
+            display: none;
+        }
+        
+        #customer-sidebar {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        /* Smooth scrollbar for main content only */
+        #main-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #main-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        #main-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        #main-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+    </style>
 </head>
 
 <body 
@@ -98,9 +716,9 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
 >
 
 <!-- ================================
-    HEADER - Fixed at Top (80px height)
-    ================================ -->
-<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm flex-none header-fixed-height">
+     HEADER - Fixed at Top (80px height)
+     ================================ -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm flex-none" style="height: 80px;">
     <div class="flex items-center justify-between h-full px-4 lg:px-6">
         
         <!-- Mobile Menu Button -->
@@ -113,7 +731,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!mobileMenuOpen">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
-            <svg class="w-6 h-6 hidden-inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="mobileMenuOpen">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="mobileMenuOpen" style="display: none;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
         </button>
@@ -121,8 +739,8 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
         <!-- Logo -->
             <div class="flex items-center space-x-3">
             <!-- Main header logo placed before the site title -->
-                <div>
-                <img id="siteLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo e_attr($page_title ?? 'MyCar'); ?>" class="logo-image object-contain rounded-xl shadow-md header-logo sidebar-logo" />
+            <div>
+                <img id="siteLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="MyCar logo" class="logo-image object-contain rounded-xl shadow-md header-logo sidebar-logo" />
             </div>
             <div class="hidden sm:block">
                 <h1 class="text-lg font-bold text-gray-900 leading-tight">MyCar</h1>
@@ -141,16 +759,16 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
             >
                 <!-- Header profile image (updates when user uploads new image) -->
                 <div id="headerProfileContainer" class="rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                    <img id="userAvatarTop" src="<?php echo !empty($user_profile_image) ? e_attr($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" alt="<?php echo e_attr($user_name); ?>" class="object-cover w-full h-full" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                    <div id="userAvatarFallback" class="text-white font-semibold text-sm hidden-inline">
-                        <?php echo e_html(strtoupper(substr($user_name, 0, 1))); ?>
+                    <img id="userAvatarTop" src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div id="userAvatarFallback" class="text-white font-semibold text-sm" style="display: none;">
+                        <?php echo strtoupper(substr($user_name, 0, 1)); ?>
                     </div>
                 </div>
 
                 <!-- Small company logo placed before the user name for quick branding -->
 
 
-                <span class="hidden md:block text-sm font-medium text-gray-700 max-w-[150px] truncate"><?php echo e_html($user_name); ?></span>
+                <span class="hidden md:block text-sm font-medium text-gray-700 max-w-[150px] truncate"><?php echo htmlspecialchars($user_name); ?></span>
                 <i class="fas fa-chevron-down text-xs text-gray-400 hidden md:block"></i>
             </button>
             
@@ -163,15 +781,16 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95"
-                class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 overflow-hidden z-50 hidden-inline"
+                class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 overflow-hidden z-50"
+                style="display: none;"
             >
                 <!-- User Info Header -->
                 <div class="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
                     <p class="text-sm font-semibold text-gray-900 truncate">
-                        <?php echo e_html($user_name); ?>
+                        <?php echo htmlspecialchars($user_name); ?>
                     </p>
                     <p class="text-xs text-gray-600 truncate">
-                        <?php echo e_html($user_email); ?>
+                        <?php echo htmlspecialchars($user_email); ?>
                     </p>
                 </div>
                 
@@ -200,12 +819,14 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
 </header>
 
 <!-- ================================
-     LAYOUT WRAPPER - Proper Flex Layout Structure
-     Sidebar: Fixed between Header and Footer (no internal scroll)
+    LAYOUT WRAPPER - Proper Flex Layout Structure
+    Sidebar: Fixed below Header (no internal scroll)
      ================================ -->
 
-<!-- Mobile Overlay (backdrop when sidebar is open on mobile, closes sidebar on click) -->
-<div 
+<!-- Mobile Overlay (backdrop when sidebar is open on mobile, closes sidebar on click)
+     NOTE: avoid aria-hidden/tabindex on overlays that can receive focus — make the backdrop non-focusable
+-->
+<div
     x-show="mobileMenuOpen"
     @click="mobileMenuOpen = false"
     x-transition:enter="transition-opacity ease-out duration-300"
@@ -214,26 +835,21 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
     x-transition:leave="transition-opacity ease-in duration-200"
     x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0"
-    class="fixed inset-0 bg-black bg-opacity-60 z-[45] lg:hidden overlay-hidden"
-    aria-hidden="true"
-    role="button"
-    aria-label="Close sidebar"
-    tabindex="0"
-    @keydown.enter="mobileMenuOpen = false"
-    @keydown.space.prevent="mobileMenuOpen = false"
+    class="fixed inset-0 bg-black bg-opacity-60 z-[45] lg:hidden"
+    style="display: none;"
 ></div>
 
-<!-- Main Content Wrapper: Takes flex-1 to push footer down -->
+<!-- Main Content Wrapper: Takes flex-1 to fill remaining viewport space -->
 <div class="flex flex-1">
     
     <!-- ================================
-         SIDEBAR - Fixed below header, extends to above footer
+         SIDEBAR - Fixed below header
          Desktop: No internal scroll, uses CSS variables for positioning
          Mobile: Overlay with internal scroll
          ================================ -->
     <aside 
         id="customer-sidebar"
-        class="sidebar-fixed bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
+        class="bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
                transform transition-transform duration-300 ease-in-out
                flex flex-col"
         :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
@@ -253,14 +869,14 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                 <div class="w-20 h-20 mx-auto mb-2 rounded-full overflow-hidden shadow-lg ring-2 ring-white ring-opacity-30">
                     <img 
                         id="sidebarProfileImage" 
-                        src="<?php echo !empty($user_profile_image) ? e_attr($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" 
-                        alt="<?php echo e_attr($user_name); ?>"
+                        src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" 
+                        alt="<?php echo htmlspecialchars($user_name); ?>"
                         class="w-full h-full object-cover"
                         onerror="this.src='/carwash_project/frontend/assets/img/default-user.png'"
                     >
                 </div>
-                <h3 class="text-sm font-bold text-white truncate"><?php echo e_html($user_name); ?></h3>
-                <p class="text-xs text-blue-100 opacity-90 truncate mt-1"><?php echo e_html($user_email); ?></p>
+                <h3 class="text-sm font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
+                <p class="text-xs text-blue-100 opacity-90 truncate mt-1"><?php echo htmlspecialchars($user_email); ?></p>
             </div>
         </div>
         
@@ -396,7 +1012,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
         <section x-show="currentSection === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
-                <p class="text-gray-600">Hoş geldiniz, <?php echo e_html($user_name); ?>!</p>
+                <p class="text-gray-600">Hoş geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
             </div>
             
             <!-- Stats Grid - Responsive with consistent spacing -->
@@ -490,13 +1106,6 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
         
         <!-- ========== VEHICLES SECTION ========== -->
     <section x-show="currentSection === 'vehicles'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing � using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" style="display: none;">
-        <!-- Deferred vehicles section: will be lazy-loaded when scrolled into view -->
-        <div class="deferred-section" data-load-url="<?php echo $base_url; ?>/backend/dashboard/sections/vehicles_section.php" id="vehicles-deferred" aria-label="Araçlarım" role="region">
-            <div class="p-6 bg-white rounded-md shadow-sm text-sm text-gray-500">İçerik yükleniyor…</div>
-        </div>
-        <noscript>
-            <?php include __DIR__ . '/sections/vehicles_section.php'; ?>
-        </noscript>
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Araçlarım</h2>
                 <p class="text-gray-600">Araçlarınızı yönetin</p>
@@ -619,9 +1228,9 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                     </div>
                     
                     <form id="vehicleForm" @submit.prevent="saveVehicle()" class="p-6" enctype="multipart/form-data">
-                        <label for="auto_label_108" class="sr-only">Csrf token</label><label for="auto_label_108" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" :value="csrfToken" id="auto_label_108">
-                        <label for="auto_label_107" class="sr-only">Action</label><label for="auto_label_107" class="sr-only">Action</label><input type="hidden" name="action" :value="editingVehicle ? 'update' : 'create'" id="auto_label_107">
-                        <label for="auto_label_106" class="sr-only">Id</label><label for="auto_label_106" class="sr-only">Id</label><input type="hidden" name="id" :value="editingVehicle?.id || ''" id="auto_label_106">
+                        <input type="hidden" name="csrf_token" :value="csrfToken" id="auto_label_108">
+                        <input type="hidden" name="action" :value="editingVehicle ? 'update' : 'create'" id="auto_label_107">
+                        <input type="hidden" name="id" :value="editingVehicle?.id || ''" id="auto_label_106">
                         
                         <!-- Form Fields Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -771,7 +1380,8 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
             </div>
             
             <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
-                <form id="profileForm" class="space-y-6" enctype="multipart/form-data">
+                <form id="profileForm" class="space-y-6" enctype="multipart/form-data" method="POST">
+                    <input type="hidden" name="action" value="update_profile">
                     <?php
                     // Idempotent ensure session and CSRF token for profile & password change forms
                     if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -802,7 +1412,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                                 <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
                                     <img 
                                         id="profileImagePreview" 
-                                        src="<?php echo !empty($user_profile_image) ? e_attr($user_profile_image) : '/carwash_project/frontend/images/default-avatar.svg'; ?>" 
+                                        src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/images/default-avatar.svg'; ?>" 
                                         alt="Profile" 
                                         class="w-full h-full object-cover"
                                         onerror="this.src='/carwash_project/frontend/images/default-avatar.svg'"
@@ -822,7 +1432,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                                     accept="image/jpeg,image/png,image/jpg,image/webp"
                                     class="block w-full text-sm text-gray-900 border-2 border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 >
-                                <p class="mt-2 text-xs text-gray-500">JPG, PNG veya WEBP formatında. Maksimum 2MB.</p>
+                                <p class="mt-2 text-xs text-gray-500">JPG, PNG veya WEBP formatında. Maksimum 3MB.</p>
                             </div>
                         </div>
                     </div>
@@ -837,7 +1447,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                                 type="text"
                                 id="profile_name"
                                 name="name"
-                                value="<?php echo e_attr($user_name); ?>"
+                                value="<?php echo htmlspecialchars($user_name); ?>"
                                 required
                                 autocomplete="name"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
@@ -845,6 +1455,23 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                             >
                         </div>
                         
+                        <!-- Username -->
+                        <div class="mb-4">
+                            <label for="profile_username" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Kullanıcı Adı <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="text"
+                                id="profile_username"
+                                name="username"
+                                value="<?php echo htmlspecialchars($userData['username'] ?? $_SESSION['username'] ?? ''); ?>"
+                                required
+                                autocomplete="username"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                                placeholder="kullanici_adi"
+                            >
+                        </div>
+
                         <!-- Email -->
                         <div class="mb-4">
                             <label for="profile_email" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -854,7 +1481,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                                 type="email"
                                 id="profile_email"
                                 name="email"
-                                value="<?php echo e_attr($user_email); ?>"
+                                value="<?php echo htmlspecialchars($user_email); ?>"
                                 required
                                 autocomplete="email"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
@@ -954,70 +1581,101 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-none"
                             ><?php echo htmlspecialchars($user_address); ?></textarea>
                         </div>
-                        
-                        <!-- Password Change Section -->
-                        <div class="pt-6 border-t border-gray-200">
-                            <h4 class="text-lg font-bold text-gray-900 mb-4">Şifre Değiştir</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                                <!-- Current Password -->
-                                <div class="mb-4">
-                                    <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Şifre</label>
-                                    <input 
-                                        type="password"
-                                        id="current_password"
-                                        name="current_password"
-                                        autocomplete="current-password"
-                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                        placeholder="••••••••"
-                                    >
-                                </div>
-                                
-                                <!-- New Password -->
-                                <div class="mb-4">
-                                    <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre</label>
-                                    <input 
-                                        type="password"
-                                        id="new_password"
-                                        name="new_password"
-                                        autocomplete="new-password"
-                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                                        placeholder="••••••••"
-                                    >
-                                </div>
+                    </div>
+                    
+                    <!-- Password Change Section -->
+                    <div class="pt-6 border-t border-gray-200">
+                        <h4 class="text-lg font-bold text-gray-900 mb-4">Şifre Değiştir</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                            <!-- Current Password -->
+                            <div class="mb-4">
+                                <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Şifre</label>
+                                <input 
+                                    type="password"
+                                    id="current_password"
+                                    name="current_password"
+                                    autocomplete="current-password"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                                    placeholder="••••••••"
+                                >
+                            </div>
+                            
+                            <!-- New Password -->
+                            <div class="mb-4">
+                                <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre</label>
+                                <input 
+                                    type="password"
+                                    id="new_password"
+                                    name="new_password"
+                                    autocomplete="new-password"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                                    placeholder="••••••••"
+                                >
+                            </div>
+                            <!-- Confirm New Password -->
+                            <div class="mb-4">
+                                <label for="confirm_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre (Tekrar)</label>
+                                <input 
+                                    type="password"
+                                    id="confirm_password"
+                                    name="confirm_password"
+                                    autocomplete="new-password"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                                    placeholder="••••••••"
+                                >
                             </div>
                         </div>
-                        
-                        <!-- Success/Error Messages -->
-                        <div class="hidden mb-4 p-4 border-2 border-green-500 bg-green-50 text-green-700 rounded-lg" id="profile-success">
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Profil başarıyla güncellendi!</span>
+                    </div>
+                    
+                    <!-- Success/Error Messages -->
+                    <div class="hidden mb-4 p-4 border-2 border-green-500 bg-green-50 text-green-700 rounded-lg" id="profile-success">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Profil başarıyla güncellendi!</span>
+                        </div>
+                    </div>
+                    
+                    <div class="hidden mb-4 p-4 border-2 border-red-500 bg-red-50 text-red-600 rounded-lg" id="profile-error">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Bir hata oluştu. Lütfen tekrar deneyin.</span>
+                        </div>
+                    </div>
+
+                    <!-- Global message component (reusable) -->
+                    <div id="global-message" class="fixed top-6 right-6 z-50 hidden max-w-md w-full pointer-events-auto">
+                        <div id="global-message-box" class="rounded-lg shadow-lg p-4 flex items-start gap-3">
+                            <div id="global-message-icon" class="mt-0.5"></div>
+                            <div class="flex-1">
+                                <div id="global-message-text" class="font-medium"></div>
+                                <div id="global-message-sub" class="text-sm mt-1 opacity-80"></div>
                             </div>
+                            <button id="global-message-close" aria-label="Close message" class="ml-3 text-gray-600 hover:text-gray-900">&times;</button>
                         </div>
-                        
-                        <div class="hidden mb-4 p-4 border-2 border-red-500 bg-red-50 text-red-600 rounded-lg" id="profile-error">
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <span>Bir hata oluştu. Lütfen tekrar deneyin.</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Form Actions -->
-                        <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
-                            <button 
-                                type="button"
-                                class="w-full sm:w-auto h-11 px-6 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                            >
-                                İptal
-                            </button>
-                            <button 
-                                type="submit"
-                                class="w-full sm:w-auto h-11 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg active:shadow-md transition-all inline-flex items-center justify-center gap-2"
-                            >
-                                <i class="fas fa-save text-sm"></i>
-                                <span>Kaydet</span>
-                            </button>
-                        </div>
+                    </div>
+
+                    <!-- Form-level validation errors (populated by client-side or server responses) -->
+                    <div id="form-errors" class="hidden mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                        <strong class="block font-semibold mb-2">Lütfen aşağıdaki hataları düzeltin:</strong>
+                        <ul id="form-errors-list" class="list-disc pl-5 space-y-1"></ul>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
+                        <button 
+                            type="button"
+                            class="w-full sm:w-auto h-11 px-6 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                        >
+                            İptal
+                        </button>
+                        <button 
+                            type="submit"
+                            class="w-full sm:w-auto h-11 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg active:shadow-md transition-all inline-flex items-center justify-center gap-2"
+                        >
+                            <i class="fas fa-save text-sm"></i>
+                            <span>Kaydet</span>
+                        </button>
+                    </div>
                 </form>
             </div>
         </section>
@@ -1126,7 +1784,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                             <h4 class="font-bold">E-posta Bildirimleri</h4>
                             <p class="text-sm text-gray-600">Rezervasyon onayları ve güncellemeler</p>
                         </div>
-                        <label for="auto_171" class="sr-only">Input</label><input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_171">
+                        <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_171" aria-label="E-posta Bildirimleri">
                     </label>
 
                     <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
@@ -1134,7 +1792,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                             <h4 class="font-bold">SMS Bildirimleri</h4>
                             <p class="text-sm text-gray-600">Acil durumlar için SMS</p>
                         </div>
-                        <input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="sms-notifications">
+                        <input type="checkbox" class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_172" aria-label="SMS Bildirimleri">
                     </label>
 
                     <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
@@ -1142,7 +1800,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
                             <h4 class="font-bold">Promosyon Bildirimleri</h4>
                             <p class="text-sm text-gray-600">İndirim ve kampanya duyuruları</p>
                         </div>
-                        <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="promo-notifications">
+                        <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500" id="auto_173" aria-label="Promosyon Bildirimleri">
                     </label>
                 </div>
 
@@ -1174,7 +1832,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
 <script>
 // ================================
 // Layout Height Manager
-// Sets header to fixed 80px and computes footer height
+// Sets header to fixed 80px and computes layout sizes
 // Updates CSS variables on load, resize, and content changes
 // ================================
 (function() {
@@ -1183,23 +1841,10 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
     function updateLayoutHeights() {
         const root = document.documentElement;
         
-        // Compute header height from the DOM so CSS variable matches actual header
-        const headerEl = document.querySelector('header');
-        let computedHeaderHeight = 80; // fallback
-        if (headerEl) {
-            const h = Math.round(headerEl.getBoundingClientRect().height);
-            if (h > 0) computedHeaderHeight = h;
-        }
-        root.style.setProperty('--header-height', computedHeaderHeight + 'px');
+        // Set fixed header height
+        root.style.setProperty('--header-height', '80px');
         
-        // Update footer height if needed (for mobile calculations)
-        const footer = document.querySelector('#site-footer');
-        if (footer) {
-            const footerHeight = Math.round(footer.getBoundingClientRect().height);
-            if (footerHeight > 0) {
-                root.style.setProperty('--footer-height', `${footerHeight}px`);
-            }
-        }
+        // Footer removed from this page; no footer height calculations required
         
         // Ensure sidebar width consistency
         const viewportWidth = window.innerWidth;
@@ -1215,7 +1860,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
         
         root.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
         
-        console.log('✅ Layout updated - Header: 80px, Footer:', root.style.getPropertyValue('--footer-height'), 'Sidebar:', sidebarWidth + 'px');
+        console.log('✅ Layout updated - Header: 80px, Sidebar:', sidebarWidth + 'px');
     }
     
     // Update on load
@@ -1232,7 +1877,7 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
         resizeTimer = setTimeout(updateLayoutHeights, 250);
     });
     
-    // Update after images load (footer might change height)
+    // Update after images load (layout might change)
     window.addEventListener('load', function() {
         setTimeout(updateLayoutHeights, 100);
     });
@@ -1242,159 +1887,352 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
 <!-- Profile Form JavaScript -->
 <script>
 // ================================
-// Profile Image Preview Handler
+// Profile Form Helpers, Preview & Submission
 // ================================
 (function() {
     'use strict';
-    
+
+    const profileForm = document.getElementById('profileForm');
     const profileImageInput = document.getElementById('profile_image');
     const profileImagePreview = document.getElementById('profileImagePreview');
-    
-    if (profileImageInput && profileImagePreview) {
-        profileImageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            
-            if (file) {
-                // Validate file type
-                const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-                if (!validTypes.includes(file.type)) {
-                    alert('Lütfen geçerli bir resim dosyası seçin (JPG, PNG veya WEBP)');
-                    e.target.value = '';
-                    return;
-                }
-                
-                // Validate file size (2MB max)
-                if (file.size > 2 * 1024 * 1024) {
-                    alert('Resim boyutu 2MB\'dan küçük olmalıdır');
-                    e.target.value = '';
-                    return;
-                }
-                
-                // Create preview
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    profileImagePreview.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
+    const formErrors = document.getElementById('form-errors');
+    const formErrorsList = document.getElementById('form-errors-list');
+    const successMsg = document.getElementById('profile-success');
+    const errorMsg = document.getElementById('profile-error');
+
+    function clearFieldHighlights() {
+        const fields = ['profile_name','profile_email','profile_username','profile_national_id','profile_image','current_password','new_password','confirm_password'];
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('border-red-500');
+                el.classList.remove('error');
             }
         });
     }
-})();
 
-// ================================
-// Profile Form Submission Handler
-// ================================
-(function() {
-    'use strict';
-    
-    const profileForm = document.getElementById('profileForm');
-    
-    if (!profileForm) {
-        console.warn('Profile form not found');
-        return;
+    function clearFormErrors() {
+        if (!formErrors || !formErrorsList) return;
+        formErrorsList.innerHTML = '';
+        formErrors.classList.add('hidden');
     }
-    
-    profileForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        // Get form elements
+
+    // Global message helpers
+    let globalMessageTimer = null;
+    const globalMessage = document.getElementById('global-message');
+    const globalMessageBox = document.getElementById('global-message-box');
+    const globalMessageText = document.getElementById('global-message-text');
+    const globalMessageSub = document.getElementById('global-message-sub');
+    const globalMessageClose = document.getElementById('global-message-close');
+    const globalMessageIcon = document.getElementById('global-message-icon');
+
+    function hideGlobalMessage() {
+        if (!globalMessage) return;
+        globalMessage.classList.add('hidden');
+        if (globalMessageTimer) { clearTimeout(globalMessageTimer); globalMessageTimer = null; }
+    }
+
+    function showGlobalMessage(type, message, sub = '', timeout = 6000) {
+        if (!globalMessage || !globalMessageBox) return;
+        // reset
+        globalMessageBox.className = 'rounded-lg shadow-lg p-4 flex items-start gap-3';
+        globalMessageText.textContent = message || '';
+        globalMessageSub.textContent = sub || '';
+
+        if (type === 'success') {
+            globalMessageBox.classList.add('bg-green-50', 'border', 'border-green-200');
+            globalMessageText.classList.remove('text-red-700');
+            globalMessageText.classList.add('text-green-700');
+            globalMessageIcon.innerHTML = '<i class="fas fa-check-circle text-green-600 text-xl"></i>';
+        } else {
+            globalMessageBox.classList.add('bg-red-50', 'border', 'border-red-200');
+            globalMessageText.classList.remove('text-green-700');
+            globalMessageText.classList.add('text-red-700');
+            globalMessageIcon.innerHTML = '<i class="fas fa-exclamation-circle text-red-600 text-xl"></i>';
+        }
+
+        globalMessage.classList.remove('hidden');
+        if (globalMessageTimer) clearTimeout(globalMessageTimer);
+        if (timeout && timeout > 0) globalMessageTimer = setTimeout(hideGlobalMessage, timeout);
+    }
+
+    if (globalMessageClose) globalMessageClose.addEventListener('click', hideGlobalMessage);
+
+    function showSuccess(msg, sub) { showGlobalMessage('success', msg || 'İşlem başarıyla tamamlandı', sub || '', 5000); }
+    function showError(msg, sub) { showGlobalMessage('error', msg || 'Bir hata oluştu. Lütfen tekrar deneyin.', sub || '', 8000); }
+
+    function showFormErrors(errors, fieldHints) {
+        if (!formErrors || !formErrorsList) return;
+        formErrorsList.innerHTML = '';
+        errors.forEach(msg => {
+            const li = document.createElement('li');
+            li.textContent = msg;
+            formErrorsList.appendChild(li);
+        });
+        formErrors.classList.remove('hidden');
+
+        // Highlight fields if hints provided
+        if (fieldHints && typeof fieldHints === 'object') {
+            Object.keys(fieldHints).forEach(fn => {
+                const el = document.querySelector('[name="' + fn + '"]') || document.getElementById(fn);
+                if (el) {
+                    el.classList.add('border-red-500');
+                    el.classList.add('error');
+                }
+            });
+        }
+    }
+
+    // Client-side preview & validation for image
+    if (profileImageInput && profileImagePreview) {
+        profileImageInput.addEventListener('change', function(e) {
+            clearFormErrors();
+            clearFieldHighlights();
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const validTypes = ['image/jpeg','image/png','image/webp'];
+            const maxSize = 3 * 1024 * 1024; // 3MB
+
+            if (!validTypes.includes(file.type)) {
+                showFormErrors(['Profile image must be JPG, PNG, or WEBP.'], { profile_image: true });
+                e.target.value = '';
+                return;
+            }
+
+            if (file.size > maxSize) {
+                showFormErrors(['Profile image must be under 3MB.'], { profile_image: true });
+                e.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                profileImagePreview.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (!profileForm) return;
+
+    // Client-side validation before submitting
+    function clientValidate() {
+        const errs = [];
+        const fields = {};
+        const name = (profileForm.querySelector('[name="name"]')?.value || '').trim();
+        const email = (profileForm.querySelector('[name="email"]')?.value || '').trim();
+        const username = (profileForm.querySelector('[name="username"]')?.value || '').trim();
+        const national_id = (profileForm.querySelector('[name="national_id"]')?.value || '').trim();
+        const new_password = (profileForm.querySelector('[name="new_password"]')?.value || '').trim();
+        const confirm_password = (profileForm.querySelector('[name="confirm_password"]')?.value || '').trim();
+
+        if (name.length < 2 || name.length > 50 || !/^[\p{L}0-9 _]+$/u.test(name)) {
+            errs.push('Display name must be 2–50 characters and contain only letters, numbers, or spaces.');
+            fields['name'] = true;
+        }
+
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+            errs.push('Invalid email format.');
+            fields['email'] = true;
+        }
+
+        if (!/^[A-Za-z0-9_]{3,}$/.test(username)) {
+            errs.push('Username must be at least 3 characters and contain no spaces.');
+            fields['username'] = true;
+        }
+
+        if (!/^[0-9]{11}$/.test(national_id)) {
+            errs.push('T.C. Kimlik No 11 haneli olmalıdır');
+            fields['national_id'] = true;
+        }
+
+        if (new_password) {
+            if (new_password.length < 8 || !/[A-Za-z]/.test(new_password) || !/[0-9]/.test(new_password)) {
+                errs.push('New password must be at least 8 characters and contain letters and numbers.');
+                fields['new_password'] = true;
+            }
+            if (new_password !== confirm_password) {
+                errs.push('New password and confirmation do not match.');
+                fields['confirm_password'] = true;
+            }
+        }
+
+        return { errs, fields };
+    }
+
+    profileForm.addEventListener('submit', async function(evt) {
+        evt.preventDefault();
+        clearFormErrors();
+        clearFieldHighlights();
+
         const submitBtn = profileForm.querySelector('button[type="submit"]');
-        const successMsg = document.getElementById('profile-success');
-        const errorMsg = document.getElementById('profile-error');
-        
-        // Hide previous messages
-        if (successMsg) successMsg.classList.add('hidden');
-        if (errorMsg) errorMsg.classList.add('hidden');
-        
-        // Disable submit button
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Kaydediliyor...</span>';
         }
-        
+
+        // Client validation
+        const client = clientValidate();
+        if (client.errs.length) {
+            showFormErrors(client.errs, client.fields);
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save text-sm"></i> <span>Kaydet</span>';
+            }
+            return;
+        }
+
         try {
-            // Create FormData from form
+            // Prepare FormData; if image is oversized, resize client-side before sending
+            const maxSize = 3 * 1024 * 1024; // 3MB
             const formData = new FormData(profileForm);
-            formData.append('action', 'update_profile');
-            
-            // Add CSRF token
-            const csrfToken = '<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>';
-            formData.append('csrf_token', csrfToken);
-            
-            // Submit form
-            const response = await fetch('/carwash_project/backend/dashboard/Customer_Dashboard_process.php', {
+            formData.append('csrf_token', '<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>');
+
+            if (profileImageInput && profileImageInput.files && profileImageInput.files[0]) {
+                const file = profileImageInput.files[0];
+                // Prevent attempting to upload extremely large files that exceed server input caps
+                const inputCap = 10 * 1024 * 1024; // 10MB server input cap (matches server-side limit)
+                if (file.size > inputCap) {
+                    showFormErrors(['Profile image exceeds the maximum allowed upload size of 10MB.'], { profile_image: true });
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-save text-sm"></i> <span>Kaydet</span>'; }
+                    return;
+                }
+
+                if (file.size > maxSize) {
+                    // Try to resize on client to reduce upload size
+                    const resizedBlob = await (async function resizeImage(file, maxW = 1600, quality = 0.85) {
+                        return new Promise((resolve, reject) => {
+                            try {
+                                const img = new Image();
+                                img.onload = async function() {
+                                    try {
+                                        const canvas = document.createElement('canvas');
+                                        const scale = (img.width > maxW) ? (maxW / img.width) : 1.0;
+                                        canvas.width = Math.max(1, Math.round(img.width * scale));
+                                        canvas.height = Math.max(1, Math.round(img.height * scale));
+                                        const ctx = canvas.getContext('2d');
+                                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                        canvas.toBlob(function(blob) {
+                                            if (blob) resolve(blob); else reject(new Error('Canvas conversion failed'));
+                                        }, file.type === 'image/png' ? 'image/png' : (file.type === 'image/webp' ? 'image/webp' : 'image/jpeg'), quality);
+                                    } catch (e) { reject(e); }
+                                };
+                                img.onerror = function(e) { reject(new Error('Image load error')); };
+                                // load via blob URL for memory efficiency
+                                const url = URL.createObjectURL(file);
+                                img.src = url;
+                            } catch (err) { reject(err); }
+                        });
+                    })(file, 1600, 0.85).catch(() => null);
+
+                    if (resizedBlob) {
+                        // Replace the profile_image in FormData with the resized blob
+                        try { formData.delete('profile_image'); } catch (e) {}
+                        const name = file.name || 'profile.jpg';
+                        formData.append('profile_image', resizedBlob, name);
+                        // Update preview (optional)
+                        try {
+                            const reader = new FileReader();
+                            reader.onload = function(ev) { if (profileImagePreview) profileImagePreview.src = ev.target.result; };
+                            reader.readAsDataURL(resizedBlob);
+                        } catch (e) {}
+                    } else {
+                        showFormErrors(['Profile image is over 3MB and could not be resized in your browser. Please upload a smaller image.'], { profile_image: true });
+                        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-save text-sm"></i> <span>Kaydet</span>'; }
+                        return;
+                    }
+                }
+            }
+
+            const resp = await fetch('/carwash_project/backend/dashboard/Customer_Dashboard_process.php', {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: formData
             });
-            
-            // Parse response
-            const result = await response.json();
-            
+            const result = await resp.json();
+            // Keep the Profile tab active and update UI accordingly
+            function activateProfileTab() {
+                try {
+                    // If Alpine is available and dashboard component exists, set the currentSection
+                    if (typeof Alpine !== 'undefined' && document.body && document.body.__x && document.body.__x.$data) {
+                        document.body.__x.$data.currentSection = 'profile';
+                    }
+                } catch (e) {
+                    // fallback: ensure profile section is visible by showing element
+                    const profileSection = document.querySelector("section[x-show='currentSection === 'profile']");
+                    if (profileSection) profileSection.style.display = 'block';
+                }
+            }
+
             if (result.success) {
-                // Show success message
-                if (successMsg) {
-                    successMsg.classList.remove('hidden');
-                    successMsg.querySelector('span').textContent = result.message || 'Profil başarıyla güncellendi!';
-                }
-                
-                // Update session if needed
-                if (result.data && result.data.image) {
-                    const topAvatar = document.getElementById('userAvatarTop');
-                    if (topAvatar) {
-                        topAvatar.src = result.data.image;
-                        topAvatar.style.display = 'block';
-                        // Hide fallback initial if present
-                        const fallback = document.getElementById('userAvatarFallback');
-                        if (fallback) fallback.style.display = 'none';
-                    }
-                    
-                    // Update sidebar profile image
-                    const sidebarImg = document.getElementById('sidebarProfileImage');
-                    if (sidebarImg) {
-                        sidebarImg.src = result.data.image;
-                        sidebarImg.style.display = 'block';
-                        console.log('✅ Sidebar image updated:', result.data.image);
-                    }
-                    // Persist new profile image to localStorage so other pages (like the homepage)
-                    // can update their header avatars in real-time (or across tabs).
+                clearFormErrors();
+                if (errorMsg) { errorMsg.classList.add('hidden'); }
+                // Always show canonical success notification
+                try { showSuccess('Profil başarıyla güncellendi'); } catch (e) {}
+
+                // Update form fields from server authoritative response if provided
+                if (result.data) {
                     try {
-                        localStorage.setItem('carwash_profile_image', result.data.image);
-                        // Optionally store a timestamp for cache-busting listeners
-                        localStorage.setItem('carwash_profile_image_ts', Date.now().toString());
-                    } catch (lsErr) {
-                        console.warn('Could not write profile image to localStorage:', lsErr);
-                    }
+                        if (result.data.email) {
+                            const em = profileForm.querySelector('[name="email"]'); if (em) em.value = result.data.email;
+                        }
+                        if (result.data.username) {
+                            const un = profileForm.querySelector('[name="username"]'); if (un) un.value = result.data.username;
+                        }
+                        if (result.data.name) {
+                            const nm = profileForm.querySelector('[name="name"]'); if (nm) nm.value = result.data.name;
+                        }
+                        if (result.data.phone) {
+                            const ph = profileForm.querySelector('[name="phone"]'); if (ph) ph.value = result.data.phone;
+                        }
+                    } catch (e) { console.warn('Could not apply server-returned profile fields', e); }
                 }
-                
-                // Scroll to top of form to show success message
+                // Update avatars and localStorage (support different response shapes)
+                const newImage = (result.data && result.data.image) ? result.data.image : (result.avatarUrl || result.data?.avatarUrl || null);
+                if (newImage) {
+                    const imageUrl = newImage + (newImage.includes('?') ? '&' : '?') + 'v=' + Date.now();
+                    const topAvatar = document.getElementById('userAvatarTop');
+                    if (topAvatar) topAvatar.src = imageUrl;
+                    const sidebarImg = document.getElementById('sidebarProfileImage');
+                    if (sidebarImg) sidebarImg.src = imageUrl;
+                    if (profileImagePreview) profileImagePreview.src = imageUrl;
+                    try { localStorage.setItem('carwash_profile_image', imageUrl); localStorage.setItem('carwash_profile_image_ts', Date.now().toString()); } catch(e){}
+                }
+
                 profileForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                
+                // Ensure profile tab remains active
+                activateProfileTab();
             } else {
-                throw new Error(result.message || 'Profil güncellenirken bir hata oluştu');
+                // Hide any success message
+                if (successMsg) successMsg.classList.add('hidden');
+                // Show server-side validation errors if present
+                if (Array.isArray(result.errors) && result.errors.length) {
+                    showFormErrors(result.errors, result.fieldErrors || {});
+                    showError(result.message || 'Validation failed');
+                } else {
+                    const msg = result.message || 'Profil güncellenirken bir hata oluştu.';
+                    showFormErrors([msg]);
+                    showError(msg);
+                }
+                // Keep profile tab active so user sees errors
+                try { if (typeof activateProfileTab === 'function') activateProfileTab(); } catch(e){}
             }
-            
-        } catch (error) {
-            console.error('Profile update error:', error);
-            
-            // Show error message
-            if (errorMsg) {
-                errorMsg.classList.remove('hidden');
-                errorMsg.querySelector('span').textContent = error.message || 'Bir hata oluştu. Lütfen tekrar deneyin.';
-            }
-            
-            // Scroll to error message
-            if (errorMsg) {
-                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+
+        } catch (err) {
+            console.error('Profile update error:', err);
+            // Generic fallback for network/parse/server errors
+            showError('An unexpected error occurred. Lütfen sayfayı yenileyip tekrar deneyin.');
+            // Also show form-level error for visibility
+            showFormErrors(['A network or server error occurred.']);
         } finally {
-            // Re-enable submit button
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-save text-sm"></i> <span>Kaydet</span>';
             }
         }
     });
+
 })();
 </script>
 
@@ -1519,16 +2357,49 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
         const overlay = document.querySelector('div[role="button"][aria-label="Close sidebar"]');
         const toggleBtn = document.getElementById('mobileMenuToggleBtn');
 
+        // Helper to apply inert/aria-hidden/tabindex state to overlay, sidebar and main content
+        function applyInertState(isOpen) {
+            try {
+                const main = document.getElementById('main-content');
+
+                // Prefer modern inert attribute
+                if (typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype) {
+                    if (main) main.inert = isOpen;
+                } else {
+                    // Fallback: set aria-hidden and manage focusable elements inside main only
+                    if (main) main.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
+                    const focusables = (el) => el ? el.querySelectorAll('a, button, input, select, textarea, [tabindex]') : [];
+                    if (main) focusables(main).forEach(f => { if (isOpen) { if (f.hasAttribute('tabindex')) f.dataset._oldTab = f.getAttribute('tabindex'); f.setAttribute('tabindex','-1'); } else { if (f.dataset && f.dataset._oldTab !== undefined) { f.setAttribute('tabindex', f.dataset._oldTab); delete f.dataset._oldTab; } else { f.removeAttribute('tabindex'); } }});
+                }
+
+                // Overlay: focusable only when visible
+                if (overlay) {
+                    overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+                    overlay.tabIndex = isOpen ? 0 : -1;
+                }
+
+                // Sidebar itself should not be focusable when closed on mobile
+                if (sidebar) {
+                    if (typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype) sidebar.inert = !isOpen && window.innerWidth < 1024;
+                    else sidebar.setAttribute('aria-hidden', !isOpen && window.innerWidth < 1024 ? 'true' : 'false');
+                }
+            } catch (e) {
+                console.warn('applyInertState failed', e);
+            }
+        }
+
         function applyOpenState(isOpen) {
             if (!sidebar) return;
             if (isOpen) {
                 sidebar.classList.add('mobile-open');
                 if (overlay) overlay.classList.add('active');
                 document.body.classList.add('menu-open');
+                applyInertState(true);
             } else {
                 sidebar.classList.remove('mobile-open');
                 if (overlay) overlay.classList.remove('active');
                 document.body.classList.remove('menu-open');
+                applyInertState(false);
             }
         }
 
@@ -1774,171 +2645,5 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
 })();
 </script>
 
-<!-- ================================
-     SIDEBAR POSITIONING SCRIPT
-     Dynamically positions sidebar between header and footer
-     Prevents sidebar from overlapping footer during scroll
-     ================================ -->
-<script>
-(function() {
-    'use strict';
-    
-    /**
-     * Aligns sidebar between header and footer
-     * Sets inline styles: top, bottom, maxHeight
-     * Overrides CSS bottom: 0 to prevent footer overlap
-     */
-    function alignSidebarBetweenHeaderAndFooter() {
-        const sidebar = document.getElementById('customer-sidebar');
-        
-        // Only process if sidebar exists and has sidebar-fixed class
-        if (!sidebar || !sidebar.classList.contains('sidebar-fixed')) {
-            console.log('⚠️ Sidebar not found or missing sidebar-fixed class');
-            return;
-        }
-        
-        const header = document.querySelector('header');
-        const footer = document.querySelector('#site-footer');
-        
-        // Calculate heights (rounded to avoid subpixel issues)
-        const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 80;
-        const footerHeight = footer ? Math.round(footer.getBoundingClientRect().height) : 0;
-
-        // Only apply fixed/overlay sizing for small viewports. On desktop we
-        // prefer an in-flow (sticky) sidebar so the document can grow and show
-        // all menu items without internal scrolling.
-        const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-        if (viewportWidth >= 900) {
-            // Clear any inline styles that would make the sidebar fixed/clipped
-            sidebar.style.top = '';
-            sidebar.style.bottom = '';
-            sidebar.style.maxHeight = '';
-            sidebar.style.overflow = '';
-            console.log('ℹ️ Desktop viewport detected — using in-flow/sticky sidebar');
-            return;
-        }
-
-        // Apply inline styles to override CSS for small viewports (mobile/tablet)
-        sidebar.style.top = headerHeight + 'px';
-        sidebar.style.bottom = footerHeight + 'px';
-        sidebar.style.maxHeight = `calc(100vh - ${headerHeight}px - ${footerHeight}px)`;
-        sidebar.style.overflow = 'hidden';
-
-        console.log(`✅ Sidebar aligned - Header: ${headerHeight}px, Footer: ${footerHeight}px, Max Height: calc(100vh - ${headerHeight}px - ${footerHeight}px)`);
-    }
-    
-    /**
-     * Debounce function to limit resize event frequency
-     * Prevents excessive recalculations during window resize
-     */
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-    
-    // Initial alignment on DOM ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', alignSidebarBetweenHeaderAndFooter);
-    } else {
-        alignSidebarBetweenHeaderAndFooter();
-    }
-    
-    // Re-align after all resources loaded (images, etc.)
-    window.addEventListener('load', alignSidebarBetweenHeaderAndFooter);
-    
-    // Re-align on window resize (debounced to 120ms)
-    window.addEventListener('resize', debounce(alignSidebarBetweenHeaderAndFooter, 120));
-    
-    // Watch for footer content changes (e.g., dynamic content loading)
-    const footer = document.querySelector('#site-footer');
-    if (footer) {
-        const observer = new MutationObserver(debounce(alignSidebarBetweenHeaderAndFooter, 100));
-        observer.observe(footer, {
-            attributes: true,      // Watch for attribute changes (e.g., style)
-            childList: true,       // Watch for added/removed elements
-            subtree: true,         // Watch all descendants
-            characterData: true    // Watch for text changes
-        });
-        console.log('👀 MutationObserver watching footer for changes');
-    }
-    
-    // Compatibility with footer.php adjustSidebarsToFooter() function
-    // Call it after our alignment to ensure consistency
-    setTimeout(() => {
-        if (typeof adjustSidebarsToFooter === 'function') {
-            adjustSidebarsToFooter();
-            console.log('✅ Called footer.php adjustSidebarsToFooter() for compatibility');
-        }
-    }, 200);
-    
-    console.log('✅ Sidebar positioning script initialized');
-    
-})();
-</script>
-
-<script>
-// Ensure main content is at least as tall as the sidebar on desktop so the
-// footer sits directly under the sidebar without gaps.
-(function() {
-    'use strict';
-
-    function syncMainHeightWithSidebar() {
-        const sidebar = document.getElementById('customer-sidebar');
-        const main = document.getElementById('main-content');
-        if (!sidebar || !main) return;
-
-        const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-        // Only apply on desktop where sidebar is in-flow (>= 900px)
-        if (viewportWidth >= 900) {
-            // Use full sidebar height (including paddings)
-            const sidebarHeight = Math.ceil(sidebar.getBoundingClientRect().height);
-            // Set main min-height to sidebar height so footer is pushed below
-            main.style.minHeight = sidebarHeight + 'px';
-            console.log('🔧 Synced main min-height to sidebar:', sidebarHeight + 'px');
-        } else {
-            // Remove enforced min-height on smaller viewports
-            main.style.minHeight = '';
-            console.log('🔧 Cleared main min-height for mobile/tablet');
-        }
-    }
-
-    const debouncedSync = (function() {
-        let t;
-        return function() {
-            clearTimeout(t);
-            t = setTimeout(syncMainHeightWithSidebar, 120);
-        };
-    })();
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', syncMainHeightWithSidebar);
-    } else {
-        syncMainHeightWithSidebar();
-    }
-
-    window.addEventListener('load', syncMainHeightWithSidebar);
-    window.addEventListener('resize', debouncedSync);
-
-    // Watch for changes inside the sidebar (e.g., menu items toggling)
-    const sidebarEl = document.getElementById('customer-sidebar');
-    if (sidebarEl && 'MutationObserver' in window) {
-        const mo = new MutationObserver(debouncedSync);
-        mo.observe(sidebarEl, { childList: true, subtree: true, attributes: true });
-    }
-
-})();
-</script>
-
-<!-- Footer (includes closing </body></html> tags) -->
-<?php include __DIR__ . '/../includes/footer.php'; ?>
-
-
-
-
+</body>
+</html>

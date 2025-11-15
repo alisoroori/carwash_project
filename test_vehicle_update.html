@@ -37,12 +37,30 @@
         <h2>Test 3: Simulate Vehicle Update</h2>
         <div id="vehicle-selector"></div>
         <div id="update-form" style="display:none;">
-            <label>Vehicle ID: <label for="update_id" class="sr-only">Input</label><input type="text" id="update_id" readonly></label>
-            <label>Brand: <label for="update_brand" class="sr-only">Input</label><input type="text" id="update_brand"></label>
-            <label>Model: <label for="update_model" class="sr-only">Input</label><input type="text" id="update_model"></label>
-            <label>License Plate: <label for="update_license" class="sr-only">Input</label><input type="text" id="update_license"></label>
-            <label>Year: <label for="update_year" class="sr-only">Input</label><input type="number" id="update_year"></label>
-            <label>Color: <label for="update_color" class="sr-only">Input</label><input type="text" id="update_color"></label>
+            <div>
+                <label for="update_id">Vehicle ID</label>
+                <input type="text" id="update_id" readonly>
+            </div>
+            <div>
+                <label for="update_brand">Brand</label>
+                <input type="text" id="update_brand">
+            </div>
+            <div>
+                <label for="update_model">Model</label>
+                <input type="text" id="update_model">
+            </div>
+            <div>
+                <label for="update_license">License Plate</label>
+                <input type="text" id="update_license">
+            </div>
+            <div>
+                <label for="update_year">Year</label>
+                <input type="number" id="update_year">
+            </div>
+            <div>
+                <label for="update_color">Color</label>
+                <input type="text" id="update_color">
+            </div>
             <br><br>
             <button onclick="testUpdateVehicle()">Update Vehicle</button>
         </div>
@@ -136,12 +154,13 @@
                     if (vehicles.length > 0) {
                         const selector = document.getElementById('vehicle-selector');
                         selector.innerHTML = `
-                            <label>Select Vehicle to Update:
-                                <label for="vehicle-select" class="sr-only">Input</label><select id="vehicle-select" onchange="populateUpdateForm()">
+                            <div>
+                                <label for="vehicle-select">Select Vehicle to Update:</label>
+                                <select id="vehicle-select" onchange="populateUpdateForm()">
                                     <option value="">-- Select Vehicle --</option>
                                     ${vehicles.map(v => `<option value="${v.id}">${v.brand} ${v.model} (${v.license_plate})</option>`).join('')}
                                 </select>
-                            </label>
+                            </div>
                         `;
                     }
                     

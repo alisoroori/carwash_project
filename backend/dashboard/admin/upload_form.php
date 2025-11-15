@@ -35,7 +35,8 @@ $services = $db->fetchAll("SELECT id, name, category FROM services ORDER BY name
             <div class="upload-form">
                 <form id="uploadForm" action="service_image_upload.php" method="post" enctype="multipart/form-data">
                     <!-- CSRF Protection -->
-                    <label for="auto_label_96" class="sr-only">Csrf token</label><label for="auto_label_96" class="sr-only">Csrf token</label><input type="hidden" name="csrf_token" value="<?= $csrf_token "\>" id="auto_label_96">">
+                    <label for="auto_label_96" class="sr-only">Csrf token</label>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>" id="auto_label_96">
                     
                     <div class="form-group">
                         <label for="service_id">Ø§Ù†ØªØ®Ø§Ø¨ Ø®Ø¯Ù…Øª:</label>

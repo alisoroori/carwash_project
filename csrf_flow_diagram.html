@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSRF Token Flow - Visual Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+        
+        .flow {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .step {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .step::after {
+            content: '→';
+            position: absolute;
+            right: -1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: #3498db;
+            font-weight: bold;
+        }
+        
+        .step:nth-child(3n)::after {
+            display: none;
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .step h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+        
+        .step p {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .code {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+        
+        .protection-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .protection-item h3 {
+            color: #27ae60;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .protection-item p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        .attack-item {
+            background: #fff5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .attack-item h3 {
+            color: #e74c3c;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .attack-item p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 1024px) {
+            .flow {
+                grid-template-columns: 1fr;
+            }
+            
+            .step::after {
+                content: '↓';
+                right: 50%;
+                top: auto;
+                bottom: -1.5rem;
+                transform: translateX(50%);
+            }
+            
+            .step:last-child::after {
+                display: none;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 CSRF Token Protection Flow</h1>
+        
+        <div class="section">
+            <h2>Complete Request/Response Cycle</h2>
+            <div class="flow">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>🌐 Page Load</h3>
+                    <p>User opens Customer Dashboard</p>
+                    <div class="code">
+GET /Customer_Dashboard.php
+→ PHP generates token
+→ Stores in $_SESSION
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>📄 HTML Response</h3>
+                    <p>Server embeds token in page</p>
+                    <div class="code">
+&lt;meta name="csrf-token" 
+      content="abc123..."&gt;
+&lt;script&gt;
+window.CONFIG.CSRF_TOKEN 
+  = "abc123..."
+&lt;/script&gt;
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>⚙️ JS Initialization</h3>
+                    <p>CSRF helper loads and patches</p>
+                    <div class="code">
+csrf-helper.js loads
+→ Patches window.fetch
+→ Patches XMLHttpRequest
+→ Adds form listener
+✅ "CSRF helper loaded"
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>👤 User Action</h3>
+                    <p>User submits form or clicks button</p>
+                    <div class="code">
+• Add Vehicle
+• Update Profile  
+• Create Booking
+→ Triggers POST request
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h3>📤 Auto-Injection</h3>
+                    <p>Helper adds token automatically</p>
+                    <div class="code">
+fetch('/api/endpoint', {
+  method: 'POST',
+  headers: {
+    'X-CSRF-Token': 'abc123...'
+  }
+})
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <h3>🛡️ Server Validation</h3>
+                    <p>Backend checks token</p>
+                    <div class="code">
+$token = $_POST['csrf_token']
+  ?? $_SERVER['HTTP_X_CSRF_TOKEN'];
+  
+if (hash_equals(
+  $_SESSION['csrf_token'], 
+  $token
+)) {
+  ✅ Allow request
+} else {
+  ❌ Return 403
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid-2">
+            <div class="section">
+                <h2>✅ Protection Mechanisms</h2>
+                
+                <div class="protection-item" style="margin-bottom: 1rem;">
+                    <h3>🔐 Token Generation</h3>
+                    <p><strong>Method:</strong> <code>random_bytes(32)</code> - Cryptographically secure</p>
+                    <p><strong>Storage:</strong> Server-side session only</p>
+                    <p><strong>Length:</strong> 64 hex characters (256 bits)</p>
+                </div>
+                
+                <div class="protection-item" style="margin-bottom: 1rem;">
+                    <h3>🔍 Token Validation</h3>
+                    <p><strong>Timing-Safe:</strong> <code>hash_equals()</code> prevents timing attacks</p>
+                    <p><strong>Sources:</strong> Checks POST body AND HTTP headers</p>
+                    <p><strong>Fallback:</strong> Multiple validation methods</p>
+                </div>
+                
+                <div class="protection-item" style="margin-bottom: 1rem;">
+                    <h3>🚀 Auto-Injection</h3>
+                    <p><strong>Fetch API:</strong> Automatically patched</p>
+                    <p><strong>XMLHttpRequest:</strong> Automatically patched</p>
+                    <p><strong>Forms:</strong> Hidden input injected on submit</p>
+                </div>
+                
+                <div class="protection-item">
+                    <h3>🔄 Session Lifecycle</h3>
+                    <p><strong>Generation:</strong> Once per session</p>
+                    <p><strong>Regeneration:</strong> On login/logout</p>
+                    <p><strong>Expiry:</strong> With session (24 hours default)</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>❌ Attacks Prevented</h2>
+                
+                <div class="attack-item" style="margin-bottom: 1rem;">
+                    <h3>🎭 Cross-Site Request Forgery</h3>
+                    <p>Attacker cannot forge requests from evil.com because they don't have access to the victim's session token.</p>
+                </div>
+                
+                <div class="attack-item" style="margin-bottom: 1rem;">
+                    <h3>🔮 Token Prediction</h3>
+                    <p>Tokens are generated with <code>random_bytes()</code> making prediction cryptographically impossible.</p>
+                </div>
+                
+                <div class="attack-item" style="margin-bottom: 1rem;">
+                    <h3>⏱️ Timing Attacks</h3>
+                    <p>Using <code>hash_equals()</code> ensures constant-time comparison, preventing timing-based token discovery.</p>
+                </div>
+                
+                <div class="attack-item">
+                    <h3>♻️ Token Reuse After Logout</h3>
+                    <p>Session destruction on logout invalidates all tokens, preventing reuse of old tokens.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📊 Complete File Architecture</h2>
+            <div style="background: #f8f9fa; padding: 2rem; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.875rem;">
+<pre style="margin: 0; line-height: 1.8;">
+<strong style="color: #667eea;">Backend (PHP)</strong>
+├── 📁 includes/
+│   ├── 🔐 csrf_protect.php          <span style="color: #27ae60;">← Token generation & validation</span>
+│   └── 🔧 bootstrap.php             <span style="color: #27ae60;">← Auto-generates token on load</span>
+│
+├── 📁 dashboard/
+│   ├── 🏠 Customer_Dashboard.php    <span style="color: #e67e22;">← ✅ FIXED: Added meta tag + CONFIG</span>
+│   ├── 🚗 vehicle_api.php           <span style="color: #27ae60;">← CSRF validation lines 403-410</span>
+│   └── 👤 Customer_Dashboard_process.php <span style="color: #27ae60;">← CSRF validation lines 94-133</span>
+│
+└── 📁 api/
+    ├── 🔑 auth/login.php            <span style="color: #27ae60;">← CSRF protected</span>
+    ├── 📅 bookings/create.php       <span style="color: #27ae60;">← CSRF protected</span>
+    └── 💳 initiate_payment.php      <span style="color: #27ae60;">← CSRF protected</span>
+
+<strong style="color: #667eea;">Frontend (JavaScript)</strong>
+├── 📁 js/
+│   ├── 🛡️ csrf-helper.js           <span style="color: #27ae60;">← Auto-injects tokens in all requests</span>
+│   ├── 🚗 vehicleManager.js        <span style="color: #27ae60;">← Reads token from meta/CONFIG</span>
+│   └── 🔧 api-utils.js             <span style="color: #27ae60;">← Wrapper for API calls</span>
+│
+└── 🌐 HTML Pages
+    └── 🏠 Customer_Dashboard.php
+        ├── &lt;meta name="csrf-token"&gt;   <span style="color: #e67e22;">← ✅ ADDED</span>
+        ├── &lt;script&gt;window.CONFIG&lt;/script&gt; <span style="color: #e67e22;">← ✅ ADDED</span>
+        └── &lt;script src="csrf-helper.js"&gt; <span style="color: #e67e22;">← ✅ ADDED</span>
+</pre>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🎯 Quick Verification Checklist</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px; border-left: 4px solid #4caf50;">
+                    <strong style="color: #2e7d32;">✅ Backend</strong>
+                    <ul style="margin-top: 0.5rem; padding-left: 1.5rem; color: #555;">
+                        <li>Token in $_SESSION['csrf_token']</li>
+                        <li>All POST endpoints validate</li>
+                        <li>Uses hash_equals() comparison</li>
+                        <li>Returns 403 on failure</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px; border-left: 4px solid #2196f3;">
+                    <strong style="color: #1565c0;">✅ Frontend</strong>
+                    <ul style="margin-top: 0.5rem; padding-left: 1.5rem; color: #555;">
+                        <li>&lt;meta name="csrf-token"&gt; present</li>
+                        <li>window.CONFIG.CSRF_TOKEN set</li>
+                        <li>csrf-helper.js loaded</li>
+                        <li>Console: "CSRF helper loaded"</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #fff3e0; padding: 1rem; border-radius: 8px; border-left: 4px solid #ff9800;">
+                    <strong style="color: #e65100;">✅ Integration</strong>
+                    <ul style="margin-top: 0.5rem; padding-left: 1.5rem; color: #555;">
+                        <li>Vehicle CRUD works</li>
+                        <li>Profile update works</li>
+                        <li>No "Invalid CSRF" errors</li>
+                        <li>Test page passes all tests</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background: #27ae60;"></div>
+                <span>Already Correct</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #e67e22;"></div>
+                <span>Fixed in This Update</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #3498db;"></div>
+                <span>Automatic Process</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #e74c3c;"></div>
+                <span>Blocked Attack</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

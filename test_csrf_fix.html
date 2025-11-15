@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSRF Token Test - CarWash Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .test-section:last-child {
+            border-bottom: none;
+        }
+        
+        h2 {
+            color: #374151;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.938rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.secondary {
+            background: #6b7280;
+        }
+        
+        button.secondary:hover {
+            background: #4b5563;
+        }
+        
+        .result {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .result pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .icon {
+            font-size: 1.25rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .info-box {
+            background: #f9fafb;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+        
+        .info-box h3 {
+            color: #374151;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .info-box p {
+            color: #6b7280;
+            font-size: 0.813rem;
+            margin: 0;
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🔒 CSRF Token Test Suite</h1>
+            <p class="subtitle">Comprehensive testing for CSRF token implementation</p>
+            
+            <!-- Test 1: Token Detection -->
+            <div class="test-section">
+                <h2><span class="icon">1️⃣</span> Token Detection</h2>
+                <div id="tokenStatus"></div>
+                <div class="grid">
+                    <div class="info-box">
+                        <h3>Meta Tag Token</h3>
+                        <p id="metaToken">-</p>
+                    </div>
+                    <div class="info-box">
+                        <h3>window.CONFIG.CSRF_TOKEN</h3>
+                        <p id="configToken">-</p>
+                    </div>
+                </div>
+                <button onclick="checkTokens()">🔍 Check Tokens</button>
+            </div>
+            
+            <!-- Test 2: Form Submission -->
+            <div class="test-section">
+                <h2><span class="icon">2️⃣</span> Form POST with CSRF Token</h2>
+                <p style="color: #6b7280; margin-bottom: 1rem;">Test form submission with automatic CSRF token injection</p>
+                <button onclick="testFormPost()">📤 Test Form POST</button>
+                <button class="secondary" onclick="testFormPostWithoutToken()">❌ Test Without Token</button>
+                <div id="formResult" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Test 3: AJAX Fetch -->
+            <div class="test-section">
+                <h2><span class="icon">3️⃣</span> Fetch API with CSRF Header</h2>
+                <p style="color: #6b7280; margin-bottom: 1rem;">Test fetch() with X-CSRF-Token header</p>
+                <button onclick="testFetchPost()">🚀 Test Fetch POST</button>
+                <button class="secondary" onclick="testFetchWithoutToken()">❌ Test Without Header</button>
+                <div id="fetchResult" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Test 4: XMLHttpRequest -->
+            <div class="test-section">
+                <h2><span class="icon">4️⃣</span> XMLHttpRequest with CSRF</h2>
+                <p style="color: #6b7280; margin-bottom: 1rem;">Test XHR with automatic CSRF header</p>
+                <button onclick="testXHRPost()">📡 Test XHR POST</button>
+                <div id="xhrResult" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Test 5: API Endpoint Test -->
+            <div class="test-section">
+                <h2><span class="icon">5️⃣</span> Live API Endpoint Test</h2>
+                <p style="color: #6b7280; margin-bottom: 1rem;">Test actual API endpoints (requires authentication)</p>
+                <button onclick="testVehicleAPI()">🚗 Test Vehicle API</button>
+                <button onclick="testProfileAPI()">👤 Test Profile API</button>
+                <div id="apiResult" class="result" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <!-- Summary -->
+        <div class="card">
+            <h2>📊 Test Summary</h2>
+            <div id="summary">
+                <p style="color: #6b7280;">Run tests to see results...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let testResults = {
+            tokenDetection: null,
+            formPost: null,
+            fetchPost: null,
+            xhrPost: null,
+            apiEndpoint: null
+        };
+        
+        function updateSummary() {
+            const summary = document.getElementById('summary');
+            const total = Object.keys(testResults).length;
+            const passed = Object.values(testResults).filter(v => v === true).length;
+            const failed = Object.values(testResults).filter(v => v === false).length;
+            const pending = total - passed - failed;
+            
+            summary.innerHTML = `
+                <div class="grid">
+                    <div class="info-box">
+                        <h3>Total Tests</h3>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: #667eea;">${total}</p>
+                    </div>
+                    <div class="info-box" style="border-left-color: #10b981;">
+                        <h3>Passed</h3>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: #10b981;">${passed}</p>
+                    </div>
+                    <div class="info-box" style="border-left-color: #ef4444;">
+                        <h3>Failed</h3>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: #ef4444;">${failed}</p>
+                    </div>
+                    <div class="info-box" style="border-left-color: #f59e0b;">
+                        <h3>Pending</h3>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;">${pending}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showStatus(elementId, type, message) {
+            const el = document.getElementById(elementId);
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            el.innerHTML = `<div class="status ${type}">${icons[type]} ${message}</div>`;
+        }
+        
+        function showResult(elementId, data) {
+            const el = document.getElementById(elementId);
+            el.style.display = 'block';
+            el.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+        
+        // Test 1: Check Tokens
+        function checkTokens() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            const metaToken = metaTag ? metaTag.content : null;
+            const configToken = window.CONFIG && window.CONFIG.CSRF_TOKEN ? window.CONFIG.CSRF_TOKEN : null;
+            
+            document.getElementById('metaToken').textContent = metaToken ? `${metaToken.substring(0, 16)}... (${metaToken.length} chars)` : 'Not Found';
+            document.getElementById('configToken').textContent = configToken ? `${configToken.substring(0, 16)}... (${configToken.length} chars)` : 'Not Found';
+            
+            if (metaToken && configToken && metaToken === configToken) {
+                showStatus('tokenStatus', 'success', 'CSRF tokens found and matching!');
+                testResults.tokenDetection = true;
+            } else if (metaToken || configToken) {
+                showStatus('tokenStatus', 'warning', 'Tokens found but may not match');
+                testResults.tokenDetection = true;
+            } else {
+                showStatus('tokenStatus', 'error', 'No CSRF tokens found!');
+                testResults.tokenDetection = false;
+            }
+            
+            updateSummary();
+        }
+        
+        // Test 2: Form POST
+        async function testFormPost() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.style.display = 'none';
+            document.body.appendChild(form);
+            
+            const formData = new FormData(form);
+            formData.append('test', 'form_post');
+            
+            try {
+                // The csrf-helper.js should auto-inject the token
+                const response = await fetch('/carwash_project/backend/api/auth/get_csrf_token.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                showResult('formResult', result);
+                
+                if (response.ok) {
+                    showStatus('formResult', 'success', 'Form POST successful!');
+                    testResults.formPost = true;
+                } else {
+                    showStatus('formResult', 'error', `Form POST failed: ${response.status}`);
+                    testResults.formPost = false;
+                }
+            } catch (error) {
+                showResult('formResult', { error: error.message });
+                testResults.formPost = false;
+            }
+            
+            document.body.removeChild(form);
+            updateSummary();
+        }
+        
+        async function testFormPostWithoutToken() {
+            const formData = new FormData();
+            formData.append('test', 'form_without_token');
+            // Manually override to remove token
+            
+            try {
+                const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include',
+                    headers: {} // Don't include CSRF header
+                });
+                
+                const result = await response.json();
+                showResult('formResult', result);
+                
+                if (response.status === 403) {
+                    showStatus('formResult', 'success', 'Correctly rejected request without token (403)');
+                    testResults.formPost = true;
+                } else {
+                    showStatus('formResult', 'warning', `Expected 403, got ${response.status}`);
+                }
+            } catch (error) {
+                showResult('formResult', { error: error.message });
+            }
+            
+            updateSummary();
+        }
+        
+        // Test 3: Fetch API
+        async function testFetchPost() {
+            try {
+                const response = await fetch('/carwash_project/backend/api/auth/get_csrf_token.php', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                showResult('fetchResult', result);
+                
+                if (response.ok && result.token) {
+                    showStatus('fetchResult', 'success', 'Fetch API request successful!');
+                    testResults.fetchPost = true;
+                } else {
+                    showStatus('fetchResult', 'error', `Fetch failed: ${response.status}`);
+                    testResults.fetchPost = false;
+                }
+            } catch (error) {
+                showResult('fetchResult', { error: error.message });
+                testResults.fetchPost = false;
+            }
+            
+            updateSummary();
+        }
+        
+        async function testFetchWithoutToken() {
+            const body = new URLSearchParams();
+            body.append('action', 'create');
+            body.append('test', 'no_token');
+            
+            try {
+                // Create a request without the automatic header injection
+                const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php', {
+                    method: 'POST',
+                    body: body,
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+                
+                const result = await response.json();
+                showResult('fetchResult', result);
+                
+                if (response.status === 403) {
+                    showStatus('fetchResult', 'success', 'Correctly rejected (403)');
+                    testResults.fetchPost = true;
+                } else {
+                    showStatus('fetchResult', 'warning', `Expected 403, got ${response.status}`);
+                }
+            } catch (error) {
+                showResult('fetchResult', { error: error.message });
+            }
+            
+            updateSummary();
+        }
+        
+        // Test 4: XMLHttpRequest
+        function testXHRPost() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/carwash_project/backend/api/auth/get_csrf_token.php');
+            xhr.withCredentials = true;
+            
+            xhr.onload = function() {
+                try {
+                    const result = JSON.parse(xhr.responseText);
+                    showResult('xhrResult', result);
+                    
+                    if (xhr.status === 200) {
+                        showStatus('xhrResult', 'success', 'XHR request successful!');
+                        testResults.xhrPost = true;
+                    } else {
+                        showStatus('xhrResult', 'error', `XHR failed: ${xhr.status}`);
+                        testResults.xhrPost = false;
+                    }
+                } catch (e) {
+                    showResult('xhrResult', { error: e.message, response: xhr.responseText });
+                    testResults.xhrPost = false;
+                }
+                updateSummary();
+            };
+            
+            xhr.onerror = function() {
+                showResult('xhrResult', { error: 'Network error' });
+                testResults.xhrPost = false;
+                updateSummary();
+            };
+            
+            xhr.send();
+        }
+        
+        // Test 5: API Endpoints
+        async function testVehicleAPI() {
+            try {
+                const response = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                showResult('apiResult', result);
+                
+                if (response.ok) {
+                    showStatus('apiResult', 'success', 'Vehicle API accessible!');
+                    testResults.apiEndpoint = true;
+                } else if (response.status === 403) {
+                    showStatus('apiResult', 'info', 'Not authenticated (expected if not logged in)');
+                } else {
+                    showStatus('apiResult', 'error', `API failed: ${response.status}`);
+                    testResults.apiEndpoint = false;
+                }
+            } catch (error) {
+                showResult('apiResult', { error: error.message });
+                testResults.apiEndpoint = false;
+            }
+            
+            updateSummary();
+        }
+        
+        async function testProfileAPI() {
+            const formData = new FormData();
+            formData.append('action', 'profile');
+            formData.append('name', 'Test User');
+            
+            try {
+                const response = await fetch('/carwash_project/backend/dashboard/Customer_Dashboard_process.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                showResult('apiResult', result);
+                
+                if (response.ok || response.status === 403) {
+                    showStatus('apiResult', response.ok ? 'success' : 'info', 
+                        response.ok ? 'Profile API accessible!' : 'Not authenticated (expected)');
+                    testResults.apiEndpoint = true;
+                } else {
+                    showStatus('apiResult', 'error', `API failed: ${response.status}`);
+                    testResults.apiEndpoint = false;
+                }
+            } catch (error) {
+                showResult('apiResult', { error: error.message });
+                testResults.apiEndpoint = false;
+            }
+            
+            updateSummary();
+        }
+        
+        // Auto-run token detection on load
+        window.addEventListener('load', () => {
+            setTimeout(checkTokens, 500);
+        });
+        
+        updateSummary();
+    </script>
+</body>
+</html>

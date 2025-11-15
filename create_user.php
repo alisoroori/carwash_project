@@ -244,7 +244,8 @@ include 'backend/includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-user mr-2 text-blue-600"></i>Full Name
             </label>
-            <label for="auto_label_135" class="sr-only">Full name</label><label for="auto_label_135" class="sr-only">Full name</label><input
+            <label for="auto_label_135" class="sr-only">Full name</label>
+            <input
               type="text"
               name="full_name"
               placeholder="Enter full name"
@@ -257,7 +258,8 @@ include 'backend/includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-user-tag mr-2 text-blue-600"></i>User Role
             </label>
-            <label for="auto_label_134" class="sr-only">Role</label><label for="auto_label_134" class="sr-only">Role</label><select name="role" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none" id="auto_label_134">
+            <label for="auto_label_134" class="sr-only">Role</label>
+            <select name="role" required class="input-field select-field w-full px-4 py-3 rounded-lg focus:outline-none appearance-none" id="auto_label_134">
               <option value="\>Select user role</option>
               <option value="customer">Customer</option>
               <option value="carwash">Car Wash</option>
@@ -271,7 +273,8 @@ include 'backend/includes/header.php';
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-envelope mr-2 text-blue-600"></i>Email Address
             </label>
-            <label for="auto_label_133" class="sr-only">Email</label><label for="auto_label_133" class="sr-only">Email</label><input
+            <label for="auto_label_133" class="sr-only">Email</label>
+            <input
               type="email"
               name="email"
               placeholder="user@example.com"
