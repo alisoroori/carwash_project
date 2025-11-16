@@ -2125,10 +2125,217 @@ if (!isset($base_url)) {
 
                         })();
                         </script>
+                                </section>
+
+                <!-- ========== RESERVATIONS SECTION (Inserted from customer_profile.html) ========== -->
+                <section id="reservations" x-show="currentSection === 'reservations'" class="space-y-6" style="display: none;">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Rezervasyonlarım</h2>
+                        <p class="text-gray-600">Tüm rezervasyonlarınızı görüntüleyin ve yönetin</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                        <!-- Reservation List View -->
+                        <div id="reservationListView">
+                            <div class="p-6 border-b">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-xl font-bold">Aktif Rezervasyonlar</h3>
+                                    <button type="button" id="newReservationBtn" class="gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
+                                        <i class="fas fa-plus mr-2"></i>Yeni Rezervasyon
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hizmet</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih/Saat</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Konum</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fiyat</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reservationsTableBody" class="divide-y divide-gray-200">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4">
+                                                <div>
+                                                    <div class="font-medium">Dış Yıkama + İç Temizlik</div>
+                                                    <div class="text-sm text-gray-500">Toyota Corolla - 34 ABC 123</div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm">15.12.2024<br>14:00</td>
+                                            <td class="px-6 py-4 text-sm">CarWash Merkez</td>
+                                            <td class="px-6 py-4"><span class="status-confirmed px-2 py-1 rounded-full text-xs">Onaylandı</span></td>
+                                            <td class="px-6 py-4 font-medium">₺130</td>
+                                            <td class="px-6 py-4 text-sm">
+                                                <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
+                                                <button class="text-red-600 hover:text-red-900">İptal</button>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4">
+                                                <div>
+                                                    <div class="font-medium">Tam Detaylandırma</div>
+                                                    <div class="text-sm text-gray-500">Honda Civic - 34 XYZ 789</div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm">16.12.2024<br>10:00</td>
+                                            <td class="px-6 py-4 text-sm">CarWash Premium</td>
+                                            <td class="px-6 py-4"><span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span></td>
+                                            <td class="px-6 py-4 font-medium">₺200</td>
+                                            <td class="px-6 py-4 text-sm">
+                                                <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
+                                                <button class="text-red-600 hover:text-red-900">İptal</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- New Reservation Form -->
+                        <div id="newReservationForm" class="p-6 hidden">
+                            <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
+                            <form id="newReservationFormElement" class="space-y-6">
+                                <div>
+                                    <label for="service" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
+                                    <select id="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                        <option value="">Hizmet Seçiniz</option>
+                                        <option value="Dış Yıkama">Dış Yıkama</option>
+                                        <option value="Dış Yıkama + İç Temizlik">Dış Yıkama + İç Temizlik</option>
+                                        <option value="Tam Detaylandırma">Tam Detaylandırma</option>
+                                        <option value="Motor Temizliği">Motor Temizliği</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
+                                    <select id="vehicle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                        <option value="">Araç Seçiniz</option>
+                                        <option value="Toyota Corolla - 34 ABC 123">Toyota Corolla - 34 ABC 123</option>
+                                        <option value="Honda Civic - 34 XYZ 789">Honda Civic - 34 XYZ 789</option>
+                                    </select>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
+                                        <input type="date" id="reservationDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
+                                        <input type="time" id="reservationTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="location" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
+                                    <select id="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                        <option value="">Konum Seçiniz</option>
+                                        <option value="CarWash Merkez">CarWash Merkez</option>
+                                        <option value="CarWash Premium">CarWash Premium</option>
+                                        <option value="CarWash Express">CarWash Express</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (İsteğe Bağlı)</label>
+                                    <textarea id="notes" rows="3" placeholder="Özel istekleriniz veya notlarınız..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                                </div>
+
+                                <div class="flex justify-end space-x-4">
+                                    <button type="button" id="cancelNewReservation" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition-colors">Geri Dön</button>
+                                    <button type="submit" id="submitNewReservation" class="gradient-bg text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all"><i class="fas fa-calendar-plus mr-2"></i>Rezervasyon Yap</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </section>
 
-        <!-- Other sections (reservations, carWashSelection, history) would follow the same pattern -->
-        
+                <!-- Other sections (carWashSelection, history) would follow the same pattern -->
+
+                <script>
+                (function(){
+                    'use strict';
+
+                    // Show new reservation form
+                    function showNewReservationForm(){
+                        document.getElementById('newReservationForm')?.classList.remove('hidden');
+                        document.getElementById('reservationListView')?.classList.add('hidden');
+                        document.getElementById('newReservationForm')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+
+                    // Hide new reservation form
+                    function hideNewReservationForm(){
+                        document.getElementById('newReservationForm')?.classList.add('hidden');
+                        document.getElementById('reservationListView')?.classList.remove('hidden');
+                    }
+
+                    // Submit new reservation (demo behavior: append row locally)
+                    async function submitNewReservation(evt){
+                        if (evt && evt.preventDefault) evt.preventDefault();
+
+                        const service = document.getElementById('service')?.value || '';
+                        const vehicle = document.getElementById('vehicle')?.value || '';
+                        const date = document.getElementById('reservationDate')?.value || '';
+                        const time = document.getElementById('reservationTime')?.value || '';
+                        const location = document.getElementById('location')?.value || '';
+                        const notes = document.getElementById('notes')?.value || '';
+
+                        if (!service || !vehicle || !date || !time || !location) {
+                            alert('Lütfen tüm zorunlu alanları doldurun.');
+                            return;
+                        }
+
+                        // Append to table as a demonstration (server-side persistence not implemented here)
+                        const tbody = document.getElementById('reservationsTableBody');
+                        if (tbody) {
+                            const tr = document.createElement('tr');
+                            tr.className = 'hover:bg-gray-50';
+                            tr.innerHTML = `
+                                <td class="px-6 py-4">
+                                  <div>
+                                    <div class="font-medium">${escapeHtml(service)}</div>
+                                    <div class="text-sm text-gray-500">${escapeHtml(vehicle)}</div>
+                                  </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm">${escapeHtml(date)}<br>${escapeHtml(time)}</td>
+                                <td class="px-6 py-4 text-sm">${escapeHtml(location)}</td>
+                                <td class="px-6 py-4"><span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span></td>
+                                <td class="px-6 py-4 font-medium">-</td>
+                                <td class="px-6 py-4 text-sm">
+                                  <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
+                                  <button class="text-red-600 hover:text-red-900">İptal</button>
+                                </td>
+                            `;
+                            tbody.insertBefore(tr, tbody.firstChild);
+                        }
+
+                        // Reset and hide
+                        document.getElementById('newReservationFormElement')?.reset();
+                        hideNewReservationForm();
+                        alert('Rezervasyonunuz başarıyla oluşturuldu! (Demo)');
+                    }
+
+                    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+
+                    // Attach handlers
+                    document.addEventListener('DOMContentLoaded', function(){
+                        document.getElementById('newReservationBtn')?.addEventListener('click', showNewReservationForm);
+                        document.getElementById('cancelNewReservation')?.addEventListener('click', hideNewReservationForm);
+                        document.getElementById('newReservationFormElement')?.addEventListener('submit', submitNewReservation);
+                        // support buttons if they exist elsewhere
+                        window.showNewReservationForm = showNewReservationForm;
+                        window.hideNewReservationForm = hideNewReservationForm;
+                        window.submitNewReservation = submitNewReservation;
+                    });
+
+                })();
+                </script>
         </div> <!-- END: Max-width container -->
     </main>
 
