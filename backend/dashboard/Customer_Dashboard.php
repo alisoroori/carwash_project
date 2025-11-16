@@ -2318,8 +2318,9 @@ if (!isset($base_url)) {
                                         <input type="date" id="reservationDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                                     </div>
                                     <div>
-                                        <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
-                                        <input type="time" id="reservationTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                            <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
+                                            <input type="time" id="reservationTime" name="reservationTime" step="60" min="00:00" max="23:59" placeholder="00:00" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" aria-label="Saat (24 saat formatı)">
+                                            <p class="text-sm text-gray-500 mt-2">Lütfen saat seçimini 24 saat formatında girin (örn. 08:30 veya 18:45).</p>
                                     </div>
                                 </div>
 
@@ -2358,6 +2359,35 @@ if (!isset($base_url)) {
                 (function(){
                     'use strict';
 
+                    // Normalize various time input formats (e.g., user-typed "8:30 PM") to 24-hour HH:MM
+                    function normalizeTimeTo24(s) {
+                        if (!s) return '';
+                        s = String(s).trim();
+
+                        // Matches formats like "8:30 PM" or "08:30PM"
+                        const ampm = s.match(/^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$/);
+                        if (ampm) {
+                            let hh = parseInt(ampm[1], 10);
+                            const mm = ampm[2];
+                            const ap = ampm[3].toLowerCase();
+                            if (ap === 'pm' && hh < 12) hh += 12;
+                            if (ap === 'am' && hh === 12) hh = 0;
+                            return (hh < 10 ? '0' + hh : '' + hh) + ':' + mm;
+                        }
+
+                        // Matches HH:MM or H:MM (possibly with seconds) — keep only HH:MM
+                        const simple = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+                        if (simple) {
+                            let hh = parseInt(simple[1], 10);
+                            const mm = simple[2];
+                            if (hh >= 0 && hh <= 24) {
+                                return (hh < 10 ? '0' + hh : '' + hh) + ':' + mm;
+                            }
+                        }
+
+                        // Fallback: return original string
+                        return s;
+                    }
                     // Show new reservation form (optionally inside the carwash section)
                     function showNewReservationForm(targetHolderId){
                         const origFormWrapper = document.getElementById('newReservationForm');
@@ -2405,11 +2435,10 @@ if (!isset($base_url)) {
                         origFormWrapper.classList.add('hidden');
                     }
 
-                    // Submit new reservation (demo behavior: append row locally)
+                    // Submit new reservation: POST to server API, then redirect to invoice/checkout
                     async function submitNewReservation(evt){
                         if (evt && evt.preventDefault) evt.preventDefault();
 
-                        // Determine the form context (the form that was submitted)
                         const form = (evt && evt.target && (evt.target.tagName === 'FORM' ? evt.target : evt.target.closest('form'))) || document.getElementById('newReservationFormElement');
                         if (!form) {
                             alert('Form bulunamadı. Lütfen sayfayı yenileyin.');
@@ -2419,8 +2448,10 @@ if (!isset($base_url)) {
                         const service = (form.querySelector('#service') || form.querySelector('[name="service"]'))?.value || '';
                         const vehicle = (form.querySelector('#vehicle') || form.querySelector('[name="vehicle"]'))?.value || '';
                         const date = (form.querySelector('#reservationDate') || form.querySelector('[name="reservationDate"]'))?.value || '';
-                        const time = (form.querySelector('#reservationTime') || form.querySelector('[name="reservationTime"]'))?.value || '';
+                        let time = (form.querySelector('#reservationTime') || form.querySelector('[name="reservationTime"]'))?.value || '';
+                        time = normalizeTimeTo24(time);
                         const location = (form.querySelector('#location') || form.querySelector('[name="location"]'))?.value || '';
+                        const location_id = (form.querySelector('#location_id') || form.querySelector('[name="location_id"]'))?.value || '';
                         const notes = (form.querySelector('#notes') || form.querySelector('[name="notes"]'))?.value || '';
 
                         if (!service || !vehicle || !date || !time || !location) {
@@ -2428,34 +2459,40 @@ if (!isset($base_url)) {
                             return;
                         }
 
-                        // Append to table as a demonstration (server-side persistence not implemented here)
-                        const tbody = document.getElementById('reservationsTableBody');
-                        if (tbody) {
-                            const tr = document.createElement('tr');
-                            tr.className = 'hover:bg-gray-50';
-                            tr.innerHTML = `
-                                <td class="px-6 py-4">
-                                  <div>
-                                    <div class="font-medium">${escapeHtml(service)}</div>
-                                    <div class="text-sm text-gray-500">${escapeHtml(vehicle)}</div>
-                                  </div>
-                                </td>
-                                <td class="px-6 py-4 text-sm">${escapeHtml(date)}<br>${escapeHtml(time)}</td>
-                                <td class="px-6 py-4 text-sm">${escapeHtml(location)}</td>
-                                <td class="px-6 py-4"><span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span></td>
-                                <td class="px-6 py-4 font-medium">-</td>
-                                <td class="px-6 py-4 text-sm">
-                                  <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
-                                  <button class="text-red-600 hover:text-red-900">İptal</button>
-                                </td>
-                            `;
-                            tbody.insertBefore(tr, tbody.firstChild);
-                        }
+                        // Build FormData for POST
+                        const fd = new FormData();
+                        fd.append('service', service);
+                        fd.append('vehicle', vehicle);
+                        fd.append('reservationDate', date);
+                        fd.append('reservationTime', time);
+                        fd.append('location', location);
+                        fd.append('location_id', location_id);
+                        fd.append('notes', notes);
+                        fd.append('csrf_token', window.CONFIG && window.CONFIG.CSRF_TOKEN ? window.CONFIG.CSRF_TOKEN : document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
-                        // Reset and hide - reset the specific form
-                        try { form.reset(); } catch(e){}
-                        hideNewReservationForm();
-                        alert('Rezervasyonunuz başarıyla oluşturuldu! (Demo)');
+                        try {
+                            const resp = await fetch('/carwash_project/backend/api/reservations/create.php', {
+                                method: 'POST',
+                                body: fd,
+                                credentials: 'same-origin'
+                            });
+                            const result = await resp.json();
+                            if (!result || !result.success) {
+                                alert(result && result.message ? result.message : 'Rezervasyon oluşturulamadı.');
+                                return;
+                            }
+
+                            // Redirect to invoice/checkout page provided by server
+                            if (result.redirect) {
+                                window.location.href = result.redirect;
+                                return;
+                            }
+
+                            alert('Rezervasyon oluşturuldu, fakat yönlendirme bilgisi alınamadı.');
+                        } catch (err) {
+                            console.error('Reservation create error:', err);
+                            alert('Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.');
+                        }
                     }
 
                     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
