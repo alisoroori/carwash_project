@@ -2064,9 +2064,12 @@ if (!isset($base_url)) {
                                         </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
-                            </div>
+                                </div>
 
-                        <script>
+                            <!-- Inline holder for reservation form when opened from carwash cards -->
+                            <div id="carWashInlineFormHolder" class="hidden p-6 bg-white rounded-2xl shadow-lg mb-8"></div>
+
+                            <script>
                         (function(){
                             'use strict';
 
@@ -2137,7 +2140,7 @@ if (!isset($base_url)) {
                                         <div class="flex flex-wrap gap-2 mb-4">
                                             ${ (carWash.services || []).map(s=>`<span class="px-2 py-1 text-xs bg-gray-100 rounded">${escapeHtml(s)}</span>`).join('') }
                                         </div>
-                                        <button data-name="${escapeAttr(carWash.name)}" class="mt-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg select-for-reservation">Rezervasyon Yap</button>
+                                        <button data-id="${carWash.id || ''}" data-name="${escapeAttr(carWash.name)}" class="mt-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg select-for-reservation">Rezervasyon Yap</button>
                                     `;
                                     carWashListDiv.appendChild(div);
                                 });
@@ -2147,23 +2150,53 @@ if (!isset($base_url)) {
                                     btn.removeEventListener('click', btn._selHandler);
                                     btn._selHandler = function(){
                                         const name = this.getAttribute('data-name') || '';
-                                        selectCarWashForReservation(name);
+                                        const id = this.getAttribute('data-id') || '';
+                                        selectCarWashForReservation(name, id);
                                     };
                                     btn.addEventListener('click', btn._selHandler);
                                 });
                             }
 
-                            function selectCarWashForReservation(carWashName){
-                                // Set the selected car wash in the reservation form's location field
-                                const loc = $id('location');
-                                if (loc) loc.value = carWashName;
-                                // Switch to the reservations section and show the new reservation form if present
-                                const newForm = $id('newReservationForm');
-                                if (newForm) {
-                                    newForm.classList.remove('hidden');
-                                    document.getElementById('reservationListView')?.classList.add('hidden');
-                                    newForm.scrollIntoView({ behavior: 'smooth' });
+                            function selectCarWashForReservation(carWashName, carWashId){
+                                // Show the reservation form inside the carWashSelection section (no section switch)
+                                try {
+                                    const holder = document.getElementById('carWashInlineFormHolder');
+                                    const origFormWrapper = document.getElementById('newReservationForm'); // wrapper DIV for the form
+                                    if (holder && origFormWrapper) {
+                                        // remember original parent id so we can move it back later
+                                        if (!origFormWrapper.dataset.originalParentId) {
+                                            // Use a stable restore point inside the reservations section
+                                            origFormWrapper.dataset.originalParentId = 'reservationFormRestorePoint';
+                                        }
+
+                                        // move into holder
+                                        holder.appendChild(origFormWrapper);
+                                        holder.classList.remove('hidden');
+                                        // hide the grid to focus on form
+                                        document.getElementById('carWashList')?.classList.add('hidden');
+                                        origFormWrapper.classList.remove('hidden');
+                                    }
+                                } catch (e) {
+                                    console.warn('Could not relocate reservation form into carwash section', e);
                                 }
+
+                                // Populate the location field inside the moved form
+                                const loc = $id('location');
+                                if (loc) {
+                                    // If option not present, add it
+                                    let opt = Array.from(loc.options).find(o => o.value === carWashName);
+                                    if (!opt) {
+                                        opt = document.createElement('option');
+                                        opt.value = carWashName;
+                                        opt.textContent = carWashName;
+                                        loc.appendChild(opt);
+                                    }
+                                    loc.value = carWashName;
+                                }
+
+                                // Set hidden id field if present
+                                const locId = $id('location_id');
+                                if (locId && carWashId) locId.value = carWashId;
                             }
 
                             function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
@@ -2255,6 +2288,7 @@ if (!isset($base_url)) {
                         </div>
 
                         <!-- New Reservation Form -->
+                        <div id="reservationFormRestorePoint"></div>
                         <div id="newReservationForm" class="p-6 hidden">
                             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
                             <form id="newReservationFormElement" class="space-y-6">
@@ -2291,12 +2325,17 @@ if (!isset($base_url)) {
 
                                 <div>
                                     <label for="location" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
-                                    <select id="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                    <select id="location" name="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                                         <option value="">Konum Seçiniz</option>
-                                        <option value="CarWash Merkez">CarWash Merkez</option>
-                                        <option value="CarWash Premium">CarWash Premium</option>
-                                        <option value="CarWash Express">CarWash Express</option>
+                                        <?php if (!empty($carwashes)): ?>
+                                            <?php foreach ($carwashes as $cw_opt): ?>
+                                                <option value="<?php echo htmlspecialchars($cw_opt['name'] ?? $cw_opt['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($cw_opt['name'] ?? $cw_opt['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></option>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <!-- fallback options left minimal -->
+                                        <?php endif; ?>
                                     </select>
+                                    <input type="hidden" id="location_id" name="location_id" value="">
                                 </div>
 
                                 <div>
@@ -2319,29 +2358,70 @@ if (!isset($base_url)) {
                 (function(){
                     'use strict';
 
-                    // Show new reservation form
-                    function showNewReservationForm(){
+                    // Show new reservation form (optionally inside the carwash section)
+                    function showNewReservationForm(targetHolderId){
+                        const origFormWrapper = document.getElementById('newReservationForm');
+                        if (targetHolderId && origFormWrapper) {
+                            const holder = document.getElementById(targetHolderId);
+                            if (holder) {
+                                // remember original parent id to restore later
+                                if (!origFormWrapper.dataset.originalParentId) {
+                                    const parent = origFormWrapper.parentElement;
+                                    if (parent && parent.id) origFormWrapper.dataset.originalParentId = parent.id;
+                                }
+                                holder.appendChild(origFormWrapper);
+                                holder.classList.remove('hidden');
+                                document.getElementById('carWashList')?.classList.add('hidden');
+                                origFormWrapper.classList.remove('hidden');
+                                origFormWrapper.scrollIntoView({ behavior: 'smooth' });
+                                return;
+                            }
+                        }
+
+                        // Fallback: show in-place (existing behavior)
                         document.getElementById('newReservationForm')?.classList.remove('hidden');
                         document.getElementById('reservationListView')?.classList.add('hidden');
                         document.getElementById('newReservationForm')?.scrollIntoView({ behavior: 'smooth' });
                     }
 
-                    // Hide new reservation form
+                    // Hide new reservation form and restore it to its original parent if moved
                     function hideNewReservationForm(){
-                        document.getElementById('newReservationForm')?.classList.add('hidden');
+                        const origFormWrapper = document.getElementById('newReservationForm');
+                        if (!origFormWrapper) return;
+
+                        // restore to original parent if it was moved
+                        const origParentId = origFormWrapper.dataset.originalParentId;
+                        if (origParentId) {
+                            const origParent = document.getElementById(origParentId);
+                            if (origParent) {
+                                origParent.appendChild(origFormWrapper);
+                            }
+                            delete origFormWrapper.dataset.originalParentId;
+                        }
+
+                        // update visibility of lists
+                        document.getElementById('carWashList')?.classList.remove('hidden');
                         document.getElementById('reservationListView')?.classList.remove('hidden');
+                        origFormWrapper.classList.add('hidden');
                     }
 
                     // Submit new reservation (demo behavior: append row locally)
                     async function submitNewReservation(evt){
                         if (evt && evt.preventDefault) evt.preventDefault();
 
-                        const service = document.getElementById('service')?.value || '';
-                        const vehicle = document.getElementById('vehicle')?.value || '';
-                        const date = document.getElementById('reservationDate')?.value || '';
-                        const time = document.getElementById('reservationTime')?.value || '';
-                        const location = document.getElementById('location')?.value || '';
-                        const notes = document.getElementById('notes')?.value || '';
+                        // Determine the form context (the form that was submitted)
+                        const form = (evt && evt.target && (evt.target.tagName === 'FORM' ? evt.target : evt.target.closest('form'))) || document.getElementById('newReservationFormElement');
+                        if (!form) {
+                            alert('Form bulunamadı. Lütfen sayfayı yenileyin.');
+                            return;
+                        }
+
+                        const service = (form.querySelector('#service') || form.querySelector('[name="service"]'))?.value || '';
+                        const vehicle = (form.querySelector('#vehicle') || form.querySelector('[name="vehicle"]'))?.value || '';
+                        const date = (form.querySelector('#reservationDate') || form.querySelector('[name="reservationDate"]'))?.value || '';
+                        const time = (form.querySelector('#reservationTime') || form.querySelector('[name="reservationTime"]'))?.value || '';
+                        const location = (form.querySelector('#location') || form.querySelector('[name="location"]'))?.value || '';
+                        const notes = (form.querySelector('#notes') || form.querySelector('[name="notes"]'))?.value || '';
 
                         if (!service || !vehicle || !date || !time || !location) {
                             alert('Lütfen tüm zorunlu alanları doldurun.');
@@ -2372,8 +2452,8 @@ if (!isset($base_url)) {
                             tbody.insertBefore(tr, tbody.firstChild);
                         }
 
-                        // Reset and hide
-                        document.getElementById('newReservationFormElement')?.reset();
+                        // Reset and hide - reset the specific form
+                        try { form.reset(); } catch(e){}
                         hideNewReservationForm();
                         alert('Rezervasyonunuz başarıyla oluşturuldu! (Demo)');
                     }
