@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarWash - Araç Seçimi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-slide-in { animation: slideIn 0.5s ease-out forwards; }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .sidebar-gradient { background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-confirmed { background: #d1fae5; color: #065f46; }
+    .status-completed { background: #e0e7ff; color: #3730a3; }
+    .status-cancelled { background: #fecaca; color: #991b1b; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Header (kept similar to CustomerProfile.html) -->
+  <header class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-4">
+          <i class="fas fa-car text-3xl text-blue-600"></i>
+          <h1 class="text-2xl font-bold text-blue-600">CarWash</h1>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <div class="hidden md:flex items-center space-x-2">
+            <i class="fas fa-user text-blue-600"></i>
+            <span class="text-gray-700 font-medium">Hoş Geldiniz</span>
+          </div>
+          <div class="flex space-x-2">
+            <button id="acs-notif-btn" class="relative p-2 text-gray-600 hover:text-blue-600 transition-colors" aria-label="Bildirimler">
+              <i class="fas fa-bell text-xl"></i>
+              <span id="acs-notif-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+            </button>
+            <a href="#" class="p-2 text-gray-600 hover:text-blue-600 transition-colors"><i class="fas fa-home text-xl"></i></a>
+            <a href="#" class="p-2 text-gray-600 hover:text-red-600 transition-colors"><i class="fas fa-sign-out-alt text-xl"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar (similar style, IDs/classes slightly changed to avoid conflicts) -->
+    <aside id="acs-sidebar" class="w-64 sidebar-gradient text-white sticky top-20 h-fit">
+      <div class="p-6">
+        <div class="text-center mb-8">
+          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-user text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-bold">Müşteri</h3>
+          <p class="text-sm opacity-75">email@example.com</p>
+        </div>
+
+        <nav class="space-y-2">
+          <a href="#dashboard" onclick="acsShowSection('dashboard')" class="flex items-center p-3 rounded-lg bg-white bg-opacity-20">
+            <i class="fas fa-tachometer-alt mr-3"></i>
+            Genel Bakış
+          </a>
+          <a href="#autoCarSelection" onclick="acsShowSection('autoCarSelection')" id="acs-link-selection" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-car-side mr-3"></i>
+            Araç Seçimi
+          </a>
+          <a href="#profile" onclick="acsShowSection('profile')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-user-edit mr-3"></i>
+            Profil Yönetimi
+          </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+      <!-- Dashboard Overview (kept minimal) -->
+      <section id="dashboard" class="section-content">
+        <div class="mb-8">
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">Genel Bakış</h2>
+          <p class="text-gray-600">Araçlarınızı hızlıca seçin ve rezervasyon için ilerleyin.</p>
+        </div>
+      </section>
+
+      <!-- Auto Car Selection Section -->
+      <section id="autoCarSelection" class="section-content hidden">
+        <div class="mb-8">
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">Araç Seçimi</h2>
+          <p class="text-gray-600">Kayıtlı araçlarınızı seçin. Bir veya birden fazla araç seçebilirsiniz.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">Filtreleme & İşlemler</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label for="acs-make-filter" class="block text-sm font-bold text-gray-700 mb-2">Marka</label>
+              <input id="acs-make-filter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Marka ara..." oninput="acsFilterCars()">
+            </div>
+            <div>
+              <label for="acs-model-filter" class="block text-sm font-bold text-gray-700 mb-2">Model</label>
+              <input id="acs-model-filter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Model ara..." oninput="acsFilterCars()">
+            </div>
+            <div class="flex items-end">
+              <button id="acs-refresh-btn" onclick="acsLoadCars(true)" class="ml-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">Yenile</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Car list + selection form -->
+        <form id="autoCarForm" class="space-y-4" onsubmit="event.preventDefault(); acsSubmitSelection();">
+          <div id="autoCarList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Arac kartlari buraya yüklenecek -->
+          </div>
+
+          <div class="flex justify-end items-center gap-4">
+            <div id="acs-form-message" class="text-sm text-red-600 mr-auto"></div>
+            <button type="submit" id="acs-submit-btn" class="gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">Seçimi Onayla</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Profile Section (kept minimal placeholder) -->
+      <section id="profile" class="section-content hidden">
+        <div class="mb-8">
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">Profil Yönetimi</h2>
+          <p class="text-gray-600">Profil bilgilerinizi buradan yönetebilirsiniz.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Notification Panel (small) -->
+  <div id="acs-notificationPanel" class="fixed top-20 right-4 w-80 bg-white rounded-2xl shadow-2xl z-50 hidden">
+    <div class="p-4 border-b">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold">Bildirimler</h3>
+        <button id="acs-notif-close" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="max-h-96 overflow-y-auto p-2 text-sm text-gray-700">
+      Henüz bildirim yok.
+    </div>
+  </div>
+
+  <!-- Scripts: unique functions & IDs to avoid conflicts with CustomerProfile.html -->
+  <script>
+    // Sample user cars (fallback)
+    const acsAllCarsFallback = [
+      { id: 101, make: 'Toyota', model: 'Corolla', year: 2019, plate: '34ABC01' },
+      { id: 102, make: 'Honda', model: 'Civic', year: 2020, plate: '34DEF02' },
+      { id: 103, make: 'Ford', model: 'Focus', year: 2018, plate: '34GHI03' }
+    ];
+
+    let acsAllCars = [];
+    let acsFilteredCars = [];
+
+    function acsShowSection(sectionId) {
+      document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+      const el = document.getElementById(sectionId);
+      if (el) el.classList.remove('hidden');
+
+      // If navigating to car selection, ensure list is loaded
+      if (sectionId === 'autoCarSelection') {
+        acsLoadCars(false);
+      }
+    }
+
+    async function acsLoadCars(forceReload = false) {
+      const container = document.getElementById('autoCarList');
+      const msg = document.getElementById('acs-form-message');
+      msg.textContent = '';
+
+      // Avoid reloading unless forced
+      if (!forceReload && acsAllCars.length > 0) {
+        acsFilteredCars = [...acsAllCars];
+        acsRenderList();
+        return;
+      }
+
+      // Try fetching user cars from backend API (if available), fallback to sample data
+      try {
+        const res = await fetch('/carwash_project/backend/api/user_cars/list.php', { credentials: 'same-origin' });
+        if (res.ok) {
+          const ct = res.headers.get('content-type') || '';
+          if (ct.includes('application/json')) {
+            const data = await res.json();
+            // Expecting array or {data: []}
+            acsAllCars = Array.isArray(data) ? data : (data.data || acsAllCarsFallback);
+          } else {
+            // Non-JSON response - fallback
+            acsAllCars = acsAllCarsFallback;
+          }
+        } else {
+          // Not OK (401/403/500) - fallback to sample
+          acsAllCars = acsAllCarsFallback;
+        }
+      } catch (e) {
+        // Network or other errors - fallback
+        acsAllCars = acsAllCarsFallback;
+      }
+
+      acsFilteredCars = [...acsAllCars];
+      acsRenderList();
+    }
+
+    function acsRenderList() {
+      const container = document.getElementById('autoCarList');
+      container.innerHTML = '';
+
+      if (!acsFilteredCars || acsFilteredCars.length === 0) {
+        container.innerHTML = '<p class="text-gray-600 text-center col-span-full">Kayıtlı araç bulunamadı.</p>';
+        return;
+      }
+
+      acsFilteredCars.forEach(car => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col';
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h4 class="font-bold text-lg">${escapeHtml(car.make)} ${escapeHtml(car.model)} <span class="text-sm text-gray-500">(${car.year})</span></h4>
+              <p class="text-sm text-gray-600">Plaka: <strong>${escapeHtml(car.plate || '')}</strong></p>
+            </div>
+            <div class="flex items-center">
+              <label class="flex items-center cursor-pointer select-none">
+                <input type="checkbox" name="selectedCars[]" value="${car.id}" class="acs-checkbox mr-2 h-4 w-4" aria-label="Seç ${escapeHtml(car.make)} ${escapeHtml(car.model)}">
+              </label>
+            </div>
+          </div>
+          <div class="mt-auto flex items-center justify-between gap-2">
+            <div class="text-sm text-gray-500">ID: ${car.id}</div>
+            <button type="button" onclick="acsQuickSelect(${car.id})" class="text-sm text-blue-600 hover:underline">Hızlı Seç</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function acsQuickSelect(id) {
+      const cb = document.querySelector(`input[name="selectedCars[]"][value="${id}"]`);
+      if (cb) cb.checked = !cb.checked;
+    }
+
+    function acsFilterCars() {
+      const make = (document.getElementById('acs-make-filter').value || '').toLowerCase();
+      const model = (document.getElementById('acs-model-filter').value || '').toLowerCase();
+
+      acsFilteredCars = acsAllCars.filter(c => {
+        const m = (c.make || '').toLowerCase();
+        const mo = (c.model || '').toLowerCase();
+        return (!make || m.includes(make)) && (!model || mo.includes(model));
+      });
+      acsRenderList();
+    }
+
+    function acsSubmitSelection() {
+      const messageEl = document.getElementById('acs-form-message');
+      messageEl.textContent = '';
+      const checked = Array.from(document.querySelectorAll('input[name="selectedCars[]"]:checked')).map(cb => cb.value);
+      if (!checked || checked.length === 0) {
+        messageEl.textContent = 'Lütfen en az bir araç seçin.';
+        return;
+      }
+
+      // Simulate submission - in a real app you'd POST to backend with CSRF token
+      console.log('Seçilen araçlar:', checked);
+      messageEl.className = 'text-sm text-green-600 mr-auto';
+      messageEl.textContent = 'Seçiminiz kaydedildi.';
+
+      // Optionally perform further navigation
+      // setTimeout(() => window.location.href = '/carwash_project/booking/new_booking.php', 800);
+    }
+
+    function escapeHtml(s) { return (s===null||s===undefined) ? '' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+    // Small UI interactions
+    document.getElementById('acs-notif-btn').addEventListener('click', function(){
+      const panel = document.getElementById('acs-notificationPanel');
+      panel.classList.toggle('hidden');
+    });
+    document.getElementById('acs-notif-close').addEventListener('click', function(){ document.getElementById('acs-notificationPanel').classList.add('hidden'); });
+
+    // Initialize: show dashboard by default
+    document.addEventListener('DOMContentLoaded', function() {
+      acsShowSection('dashboard');
+    });
+  </script>
+</body>
+</html>

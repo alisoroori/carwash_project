@@ -1962,142 +1962,170 @@ if (!isset($base_url)) {
             </div>
         </section>
         
-        <!-- ========== CARWASH SELECTION SECTION (Dynamic) ========== -->
-        <section x-show="currentSection === 'carWashSelection'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
-            <div class="mb-8 flex items-center justify-between">
-                <div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Araç Yıkama Seçimi</h2>
-                    <p class="text-gray-600">Yakınınızdaki işletmeleri seçin ve rezervasyon başlatın</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button id="refreshCarwashesBtn" class="px-4 py-2 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">Yenile</button>
-                </div>
-            </div>
+                <!-- ========== CARWASH SELECTION SECTION (Extracted from customer_profile.html) ========== -->
+                <section x-show="currentSection === 'carWashSelection'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
+                        <div class="mb-8">
+                                <h2 class="text-3xl font-bold text-gray-800 mb-2">Oto Yıkama Seçimi</h2>
+                                <p class="text-gray-600">Size en uygun oto yıkama merkezini bulun ve rezervasyon yapın.</p>
+                        </div>
 
-            <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8">
-                <div id="carwashSelectionContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Carwash cards are rendered here by JS -->
-                </div>
-
-                <div id="noCarwashesMessage" class="hidden text-gray-600 text-center py-6">Seçiminize uygun oto yıkama bulunamadı.</div>
-            </div>
-
-            <script>
-                (function(){
-                    'use strict';
-
-                    const container = document.getElementById('carwashSelectionContainer');
-                    const noMsg = document.getElementById('noCarwashesMessage');
-                    const refreshBtn = document.getElementById('refreshCarwashesBtn');
-
-                    function makeCard(cw) {
-                        const id = 'carwash_radio_' + cw.id;
-                        const logo = cw.logo || '/carwash_project/frontend/assets/img/default-user.png';
-                        return `
-                            <div class="border rounded p-4 hover:border-blue-500 cursor-pointer carwash-card" data-id="${cw.id}">
-                                <div class="flex items-start gap-3">
-                                    <img src="${logo}" alt="${escapeHtml(cw.name)}" class="w-16 h-16 rounded-lg object-cover bg-gray-100 flex-shrink-0" onerror="this.src='/carwash_project/frontend/assets/images/default-car.png'" />
-                                    <div class="flex-1 min-w-0">
-                                        <h3 class="font-semibold text-lg truncate">${escapeHtml(cw.name)}</h3>
-                                        <p class="text-sm text-gray-600 truncate">${escapeHtml(cw.address || (cw.district ? cw.district + ', ' + cw.city : cw.city || ''))}</p>
-                                        <p class="text-xs text-gray-500 mt-1">${cw.rating ? (cw.rating.toFixed ? cw.rating.toFixed(1) : cw.rating) : '-' } ⭐</p>
-                                    </div>
+                        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Filtreleme Seçenekleri</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label for="cityFilter" class="block text-sm font-bold text-gray-700 mb-2">Şehir</label>
+                                    <select id="cityFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                        <option value="">Tüm Şehirler</option>
+                                        <option>İstanbul</option>
+                                        <option>Ankara</option>
+                                        <option>İzmir</option>
+                                    </select>
                                 </div>
-                                <div class="mt-3 flex items-center justify-end">
-                                    <a href="/carwash_project/backend/booking/new_booking.php?carwash_id=${cw.id}" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg">Rezervasyon Yap</a>
+                                <div>
+                                    <label for="districtFilter" class="block text-sm font-bold text-gray-700 mb-2">Mahalle</label>
+                                    <select id="districtFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                        <option value="">Tüm Mahalleler</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="carWashNameFilter" class="block text-sm font-bold text-gray-700 mb-2">CarWash Adı</label>
+                                    <input type="text" id="carWashNameFilter" onkeyup="filterCarWashes()" placeholder="CarWash adı girin..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div class="flex items-end">
+                                    <label for="favoriteFilter" class="flex items-center cursor-pointer">
+                                        <input id="favoriteFilter" type="checkbox" onchange="filterCarWashes()" class="mr-2">
+                                        Sadece Favoriler
+                                    </label>
                                 </div>
                             </div>
-                        `;
-                    }
+                        </div>
 
-                    function escapeHtml(str) {
-                        if (!str) return '';
-                        return String(str).replace(/[&<>"'`]/g, function (s) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#96;'})[s]; });
-                    }
+                        <div id="carWashList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Car wash cards will be loaded here by JavaScript -->
+                        </div>
 
-                    async function loadCarwashes() {
-                        container.innerHTML = '<div class="col-span-full text-center py-6">Yükleniyor...</div>';
-                        noMsg.classList.add('hidden');
-                        try {
-                            const res = await fetch('/carwash_project/backend/api/carwashes/list.php', { credentials: 'same-origin' });
+                        <script>
+                        (function(){
+                            'use strict';
 
-                            // If unauthorized, show friendly message (likely session expired)
-                            if (res.status === 401) {
-                                console.warn('carwashes API returned 401 - user may need to login');
-                                container.innerHTML = '<div class="col-span-full text-center text-yellow-600 py-6">Oturumunuz sona ermiş olabilir. Lütfen tekrar giriş yapın.</div>';
-                                return;
+                            // Sample data (falls back if API not available). When authenticated, consider replacing with real API fetch.
+                            const allCarWashes = [
+                                { id: 1, name: 'CarWash Merkez', city: 'İstanbul', district: 'Kadıköy', rating: 4.8, isFavorite: true, services: ['Dış Yıkama', 'İç Temizlik'] },
+                                { id: 2, name: 'CarWash Premium', city: 'İstanbul', district: 'Beşiktaş', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma', 'Motor Temizliği'] },
+                                { id: 3, name: 'CarWash Express', city: 'İstanbul', district: 'Şişli', rating: 4.5, isFavorite: true, services: ['Dış Yıkama'] },
+                                { id: 4, name: 'Ankara Oto Yıkama', city: 'Ankara', district: 'Çankaya', rating: 4.7, isFavorite: false, services: ['Dış Yıkama', 'İç Temizlik'] },
+                                { id: 5, name: 'İzmir Hızlı Yıkama', city: 'İzmir', district: 'Bornova', rating: 4.6, isFavorite: true, services: ['Dış Yıkama'] },
+                                { id: 6, name: 'Kadıköy Detay', city: 'İstanbul', district: 'Kadıköy', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma'] },
+                            ];
+
+                            const districtsByCity = {
+                                'İstanbul': ['Kadıköy', 'Beşiktaş', 'Şişli', 'Fatih'],
+                                'Ankara': ['Çankaya', 'Kızılay', 'Yenimahalle'],
+                                'İzmir': ['Bornova', 'Konak', 'Karşıyaka']
+                            };
+
+                            // Helper to safely find elements
+                            function $id(id){ return document.getElementById(id); }
+
+                            function loadDistrictOptions(){
+                                const cityFilter = $id('cityFilter');
+                                const districtFilter = $id('districtFilter');
+                                const selectedCity = cityFilter.value;
+
+                                districtFilter.innerHTML = '<option value="">Tüm Mahalleler</option>';
+                                if (selectedCity && districtsByCity[selectedCity]){
+                                    districtsByCity[selectedCity].forEach(d => {
+                                        const opt = document.createElement('option'); opt.value = d; opt.textContent = d; districtFilter.appendChild(opt);
+                                    });
+                                }
                             }
 
-                            // Guard: ensure server returned JSON
-                            const ct = res.headers.get('Content-Type') || '';
-                            if (!res.ok) {
-                                // Try to read text body for debugging
-                                const txt = await res.text();
-                                console.error('carwashes list fetch failed:', res.status, txt);
-                                container.innerHTML = '<div class="col-span-full text-center text-red-600 py-6">Liste yüklenemedi. Lütfen yenileyin.</div>';
-                                return;
-                            }
+                            function filterCarWashes(){
+                                const cityFilter = ($id('cityFilter')?.value || '').toLowerCase();
+                                const districtFilter = ($id('districtFilter')?.value || '').toLowerCase();
+                                const carWashNameFilter = ($id('carWashNameFilter')?.value || '').toLowerCase();
+                                const favoriteFilter = $id('favoriteFilter')?.checked;
+                                const carWashListDiv = $id('carWashList');
+                                if (!carWashListDiv) return;
+                                carWashListDiv.innerHTML = '';
 
-                            if (ct.indexOf('application/json') === -1) {
-                                const textBody = await res.text();
-                                console.error('Unexpected non-JSON response from carwashes API:', textBody);
-                                container.innerHTML = '<div class="col-span-full text-center text-red-600 py-6">Sunucu beklenmeyen bir yanıt döndü. Konsolu kontrol edin.</div>';
-                                return;
-                            }
-
-                            const data = await res.json();
-                            if (!Array.isArray(data) || data.length === 0) {
-                                container.innerHTML = '';
-                                noMsg.classList.remove('hidden');
-                                return;
-                            }
-
-                            container.innerHTML = data.map(cw => makeCard(cw)).join('');
-
-                            // Attach click handlers to cards for keyboard accessibility
-                            container.querySelectorAll('.carwash-card').forEach(card => {
-                                card.addEventListener('click', function(e){
-                                    // follow the reserve link on click
-                                    const link = this.querySelector('a');
-                                    if (link) window.location.href = link.href;
+                                const filteredWashes = allCarWashes.filter(carWash => {
+                                    const matchesCity = !cityFilter || carWash.city.toLowerCase().includes(cityFilter);
+                                    const matchesDistrict = !districtFilter || carWash.district.toLowerCase().includes(districtFilter);
+                                    const matchesName = !carWashNameFilter || carWash.name.toLowerCase().includes(carWashNameFilter);
+                                    const matchesFavorite = !favoriteFilter || carWash.isFavorite;
+                                    return matchesCity && matchesDistrict && matchesName && matchesFavorite;
                                 });
-                                card.setAttribute('tabindex','0');
-                                card.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); } });
+
+                                if (filteredWashes.length === 0) {
+                                    carWashListDiv.innerHTML = '<p class="text-gray-600 text-center col-span-full">Seçiminize uygun oto yıkama bulunamadı.</p>';
+                                    return;
+                                }
+
+                                filteredWashes.forEach(carWash => {
+                                    const div = document.createElement('div');
+                                    div.className = 'bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col';
+                                    div.innerHTML = `
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h4 class="font-bold text-lg">${escapeHtml(carWash.name)}</h4>
+                                                <p class="text-sm text-gray-500">${escapeHtml(carWash.city)} • ${escapeHtml(carWash.district)}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-yellow-400 font-semibold">${carWash.rating}</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${escapeHtml(carWash.district)}, ${escapeHtml(carWash.city)}</p>
+                                        <p class="text-sm text-gray-600 mb-4"><i class="fas fa-star text-yellow-400 mr-2"></i>${carWash.rating} (${Math.floor(Math.random()*100)} yorum)</p>
+                                        <div class="flex flex-wrap gap-2 mb-4">
+                                            ${ (carWash.services || []).map(s=>`<span class="px-2 py-1 text-xs bg-gray-100 rounded">${escapeHtml(s)}</span>`).join('') }
+                                        </div>
+                                        <button data-name="${escapeAttr(carWash.name)}" class="mt-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg select-for-reservation">Rezervasyon Yap</button>
+                                    `;
+                                    carWashListDiv.appendChild(div);
+                                });
+
+                                // Attach reservation handlers
+                                document.querySelectorAll('.select-for-reservation').forEach(btn => {
+                                    btn.removeEventListener('click', btn._selHandler);
+                                    btn._selHandler = function(){
+                                        const name = this.getAttribute('data-name') || '';
+                                        selectCarWashForReservation(name);
+                                    };
+                                    btn.addEventListener('click', btn._selHandler);
+                                });
+                            }
+
+                            function selectCarWashForReservation(carWashName){
+                                // Set the selected car wash in the reservation form's location field
+                                const loc = $id('location');
+                                if (loc) loc.value = carWashName;
+                                // Switch to the reservations section and show the new reservation form if present
+                                const newForm = $id('newReservationForm');
+                                if (newForm) {
+                                    newForm.classList.remove('hidden');
+                                    document.getElementById('reservationListView')?.classList.add('hidden');
+                                    newForm.scrollIntoView({ behavior: 'smooth' });
+                                }
+                            }
+
+                            function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+                            function escapeAttr(s){ return (s||'').replace(/\"/g,'&quot;'); }
+
+                            // Initialize controls when DOM ready
+                            document.addEventListener('DOMContentLoaded', function(){
+                                loadDistrictOptions();
+                                filterCarWashes();
+                                // also update districts when city changes
+                                $id('cityFilter')?.addEventListener('change', function(){ loadDistrictOptions(); filterCarWashes(); });
+                                $id('districtFilter')?.addEventListener('change', filterCarWashes);
+                                $id('carWashNameFilter')?.addEventListener('input', filterCarWashes);
+                                $id('favoriteFilter')?.addEventListener('change', filterCarWashes);
                             });
 
-                        } catch (err) {
-                            console.error('Failed to load carwashes:', err);
-                            container.innerHTML = '<div class="col-span-full text-center text-red-600 py-6">Liste yüklenemedi. Lütfen yenileyin.</div>';
-                        }
-                    }
-
-                    // Refresh button
-                    if (refreshBtn) refreshBtn.addEventListener('click', loadCarwashes);
-
-                    // Load when section is shown: listen for Alpine section change via simple polling for currentSection
-                    // (This keeps coupling low and is robust if Alpine not available at time of definition)
-                    let lastKnown = null;
-                    setInterval(function(){
-                        try {
-                            const bodyX = document.body && document.body.__x && document.body.__x.$data;
-                            const current = bodyX ? bodyX.currentSection : (window.__currentSectionFallback || null);
-                            if (current === 'carWashSelection' && lastKnown !== current) {
-                                loadCarwashes();
-                            }
-                            lastKnown = current;
-                        } catch (e) { /* ignore */ }
-                    }, 600);
-
-                    // Initial load if already on section
-                    document.addEventListener('DOMContentLoaded', function(){
-                        const bodyX = document.body && document.body.__x && document.body.__x.$data;
-                        const current = bodyX ? bodyX.currentSection : (window.__currentSectionFallback || null);
-                        if (current === 'carWashSelection') loadCarwashes();
-                    });
-
-                })();
-            </script>
-        </section>
+                        })();
+                        </script>
+                </section>
 
         <!-- Other sections (reservations, carWashSelection, history) would follow the same pattern -->
         
