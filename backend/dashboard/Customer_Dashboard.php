@@ -1974,11 +1974,42 @@ if (!isset($base_url)) {
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div>
                                     <label for="cityFilter" class="block text-sm font-bold text-gray-700 mb-2">Şehir</label>
+                                    <?php
+                                        // Fetch carwashes from DB for dynamic city/district lists and client-side filtering
+                                        $carwashes = [];
+                                        $carwash_error = null;
+                                        try {
+                                            $carwashes = $db->fetchAll("SELECT * FROM carwashes");
+                                        } catch (Exception $e) {
+                                            // Keep $carwashes empty and record error for JS display
+                                            $carwash_error = $e->getMessage();
+                                            $carwashes = [];
+                                        }
+
+                                        // Collect unique cities for the city filter
+                                        $cities = [];
+                                        $districtsByCity = [];
+                                        foreach ($carwashes as $cw) {
+                                            $city = isset($cw['city']) ? trim($cw['city']) : null;
+                                            $district = isset($cw['district']) ? trim($cw['district']) : null;
+                                            if ($city !== null && $city !== '') {
+                                                $cities[$city] = true;
+                                                if (!isset($districtsByCity[$city])) $districtsByCity[$city] = [];
+                                                if ($district !== null && $district !== '' && !in_array($district, $districtsByCity[$city], true)) {
+                                                    $districtsByCity[$city][] = $district;
+                                                }
+                                            }
+                                        }
+
+                                        // Sort city names for consistent UI
+                                        $cities = array_keys($cities);
+                                        sort($cities, SORT_STRING | SORT_FLAG_CASE);
+                                    ?>
                                     <select id="cityFilter" onchange="filterCarWashes()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                                         <option value="">Tüm Şehirler</option>
-                                        <option>İstanbul</option>
-                                        <option>Ankara</option>
-                                        <option>İzmir</option>
+                                        <?php foreach ($cities as $c): ?>
+                                            <option><?php echo htmlspecialchars($c, ENT_QUOTES, 'UTF-8'); ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div>
@@ -2000,29 +2031,55 @@ if (!isset($base_url)) {
                             </div>
                         </div>
 
-                        <div id="carWashList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Car wash cards will be loaded here by JavaScript -->
-                        </div>
+                            <div id="carWashList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <?php if (empty($carwashes)): ?>
+                                    <div class="col-span-full text-center text-gray-600 py-8">No carwashes available.</div>
+                                <?php else: ?>
+                                    <!-- Initial server-rendered cards (client-side filtering will replace content when active) -->
+                                    <?php foreach ($carwashes as $cw): ?>
+                                        <?php
+                                            $cw_id = htmlspecialchars($cw['id'] ?? '', ENT_QUOTES, 'UTF-8');
+                                            $cw_name = htmlspecialchars($cw['name'] ?? 'Unnamed', ENT_QUOTES, 'UTF-8');
+                                            $cw_address = htmlspecialchars($cw['address'] ?? '', ENT_QUOTES, 'UTF-8');
+                                            $cw_phone = htmlspecialchars($cw['phone'] ?? '', ENT_QUOTES, 'UTF-8');
+                                            $cw_city = htmlspecialchars($cw['city'] ?? '', ENT_QUOTES, 'UTF-8');
+                                            $cw_district = htmlspecialchars($cw['district'] ?? '', ENT_QUOTES, 'UTF-8');
+                                            $cw_status = htmlspecialchars($cw['status'] ?? '', ENT_QUOTES, 'UTF-8');
+                                        ?>
+                                        <div class="bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col">
+                                            <div class="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h4 class="font-bold text-lg"><?php echo $cw_name; ?></h4>
+                                                    <p class="text-sm text-gray-500"><?php echo ($cw_city || $cw_district) ? ($cw_city . ' • ' . $cw_district) : $cw_address; ?></p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-sm text-gray-500"><?php echo $cw_status; ?></p>
+                                                </div>
+                                            </div>
+                                            <?php if (!empty($cw_address)): ?><p class="text-sm text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-2"></i><?php echo $cw_address; ?></p><?php endif; ?>
+                                            <?php if (!empty($cw_phone)): ?><p class="text-sm text-gray-600 mb-4"><i class="fas fa-phone mr-2"></i><?php echo $cw_phone; ?></p><?php endif; ?>
+                                            <div class="mt-auto">
+                                                <button data-id="<?php echo $cw_id; ?>" data-name="<?php echo $cw_name; ?>" class="gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg select-for-reservation">Rezervasyon Yap</button>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
 
                         <script>
                         (function(){
                             'use strict';
 
-                            // Sample data (falls back if API not available). When authenticated, consider replacing with real API fetch.
-                            const allCarWashes = [
-                                { id: 1, name: 'CarWash Merkez', city: 'İstanbul', district: 'Kadıköy', rating: 4.8, isFavorite: true, services: ['Dış Yıkama', 'İç Temizlik'] },
-                                { id: 2, name: 'CarWash Premium', city: 'İstanbul', district: 'Beşiktaş', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma', 'Motor Temizliği'] },
-                                { id: 3, name: 'CarWash Express', city: 'İstanbul', district: 'Şişli', rating: 4.5, isFavorite: true, services: ['Dış Yıkama'] },
-                                { id: 4, name: 'Ankara Oto Yıkama', city: 'Ankara', district: 'Çankaya', rating: 4.7, isFavorite: false, services: ['Dış Yıkama', 'İç Temizlik'] },
-                                { id: 5, name: 'İzmir Hızlı Yıkama', city: 'İzmir', district: 'Bornova', rating: 4.6, isFavorite: true, services: ['Dış Yıkama'] },
-                                { id: 6, name: 'Kadıköy Detay', city: 'İstanbul', district: 'Kadıköy', rating: 4.9, isFavorite: false, services: ['Tam Detaylandırma'] },
-                            ];
+                            // Provide initial data to client-side filtering from server
+                            const allCarWashes = <?php echo json_encode(array_values($carwashes), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?> || [];
+                            const districtsByCity = <?php echo json_encode($districtsByCity, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?> || {};
+                            const carwashLoadError = <?php echo json_encode($carwash_error, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?> || null;
 
-                            const districtsByCity = {
-                                'İstanbul': ['Kadıköy', 'Beşiktaş', 'Şişli', 'Fatih'],
-                                'Ankara': ['Çankaya', 'Kızılay', 'Yenimahalle'],
-                                'İzmir': ['Bornova', 'Konak', 'Karşıyaka']
-                            };
+                            if (carwashLoadError) {
+                                console.error('Carwashes load error:', carwashLoadError);
+                                const list = document.getElementById('carWashList');
+                                if (list) list.innerHTML = '<div class="col-span-full text-center text-red-600 py-8">Hizmetler alınırken bir hata oluştu.</div>';
+                            }
 
                             // Helper to safely find elements
                             function $id(id){ return document.getElementById(id); }
