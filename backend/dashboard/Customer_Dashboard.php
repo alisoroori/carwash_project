@@ -2200,6 +2200,154 @@ if (!isset($base_url)) {
                             }
 
                             function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+
+                                // -----------------------------
+                                // Bookings (Reservations) Management
+                                // -----------------------------
+                                function getCsrfToken() {
+                                    return (window.CONFIG && window.CONFIG.CSRF_TOKEN) || (document.querySelector('meta[name="csrf-token"]') && document.querySelector('meta[name="csrf-token"]').getAttribute('content')) || '';
+                                }
+
+                                function statusLabel(status) {
+                                    if (!status) return '<span class="px-2 py-1 rounded-full text-xs bg-gray-200 text-gray-700">Bilinmiyor</span>';
+                                    const s = status.toLowerCase();
+                                    if (s === 'confirmed' || s === 'paid') return '<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Onaylandı</span>';
+                                    if (s === 'pending' || s === 'processing') return '<span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">Beklemede</span>';
+                                    if (s === 'cancelled' || s === 'cancel') return '<span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">İptal Edildi</span>';
+                                    return '<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">'+escapeHtml(status)+'</span>';
+                                }
+
+                                async function loadBookings() {
+                                    const tbody = document.getElementById('reservationsTableBody');
+                                    if (!tbody) return;
+                                    // show loading
+                                    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Yükleniyor...</td></tr>';
+                                    try {
+                                        const resp = await fetch('/carwash_project/backend/api/bookings/list.php', { credentials: 'same-origin' });
+                                        const result = await resp.json();
+                                        if (!result || !result.success) {
+                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyonlar yüklenemedi.</td></tr>';
+                                            return;
+                                        }
+                                        // Normalize rows: bookings/list.php may merge rows into top-level response
+                                        let rows = [];
+                                        if (Array.isArray(result.data)) rows = result.data;
+                                        else {
+                                            for (const k in result) {
+                                                if (k === 'success' || k === 'message') continue;
+                                                // numeric keys contain rows
+                                                if (!isNaN(k)) rows.push(result[k]);
+                                            }
+                                        }
+
+                                        if (!rows || rows.length === 0) {
+                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Aktif rezervasyonunuz yok.</td></tr>';
+                                            return;
+                                        }
+
+                                        // Build rows HTML
+                                        const html = rows.map(r => {
+                                            const id = r.id || '';
+                                            const service = r.service_name || r.service_type || r.service || '';
+                                            const date = r.booking_date || r.date || '';
+                                            const time = r.booking_time || r.time || '';
+                                            const location = r.carwash_name || r.location || '';
+                                            const price = r.total_price || r.price || 0;
+                                            const status = r.status || '';
+                                            // Store useful attributes for edit
+                                            const dataAttrs = 'data-booking="'+encodeURIComponent(JSON.stringify({id:id,carwash_id:r.carwash_id||r.location_id,service_id:r.service_id||null,date:date,time:time,notes:r.notes||''}))+'"';
+                                            return '<tr '+dataAttrs+' class="hover:bg-gray-50">'
+                                                +'<td class="px-6 py-4"><div><div class="font-medium">'+escapeHtml(service)+'</div><div class="text-sm text-gray-500">'+escapeHtml(r.user_name || r.vehicle || '')+'</div></div></td>'
+                                                +'<td class="px-6 py-4 text-sm">'+escapeHtml(date)+'<br>'+escapeHtml(time)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm">'+escapeHtml(location)+'</td>'
+                                                +'<td class="px-6 py-4">'+statusLabel(status)+'</td>'
+                                                +'<td class="px-6 py-4 font-medium">'+(price ? ('₺'+parseFloat(price).toFixed(2)) : '')+'</td>'
+                                                +'<td class="px-6 py-4 text-sm">'
+                                                    +'<button class="edit-booking-btn text-blue-600 hover:text-blue-900 mr-3" data-id="'+escapeHtml(id)+'">Düzenle</button>'
+                                                    +'<button class="cancel-booking-btn text-red-600 hover:text-red-900" data-id="'+escapeHtml(id)+'">İptal</button>'
+                                                +'</td>'
+                                            +'</tr>';
+                                        }).join('');
+
+                                        tbody.innerHTML = html;
+
+                                    } catch (err) {
+                                        console.error('Load bookings error', err);
+                                        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Sunucu hatası.</td></tr>';
+                                    }
+                                }
+
+                                function showEditBookingModalFromRow(tr) {
+                                    try {
+                                        const d = tr.getAttribute('data-booking');
+                                        if (!d) return;
+                                        const obj = JSON.parse(decodeURIComponent(d));
+                                        document.getElementById('edit_booking_id').value = obj.id || '';
+                                        document.getElementById('edit_carwash_id').value = obj.carwash_id || '';
+                                        document.getElementById('edit_service_id').value = obj.service_id || '';
+                                        document.getElementById('edit_date').value = obj.date || '';
+                                        document.getElementById('edit_time').value = obj.time || '';
+                                        document.getElementById('edit_notes').value = obj.notes || '';
+                                        const modal = document.getElementById('editBookingModal');
+                                        modal.classList.remove('hidden');
+                                        modal.classList.add('flex','items-center','justify-center');
+                                    } catch (e) { console.error(e); }
+                                }
+
+                                function hideEditBookingModal() {
+                                    const modal = document.getElementById('editBookingModal');
+                                    if (!modal) return;
+                                    modal.classList.add('hidden');
+                                    modal.classList.remove('flex','items-center','justify-center');
+                                }
+
+                                async function submitEditBooking(evt) {
+                                    evt.preventDefault();
+                                    const bookingId = document.getElementById('edit_booking_id').value;
+                                    const carwashId = document.getElementById('edit_carwash_id').value;
+                                    const serviceId = document.getElementById('edit_service_id').value;
+                                    const date = document.getElementById('edit_date').value;
+                                    const time = document.getElementById('edit_time').value;
+                                    const notes = document.getElementById('edit_notes').value;
+                                    if (!bookingId) return alert('Booking id missing');
+                                    const fd = new FormData();
+                                    fd.append('booking_id', bookingId);
+                                    fd.append('carwash_id', carwashId);
+                                    fd.append('service_id', serviceId);
+                                    fd.append('date', date);
+                                    fd.append('time', time);
+                                    fd.append('notes', notes);
+                                    fd.append('csrf_token', getCsrfToken());
+                                    try {
+                                        const resp = await fetch('/carwash_project/backend/api/bookings/update.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+                                        const result = await resp.json();
+                                        if (result && result.success) {
+                                            hideEditBookingModal();
+                                            await loadBookings();
+                                            return;
+                                        }
+                                        alert((result && result.errors && result.errors.join) ? result.errors.join('\n') : (result && result.message) || 'Güncelleme başarısız');
+                                    } catch (err) {
+                                        console.error('Edit booking error', err);
+                                        alert('Sunucu hatası oluştu.');
+                                    }
+                                }
+
+                                async function cancelBookingById(id) {
+                                    if (!confirm('Rezervasyonu iptal etmek istiyor musunuz?')) return;
+                                    const fd = new FormData();
+                                    fd.append('booking_id', id);
+                                    fd.append('csrf_token', getCsrfToken());
+                                    try {
+                                        const resp = await fetch('/carwash_project/backend/api/bookings/cancel.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+                                        const result = await resp.json();
+                                        if (result && result.success) {
+                                            await loadBookings();
+                                            return;
+                                        }
+                                        alert(result && result.error ? result.error : 'İptal başarısız');
+                                    } catch (err) { console.error(err); alert('Sunucu hatası'); }
+                                }
                             function escapeAttr(s){ return (s||'').replace(/\"/g,'&quot;'); }
 
                             // Initialize controls when DOM ready
@@ -2249,39 +2397,11 @@ if (!isset($base_url)) {
                                         </tr>
                                     </thead>
                                     <tbody id="reservationsTableBody" class="divide-y divide-gray-200">
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-6 py-4">
-                                                <div>
-                                                    <div class="font-medium">Dış Yıkama + İç Temizlik</div>
-                                                    <div class="text-sm text-gray-500">Toyota Corolla - 34 ABC 123</div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-sm">15.12.2024<br>14:00</td>
-                                            <td class="px-6 py-4 text-sm">CarWash Merkez</td>
-                                            <td class="px-6 py-4"><span class="status-confirmed px-2 py-1 rounded-full text-xs">Onaylandı</span></td>
-                                            <td class="px-6 py-4 font-medium">₺130</td>
-                                            <td class="px-6 py-4 text-sm">
-                                                <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
-                                                <button class="text-red-600 hover:text-red-900">İptal</button>
-                                            </td>
+                                        <tr id="reservationsLoadingRow">
+                                            <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Yükleniyor...</td>
                                         </tr>
-
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-6 py-4">
-                                                <div>
-                                                    <div class="font-medium">Tam Detaylandırma</div>
-                                                    <div class="text-sm text-gray-500">Honda Civic - 34 XYZ 789</div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-sm">16.12.2024<br>10:00</td>
-                                            <td class="px-6 py-4 text-sm">CarWash Premium</td>
-                                            <td class="px-6 py-4"><span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span></td>
-                                            <td class="px-6 py-4 font-medium">₺200</td>
-                                            <td class="px-6 py-4 text-sm">
-                                                <button class="text-blue-600 hover:text-blue-900 mr-3">Düzenle</button>
-                                                <button class="text-red-600 hover:text-red-900">İptal</button>
-                                            </td>
-                                        </tr>
+                                        <!-- Reservation rows will be injected here -->
+                                        
                                     </tbody>
                                 </table>
                             </div>
@@ -2352,6 +2472,38 @@ if (!isset($base_url)) {
                         </div>
                     </div>
                 </section>
+
+                <!-- Edit Booking Modal -->
+                <div id="editBookingModal" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden">
+                    <div class="bg-white rounded-lg w-full max-w-lg p-6">
+                        <h3 class="text-lg font-bold mb-4">Rezervasyonu Düzenle</h3>
+                        <form id="editBookingForm" class="space-y-4">
+                            <input type="hidden" id="edit_booking_id" name="booking_id" value="">
+                            <input type="hidden" id="edit_carwash_id" name="carwash_id" value="">
+                            <input type="hidden" id="edit_service_id" name="service_id" value="">
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Tarih</label>
+                                <input type="date" id="edit_date" name="date" class="w-full px-3 py-2 border rounded">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Saat</label>
+                                <input type="time" id="edit_time" name="time" class="w-full px-3 py-2 border rounded">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Notlar</label>
+                                <textarea id="edit_notes" name="notes" rows="3" class="w-full px-3 py-2 border rounded"></textarea>
+                            </div>
+
+                            <div class="flex justify-end space-x-2">
+                                <button type="button" id="editCancelBtn" class="px-4 py-2 border rounded">İptal</button>
+                                <button type="submit" id="editSaveBtn" class="px-4 py-2 bg-blue-600 text-white rounded">Kaydet</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <!-- Other sections (carWashSelection, history) would follow the same pattern -->
 
@@ -2506,6 +2658,28 @@ if (!isset($base_url)) {
                         window.showNewReservationForm = showNewReservationForm;
                         window.hideNewReservationForm = hideNewReservationForm;
                         window.submitNewReservation = submitNewReservation;
+
+                        // bookings: load and delegate actions
+                        loadBookings();
+
+                        // Delegate Edit / Cancel clicks
+                        document.getElementById('reservationsTableBody')?.addEventListener('click', function(e){
+                            const target = e.target;
+                            if (target.matches('.edit-booking-btn')) {
+                                const tr = target.closest('tr');
+                                if (tr) showEditBookingModalFromRow(tr);
+                                return;
+                            }
+                            if (target.matches('.cancel-booking-btn')) {
+                                const id = target.getAttribute('data-id');
+                                if (id) cancelBookingById(id);
+                                return;
+                            }
+                        });
+
+                        // Edit modal handlers
+                        document.getElementById('editCancelBtn')?.addEventListener('click', hideEditBookingModal);
+                        document.getElementById('editBookingForm')?.addEventListener('submit', submitEditBooking);
                     });
 
                 })();

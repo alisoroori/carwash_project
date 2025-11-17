@@ -85,16 +85,29 @@ $reservation = [
     'created_at' => date('Y-m-d H:i:s')
 ];
 
-// Try to insert into DB; if DB not available or insert fails, fallback to session
+// Try to insert into DB as a bookings row; if DB not available or insert fails, fallback to session
 $reservation_id = null;
 try {
-    // Database::insert exists in project conventions
-    $reservation_id = $db->insert('reservations', $reservation);
+    // Map to bookings table columns where possible
+    $insert = [
+        'user_id' => $user_id,
+        'carwash_id' => is_numeric($location_id) ? (int)$location_id : null,
+        'service_type' => $service,
+        'booking_date' => $date,
+        'booking_time' => $time,
+        'status' => 'pending',
+        'total_price' => $price,
+        'notes' => $notes,
+        'created_at' => date('Y-m-d H:i:s')
+    ];
+    // If Database class supports insert into bookings, use it
+    $reservation_id = $db->insert('bookings', $insert);
 } catch (\Throwable $e) {
     // fallback to session
 }
 
 if ($reservation_id) {
+    // Redirect to invoice for bookings id
     $redirect = '/carwash_project/backend/checkout/invoice.php?id=' . urlencode($reservation_id);
     echo json_encode(['success' => true, 'reservation_id' => $reservation_id, 'redirect' => $redirect]);
     exit;

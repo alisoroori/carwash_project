@@ -22,12 +22,52 @@ if ($status === 'success') {
     // mark as paid
     if (strpos($reservation_id, 's_') === 0) {
         if (isset($_SESSION['reservations'][$reservation_id])) {
-            $_SESSION['reservations'][$reservation_id]['status'] = 'paid';
-            $_SESSION['reservations'][$reservation_id]['paid_at'] = date('Y-m-d H:i:s');
+                $_SESSION['reservations'][$reservation_id]['status'] = 'paid';
+                $_SESSION['reservations'][$reservation_id]['paid_at'] = date('Y-m-d H:i:s');
+                // Try to persist session reservation into bookings table so lists pick it up
+                try {
+                    $rs = $_SESSION['reservations'][$reservation_id];
+                    $insert = [
+                        'user_id' => $rs['user_id'] ?? ($_SESSION['user_id'] ?? null),
+                        'carwash_id' => $rs['location_id'] ?? ($rs['location'] ?? null),
+                        'service_type' => $rs['service'] ?? null,
+                        'booking_date' => $rs['date'] ?? null,
+                        'booking_time' => $rs['time'] ?? null,
+                        'status' => 'confirmed',
+                        'total_price' => $rs['price'] ?? 0
+                    ];
+                    try { $db->insert('bookings', $insert); } catch (Throwable $_e) {}
+                } catch (Throwable $_e) {
+                    // ignore
+                }
         }
     } else {
         try {
             $db->update('reservations', ['status' => 'paid', 'paid_at' => date('Y-m-d H:i:s')], ['id' => $reservation_id]);
+                // Also attempt to create a bookings row so legacy listings pick it up
+                try {
+                    $res = $db->fetchOne('SELECT * FROM reservations WHERE id = :id', ['id' => $reservation_id]);
+                    if ($res) {
+                        // Map fields where possible
+                        $insert = [
+                            'user_id' => $res['user_id'] ?? null,
+                            'carwash_id' => $res['location_id'] ?? ($res['location'] ?? null),
+                            'service_type' => $res['service'] ?? null,
+                            'booking_date' => $res['date'] ?? null,
+                            'booking_time' => $res['time'] ?? null,
+                            'status' => 'confirmed',
+                            'total_price' => $res['price'] ?? ($res['price'] ?? 0)
+                        ];
+                        // Try inserting into bookings; ignore if it fails
+                        try {
+                            $db->insert('bookings', $insert);
+                        } catch (Throwable $ei) {
+                            // ignore - bookings table may not exist or schema differs
+                        }
+                    }
+                } catch (Throwable $e) {
+                    // ignore
+                }
         } catch (\Throwable $e) {
             // ignore but log in production
         }

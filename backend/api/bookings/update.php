@@ -59,18 +59,8 @@ $date = $_POST['date'] ?? null;
 $time = $_POST['time'] ?? null;
 $notes = $_POST['notes'] ?? null;
 
-// Basic validation
+// We will validate after loading existing booking so we can fallback to existing carwash_id/service_id
 $errors = [];
-if (!$carwashId) $errors[] = 'carwash_id is required';
-if (!$serviceId) $errors[] = 'service_id is required';
-if (!$date) $errors[] = 'date is required';
-if (!$time) $errors[] = 'time is required';
-
-if (!empty($errors)) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'errors' => $errors]);
-    exit;
-}
 
 try {
     $model = new Booking_Model();
@@ -78,6 +68,21 @@ try {
     if (!$existing || (int)$existing['user_id'] !== (int)$userId) {
         http_response_code(403);
         echo json_encode(['success' => false, 'errors' => ['Booking not found or access denied']]);
+        exit;
+    }
+    // Fallback to existing values if not provided
+    if (empty($carwashId) && isset($existing['carwash_id'])) $carwashId = (int)$existing['carwash_id'];
+    if (empty($serviceId) && isset($existing['service_id'])) $serviceId = (int)$existing['service_id'];
+
+    // Basic validation (after fallback)
+    if (!$carwashId) $errors[] = 'carwash_id is required';
+    if (!$serviceId) $errors[] = 'service_id is required';
+    if (!$date) $errors[] = 'date is required';
+    if (!$time) $errors[] = 'time is required';
+
+    if (!empty($errors)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'errors' => $errors]);
         exit;
     }
 
