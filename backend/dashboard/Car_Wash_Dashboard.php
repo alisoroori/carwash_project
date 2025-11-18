@@ -618,10 +618,10 @@ include '../includes/seller_header.php';
     <aside class="mobile-sidebar sidebar-gradient text-white" id="mobileSidebar">
       <div class="p-6">
         <div class="text-center mb-8">
-          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-building text-3xl"></i>
+          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+            <img id="mobileSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Logo" class="w-full h-full object-cover sidebar-logo">
           </div>
-          <h3 class="text-xl font-bold">CarWash Merkez</h3>
+          <h3 class="text-xl font-bold" id="mobileSidebarBusinessName">CarWash Merkez</h3>
           <p class="text-sm opacity-75">Premium İşletme</p>
         </div>
 
@@ -666,10 +666,10 @@ include '../includes/seller_header.php';
     <aside class="desktop-sidebar sidebar-gradient text-white">
       <div class="p-6">
         <div class="text-center mb-8">
-          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-building text-3xl"></i>
+          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+            <img id="desktopSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Logo" class="w-full h-full object-cover sidebar-logo">
           </div>
-          <h3 class="text-xl font-bold">CarWash Merkez</h3>
+          <h3 class="text-xl font-bold" id="desktopSidebarBusinessName">CarWash Merkez</h3>
           <p class="text-sm opacity-75">Premium İşletme</p>
         </div>
 
@@ -1786,23 +1786,23 @@ include '../includes/seller_header.php';
 
           <div class="bg-white rounded-2xl p-6 shadow-lg">
             <h3 class="text-xl font-bold mb-6">İşletme Bilgileri</h3>
-            <form class="space-y-4">
+            <form id="businessInfoForm" class="space-y-4">
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Adı</label>
                   <label for="auto_114" class="sr-only">Input</label>
-                  <input type="text" value="CarWash Merkez" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_114">
+                  <input type="text" name="business_name" value="CarWash Merkez" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_114">
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
-                  <label for="auto_115" class="sr-only">Input</label><textarea rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_115">İstanbul, Kadıköy, Moda Mahallesi, No: 123</textarea>
+                  <label for="auto_115" class="sr-only">Input</label><textarea name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_115">İstanbul, Kadıköy, Moda Mahallesi, No: 123</textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
                     <label for="auto_116" class="sr-only">Phone</label>
-                    <input type="tel" value="0216 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_116">
+                    <input type="tel" name="phone" value="0216 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_116">
                   </div>
                   <!-- Farsça: فیلد شماره تلفن همراه. -->
                   <!-- Türkçe: Cep Telefonu Numarası Alanı. -->
@@ -1810,13 +1810,13 @@ include '../includes/seller_header.php';
                   <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Cep Telefonu</label>
                     <label for="auto_117" class="sr-only">Phone</label>
-                    <input type="tel" value="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_117">
+                    <input type="tel" name="mobile_phone" value="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_117">
                   </div>
                 </div>
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Email</label>
                   <label for="auto_118" class="sr-only">Email</label>
-                  <input type="email" value="info@carwashmerkez.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_118">
+                  <input type="email" name="email" value="info@carwashmerkez.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_118">
                 </div>
 
                 <!-- Farsça: گزینه بارگذاری لوگو. -->
@@ -1842,64 +1842,64 @@ include '../includes/seller_header.php';
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Pazartesi:</span>
                       <label for="auto_119" class="sr-only">Başlangıç</label>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_119">
+                      <input type="time" name="monday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_119">
                       <span class="mx-2">-</span>
                       <label for="auto_120" class="sr-only">Bitiş</label>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_120">
+                      <input type="time" name="monday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_120">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Salı:</span>
                       <label for="auto_121" class="sr-only">Başlangıç</label>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_121">
+                      <input type="time" name="tuesday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_121">
                       <span class="mx-2">-</span>
                       <label for="auto_122" class="sr-only">Bitiş</label>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_122">
+                      <input type="time" name="tuesday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_122">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Çarşamba:</span>
                       <label for="auto_123" class="sr-only">Başlangıç</label>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_123">
+                      <input type="time" name="wednesday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_123">
                       <span class="mx-2">-</span>
                       <label for="auto_124" class="sr-only">Bitiş</label>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_124">
+                      <input type="time" name="wednesday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_124">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Perşembe:</span>
                       <label for="auto_125" class="sr-only">Başlangıç</label>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_125">
+                      <input type="time" name="thursday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_125">
                       <span class="mx-2">-</span>
                       <label for="auto_126" class="sr-only">Bitiş</label>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_126">
+                      <input type="time" name="thursday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_126">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Cuma:</span>
                       <label for="auto_127" class="sr-only">Başlangıç</label>
-                      <input type="time" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_127">
+                      <input type="time" name="friday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_127">
                       <span class="mx-2">-</span>
                       <label for="auto_128" class="sr-only">Bitiş</label>
-                      <input type="time" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_128">
+                      <input type="time" name="friday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_128">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Cumartesi:</span>
                       <label for="auto_129" class="sr-only">Başlangıç</label>
-                      <input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_129">
+                      <input type="time" name="saturday_start" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_129">
                       <span class="mx-2">-</span>
                       <label for="auto_130" class="sr-only">Bitiş</label>
-                      <input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_130">
+                      <input type="time" name="saturday_end" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_130">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Pazar:</span>
                       <label for="auto_131" class="sr-only">Başlangıç</label>
-                      <input type="time" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_131">
+                      <input type="time" name="sunday_start" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_131">
                       <span class="mx-2">-</span>
                       <label for="auto_132" class="sr-only">Bitiş</label>
-                      <input type="time" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_132">
+                      <input type="time" name="sunday_end" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_132">
                     </div>
                   </div>
                 </div>
@@ -2359,7 +2359,7 @@ include '../includes/seller_header.php';
           output.src = reader.result;
           // Update header and sidebar logos in-place so preview reflects across UI
           try {
-            document.querySelectorAll('.header-logo, .sidebar-logo, img#siteLogo').forEach(function(img) {
+            document.querySelectorAll('.header-logo, .sidebar-logo, #mobileSidebarLogo, #desktopSidebarLogo, img#siteLogo').forEach(function(img) {
               img.src = reader.result;
             });
           } catch (e) {
@@ -2367,6 +2367,136 @@ include '../includes/seller_header.php';
           }
         };
         reader.readAsDataURL(event.target.files[0]);
+      }
+
+      // Business Info Form Submit Handler
+      document.addEventListener('DOMContentLoaded', function() {
+        const businessForm = document.getElementById('businessInfoForm');
+        
+        if (businessForm) {
+          businessForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const logoFile = document.getElementById('logoUpload').files[0];
+            const businessName = document.getElementById('auto_114').value;
+            
+            // Add logo file if selected
+            if (logoFile) {
+              formData.append('logo', logoFile);
+            }
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kaydediliyor...';
+            
+            // Send to backend API
+            fetch('/carwash_project/backend/api/update_business_info.php', {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.status === 'success') {
+                // Update business name in sidebars
+                document.getElementById('mobileSidebarBusinessName').textContent = businessName;
+                document.getElementById('desktopSidebarBusinessName').textContent = businessName;
+                
+                // Update logo in all locations if file was uploaded and returned
+                if (data.data && data.data.logo_path) {
+                  const logoUrl = data.data.logo_path;
+                  document.querySelectorAll('.sidebar-logo, #mobileSidebarLogo, #desktopSidebarLogo, #currentLogo').forEach(function(img) {
+                    img.src = logoUrl;
+                  });
+                } else if (logoFile) {
+                  // Fallback to local preview if no path returned
+                  const reader = new FileReader();
+                  reader.onload = function(e) {
+                    const logoUrl = e.target.result;
+                    document.querySelectorAll('.sidebar-logo, #mobileSidebarLogo, #desktopSidebarLogo, #currentLogo').forEach(function(img) {
+                      img.src = logoUrl;
+                    });
+                  };
+                  reader.readAsDataURL(logoFile);
+                }
+                
+                showNotification(data.message || 'İşletme bilgileri başarıyla güncellendi!', 'success');
+              } else {
+                showNotification(data.message || 'Bir hata oluştu', 'error');
+              }
+              
+              // Reset button
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalBtnText;
+            })
+            .catch(error => {
+              console.error('API Error:', error);
+              showNotification('Bağlantı hatası. Lütfen tekrar deneyin.', 'error');
+              
+              // Reset button
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalBtnText;
+            });
+          });
+        }
+      });
+      
+      // Notification System
+      function showNotification(message, type = 'success') {
+        // Remove existing notification if any
+        const existingNotification = document.getElementById('notification');
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.id = 'notification';
+        notification.className = 'fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full';
+        
+        // Set style based on type
+        if (type === 'success') {
+          notification.classList.add('bg-green-500', 'text-white');
+          notification.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <i class="fas fa-check-circle text-2xl"></i>
+              <div>
+                <p class="font-bold">Başarılı!</p>
+                <p class="text-sm">${message}</p>
+              </div>
+            </div>
+          `;
+        } else if (type === 'error') {
+          notification.classList.add('bg-red-500', 'text-white');
+          notification.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <i class="fas fa-exclamation-circle text-2xl"></i>
+              <div>
+                <p class="font-bold">Hata!</p>
+                <p class="text-sm">${message}</p>
+              </div>
+            </div>
+          `;
+        }
+        
+        // Add to document
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+          notification.classList.remove('translate-x-full');
+        }, 10);
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+          notification.classList.add('translate-x-full');
+          setTimeout(() => {
+            notification.remove();
+          }, 300);
+        }, 4000);
       }
 
       // Handle window resize for responsive behavior
