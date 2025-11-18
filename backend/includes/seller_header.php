@@ -317,6 +317,22 @@ window.addEventListener('load', updateHeaderHeight);
 window.addEventListener('resize', updateHeaderHeight);
 </script>
 
+<!-- Sync profile image to localStorage so index header can read the sidebar's image as source-of-truth -->
+<script>
+    (function(){
+        try {
+            var profileSrc = <?php echo json_encode($profile_src); ?>;
+            if (profileSrc) {
+                var ts = Date.now();
+                var url = profileSrc + (profileSrc.indexOf('?') === -1 ? ('?ts=' + ts) : ('&ts=' + ts));
+                try { localStorage.setItem('carwash_profile_image', url); localStorage.setItem('carwash_profile_image_ts', ts.toString()); } catch(e) { /* ignore storage errors */ }
+            }
+        } catch (e) {
+            // ignore
+        }
+    })();
+</script>
+
 <script>
 // Workplace toggle behaviour: sends AJAX POST to this file to persist status
 (function(){

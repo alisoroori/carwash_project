@@ -25,6 +25,14 @@ try {
         Response::error('Error: Geçerli bir isim girin (en az 2 karakter).', 400);
     }
 
+    $email = Validator::sanitizeEmail($_POST['email'] ?? '');
+    if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        Response::error('Error: Geçerli bir e-posta adresi girin.', 400);
+    }
+
+    $phone = Validator::sanitizeString($_POST['phone'] ?? '');
+    $username = Validator::sanitizeString($_POST['username'] ?? '');
+
     $profilePath = null;
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
         $allowedMime = ['image/jpeg','image/png','image/webp','image/gif'];
@@ -60,23 +68,35 @@ try {
         }
     }
 
+    // Force role to 'carwash' (İşletme) and update session
+    $role = 'carwash';
+    $_SESSION['role'] = $role;
+
     // Update session
     $_SESSION['name'] = $name;
+    if (!empty($email)) $_SESSION['email'] = $email;
+    if (!empty($phone)) $_SESSION['phone'] = $phone;
+    if (!empty($username)) $_SESSION['username'] = $username;
     if ($profilePath) $_SESSION['profile_image'] = $profilePath;
 
-    // Persist to users table if available
+    // Persist to users table if available (include role)
     try {
         $update = ['name' => $name];
+        if (!empty($email)) $update['email'] = $email;
+        if (!empty($phone)) $update['phone'] = $phone;
+        if (!empty($username)) $update['username'] = $username;
         if ($profilePath) $update['profile_image'] = $profilePath;
+        // ensure role persisted
+        $update['role'] = $role;
         $db->update('users', $update, ['id' => $userId]);
     } catch (Exception $e) {
         // Log but continue - we still updated session
         error_log('Profile update DB warning: ' . $e->getMessage());
         // Return a partial-success but include DB warning in response
-        Response::success('Profile updated successfully (but DB update warning).', ['name' => $name, 'profile_image' => $profilePath ?? ($_SESSION['profile_image'] ?? null), 'db_warning' => $e->getMessage()]);
+        Response::success('Profile updated successfully (but DB update warning).', ['name' => $name, 'email' => $email ?? ($_SESSION['email'] ?? null), 'phone' => $phone ?? ($_SESSION['phone'] ?? null), 'username' => $username ?? ($_SESSION['username'] ?? null), 'profile_image' => $profilePath ?? ($_SESSION['profile_image'] ?? null), 'db_warning' => $e->getMessage()]);
     }
 
-    Response::success('Profile updated successfully', ['name' => $name, 'profile_image' => $profilePath ?? ($_SESSION['profile_image'] ?? null)]);
+    Response::success('Profile updated successfully', ['name' => $name, 'email' => $email ?? ($_SESSION['email'] ?? null), 'phone' => $phone ?? ($_SESSION['phone'] ?? null), 'username' => $username ?? ($_SESSION['username'] ?? null), 'profile_image' => $profilePath ?? ($_SESSION['profile_image'] ?? null), 'role' => $role]);
 
 } catch (Exception $e) {
     error_log('Profile update error: ' . $e->getMessage());

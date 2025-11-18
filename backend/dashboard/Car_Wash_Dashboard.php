@@ -1997,19 +1997,20 @@ include '../includes/seller_header.php';
           <!-- VIEW MODE: Display Profile Info -->
           <div id="profileViewMode" class="bg-white rounded-2xl shadow-lg p-8">
             <div class="space-y-6">
+              <p class="text-sm text-gray-600">İşletme profil bilgilerinizi yönetin</p>
               <!-- Profile Header -->
               <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
                 <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
                   <img 
                     id="profileViewImage"
-                    src="/carwash_project/backend/logo01.png" 
-                    alt="MyCar Logo" 
+                    src="<?php echo htmlspecialchars($_SESSION['profile_image'] ?? '/carwash_project/frontend/images/default-avatar.svg'); ?>" 
+                    alt="Profil Fotoğrafı" 
                     class="w-full h-full object-cover"
                   >
                 </div>
                 <div>
-                  <h3 class="text-2xl font-bold text-gray-900"><?php echo htmlspecialchars($_SESSION['name'] ?? 'Kullanıcı Adı'); ?></h3>
-                  <p class="text-gray-600 mt-1"><?php echo htmlspecialchars($_SESSION['email'] ?? 'email@example.com'); ?></p>
+                  <h3 id="profileViewName" class="text-2xl font-bold text-gray-900"><?php echo htmlspecialchars($_SESSION['name'] ?? 'Kullanıcı Adı'); ?></h3>
+                  <p id="profileViewEmail" class="text-gray-600 mt-1"><?php echo htmlspecialchars($_SESSION['email'] ?? 'email@example.com'); ?></p>
                 </div>
               </div>
 
@@ -2033,11 +2034,21 @@ include '../includes/seller_header.php';
                 </div>
                 <div class="space-y-2 md:col-span-2">
                   <label class="text-sm font-semibold text-gray-500">Rol</label>
-                  <p class="text-base text-gray-900 capitalize"><?php echo htmlspecialchars(ucfirst($_SESSION['role'] ?? 'carwash')); ?></p>
+                  <?php
+                    $role_raw = $_SESSION['role'] ?? 'carwash';
+                    $role_display = ($role_raw === 'carwash') ? 'İşletme' : (($role_raw === 'customer') ? 'Müşteri' : ucfirst($role_raw));
+                  ?>
+                  <p class="text-base text-gray-900"><?php echo htmlspecialchars($role_display); ?></p>
                 </div>
               </div>
             </div>
           </div>
+              <div class="flex justify-end pt-6 border-t border-gray-200">
+                <button id="editProfileBtnBottom" type="button" onclick="toggleProfileEdit(true)" class="px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2">
+                  <i class="fas fa-edit"></i>
+                  <span>Düzenle</span>
+                </button>
+              </div>
 
           <!-- EDIT MODE: Profile Form -->
           <div id="profileEditMode" class="bg-white rounded-2xl shadow-lg p-8 hidden">
@@ -2050,14 +2061,14 @@ include '../includes/seller_header.php';
                     <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
                       <img 
                         id="profileEditImagePreview"
-                        src="/carwash_project/backend/logo01.png" 
-                        alt="MyCar Logo" 
+                        src="<?php echo htmlspecialchars($_SESSION['profile_image'] ?? '/carwash_project/frontend/images/default-avatar.svg'); ?>" 
+                        alt="Profil Önizleme" 
                         class="w-full h-full object-cover"
                       >
                     </div>
                   </div>
                   <div class="flex-1">
-                    <label for="profile_image" class="block text-sm font-semibold text-gray-700 mb-2">
+                    <label for="profile_image" class="block text-sm font-bold text-gray-700 mb-2">
                       Yeni Fotoğraf Yükle
                     </label>
                     <input 
@@ -2077,7 +2088,7 @@ include '../includes/seller_header.php';
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Display Name -->
                 <div>
-                  <label for="profile_display_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                  <label for="profile_display_name" class="block text-sm font-bold text-gray-700 mb-2">
                     İsim (Görünen) <span class="text-red-500">*</span>
                   </label>
                   <input
@@ -2086,7 +2097,7 @@ include '../includes/seller_header.php';
                     name="name"
                     value="<?php echo htmlspecialchars($_SESSION['name'] ?? $_SESSION['business_name'] ?? ''); ?>"
                     required
-                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     placeholder="Adınız"
                   >
                 </div>
@@ -2095,7 +2106,7 @@ include '../includes/seller_header.php';
 
                 <!-- Email -->
                 <div>
-                  <label for="profile_email" class="block text-sm font-semibold text-gray-700 mb-2">
+                  <label for="profile_email" class="block text-sm font-bold text-gray-700 mb-2">
                     E-posta <span class="text-red-500">*</span>
                   </label>
                   <input 
@@ -2104,27 +2115,27 @@ include '../includes/seller_header.php';
                     name="email"
                     value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>"
                     required
-                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     placeholder="email@example.com"
                   >
                 </div>
 
                 <!-- Phone -->
                 <div>
-                  <label for="profile_phone" class="block text-sm font-semibold text-gray-700 mb-2">Telefon</label>
+                  <label for="profile_phone" class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
                   <input 
                     type="tel"
                     id="profile_phone"
                     name="phone"
                     value="<?php echo htmlspecialchars($_SESSION['phone'] ?? ''); ?>"
-                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     placeholder="+90 555 123 45 67"
                   >
                 </div>
 
                 <!-- Username -->
                 <div>
-                  <label for="profile_username" class="block text-sm font-semibold text-gray-700 mb-2">
+                  <label for="profile_username" class="block text-sm font-bold text-gray-700 mb-2">
                     Kullanıcı Adı <span class="text-red-500">*</span>
                   </label>
                   <input 
@@ -2133,7 +2144,7 @@ include '../includes/seller_header.php';
                     name="username"
                     value="<?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?>"
                     required
-                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     placeholder="kullanici_adi"
                   >
                 </div>
@@ -2146,36 +2157,36 @@ include '../includes/seller_header.php';
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Current Password -->
                   <div>
-                    <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Şifre</label>
+                    <label for="current_password" class="block text-sm font-bold text-gray-700 mb-2">Mevcut Şifre</label>
                     <input 
                       type="password"
                       id="current_password"
                       name="current_password"
-                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                       placeholder="••••••••"
                     >
                   </div>
 
                   <!-- New Password -->
                   <div>
-                    <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre</label>
+                    <label for="new_password" class="block text-sm font-bold text-gray-700 mb-2">Yeni Şifre</label>
                     <input 
                       type="password"
                       id="new_password"
                       name="new_password"
-                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                       placeholder="••••••••"
                     >
                   </div>
 
                   <!-- Confirm Password -->
                   <div class="md:col-span-2">
-                    <label for="confirm_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre (Tekrar)</label>
+                    <label for="confirm_password" class="block text-sm font-bold text-gray-700 mb-2">Yeni Şifre (Tekrar)</label>
                     <input 
                       type="password"
                       id="confirm_password"
                       name="confirm_password"
-                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                       placeholder="••••••••"
                     >
                   </div>
@@ -2847,13 +2858,24 @@ include '../includes/seller_header.php';
                     if (mobileNameEl) mobileNameEl.textContent = data.data.name;
                   }
                   if (data.data && data.data.profile_image) {
+                    // Append timestamp to bust caches and keep both headers in sync via localStorage
+                    const ts = Date.now();
+                    const imageUrl = data.data.profile_image + (data.data.profile_image.indexOf('?') === -1 ? ('?ts=' + ts) : ('&ts=' + ts));
+
                     const avatarEl = document.getElementById('userAvatarTop');
                     if (avatarEl) {
-                      avatarEl.src = data.data.profile_image;
+                      avatarEl.src = imageUrl;
                       avatarEl.style.display = '';
                     }
                     const mobileAvatar = document.getElementById('mobileMenuAvatar');
-                    if (mobileAvatar) mobileAvatar.src = data.data.profile_image;
+                    if (mobileAvatar) mobileAvatar.src = imageUrl;
+
+                    try {
+                      localStorage.setItem('carwash_profile_image', imageUrl);
+                      localStorage.setItem('carwash_profile_image_ts', ts.toString());
+                    } catch (e) {
+                      // ignore storage errors (e.g., private mode)
+                    }
                   }
                 } catch (e) {
                   console.warn('Failed to update header after profile save', e);
@@ -2871,10 +2893,19 @@ include '../includes/seller_header.php';
                 // Update view mode values (user fields)
                 const displayName = document.getElementById('profile_display_name').value;
                 const email = document.getElementById('profile_email').value;
-                const viewH3 = document.querySelector('#profileViewMode h3');
-                if (viewH3) viewH3.textContent = displayName;
-                const emailEl = document.querySelector('#profileViewMode .text-gray-600');
-                if (emailEl) emailEl.textContent = email;
+                const viewName = document.getElementById('profileViewName');
+                if (viewName) viewName.textContent = (data.data && data.data.name) ? data.data.name : displayName;
+                const viewEmail = document.getElementById('profileViewEmail');
+                if (viewEmail) viewEmail.textContent = (data.data && data.data.email) ? data.data.email : email;
+                const viewImage = document.getElementById('profileViewImage');
+                if (viewImage) {
+                  if (data.data && data.data.profile_image) {
+                    viewImage.src = data.data.profile_image;
+                  } else {
+                    const preview = document.getElementById('profileEditImagePreview');
+                    if (preview) viewImage.src = preview.src;
+                  }
+                }
               } else {
                 let errMsg = data.message || 'Profil güncellenemedi';
                 if (!/^Error[:\s]/i.test(errMsg)) errMsg = 'Error: ' + errMsg;
