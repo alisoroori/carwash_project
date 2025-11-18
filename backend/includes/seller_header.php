@@ -25,6 +25,10 @@ $logo_src = $base_url . '/backend/logo01.png';
 $sidebar_logo_src = $_SESSION['logo_path'] ?? ($base_url . '/backend/logo01.png');
 $profile_src = $_SESSION['profile_image'] ?? ($base_url . '/frontend/images/default-avatar.svg');
 
+// Current logged-in user's display name and email (used in header)
+$user_name = $_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Kullanıcı';
+$user_email = $_SESSION['email'] ?? '';
+
 // URLs
 $home_url = $base_url . '/backend/index.php';
 $about_url = $base_url . '/backend/about.php';
@@ -198,7 +202,7 @@ if (empty($workplace_status)) $workplace_status = 'open';
                             </div>
                         </div>
 
-                        <span class="hidden md:block text-sm font-medium text-gray-700 max-w-[150px] truncate"><?php echo htmlspecialchars($user_name); ?></span>
+                        <span id="headerUserNameDisplay" class="hidden md:block text-sm font-medium text-gray-700 max-w-[150px] truncate"><?php echo htmlspecialchars($user_name); ?></span>
                         <i class="fas fa-chevron-down text-xs text-gray-400 hidden md:block"></i>
                     </button>
 
@@ -263,10 +267,10 @@ if (empty($workplace_status)) $workplace_status = 'open';
 <div id="mobileMenu" style="display:none; position:fixed; top:var(--header-height); left:0; right:0; bottom:0; background:rgba(255,255,255,0.97); z-index:1190; overflow:auto;">
     <div style="padding:1rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-            <img src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+            <img id="mobileMenuAvatar" src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
             <div>
-                <div style="font-weight:700"><?php echo htmlspecialchars($user_name); ?></div>
-                <div style="font-size:0.85rem;opacity:0.8"><?php echo htmlspecialchars($user_email); ?></div>
+                <div id="mobileMenuUserName" style="font-weight:700"><?php echo htmlspecialchars($user_name); ?></div>
+                <div id="mobileMenuUserEmail" style="font-size:0.85rem;opacity:0.8"><?php echo htmlspecialchars($user_email); ?></div>
             </div>
             <button onclick="toggleMobileMenu(true)" style="margin-left:auto;background:transparent;border:0;font-size:18px"><i class="fas fa-times"></i></button>
         </div>

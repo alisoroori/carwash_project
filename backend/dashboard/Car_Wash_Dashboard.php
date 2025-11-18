@@ -1789,12 +1789,52 @@ include '../includes/seller_header.php';
         <section id="business" class="section-content hidden">
           <div class="mb-8">
             <h2 class="text-3xl font-bold text-gray-800 mb-2">İşletme Bilgileri</h2>
-            <p class="text-gray-600">İşletme profilinizi ve çalışma saatlerinizi yönetin</p>
+            <p class="text-gray-600">İşletme profil bilgilerinizi yönetin</p>
           </div>
-
           <div class="bg-white rounded-2xl p-6 shadow-lg">
             <h3 class="text-xl font-bold mb-6">İşletme Bilgileri</h3>
-            <form id="businessInfoForm" class="space-y-4">
+
+            <!-- Business VIEW MODE (read-only) -->
+            <div id="businessViewMode" class="space-y-6">
+              <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
+                <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
+                  <img id="businessViewLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover">
+                </div>
+                <div>
+                  <h3 id="businessViewName" class="text-2xl font-bold text-gray-900"><?php echo htmlspecialchars($_SESSION['business_name'] ?? 'CarWash Merkez'); ?></h3>
+                  <p id="businessViewEmail" class="text-gray-600 mt-1"><?php echo htmlspecialchars($_SESSION['email'] ?? 'info@carwashmerkez.com'); ?></p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">Telefon</label>
+                  <p id="businessViewPhone" class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['phone'] ?? '0216 123 4567'); ?></p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">Adres</label>
+                  <p id="businessViewAddress" class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['address'] ?? 'İstanbul, Kadıköy, Moda Mahallesi, No: 123'); ?></p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">Cep Telefonu</label>
+                  <p id="businessViewMobile" class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['mobile_phone'] ?? '05XX XXX XX XX'); ?></p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">Posta Kodu</label>
+                  <p id="businessViewPostal" class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['postal_code'] ?? '-'); ?></p>
+                </div>
+              </div>
+
+              <div class="flex justify-end pt-6 border-t border-gray-200">
+                <button id="editBusinessBtn" type="button" onclick="toggleBusinessEdit(true)" class="px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2">
+                  <i class="fas fa-edit"></i>
+                  <span>Düzenle</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Business EDIT MODE (form) - hidden by default -->
+            <form id="businessInfoForm" class="space-y-4 hidden">
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Adı</label>
                   <label for="auto_114" class="sr-only">Input</label>
@@ -1925,19 +1965,24 @@ include '../includes/seller_header.php';
                   </div>
                 </div>
 
-                <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all">
-                  <i class="fas fa-save mr-2"></i>Bilgileri Güncelle
-                </button>
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                  <button type="button" onclick="toggleBusinessEdit(false)" class="w-full sm:w-auto px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors">
+                    İptal
+                  </button>
+                  <button type="submit" class="w-full sm:w-auto px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center justify-center gap-2">
+                    <i class="fas fa-save"></i>
+                    <span>Bilgileri Güncelle</span>
+                  </button>
+                </div>
               </form>
           </div>
         </section>
 
         <!-- Profile Section -->
         <section id="profile" class="section-content hidden">
-          <div class="mb-8 flex justify-between items-center">
+            <div class="mb-8 flex justify-between items-center">
             <div>
               <h2 class="text-3xl font-bold text-gray-800 mb-2">Profil Ayarları</h2>
-              <p class="text-gray-600">İşletme profil bilgilerinizi yönetin</p>
             </div>
             <button 
               id="editProfileBtn"
@@ -1963,7 +2008,7 @@ include '../includes/seller_header.php';
                   >
                 </div>
                 <div>
-                  <h3 class="text-2xl font-bold text-gray-900"><?php echo htmlspecialchars($_SESSION['business_name'] ?? $_SESSION['name'] ?? 'İşletme Adı'); ?></h3>
+                  <h3 class="text-2xl font-bold text-gray-900"><?php echo htmlspecialchars($_SESSION['name'] ?? 'Kullanıcı Adı'); ?></h3>
                   <p class="text-gray-600 mt-1"><?php echo htmlspecialchars($_SESSION['email'] ?? 'email@example.com'); ?></p>
                 </div>
               </div>
@@ -1971,8 +2016,8 @@ include '../includes/seller_header.php';
               <!-- Profile Details -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
-                  <label class="text-sm font-semibold text-gray-500">İşletme Adı</label>
-                  <p class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['business_name'] ?? $_SESSION['name'] ?? '-'); ?></p>
+                  <label class="text-sm font-semibold text-gray-500">İsim</label>
+                  <p class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['name'] ?? '-'); ?></p>
                 </div>
                 <div class="space-y-2">
                   <label class="text-sm font-semibold text-gray-500">E-posta</label>
@@ -2030,21 +2075,23 @@ include '../includes/seller_header.php';
 
               <!-- Form Fields -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Business Name -->
+                <!-- Display Name -->
                 <div>
-                  <label for="profile_business_name" class="block text-sm font-semibold text-gray-700 mb-2">
-                    İşletme Adı <span class="text-red-500">*</span>
+                  <label for="profile_display_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                    İsim (Görünen) <span class="text-red-500">*</span>
                   </label>
-                  <input 
+                  <input
                     type="text"
-                    id="profile_business_name"
-                    name="business_name"
-                    value="<?php echo htmlspecialchars($_SESSION['business_name'] ?? $_SESSION['name'] ?? ''); ?>"
+                    id="profile_display_name"
+                    name="name"
+                    value="<?php echo htmlspecialchars($_SESSION['name'] ?? $_SESSION['business_name'] ?? ''); ?>"
                     required
                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-                    placeholder="İşletme adınız"
+                    placeholder="Adınız"
                   >
                 </div>
+
+                <!-- Display Name (user) remains above -->
 
                 <!-- Email -->
                 <div>
@@ -2217,7 +2264,7 @@ include '../includes/seller_header.php';
     <!-- Farsça: پنل اعلان‌ها. -->
     <!-- Türkçe: Bildirim Paneli. -->
     <!-- English: Notification Panel. -->
-    <div id="notificationPanel" class="fixed top-20 right-4 w-80 bg-white rounded-2xl shadow-2xl z-50 hidden">
+    <div id="notificationPanel" class="fixed right-4 w-80 bg-white rounded-2xl shadow-2xl hidden" style="top: calc(var(--header-height) + 1rem); z-index:1250;">
       <div class="p-4 border-b">
         <div class="flex justify-between items-center">
           <h3 class="font-bold">Bildirimler</h3>
@@ -2600,6 +2647,26 @@ include '../includes/seller_header.php';
         }
       }
 
+      // Business Section Functions
+      function toggleBusinessEdit(openEdit = false) {
+        const viewMode = document.getElementById('businessViewMode');
+        const editForm = document.getElementById('businessInfoForm');
+        const editBtn = document.getElementById('editBusinessBtn');
+        if (!viewMode || !editForm) return;
+
+        if (openEdit) {
+          // show form
+          viewMode.classList.add('hidden');
+          editForm.classList.remove('hidden');
+          if (editBtn) editBtn.style.display = 'none';
+        } else {
+          // show view
+          editForm.classList.add('hidden');
+          viewMode.classList.remove('hidden');
+          if (editBtn) editBtn.style.display = '';
+        }
+      }
+
       function previewProfileImage(event) {
         const file = event.target.files[0];
         if (file) {
@@ -2662,7 +2729,7 @@ include '../includes/seller_header.php';
             })
             .then(response => response.json())
             .then(data => {
-              if (data.status === 'success') {
+              if (data.success === true) {
                 // Update business name in sidebars
                 document.getElementById('mobileSidebarBusinessName').textContent = businessName;
                 document.getElementById('desktopSidebarBusinessName').textContent = businessName;
@@ -2677,9 +2744,38 @@ include '../includes/seller_header.php';
                 
                 // Header logo remains as MyCar logo (fixed branding)
                 
+                // Update Business VIEW mode content
+                try {
+                  const viewNameEl = document.getElementById('businessViewName');
+                  if (viewNameEl) viewNameEl.textContent = document.getElementById('auto_114').value;
+                  const viewEmailEl = document.getElementById('businessViewEmail');
+                  if (viewEmailEl) viewEmailEl.textContent = document.getElementById('auto_118').value;
+                  const viewPhoneEl = document.getElementById('businessViewPhone');
+                  if (viewPhoneEl) viewPhoneEl.textContent = document.getElementById('auto_116').value;
+                  const viewMobileEl = document.getElementById('businessViewMobile');
+                  if (viewMobileEl) viewMobileEl.textContent = document.getElementById('auto_117').value;
+                  const viewAddressEl = document.getElementById('businessViewAddress');
+                  if (viewAddressEl) viewAddressEl.textContent = document.getElementById('auto_115').value;
+                  const viewPostalEl = document.getElementById('businessViewPostal');
+                  if (viewPostalEl) viewPostalEl.textContent = document.getElementById('auto_133') ? document.getElementById('auto_133').value : viewPostalEl.textContent;
+                  if (data.data && data.data.logo_path) {
+                    const logoUrl = data.data.logo_path;
+                    const viewLogo = document.getElementById('businessViewLogo');
+                    if (viewLogo) viewLogo.src = logoUrl;
+                  }
+                } catch (e) {
+                  console.warn('Failed to update business view after save', e);
+                }
+
+                // Switch back to view mode
+                toggleBusinessEdit(false);
+
                 showNotification(data.message || 'İşletme bilgileri başarıyla güncellendi!', 'success');
               } else {
-                showNotification(data.message || 'Bir hata oluştu', 'error');
+                // Ensure error messages start with 'Error:' per UI requirement
+                let errMsg = data.message || 'Bir hata oluştu';
+                if (!/^Error[:\s]/i.test(errMsg)) errMsg = 'Error: ' + errMsg;
+                showNotification(errMsg, 'error');
               }
               
               // Reset button
@@ -2688,7 +2784,7 @@ include '../includes/seller_header.php';
             })
             .catch(error => {
               console.error('API Error:', error);
-              showNotification('Bağlantı hatası. Lütfen tekrar deneyin.', 'error');
+              showNotification('Error: Bağlantı hatası. Lütfen tekrar deneyin.', 'error');
               
               // Reset button
               submitBtn.disabled = false;
@@ -2733,23 +2829,67 @@ include '../includes/seller_header.php';
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kaydediliyor...';
             
-            // TODO: Send to backend API
-            // For now, simulate success
-            setTimeout(function() {
-              showNotification('Profil başarıyla güncellendi!', 'success');
-              toggleProfileEdit();
-              
-              // Update view mode with new values
-              const businessName = document.getElementById('profile_business_name').value;
-              const email = document.getElementById('profile_email').value;
-              
-              // Update the displayed values
-              document.querySelector('#profileViewMode h3').textContent = businessName;
-              document.querySelector('#profileViewMode .text-gray-600').textContent = email;
-              
+            // Send to backend API
+            fetch('/carwash_project/backend/api/update_profile.php', {
+              method: 'POST',
+              body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success === true) {
+                showNotification(data.message || 'Profil başarıyla güncellendi!', 'success');
+                // Update header name and avatar (and mobile header) and explicitly close edit mode
+                try {
+                  if (data.data && data.data.name) {
+                    const headerNameEl = document.getElementById('headerUserNameDisplay');
+                    if (headerNameEl) headerNameEl.textContent = data.data.name;
+                    const mobileNameEl = document.getElementById('mobileMenuUserName');
+                    if (mobileNameEl) mobileNameEl.textContent = data.data.name;
+                  }
+                  if (data.data && data.data.profile_image) {
+                    const avatarEl = document.getElementById('userAvatarTop');
+                    if (avatarEl) {
+                      avatarEl.src = data.data.profile_image;
+                      avatarEl.style.display = '';
+                    }
+                    const mobileAvatar = document.getElementById('mobileMenuAvatar');
+                    if (mobileAvatar) mobileAvatar.src = data.data.profile_image;
+                  }
+                } catch (e) {
+                  console.warn('Failed to update header after profile save', e);
+                }
+
+                // Ensure edit mode is closed and view mode shown
+                const editMode = document.getElementById('profileEditMode');
+                const viewMode = document.getElementById('profileViewMode');
+                const editBtn = document.getElementById('editProfileBtn');
+                if (editMode && viewMode) {
+                  editMode.classList.add('hidden');
+                  viewMode.classList.remove('hidden');
+                  if (editBtn) editBtn.style.display = 'inline-flex';
+                }
+                // Update view mode values (user fields)
+                const displayName = document.getElementById('profile_display_name').value;
+                const email = document.getElementById('profile_email').value;
+                const viewH3 = document.querySelector('#profileViewMode h3');
+                if (viewH3) viewH3.textContent = displayName;
+                const emailEl = document.querySelector('#profileViewMode .text-gray-600');
+                if (emailEl) emailEl.textContent = email;
+              } else {
+                let errMsg = data.message || 'Profil güncellenemedi';
+                if (!/^Error[:\s]/i.test(errMsg)) errMsg = 'Error: ' + errMsg;
+                showNotification(errMsg, 'error');
+              }
+
               submitBtn.disabled = false;
               submitBtn.innerHTML = originalBtnText;
-            }, 1000);
+            })
+            .catch(err => {
+              console.error(err);
+              showNotification('Error: Sunucu hatası oluştu. Lütfen tekrar deneyin.', 'error');
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalBtnText;
+            });
           });
         }
       });
@@ -2762,51 +2902,54 @@ include '../includes/seller_header.php';
           existingNotification.remove();
         }
         
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.id = 'notification';
-        notification.className = 'fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full';
-        
-        // Set style based on type
-        if (type === 'success') {
-          notification.classList.add('bg-green-500', 'text-white');
-          notification.innerHTML = `
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-check-circle text-2xl"></i>
-              <div>
-                <p class="font-bold">Başarılı!</p>
-                <p class="text-sm">${message}</p>
+          // Create notification element and position it below the header
+          const notification = document.createElement('div');
+          notification.id = 'notification';
+          notification.className = 'fixed right-4 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full';
+          // Position under header using CSS var --header-height and ensure it appears above header
+          notification.style.top = 'calc(var(--header-height) + 1rem)';
+          notification.style.zIndex = '1250';
+
+          // Set style based on type
+          if (type === 'success') {
+            notification.classList.add('bg-green-500', 'text-white');
+            notification.innerHTML = `
+              <div class="flex items-center space-x-3">
+                <i class="fas fa-check-circle text-2xl"></i>
+                <div>
+                  <p class="font-bold">Başarılı!</p>
+                  <p class="text-sm">${message}</p>
+                </div>
               </div>
-            </div>
-          `;
-        } else if (type === 'error') {
-          notification.classList.add('bg-red-500', 'text-white');
-          notification.innerHTML = `
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-exclamation-circle text-2xl"></i>
-              <div>
-                <p class="font-bold">Hata!</p>
-                <p class="text-sm">${message}</p>
+            `;
+          } else if (type === 'error') {
+            notification.classList.add('bg-red-500', 'text-white');
+            notification.innerHTML = `
+              <div class="flex items-center space-x-3">
+                <i class="fas fa-exclamation-circle text-2xl"></i>
+                <div>
+                  <p class="font-bold">Hata!</p>
+                  <p class="text-sm">${message}</p>
+                </div>
               </div>
-            </div>
-          `;
-        }
-        
-        // Add to document
-        document.body.appendChild(notification);
-        
-        // Animate in
-        setTimeout(() => {
-          notification.classList.remove('translate-x-full');
-        }, 10);
-        
-        // Auto remove after 4 seconds
-        setTimeout(() => {
-          notification.classList.add('translate-x-full');
+            `;
+          }
+
+          // Add to document
+          document.body.appendChild(notification);
+
+          // Animate in
           setTimeout(() => {
-            notification.remove();
-          }, 300);
-        }, 4000);
+            notification.classList.remove('translate-x-full');
+          }, 10);
+
+          // Auto remove after 4 seconds
+          setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+              notification.remove();
+            }, 300);
+          }, 4000);
       }
 
       // Handle window resize for responsive behavior
