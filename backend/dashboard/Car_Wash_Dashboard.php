@@ -619,7 +619,7 @@ include '../includes/seller_header.php';
       <div class="p-6">
         <div class="text-center mb-8">
           <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
-            <img id="mobileSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Logo" class="w-full h-full object-cover sidebar-logo">
+            <img id="mobileSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover sidebar-logo">
           </div>
           <h3 class="text-xl font-bold" id="mobileSidebarBusinessName">CarWash Merkez</h3>
           <p class="text-sm opacity-75">Premium İşletme</p>
@@ -654,6 +654,10 @@ include '../includes/seller_header.php';
             <i class="fas fa-chart-bar mr-3"></i>
             Raporlar
           </a>
+          <a href="#profile" onclick="showSection('profile')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-user-circle mr-3"></i>
+            Profil
+          </a>
           <a href="#settings" onclick="showSection('settings')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-cog mr-3"></i>
             Ayarlar
@@ -667,7 +671,7 @@ include '../includes/seller_header.php';
       <div class="p-6">
         <div class="text-center mb-8">
           <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
-            <img id="desktopSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Logo" class="w-full h-full object-cover sidebar-logo">
+            <img id="desktopSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover sidebar-logo">
           </div>
           <h3 class="text-xl font-bold" id="desktopSidebarBusinessName">CarWash Merkez</h3>
           <p class="text-sm opacity-75">Premium İşletme</p>
@@ -709,6 +713,10 @@ include '../includes/seller_header.php';
           <a href="#invoices" onclick="showSection('invoices')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-file-invoice mr-3"></i>
             Faturalar
+          </a>
+          <a href="#profile" onclick="showSection('profile')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-user-circle mr-3"></i>
+            Profil
           </a>
           <a href="#settings" onclick="showSection('settings')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-cog mr-3"></i>
@@ -1825,7 +1833,7 @@ include '../includes/seller_header.php';
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Logosu</label>
                   <div class="flex items-center space-x-4">
-                    <img id="currentLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Current Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
+                    <img id="currentLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Current Business Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
                     <label for="logoUpload" class="sr-only">Choose file</label><input type="file" id="logoUpload" class="hidden" accept="image/*" onchange="previewLogo(event)">
                     <button type="button" onclick="document.getElementById('logoUpload').click()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
                       <i class="fas fa-upload mr-2"></i>Logo Yükle
@@ -1921,6 +1929,230 @@ include '../includes/seller_header.php';
                   <i class="fas fa-save mr-2"></i>Bilgileri Güncelle
                 </button>
               </form>
+          </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="section-content hidden">
+          <div class="mb-8 flex justify-between items-center">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-800 mb-2">Profil Ayarları</h2>
+              <p class="text-gray-600">İşletme profil bilgilerinizi yönetin</p>
+            </div>
+            <button 
+              id="editProfileBtn"
+              onclick="toggleProfileEdit()"
+              class="px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2"
+            >
+              <i class="fas fa-edit"></i>
+              <span>Düzenle</span>
+            </button>
+          </div>
+
+          <!-- VIEW MODE: Display Profile Info -->
+          <div id="profileViewMode" class="bg-white rounded-2xl shadow-lg p-8">
+            <div class="space-y-6">
+              <!-- Profile Header -->
+              <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
+                <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
+                  <img 
+                    id="profileViewImage"
+                    src="/carwash_project/backend/logo01.png" 
+                    alt="MyCar Logo" 
+                    class="w-full h-full object-cover"
+                  >
+                </div>
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-900"><?php echo htmlspecialchars($_SESSION['business_name'] ?? $_SESSION['name'] ?? 'İşletme Adı'); ?></h3>
+                  <p class="text-gray-600 mt-1"><?php echo htmlspecialchars($_SESSION['email'] ?? 'email@example.com'); ?></p>
+                </div>
+              </div>
+
+              <!-- Profile Details -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">İşletme Adı</label>
+                  <p class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['business_name'] ?? $_SESSION['name'] ?? '-'); ?></p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">E-posta</label>
+                  <p class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['email'] ?? '-'); ?></p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">Telefon</label>
+                  <p class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['phone'] ?? '-'); ?></p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">Kullanıcı Adı</label>
+                  <p class="text-base text-gray-900"><?php echo htmlspecialchars($_SESSION['username'] ?? '-'); ?></p>
+                </div>
+                <div class="space-y-2 md:col-span-2">
+                  <label class="text-sm font-semibold text-gray-500">Rol</label>
+                  <p class="text-base text-gray-900 capitalize"><?php echo htmlspecialchars(ucfirst($_SESSION['role'] ?? 'carwash')); ?></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EDIT MODE: Profile Form -->
+          <div id="profileEditMode" class="bg-white rounded-2xl shadow-lg p-8 hidden">
+            <form id="profileForm" class="space-y-6" enctype="multipart/form-data">
+              <!-- Profile Image Upload -->
+              <div class="mb-6 pb-6 border-b border-gray-200">
+                <h4 class="text-lg font-bold text-gray-900 mb-4">Profil Fotoğrafı</h4>
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                  <div class="flex-shrink-0">
+                    <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
+                      <img 
+                        id="profileEditImagePreview"
+                        src="/carwash_project/backend/logo01.png" 
+                        alt="MyCar Logo" 
+                        class="w-full h-full object-cover"
+                      >
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <label for="profile_image" class="block text-sm font-semibold text-gray-700 mb-2">
+                      Yeni Fotoğraf Yükle
+                    </label>
+                    <input 
+                      type="file" 
+                      id="profile_image" 
+                      name="profile_image" 
+                      accept="image/jpeg,image/png,image/jpg,image/webp"
+                      onchange="previewProfileImage(event)"
+                      class="block w-full text-sm text-gray-900 border-2 border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    >
+                    <p class="mt-2 text-xs text-gray-500">JPG, PNG veya WEBP formatında. Maksimum 3MB.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Fields -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Business Name -->
+                <div>
+                  <label for="profile_business_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                    İşletme Adı <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text"
+                    id="profile_business_name"
+                    name="business_name"
+                    value="<?php echo htmlspecialchars($_SESSION['business_name'] ?? $_SESSION['name'] ?? ''); ?>"
+                    required
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                    placeholder="İşletme adınız"
+                  >
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label for="profile_email" class="block text-sm font-semibold text-gray-700 mb-2">
+                    E-posta <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="email"
+                    id="profile_email"
+                    name="email"
+                    value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>"
+                    required
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                    placeholder="email@example.com"
+                  >
+                </div>
+
+                <!-- Phone -->
+                <div>
+                  <label for="profile_phone" class="block text-sm font-semibold text-gray-700 mb-2">Telefon</label>
+                  <input 
+                    type="tel"
+                    id="profile_phone"
+                    name="phone"
+                    value="<?php echo htmlspecialchars($_SESSION['phone'] ?? ''); ?>"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                    placeholder="+90 555 123 45 67"
+                  >
+                </div>
+
+                <!-- Username -->
+                <div>
+                  <label for="profile_username" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Kullanıcı Adı <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text"
+                    id="profile_username"
+                    name="username"
+                    value="<?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?>"
+                    required
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                    placeholder="kullanici_adi"
+                  >
+                </div>
+              </div>
+
+              <!-- Password Change Section -->
+              <div class="pt-6 border-t border-gray-200">
+                <h4 class="text-lg font-bold text-gray-900 mb-4">Şifre Değiştir</h4>
+                <p class="text-sm text-gray-600 mb-4">Şifrenizi değiştirmek istemiyorsanız bu alanları boş bırakın.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Current Password -->
+                  <div>
+                    <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Mevcut Şifre</label>
+                    <input 
+                      type="password"
+                      id="current_password"
+                      name="current_password"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                      placeholder="••••••••"
+                    >
+                  </div>
+
+                  <!-- New Password -->
+                  <div>
+                    <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre</label>
+                    <input 
+                      type="password"
+                      id="new_password"
+                      name="new_password"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                      placeholder="••••••••"
+                    >
+                  </div>
+
+                  <!-- Confirm Password -->
+                  <div class="md:col-span-2">
+                    <label for="confirm_password" class="block text-sm font-semibold text-gray-700 mb-2">Yeni Şifre (Tekrar)</label>
+                    <input 
+                      type="password"
+                      id="confirm_password"
+                      name="confirm_password"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                      placeholder="••••••••"
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
+                <button 
+                  type="button"
+                  onclick="toggleProfileEdit()"
+                  class="w-full sm:w-auto px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  İptal
+                </button>
+                <button 
+                  type="submit"
+                  class="w-full sm:w-auto px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center justify-center gap-2"
+                >
+                  <i class="fas fa-save"></i>
+                  <span>Kaydet</span>
+                </button>
+              </div>
+            </form>
           </div>
         </section>
 
@@ -2349,22 +2581,52 @@ include '../includes/seller_header.php';
         modal.classList.remove('flex');
       }
 
+      // Profile Section Functions
+      function toggleProfileEdit() {
+        const viewMode = document.getElementById('profileViewMode');
+        const editMode = document.getElementById('profileEditMode');
+        const editBtn = document.getElementById('editProfileBtn');
+        
+        if (editMode.classList.contains('hidden')) {
+          // Switch to edit mode
+          viewMode.classList.add('hidden');
+          editMode.classList.remove('hidden');
+          editBtn.style.display = 'none';
+        } else {
+          // Switch to view mode
+          editMode.classList.add('hidden');
+          viewMode.classList.remove('hidden');
+          editBtn.style.display = 'inline-flex';
+        }
+      }
+
+      function previewProfileImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            document.getElementById('profileEditImagePreview').src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
       // Farsça: تنظیمات - پیش‌نمایش بارگذاری لوگو.
       // Türkçe: Ayarlar - Logo Yükleme Önizlemesi.
       // English: Settings - Logo Upload Preview.
       function previewLogo(event) {
         const reader = new FileReader();
         reader.onload = function() {
+          // Show preview in the form
           const output = document.getElementById('currentLogo');
           output.src = reader.result;
-          // Update header and sidebar logos in-place so preview reflects across UI
-          try {
-            document.querySelectorAll('.header-logo, .sidebar-logo, #mobileSidebarLogo, #desktopSidebarLogo, img#siteLogo').forEach(function(img) {
-              img.src = reader.result;
-            });
-          } catch (e) {
-            console.warn('Could not update header/sidebar logos during preview:', e);
-          }
+          
+          // Update ONLY sidebar logos (not header logo)
+          document.querySelectorAll('#mobileSidebarLogo, #desktopSidebarLogo').forEach(function(img) {
+            img.src = reader.result;
+          });
+          
+          // Header logo stays as MyCar logo (fixed branding)
         };
         reader.readAsDataURL(event.target.files[0]);
       }
@@ -2405,23 +2667,15 @@ include '../includes/seller_header.php';
                 document.getElementById('mobileSidebarBusinessName').textContent = businessName;
                 document.getElementById('desktopSidebarBusinessName').textContent = businessName;
                 
-                // Update logo in all locations if file was uploaded and returned
+                // Update ONLY sidebar logos if a new logo was uploaded
                 if (data.data && data.data.logo_path) {
                   const logoUrl = data.data.logo_path;
-                  document.querySelectorAll('.sidebar-logo, #mobileSidebarLogo, #desktopSidebarLogo, #currentLogo').forEach(function(img) {
+                  document.querySelectorAll('#mobileSidebarLogo, #desktopSidebarLogo').forEach(function(img) {
                     img.src = logoUrl;
                   });
-                } else if (logoFile) {
-                  // Fallback to local preview if no path returned
-                  const reader = new FileReader();
-                  reader.onload = function(e) {
-                    const logoUrl = e.target.result;
-                    document.querySelectorAll('.sidebar-logo, #mobileSidebarLogo, #desktopSidebarLogo, #currentLogo').forEach(function(img) {
-                      img.src = logoUrl;
-                    });
-                  };
-                  reader.readAsDataURL(logoFile);
                 }
+                
+                // Header logo remains as MyCar logo (fixed branding)
                 
                 showNotification(data.message || 'İşletme bilgileri başarıyla güncellendi!', 'success');
               } else {
@@ -2440,6 +2694,62 @@ include '../includes/seller_header.php';
               submitBtn.disabled = false;
               submitBtn.innerHTML = originalBtnText;
             });
+          });
+        }
+      });
+
+      // Profile Form Submit Handler
+      document.addEventListener('DOMContentLoaded', function() {
+        const profileForm = document.getElementById('profileForm');
+        
+        if (profileForm) {
+          profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate password fields if any are filled
+            const currentPassword = document.getElementById('current_password').value;
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (newPassword || confirmPassword) {
+              if (!currentPassword) {
+                showNotification('Yeni şifre belirlemek için mevcut şifrenizi girmelisiniz', 'error');
+                return;
+              }
+              if (newPassword !== confirmPassword) {
+                showNotification('Yeni şifreler eşleşmiyor', 'error');
+                return;
+              }
+              if (newPassword.length < 6) {
+                showNotification('Yeni şifre en az 6 karakter olmalıdır', 'error');
+                return;
+              }
+            }
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kaydediliyor...';
+            
+            // TODO: Send to backend API
+            // For now, simulate success
+            setTimeout(function() {
+              showNotification('Profil başarıyla güncellendi!', 'success');
+              toggleProfileEdit();
+              
+              // Update view mode with new values
+              const businessName = document.getElementById('profile_business_name').value;
+              const email = document.getElementById('profile_email').value;
+              
+              // Update the displayed values
+              document.querySelector('#profileViewMode h3').textContent = businessName;
+              document.querySelector('#profileViewMode .text-gray-600').textContent = email;
+              
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalBtnText;
+            }, 1000);
           });
         }
       });

@@ -19,7 +19,10 @@ $user_name = $_SESSION['name'] ?? $_SESSION['full_name'] ?? 'Kullanıcı';
 $user_email = $_SESSION['email'] ?? '';
 $user_role = $_SESSION['role'] ?? 'carwash';
 
-$logo_src = $_SESSION['logo_path'] ?? ($base_url . '/backend/logo01.png');
+// Header logo is always MyCar logo (fixed branding)
+$logo_src = $base_url . '/backend/logo01.png';
+// Sidebar logo can be customized (stored in session)
+$sidebar_logo_src = $_SESSION['logo_path'] ?? ($base_url . '/backend/logo01.png');
 $profile_src = $_SESSION['profile_image'] ?? ($base_url . '/frontend/images/default-avatar.svg');
 
 // URLs
