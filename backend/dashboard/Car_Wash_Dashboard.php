@@ -630,6 +630,10 @@ include '../includes/seller_header.php';
             <i class="fas fa-tachometer-alt mr-3"></i>
             Genel Bakış
           </a>
+          <a href="#business" onclick="showSection('business')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-building mr-3"></i>
+            İşletme Bilgileri
+          </a>
           <a href="#reservations" onclick="showSection('reservations')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-calendar-alt mr-3"></i>
             Rezervasyonlar
@@ -673,6 +677,10 @@ include '../includes/seller_header.php';
           <a href="#dashboard" onclick="showSection('dashboard')" class="flex items-center p-3 rounded-lg bg-white bg-opacity-20">
             <i class="fas fa-tachometer-alt mr-3"></i>
             Genel Bakış
+          </a>
+          <a href="#business" onclick="showSection('business')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <i class="fas fa-building mr-3"></i>
+            İşletme Bilgileri
           </a>
           <a href="#reservations" onclick="showSection('reservations')" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
             <i class="fas fa-calendar-check mr-3"></i>
@@ -1769,20 +1777,16 @@ include '../includes/seller_header.php';
           </div>
         </section>
 
-        <!-- Settings -->
-        <!-- Farsça: بخش تنظیمات. -->
-        <!-- Türkçe: Ayarlar bölümü. -->
-        <!-- English: Settings section. -->
-        <section id="settings" class="section-content hidden">
+        <!-- Business (İşletme Bilgileri) - Independent Section -->
+        <section id="business" class="section-content hidden">
           <div class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Ayarlar</h2>
-            <p class="text-gray-600">İşletme ayarlarınızı yönetin</p>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">İşletme Bilgileri</h2>
+            <p class="text-gray-600">İşletme profilinizi ve çalışma saatlerinizi yönetin</p>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-white rounded-2xl p-6 shadow-lg">
-              <h3 class="text-xl font-bold mb-6">İşletme Bilgileri</h3>
-              <form class="space-y-4">
+          <div class="bg-white rounded-2xl p-6 shadow-lg">
+            <h3 class="text-xl font-bold mb-6">İşletme Bilgileri</h3>
+            <form class="space-y-4">
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Adı</label>
                   <label for="auto_114" class="sr-only">Input</label>
@@ -1900,13 +1904,34 @@ include '../includes/seller_header.php';
                   </div>
                 </div>
 
+                <!-- Certificate Upload Section -->
+                <div class="mb-6">
+                  <h4 class="text-lg font-bold mb-4 text-gray-800">
+                    <i class="fas fa-certificate mr-2 text-yellow-500"></i>Sertifika Yükle (İsteğe Bağlı)
+                  </h4>
+                  <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Sertifika Dosyası</label>
+                    <p class="text-sm text-gray-600 mb-3">İşletmenizle ilgili sertifikaları yükleyebilirsiniz (PDF, Word, veya resim formatında)</p>
+                    <input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" accept=".pdf,.doc,.docx,.jpg,.png" id="certificateUpload">
+                    <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle mr-1"></i>Maksimum dosya boyutu: 5MB</p>
+                  </div>
+                </div>
+
                 <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all">
                   <i class="fas fa-save mr-2"></i>Bilgileri Güncelle
                 </button>
               </form>
-            </div>
+          </div>
+        </section>
 
-            <div class="bg-white rounded-2xl p-6 shadow-lg">
+        <!-- Settings -->
+        <section id="settings" class="section-content hidden">
+          <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Ayarlar</h2>
+            <p class="text-gray-600">Sistem ayarlarınızı yönetin</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 shadow-lg">
               <h3 class="text-xl font-bold mb-6">Sistem Ayarları</h3>
               <div class="space-y-4">
                 <label class="flex items-center justify-between p-4 border rounded-lg">
@@ -1952,7 +1977,6 @@ include '../includes/seller_header.php';
                   </div>
                 </div>
               </div>
-            </div>
           </div>
         </section>
       </main>
@@ -2147,18 +2171,6 @@ include '../includes/seller_header.php';
           <div>
             <label for="auto_167" class="sr-only">E-posta</label>
             <input type="email" id="auto_167" placeholder="email@domain.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-          </div>
-          <div class="flex space-x-3">
-            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
-            <button type="button" onclick="closeStaffModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
-          </div>
-        </form>
-      </div>
-    </div>
-            <!-- cleaned stray labels from earlier merge corruption -->
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Sertifika Yükle (İsteğe Bağlı)</label>
-            <label for="auto_170" class="sr-only">Choose file</label><input type="file" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" accept=".pdf,.doc,.docx,.jpg,.png" id="auto_170">
           </div>
           <div class="flex space-x-3">
             <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
