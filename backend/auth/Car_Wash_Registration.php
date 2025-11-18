@@ -14,7 +14,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Include header
-include '../includes/header.php';
+include '../includes/universal_header.php';
 ?>
 
 <!-- Additional CSS for car wash registration page -->

@@ -144,8 +144,11 @@ $custom_header_content = '
 </div>
 ';
 
-// Include the universal dashboard header
-include '../includes/dashboard_header.php';
+// Previous header include (kept commented for backup)
+// include '../includes/dashboard_header.php';
+
+// Use the Seller Header for the Carwash Dashboard (pasted/included Seller header)
+include '../includes/seller_header.php';
 ?>
 
 <!-- Dashboard Specific Styles -->

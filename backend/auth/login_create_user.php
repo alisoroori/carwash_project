@@ -48,7 +48,7 @@ $about_url = '../index.php#about';
 $contact_url = '../index.php#contact';
 
 // Include header
-include '../includes/header.php';
+include '../includes/universal_header.php';
 ?>
 
   <!-- Additional CSS for login page -->

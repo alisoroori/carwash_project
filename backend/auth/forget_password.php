@@ -9,7 +9,7 @@ $current_page = 'forgot_password';
 $show_login = false; // Don't show login button on forgot password page
 
 // Include header
-include '../includes/header.php';
+include '../includes/universal_header.php';
 ?>
 
 <!-- Additional CSS for forgot password page -->

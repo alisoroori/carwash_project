@@ -25,8 +25,8 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
     require_once __DIR__ . '/../includes/lang_helper.php';
     $html_lang_attrs = get_lang_dir_attrs_for_file(__FILE__);
 }
-// Include the universal dashboard header
-include '../includes/dashboard_header.php';
+// Include Admin Header (standardized)
+include '../includes/admin_header.php';
 ?>
 <!-- Lazy-section loader (loads dashboard fragments when they come into view) -->
 <script defer src="<?php echo $base_url; ?>/frontend/js/section-loader.js"></script>

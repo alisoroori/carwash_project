@@ -804,73 +804,14 @@ if (!isset($base_url)) {
             </div>
         </div>
         
-        <!-- User Menu -->
-        <div class="relative" x-data="{ userMenuOpen: false }">
-            <button 
-                @click="userMenuOpen = !userMenuOpen"
-                @click.away="userMenuOpen = false"
-                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-expanded="false"
-                aria-haspopup="true"
-            >
-                <!-- Header profile image (updates when user uploads new image) -->
-                <div id="headerProfileContainer" class="rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                    <img id="userAvatarTop" src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                    <div id="userAvatarFallback" class="text-white font-semibold text-sm" style="display: none;">
-                        <?php echo strtoupper(substr($user_name, 0, 1)); ?>
-                    </div>
-                </div>
-
-                <!-- Small company logo placed before the user name for quick branding -->
-
-
-                <span class="hidden md:block text-sm font-medium text-gray-700 max-w-[150px] truncate"><?php echo htmlspecialchars($user_name); ?></span>
-                <i class="fas fa-chevron-down text-xs text-gray-400 hidden md:block"></i>
-            </button>
-            
-            <!-- Dropdown Menu -->
-            <div 
-                x-show="userMenuOpen"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 scale-95 transform -translate-y-2"
-                x-transition:enter-end="opacity-100 scale-100 transform translate-y-0"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 scale-100"
-                x-transition:leave-end="opacity-0 scale-95"
-                class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 overflow-hidden z-50"
-                style="display: none;"
-            >
-                <!-- User Info Header -->
-                <div class="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
-                    <p class="text-sm font-semibold text-gray-900 truncate">
-                        <?php echo htmlspecialchars($user_name); ?>
-                    </p>
-                    <p class="text-xs text-gray-600 truncate">
-                        <?php echo htmlspecialchars($user_email); ?>
-                    </p>
-                </div>
-                
-                <!-- Menu Items -->
-                <div class="py-2">
-                    <a href="#profile" @click="currentSection = 'profile'; userMenuOpen = false" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
-                        <i class="fas fa-user-circle w-5 text-blue-600 mr-3"></i>
-                        <span>Profil</span>
-                    </a>
-                    <a href="/carwash_project/backend/index.php" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
-                        <i class="fas fa-home w-5 text-blue-600 mr-3"></i>
-                        <span>Ana Sayfa</span>
-                    </a>
-                </div>
-                
-                <!-- Logout -->
-                <div class="border-t border-gray-200">
-                    <a href="/carwash_project/backend/includes/logout.php" class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium">
-                        <i class="fas fa-sign-out-alt w-5 mr-3"></i>
-                        <span>Çıkış Yap</span>
-                    </a>
-                </div>
-            </div>
-        </div>
+        <!-- User Menu (shared fragment) -->
+        <?php
+            // Prepare variables expected by the fragment
+            $profile_src = !empty($user_profile_image) ? $user_profile_image : ($base_url . '/frontend/assets/img/default-user.png');
+            $home_url = $base_url . '/backend/index.php';
+            $logout_url = $base_url . '/backend/includes/logout.php';
+            include __DIR__ . '/../includes/profile_header_fragment.php';
+        ?>
     </div>
 </header>
 

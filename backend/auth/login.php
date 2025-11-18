@@ -51,7 +51,8 @@ $about_url = '../index.php#about';
 $contact_url = '../index.php#contact';
 
 // Include header
-include '../includes/header.php';
+// Use Universal Header for public/auth pages
+include '../includes/universal_header.php';
 ?>
 
   <!-- Additional CSS for login page -->

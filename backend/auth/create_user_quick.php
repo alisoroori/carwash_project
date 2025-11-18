@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Render page (login-styled)
 ?>
-<?php include __DIR__ . '/../includes/header.php'; ?>
+<?php include __DIR__ . '/../includes/universal_header.php'; ?>
   <style>
     /* keep styles consistent with login page */
     .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }

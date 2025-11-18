@@ -85,7 +85,7 @@ if (class_exists('\App\Classes\Database')) {
 // Basic HTML output (keeps consistent header/footer via includes)
 $isPartial = isset($_GET['partial']) && $_GET['partial'] === '1';
 $page_title = 'Yeni Rezervasyon';
-if (!$isPartial) include __DIR__ . '/../includes/dashboard_header.php';
+  if (!$isPartial) include __DIR__ . '/../includes/customer_header.php';
 ?>
 
 <div class="max-w-3xl mx-auto p-6">
