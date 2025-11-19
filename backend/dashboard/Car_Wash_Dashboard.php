@@ -147,8 +147,92 @@ $custom_header_content = '
 // Previous header include (kept commented for backup)
 // include '../includes/dashboard_header.php';
 
+// Ensure Composer autoload and app bootstrap are available before using classes
+require_once __DIR__ . '/../includes/bootstrap.php';
+
 // Use the Seller Header for the Carwash Dashboard (pasted/included Seller header)
 include '../includes/seller_header.php';
+
+// Load authoritative business data from the database so the form uses DB values
+try {
+  // Ensure Database class is available via autoload from bootstrap (header include does this)
+  if (isset($_SESSION['user_id'])) {
+    $userId = (int) $_SESSION['user_id'];
+    try {
+      $db = App\Classes\Database::getInstance();
+      $pdo = $db->getPdo();
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+      $tblCheck = $pdo->prepare("SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = :tbl");
+      $tblCheck->execute(['tbl' => 'business_profiles']);
+      $hasBusinessProfiles = (int) $tblCheck->fetch(PDO::FETCH_ASSOC)['cnt'] > 0;
+
+      if ($hasBusinessProfiles) {
+        $fetch = $pdo->prepare("SELECT id,user_id,business_name,address,postal_code,phone AS phone,mobile_phone AS mobile_phone,email AS email,working_hours AS working_hours,logo_path,created_at,updated_at FROM business_profiles WHERE user_id = :user_id LIMIT 1");
+        $fetch->execute(['user_id' => $userId]);
+        $business = $fetch->fetch(PDO::FETCH_ASSOC) ?: [];
+        if (!empty($business['working_hours'])) {
+          $decoded = json_decode($business['working_hours'], true);
+          $business['working_hours'] = $decoded === null ? $business['working_hours'] : $decoded;
+        }
+      } else {
+        $fetch = $pdo->prepare("SELECT id,user_id,business_name,address,postal_code,contact_phone AS phone, contact_email AS email, opening_hours AS working_hours, featured_image AS logo_path, social_media, created_at, updated_at FROM carwash_profiles WHERE user_id = :user_id LIMIT 1");
+        $fetch->execute(['user_id' => $userId]);
+        $business = $fetch->fetch(PDO::FETCH_ASSOC) ?: [];
+        if (!empty($business)) {
+          if (!empty($business['working_hours'])) {
+            $decoded = json_decode($business['working_hours'], true);
+            $business['working_hours'] = $decoded === null ? $business['working_hours'] : $decoded;
+          }
+
+          // Extract mobile_phone from social_media JSON (legacy fallback)
+          $business['mobile_phone'] = $business['mobile_phone'] ?? null;
+          if (!empty($business['social_media'])) {
+            $sm = json_decode($business['social_media'], true);
+            if (is_array($sm)) {
+              foreach (['mobile_phone', 'mobile', 'phone', 'telephone', 'tel'] as $k) {
+                if (!empty($sm[$k])) {
+                  $business['mobile_phone'] = $sm[$k];
+                  break;
+                }
+              }
+
+              if (empty($business['mobile_phone']) && isset($sm['whatsapp'])) {
+                if (is_array($sm['whatsapp'])) {
+                  $business['mobile_phone'] = $sm['whatsapp']['number'] ?? $sm['whatsapp']['phone'] ?? $business['mobile_phone'];
+                } elseif (is_string($sm['whatsapp'])) {
+                  $business['mobile_phone'] = $sm['whatsapp'];
+                }
+              }
+            }
+          }
+
+          // Remove social_media from $business to avoid leaking raw JSON into the view
+          unset($business['social_media']);
+        }
+      }
+
+      // Populate session fallbacks so view-mode that uses $_SESSION stays consistent
+      if (!empty($business)) {
+        if (!empty($business['business_name'])) $_SESSION['business_name'] = $business['business_name'];
+        if (!empty($business['email'])) $_SESSION['email'] = $business['email'];
+        if (!empty($business['phone'])) $_SESSION['phone'] = $business['phone'];
+        if (!empty($business['address'])) $_SESSION['address'] = $business['address'];
+        if (!empty($business['postal_code'])) $_SESSION['postal_code'] = $business['postal_code'];
+        if (!empty($business['mobile_phone'])) $_SESSION['mobile_phone'] = $business['mobile_phone'];
+        if (!empty($business['logo_path'])) $_SESSION['logo_path'] = $business['logo_path'];
+      }
+    } catch (Exception $e) {
+      // Do not break the page if DB read fails; log and continue with session defaults
+      error_log('Dashboard business fetch error: ' . $e->getMessage());
+      $business = [];
+    }
+  } else {
+    $business = [];
+  }
+} catch (Exception $e) {
+  $business = [];
+}
 ?>
 
 <!-- Dashboard Specific Styles -->
@@ -1835,22 +1919,24 @@ include '../includes/seller_header.php';
 
             <!-- Business EDIT MODE (form) - hidden by default -->
             <form id="businessInfoForm" class="space-y-4 hidden">
+              <!-- Hidden business_id (optional) - backend will use session user_id if empty -->
+              <input type="hidden" name="business_id" id="business_id" value="<?php echo htmlspecialchars($business['id'] ?? $_SESSION['business_id'] ?? ''); ?>">
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Adı</label>
                   <label for="auto_114" class="sr-only">Input</label>
-                  <input type="text" name="business_name" value="CarWash Merkez" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_114">
+                  <input type="text" name="business_name" value="<?php echo htmlspecialchars($business['business_name'] ?? $_SESSION['business_name'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_114">
                 </div>
 
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Adres</label>
-                  <label for="auto_115" class="sr-only">Input</label><textarea name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_115">İstanbul, Kadıköy, Moda Mahallesi, No: 123</textarea>
+                  <label for="auto_115" class="sr-only">Input</label><textarea name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_115"><?php echo htmlspecialchars($business['address'] ?? $_SESSION['address'] ?? ''); ?></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
                     <label for="auto_116" class="sr-only">Phone</label>
-                    <input type="tel" name="phone" value="0216 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_116">
+                    <input type="tel" name="phone" value="<?php echo htmlspecialchars($business['phone'] ?? $_SESSION['phone'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_116">
                   </div>
                   <!-- Farsça: فیلد شماره تلفن همراه. -->
                   <!-- Türkçe: Cep Telefonu Numarası Alanı. -->
@@ -1858,13 +1944,13 @@ include '../includes/seller_header.php';
                   <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Cep Telefonu</label>
                     <label for="auto_117" class="sr-only">Phone</label>
-                    <input type="tel" name="mobile_phone" value="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_117">
+                    <input type="tel" name="mobile_phone" value="<?php echo htmlspecialchars($business['mobile_phone'] ?? $_SESSION['mobile_phone'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_117">
                   </div>
                 </div>
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">Email</label>
                   <label for="auto_118" class="sr-only">Email</label>
-                  <input type="email" name="email" value="info@carwashmerkez.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_118">
+                  <input type="email" name="email" value="<?php echo htmlspecialchars($business['email'] ?? $_SESSION['email'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_118">
                 </div>
 
                 <!-- Farsça: گزینه بارگذاری لوگو. -->
@@ -1873,8 +1959,8 @@ include '../includes/seller_header.php';
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Logosu</label>
                   <div class="flex items-center space-x-4">
-                    <img id="currentLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Current Business Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
-                    <label for="logoUpload" class="sr-only">Choose file</label><input type="file" id="logoUpload" class="hidden" accept="image/*" onchange="previewLogo(event)">
+                    <img id="currentLogo" src="<?php echo htmlspecialchars($business['logo_path'] ?? $_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Current Business Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
+                    <label for="logoUpload" class="sr-only">Choose file</label><input type="file" id="logoUpload" name="logo" class="hidden" accept="image/*" onchange="previewLogo(event)">
                     <button type="button" onclick="document.getElementById('logoUpload').click()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
                       <i class="fas fa-upload mr-2"></i>Logo Yükle
                     </button>
@@ -1890,66 +1976,73 @@ include '../includes/seller_header.php';
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Pazartesi:</span>
                       <label for="auto_119" class="sr-only">Başlangıç</label>
-                      <input type="time" name="monday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_119">
+                      <input type="time" name="monday_start" value="<?php echo htmlspecialchars(($business['working_hours']['monday']['start'] ?? $business['working_hours']['monday_start'] ?? '08:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_119">
                       <span class="mx-2">-</span>
                       <label for="auto_120" class="sr-only">Bitiş</label>
-                      <input type="time" name="monday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_120">
+                      <input type="time" name="monday_end" value="<?php echo htmlspecialchars(($business['working_hours']['monday']['end'] ?? $business['working_hours']['monday_end'] ?? '20:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_120">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Salı:</span>
                       <label for="auto_121" class="sr-only">Başlangıç</label>
-                      <input type="time" name="tuesday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_121">
+                      <input type="time" name="tuesday_start" value="<?php echo htmlspecialchars(($business['working_hours']['tuesday']['start'] ?? $business['working_hours']['tuesday_start'] ?? '08:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_121">
                       <span class="mx-2">-</span>
                       <label for="auto_122" class="sr-only">Bitiş</label>
-                      <input type="time" name="tuesday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_122">
+                      <input type="time" name="tuesday_end" value="<?php echo htmlspecialchars(($business['working_hours']['tuesday']['end'] ?? $business['working_hours']['tuesday_end'] ?? '20:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_122">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Çarşamba:</span>
                       <label for="auto_123" class="sr-only">Başlangıç</label>
-                      <input type="time" name="wednesday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_123">
+                      <input type="time" name="wednesday_start" value="<?php echo htmlspecialchars(($business['working_hours']['wednesday']['start'] ?? $business['working_hours']['wednesday_start'] ?? '08:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_123">
                       <span class="mx-2">-</span>
                       <label for="auto_124" class="sr-only">Bitiş</label>
-                      <input type="time" name="wednesday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_124">
+                      <input type="time" name="wednesday_end" value="<?php echo htmlspecialchars(($business['working_hours']['wednesday']['end'] ?? $business['working_hours']['wednesday_end'] ?? '20:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_124">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Perşembe:</span>
                       <label for="auto_125" class="sr-only">Başlangıç</label>
-                      <input type="time" name="thursday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_125">
+                      <input type="time" name="thursday_start" value="<?php echo htmlspecialchars(($business['working_hours']['thursday']['start'] ?? $business['working_hours']['thursday_start'] ?? '08:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_125">
                       <span class="mx-2">-</span>
                       <label for="auto_126" class="sr-only">Bitiş</label>
-                      <input type="time" name="thursday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_126">
+                      <input type="time" name="thursday_end" value="<?php echo htmlspecialchars(($business['working_hours']['thursday']['end'] ?? $business['working_hours']['thursday_end'] ?? '20:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_126">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Cuma:</span>
                       <label for="auto_127" class="sr-only">Başlangıç</label>
-                      <input type="time" name="friday_start" value="08:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_127">
+                      <input type="time" name="friday_start" value="<?php echo htmlspecialchars(($business['working_hours']['friday']['start'] ?? $business['working_hours']['friday_start'] ?? '08:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_127">
                       <span class="mx-2">-</span>
                       <label for="auto_128" class="sr-only">Bitiş</label>
-                      <input type="time" name="friday_end" value="20:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_128">
+                      <input type="time" name="friday_end" value="<?php echo htmlspecialchars(($business['working_hours']['friday']['end'] ?? $business['working_hours']['friday_end'] ?? '20:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_128">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Cumartesi:</span>
                       <label for="auto_129" class="sr-only">Başlangıç</label>
-                      <input type="time" name="saturday_start" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_129">
+                      <input type="time" name="saturday_start" value="<?php echo htmlspecialchars(($business['working_hours']['saturday']['start'] ?? $business['working_hours']['saturday_start'] ?? '09:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_129">
                       <span class="mx-2">-</span>
                       <label for="auto_130" class="sr-only">Bitiş</label>
-                      <input type="time" name="saturday_end" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_130">
+                      <input type="time" name="saturday_end" value="<?php echo htmlspecialchars(($business['working_hours']['saturday']['end'] ?? $business['working_hours']['saturday_end'] ?? '18:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_130">
                     </div>
 
                     <div class="flex items-center space-x-2">
                       <span class="w-24 text-gray-600">Pazar:</span>
                       <label for="auto_131" class="sr-only">Başlangıç</label>
-                      <input type="time" name="sunday_start" value="09:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_131">
+                      <input type="time" name="sunday_start" value="<?php echo htmlspecialchars(($business['working_hours']['sunday']['start'] ?? $business['working_hours']['sunday_start'] ?? '09:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_131">
                       <span class="mx-2">-</span>
                       <label for="auto_132" class="sr-only">Bitiş</label>
-                      <input type="time" name="sunday_end" value="18:00" class="w-24 px-3 py-2 border rounded-lg" id="auto_132">
+                      <input type="time" name="sunday_end" value="<?php echo htmlspecialchars(($business['working_hours']['sunday']['end'] ?? $business['working_hours']['sunday_end'] ?? '18:00')); ?>" class="w-24 px-3 py-2 border rounded-lg" id="auto_132">
                     </div>
                   </div>
+                </div>
+
+                <!-- Postal code (mapped to DB column `postal_code`) -->
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">Posta Kodu</label>
+                  <label for="auto_133" class="sr-only">Postal Code</label>
+                  <input type="text" name="postal_code" id="auto_133" value="<?php echo htmlspecialchars($business['postal_code'] ?? $_SESSION['postal_code'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
 
                 <!-- Certificate Upload Section -->
@@ -2666,10 +2759,42 @@ include '../includes/seller_header.php';
         if (!viewMode || !editForm) return;
 
         if (openEdit) {
-          // show form
-          viewMode.classList.add('hidden');
-          editForm.classList.remove('hidden');
-          if (editBtn) editBtn.style.display = 'none';
+          // show form and load authoritative values from server
+          fetch('/carwash_project/backend/api/get_business_info.php')
+            .then(r => r.json())
+            .then(bres => {
+              if (bres && bres.success === true && bres.data) {
+                const b = bres.data;
+                // Populate form fields if present
+                const byId = (id) => document.getElementById(id);
+                if (byId('auto_114')) byId('auto_114').value = b.business_name || '';
+                if (byId('auto_115')) byId('auto_115').value = b.address || '';
+                if (byId('auto_116')) byId('auto_116').value = b.phone || b.contact_phone || '';
+                if (byId('auto_117')) byId('auto_117').value = b.mobile_phone || '';
+                if (byId('auto_118')) byId('auto_118').value = b.email || b.contact_email || '';
+                if (byId('auto_133')) byId('auto_133').value = b.postal_code || '';
+                // Working hours may be an object
+                const wh = b.working_hours || {};
+                const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+                days.forEach(day => {
+                  const startEl = byId('auto_' + ({'monday':119,'tuesday':121,'wednesday':123,'thursday':125,'friday':127,'saturday':129,'sunday':131}[day]));
+                  const endEl = byId('auto_' + ({'monday':120,'tuesday':122,'wednesday':124,'thursday':126,'friday':128,'saturday':130,'sunday':132}[day]));
+                  if (startEl) startEl.value = (wh[day] && wh[day].start) ? wh[day].start : (wh[day + '_start'] || startEl.value);
+                  if (endEl) endEl.value = (wh[day] && wh[day].end) ? wh[day].end : (wh[day + '_end'] || endEl.value);
+                });
+                // Logo preview
+                if (b.logo_path) {
+                  const cur = document.getElementById('currentLogo');
+                  if (cur) cur.src = b.logo_path;
+                }
+              }
+            })
+            .catch(e => console.warn('Failed to load business info for edit mode', e))
+            .finally(() => {
+              viewMode.classList.add('hidden');
+              editForm.classList.remove('hidden');
+              if (editBtn) editBtn.style.display = 'none';
+            });
         } else {
           // show view
           editForm.classList.add('hidden');
@@ -2747,36 +2872,49 @@ include '../includes/seller_header.php';
                 
                 // Update ONLY sidebar logos if a new logo was uploaded
                 if (data.data && data.data.logo_path) {
-                  const logoUrl = data.data.logo_path;
+                  // Append a timestamp to bust browser cache after upload
+                  const ts = Date.now();
+                  const logoUrl = data.data.logo_path + (data.data.logo_path.indexOf('?') === -1 ? ('?ts=' + ts) : ('&ts=' + ts));
                   document.querySelectorAll('#mobileSidebarLogo, #desktopSidebarLogo').forEach(function(img) {
                     img.src = logoUrl;
                   });
                 }
-                
-                // Header logo remains as MyCar logo (fixed branding)
-                
-                // Update Business VIEW mode content
-                try {
-                  const viewNameEl = document.getElementById('businessViewName');
-                  if (viewNameEl) viewNameEl.textContent = document.getElementById('auto_114').value;
-                  const viewEmailEl = document.getElementById('businessViewEmail');
-                  if (viewEmailEl) viewEmailEl.textContent = document.getElementById('auto_118').value;
-                  const viewPhoneEl = document.getElementById('businessViewPhone');
-                  if (viewPhoneEl) viewPhoneEl.textContent = document.getElementById('auto_116').value;
-                  const viewMobileEl = document.getElementById('businessViewMobile');
-                  if (viewMobileEl) viewMobileEl.textContent = document.getElementById('auto_117').value;
-                  const viewAddressEl = document.getElementById('businessViewAddress');
-                  if (viewAddressEl) viewAddressEl.textContent = document.getElementById('auto_115').value;
-                  const viewPostalEl = document.getElementById('businessViewPostal');
-                  if (viewPostalEl) viewPostalEl.textContent = document.getElementById('auto_133') ? document.getElementById('auto_133').value : viewPostalEl.textContent;
-                  if (data.data && data.data.logo_path) {
-                    const logoUrl = data.data.logo_path;
-                    const viewLogo = document.getElementById('businessViewLogo');
-                    if (viewLogo) viewLogo.src = logoUrl;
-                  }
-                } catch (e) {
-                  console.warn('Failed to update business view after save', e);
-                }
+
+                // Reload the authoritative business data from the server and update the VIEW section
+                fetch('/carwash_project/backend/api/get_business_info.php')
+                  .then(r => r.json())
+                  .then(bres => {
+                    if (bres && bres.success === true && bres.data) {
+                      const b = bres.data;
+                      // Update sidebars with server-returned name if present
+                      if (b.business_name) {
+                        const name = b.business_name;
+                        const mobileName = document.getElementById('mobileSidebarBusinessName');
+                        const desktopName = document.getElementById('desktopSidebarBusinessName');
+                        if (mobileName) mobileName.textContent = name;
+                        if (desktopName) desktopName.textContent = name;
+                      }
+
+                      // Update view elements
+                      const viewNameEl = document.getElementById('businessViewName');
+                      if (viewNameEl && b.business_name) viewNameEl.textContent = b.business_name;
+                      const viewEmailEl = document.getElementById('businessViewEmail');
+                      if (viewEmailEl && b.email) viewEmailEl.textContent = b.email;
+                      const viewPhoneEl = document.getElementById('businessViewPhone');
+                      if (viewPhoneEl && (b.phone || b.contact_phone)) viewPhoneEl.textContent = b.phone || b.contact_phone;
+                      const viewMobileEl = document.getElementById('businessViewMobile');
+                      if (viewMobileEl && b.mobile_phone) viewMobileEl.textContent = b.mobile_phone;
+                      const viewAddressEl = document.getElementById('businessViewAddress');
+                      if (viewAddressEl && b.address) viewAddressEl.textContent = b.address;
+                      const viewPostalEl = document.getElementById('businessViewPostal');
+                      if (viewPostalEl && b.postal_code) viewPostalEl.textContent = b.postal_code;
+                      if (b.logo_path) {
+                        const viewLogo = document.getElementById('businessViewLogo');
+                        if (viewLogo) viewLogo.src = b.logo_path;
+                      }
+                    }
+                  })
+                  .catch(err => console.warn('Failed to reload business info', err));
 
                 // Switch back to view mode
                 toggleBusinessEdit(false);

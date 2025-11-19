@@ -1,3 +1,68 @@
+# Copilot Instructions — CarWash Web App (concise)
+
+This file tells AI coding agents how this repository is organized and what patterns/workflows to follow so you can be productive immediately.
+
+- **Where to start**: open `backend/includes/bootstrap.php` (initializes Composer autoload, logger, .env) and `composer.json` (PSR-4 mapping: `App\\Classes` → `backend/classes`).
+- **Primary directories**:
+  - `backend/classes/` — PSR-4 service classes (Database, Auth, Response, Validator, Session, FileUploader).
+  - `backend/models/` — DB model helpers.
+  - `backend/includes/` — legacy helpers and `bootstrap.php` (still required on most pages).
+  - `backend/api/` — JSON endpoints called from frontend `fetch()`.
+  - `frontend/js/` — client-side utilities (e.g., `api-utils.js`, `csrf-helper.js`, `vehicleManager.js`).
+
+- **Must-follow conventions**:
+  - New PHP files should use Composer autoload and namespace `App\\Classes\\...` (require `vendor/autoload.php`).
+  - API endpoints must return JSON via `Response` class — do NOT `echo json_encode()` directly. Use `Response::success()` / `Response::error()` / `Response::validationError()`.
+  - Use `Database::getInstance()` prepared-statement helpers (`fetchOne`, `fetchAll`, `insert`, `update`, `delete`) — avoid raw `mysqli_*` queries.
+  - Protect routes: pages use `Auth::requireRole('admin'|'customer'|'carwash')`; JSON APIs use `Auth::requireAuth()` then `Auth::hasRole()` as appropriate.
+
+- **Frontend ↔ Backend patterns**:
+  - Frontend JS calls `/carwash_project/backend/api/...` with `fetch()`; CSRF token is exposed as `<meta name="csrf-token">` and via `window.CONFIG.CSRF_TOKEN` — use `csrf-helper.js` for POSTs.
+  - File uploads expect `FileUploader` server-side validation and store profiles under `backend/auth/uploads/profiles/`.
+
+- **Common tasks / commands (Windows PowerShell)**:
+  - Install PHP deps: `cd c:\\xampp\\htdocs\\carwash_project ; composer install`
+  - Install frontend deps: `.\\setup.bat` or `npm install`
+  - Start dev (Vite/Tailwind): `.\\dev.bat` or `npm run dev` (Vite proxies to PHP).
+  - Build for production: `npm run build` and `npm run build-css` (Tailwind).
+  - Import DB schema: `mysql -u root -p < database/carwash.sql` (XAMPP MySQL)
+  - Run tests: `vendor/bin/phpunit --configuration phpunit.xml.dist`
+
+- **API endpoint pattern** (example):
+  - File: `backend/api/users/get_profile.php`
+  - Top of file:
+    ```php
+    require_once __DIR__ . '/../../includes/bootstrap.php';
+    use App\\Classes\\Auth; use App\\Classes\\Response;
+    Auth::requireAuth();
+    // then use Response::success()/error()
+    ```
+
+- **Error handling & logging**:
+  - Use `Logger::exception($e)` for exceptions. Global error handlers are wired via `bootstrap.php`.
+  - Avoid printing HTML or raw output in JSON endpoints; use output buffering / `send_json_response()` patterns when necessary.
+
+- **When updating UI or adding JS modules**:
+  - Add files under `frontend/js/`, ensure `api-utils.js` or `csrf-helper.js` are loaded if you rely on `window.apiCall` or CSRF behaviors.
+  - Frontend uses Vite/Tailwind; during development prefer `dev.bat` so Tailwind watch and Vite dev server run with the expected proxy.
+
+- **Quick code examples**:
+  - DB query (safe):
+    ```php
+    $db = App\\Classes\\Database::getInstance();
+    $user = $db->fetchOne('SELECT * FROM users WHERE id = :id', ['id' => $id]);
+    ```
+  - JSON response:
+    ```php
+    App\\Classes\\Response::success('OK', ['user' => $user]);
+    ```
+
+- **Notes for AI agents**:
+  - Prefer PSR-4 `App\\Classes` implementations over editing legacy `backend/includes` files unless compatibility is required.
+  - Be conservative with global changes: many pages include legacy helpers; avoid breaking backward-compatible includes.
+  - When creating new API endpoints, mirror existing patterns in `backend/api/*` (Auth checks, Response usage, prepared statements).
+
+If any area feels incomplete or you want more examples (e.g., webhook flow, payment handlers, or vehicle API specifics), tell me which part to expand.
 # Copilot Instructions for CarWash Web Application
 
 ## Project Overview

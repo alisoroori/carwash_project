@@ -2,78 +2,93 @@
 
 declare(strict_types=1);
 
-// API bootstrap (added by tools/add_api_bootstrap.php)
-if (!defined('API_BOOTSTRAP_V1')) {
-    define('API_BOOTSTRAP_V1', true);
-    ob_start();
-    register_shutdown_function(function() {
-        try {
-            $out = (string) @ob_get_clean();
-            if ($out !== '') {
-                if (class_exists('App\Classes\Logger')) {
-                    try {
-                        \App\Classes\Logger::warn('API emitted HTML: ' . substr($out, 0, 200));
-                    } catch (Throwable $e) {
-                        error_log('Logger::warn failed: ' . $e->getMessage());
-                    }
-                } else {
-                    error_log('API emitted HTML: ' . substr(strip_tags($out), 0, 200));
-                }
-            }
-        } catch (Throwable $e) {
-            error_log('API bootstrap shutdown handler error: ' . $e->getMessage());
-        }
-    });
-}
+// Ensure API returns JSON
 header('Content-Type: application/json; charset=utf-8');
 
-// Start session if not already started (some flows rely on session auth)
+// Start session (some flows rely on session auth)
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Composer autoloader (optional)
+// Composer autoloader
 $vendor = dirname(__DIR__, 3) . '/vendor/autoload.php';
 if (file_exists($vendor)) {
     require_once $vendor;
 }
 
+// Project bootstrap (optional)
+$projectBootstrap = dirname(__DIR__, 3) . '/backend/includes/bootstrap.php';
+if (file_exists($projectBootstrap)) {
+    require_once $projectBootstrap;
+}
+
 use App\Classes\Database;
 use App\Classes\Response;
 
-try {
-    $db = Database::getInstance();
+error_log('bookings/list.php: Request started from ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
 
-    // If user is authenticated, return only their bookings; otherwise return recent bookings.
+try {
     $userId = $_SESSION['user_id'] ?? null;
-    if ($userId) {
-        $rows = $db->fetchAll(
-            "SELECT b.*, u.name AS user_name, s.name AS service_name
-             FROM bookings b
-             LEFT JOIN users u ON u.id = b.user_id
-             LEFT JOIN services s ON s.id = b.service_id
-             WHERE b.user_id = :uid
-             ORDER BY b.id DESC",
-            ['uid' => $userId]
-        );
-    } else {
-        // Limit to latest 100 bookings to avoid heavy responses
-        $rows = $db->fetchAll(
-            "SELECT b.*, u.name AS user_name, s.name AS service_name
-             FROM bookings b
-             LEFT JOIN users u ON u.id = b.user_id
-             LEFT JOIN services s ON s.id = b.service_id
-             ORDER BY b.id DESC
-             LIMIT 100"
-        );
+    error_log('bookings/list.php: User ID = ' . ($userId ?? 'null'));
+
+    if (!$userId) {
+        error_log('bookings/list.php: No user authentication found');
+        Response::error('Authentication required', 401);
+        exit;
     }
 
-    Response::success('OK', $rows);
+    $db = Database::getInstance();
+    error_log('bookings/list.php: Database connected');
+
+    // Use the underlying PDO connection directly so we can surface real PDO errors
+    $pdo = $db->getPdo();
+    // Ensure exceptions are thrown on PDO errors (Database already sets this, but enforce here)
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Note: use `carwash_profiles` (the project's carwash table) rather than a non-existent `car_washes` table
+        $query = "SELECT b.*, u.name AS user_name, s.name AS service_name, cw.business_name AS carwash_name
+            FROM bookings b
+            LEFT JOIN users u ON u.id = b.user_id
+            LEFT JOIN services s ON s.id = b.service_id
+            LEFT JOIN carwash_profiles cw ON cw.id = b.carwash_id
+            WHERE b.user_id = :uid
+            ORDER BY b.id DESC";
+
+    try {
+        error_log('bookings/list.php: Preparing bookings query');
+        $stmt = $pdo->prepare($query);
+        $params = ['uid' => $userId];
+        error_log('bookings/list.php: Executing bookings query - SQL: ' . $query . ' - Params: ' . json_encode($params));
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        error_log('bookings/list.php: Found ' . count($rows) . ' bookings');
+
+        Response::success('OK', ['data' => $rows]);
+    } catch (\PDOException $pdoEx) {
+        // Log the full PDO exception for debugging but don't expose sensitive details to the client
+        error_log('bookings/list.php PDO ERROR: ' . $pdoEx->getMessage());
+        error_log('bookings/list.php PDO TRACE: ' . $pdoEx->getTraceAsString());
+        if (class_exists('\App\\Classes\\Logger')) {
+            \App\Classes\Logger::exception($pdoEx);
+        }
+        if (class_exists('\App\\Classes\\Response')) {
+            \App\Classes\Response::error('Failed to fetch bookings: ' . $pdoEx->getMessage(), 500);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to fetch bookings', 'error' => $pdoEx->getMessage()]);
+        }
+        exit;
+    }
 
 } catch (Throwable $e) {
-    // Log and return an error response
-    if (function_exists('error_log')) {
-        error_log('backend/api/bookings/list.php error: ' . $e->getMessage());
+    error_log('bookings/list.php ERROR: ' . $e->getMessage());
+    error_log('bookings/list.php TRACE: ' . $e->getTraceAsString());
+    if (class_exists('\App\\Classes\\Response')) {
+        \App\Classes\Response::error('Failed to fetch bookings: ' . $e->getMessage(), 500);
+    } else {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch bookings', 'error' => $e->getMessage()]);
+        exit;
     }
-    Response::error('Failed to fetch bookings', 500);
 }

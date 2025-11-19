@@ -20,6 +20,54 @@ document.addEventListener('alpine:init', function() {
             init() {
                 // Called when Alpine initializes this component on the page
                 if (typeof console !== 'undefined') console.log('customerDashboard factory loaded');
+
+                // Manage mobile sidebar DOM state from within this Alpine component
+                try {
+                    const sidebar = document.getElementById('customer-sidebar');
+                    const overlay = document.getElementById('mobileOverlay') || document.querySelector('.mobile-menu-backdrop-dashboard');
+
+                    const applyOpenState = (isOpen) => {
+                        if (!sidebar) return;
+                        if (isOpen) {
+                            sidebar.classList.add('mobile-open');
+                            if (overlay) overlay.classList.add('active');
+                            document.body.classList.add('menu-open');
+                            // prevent body scroll on small screens
+                            if (window.innerWidth < 768) {
+                                const scrollY = window.scrollY || 0;
+                                document.body.style.position = 'fixed';
+                                document.body.style.top = `-${scrollY}px`;
+                                document.body.style.width = '100%';
+                                document.body.style.overflow = 'hidden';
+                            }
+                        } else {
+                            sidebar.classList.remove('mobile-open');
+                            if (overlay) overlay.classList.remove('active');
+                            document.body.classList.remove('menu-open');
+                            // restore body scroll
+                            const top = document.body.style.top;
+                            document.body.style.position = '';
+                            document.body.style.top = '';
+                            document.body.style.width = '';
+                            document.body.style.overflow = '';
+                            if (top) {
+                                window.scrollTo(0, parseInt(top || '0') * -1);
+                            }
+                        }
+                    };
+
+                    // Watch for Alpine data changes
+                    if (this && typeof this.$watch === 'function') {
+                        this.$watch('mobileMenuOpen', (v) => {
+                            try { applyOpenState(!!v); } catch (e) { /* ignore */ }
+                        });
+                    }
+
+                    // Run initial state
+                    applyOpenState(this.mobileMenuOpen);
+                } catch (e) {
+                    // Defensive: don't break dashboard if DOM isn't present
+                }
             },
 
             toggleMobile() {

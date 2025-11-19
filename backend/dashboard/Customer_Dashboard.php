@@ -50,9 +50,6 @@ if (!isset($base_url)) {
         $base_url = $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/carwash_project';
     }
 }
-
-// Use Seller Header for unified dashboard experience
-include '../includes/seller_header.php';
 ?>
 
 <!DOCTYPE html>
@@ -146,421 +143,6 @@ include '../includes/seller_header.php';
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <style>
-        /* Dashboard-specific overrides only - Universal fixes included via header */
-        
-        /* Dashboard Content Animations */
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(-30px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-
-        .animate-fade-in-up {
-          animation: fadeInUp 0.6s ease-out forwards;
-        }
-
-        .animate-slide-in {
-          animation: slideIn 0.5s ease-out forwards;
-        }
-
-        .gradient-bg {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .sidebar-gradient {
-          background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .card-hover {
-          transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .status-pending {
-          background: #fef3c7;
-          color: #92400e;
-        }
-
-        .status-confirmed {
-          background: #d1fae5;
-          color: #065f46;
-        }
-
-        .status-in-progress {
-          background: #dbeafe;
-          color: #1e40af;
-        }
-
-        .status-completed {
-          background: #e0e7ff;
-          color: #3730a3;
-        }
-
-        .status-cancelled {
-          background: #fecaca;
-          color: #991b1b;
-        }
-
-        .priority-high {
-          background: #fee2e2;
-          color: #dc2626;
-        }
-
-        .priority-medium {
-          background: #fef3c7;
-          color: #d97706;
-        }
-
-        .priority-low {
-          background: #d1fae5;
-          color: #059669;
-        }
-
-        /* Dashboard-specific responsive design - Full Mobile/Tablet/Desktop Support */
-        
-        /* Remove default body/html styles from header */
-        html, body {
-          height: auto !important;
-          margin: 0;
-          padding: 0;
-          overflow-x: hidden;
-        }
-        
-        body {
-          display: block !important;
-          flex-direction: initial !important;
-        }
-        
-        /* Dashboard container - positioned below header */
-        .dashboard-container {
-          position: relative;
-          width: 100%;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          background: #f8fafc;
-        }
-
-        /* Mobile Sidebar (Hidden by default, slides in) */
-        .mobile-sidebar {
-          position: fixed;
-          top: 0;
-          left: -100%;
-          width: 280px;
-          height: 100vh;
-          z-index: 40;
-          transition: left 0.3s ease;
-          overflow-y: auto;
-          padding-top: 70px;
-        }
-
-        .mobile-sidebar.active {
-          left: 0;
-        }
-
-        .mobile-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100vh;
-          background: rgba(0, 0, 0, 0.5);
-          z-index: 39;
-          opacity: 0;
-          visibility: hidden;
-          transition: all 0.3s ease;
-        }
-
-        .mobile-overlay.active {
-          opacity: 1;
-          visibility: visible;
-        }
-
-        /* Mobile Menu Button */
-        .mobile-menu-btn {
-          display: block;
-          position: fixed;
-          top: 75px;
-          left: 1rem;
-          z-index: 50;
-          background: #667eea;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          padding: 12px 16px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .mobile-menu-btn:hover {
-          background: #5a67d8;
-          transform: translateY(-1px);
-          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .mobile-menu-btn:active {
-          transform: translateY(0);
-        }
-
-        .mobile-menu-btn.active {
-          background: #e53e3e;
-        }
-
-        /* Accessibility: visually hidden text for screen readers */
-        .sr-only {
-          position: absolute !important;
-          width: 1px !important;
-          height: 1px !important;
-          padding: 0 !important;
-          margin: -1px !important;
-          overflow: hidden !important;
-          clip: rect(0, 0, 0, 0) !important;
-          white-space: nowrap !important;
-          border: 0 !important;
-        }
-
-        /* Desktop Sidebar - Sticky position inside container */
-        .desktop-sidebar {
-          display: none;
-          position: sticky;
-          top: 65px;
-          left: 0;
-          width: 280px;
-          min-height: calc(100vh - 65px);
-          overflow: hidden;
-          flex-shrink: 0;
-          z-index: 30;
-          background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-          align-self: stretch;
-        }
-        
-        /* Desktop sidebar inner content */
-        .desktop-sidebar .p-6 {
-          height: 100%;
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-          padding: 1rem 1.5rem;
-          box-sizing: border-box;
-        }
-        
-        /* Main Content Area */
-        .main-content {
-          flex: 1;
-          padding: 1rem;
-          min-height: calc(100vh - 65px);
-        }
-
-        /* Section content styling */
-        .section-content {
-          width: 100%;
-          max-width: 100%;
-        }
-
-        /* Responsive Grid Adjustments */
-        .stats-grid {
-          display: grid;
-          gap: 1rem;
-          grid-template-columns: 1fr;
-        }
-
-        .content-grid-2 {
-          display: grid;
-          gap: 1rem;
-          grid-template-columns: 1fr;
-        }
-
-        /* Table Responsiveness */
-        .universal-table-container {
-          width: 100%;
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
-        }
-
-        .universal-table-container table {
-          min-width: 600px;
-        }
-
-        /* Card Responsiveness */
-        .card-hover {
-          transition: all 0.3s ease;
-        }
-
-        /* Mobile Responsive (< 768px) */
-        @media (max-width: 767px) {
-          .main-content {
-            padding: 1rem 0.75rem;
-          }
-          
-          .mobile-menu-btn {
-            top: 70px;
-            left: 0.75rem;
-            padding: 10px 14px;
-            font-size: 0.875rem;
-          }
-
-          .section-content h2 {
-            font-size: 1.5rem;
-          }
-
-          .section-content p {
-            font-size: 0.875rem;
-          }
-
-          /* Stack cards vertically */
-          .stats-grid {
-            gap: 0.75rem;
-          }
-
-          /* Adjust modal width */
-          .modal-content {
-            width: 95% !important;
-            max-width: 95% !important;
-            margin: 1rem;
-          }
-
-          /* Hide mobile sidebar text on very small screens */
-          .mobile-sidebar nav a span {
-            font-size: 0.875rem;
-          }
-
-          /* Compact status badges */
-          .status-pending,
-          .status-confirmed,
-          .status-in-progress,
-          .status-completed,
-          .status-cancelled {
-            font-size: 0.688rem;
-            padding: 0.25rem 0.5rem;
-          }
-        }
-
-        /* Tablet Responsive (768px - 1023px) */
-        @media (min-width: 768px) and (max-width: 1023px) {
-          .main-content {
-            padding: 1.5rem;
-          }
-          
-          .mobile-sidebar {
-            width: 320px;
-          }
-
-          .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-          }
-
-          .content-grid-2 {
-            grid-template-columns: 1fr;
-          }
-
-          .section-content h2 {
-            font-size: 2rem;
-          }
-        }
-
-        /* Desktop Responsive (>= 1024px) */
-        @media (min-width: 1024px) {
-          .mobile-menu-btn {
-            display: none;
-          }
-          
-          .mobile-sidebar {
-            display: none;
-          }
-          
-          .desktop-sidebar {
-            display: block;
-          }
-          
-          .main-content {
-            padding: 2rem;
-          }
-          
-          .dashboard-container {
-            flex-direction: row;
-          }
-
-          .stats-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
-          }
-
-          .content-grid-2 {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-          }
-        }
-
-        /* Large Desktop (>= 1400px) */
-        @media (min-width: 1400px) {
-          .main-content {
-            max-width: calc(1400px);
-          }
-
-          .section-content {
-            max-width: 1200px;
-          }
-        }
-
-        /* Print Styles */
-        @media print {
-          .mobile-menu-btn,
-          .mobile-sidebar,
-          .desktop-sidebar,
-          .mobile-overlay {
-            display: none !important;
-          }
-
-          .main-content {
-            padding: 0;
-          }
-        }
-        
-        /* Footer adjustments */
-        footer {
-          margin-top: 0 !important;
-          position: relative;
-        }
-
-        /* Smooth scrollbar styling */
-        .desktop-sidebar::-webkit-scrollbar,
-        .mobile-sidebar::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .desktop-sidebar::-webkit-scrollbar-track,
-        .mobile-sidebar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.1);
-        }
-
-        .desktop-sidebar::-webkit-scrollbar-thumb,
-        .mobile-sidebar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.3);
-          border-radius: 3px;
-        }
-
-        .desktop-sidebar::-webkit-scrollbar-thumb:hover,
-        .mobile-sidebar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.5);
-        }
-        
-        /* ================================
-           CUSTOMER DASHBOARD SPECIFIC OVERRIDES
-           ================================ */
-        /* Hide workplace toggle switch - only for car wash businesses */
-        .workplace-toggle-container {
-          display: none !important;
-        }
-        
         /* ================================
            CSS CUSTOM PROPERTIES (Theme Variables)
            ================================ */
@@ -1189,154 +771,132 @@ include '../includes/seller_header.php';
     x-effect="mobileMenuOpen ? document.body.classList.add('menu-open') : document.body.classList.remove('menu-open')"
 >
 
-<!-- Mobile Menu Button -->
-<button class="mobile-menu-btn" onclick="toggleMobileSidebar()" id="mobileMenuBtn" title="Menüyü aç veya kapat" aria-label="Menüyü aç veya kapat">
-  <i class="fas fa-bars" id="menuIcon" aria-hidden="true"></i>
-  <span class="sr-only">Menüyü aç veya kapat</span>
-</button>
-
-<!-- Mobile Overlay -->
-<div class="mobile-overlay" onclick="closeMobileSidebar()" id="mobileOverlay"></div>
-
-<!-- Dashboard Layout -->
-<div class="dashboard-container">
-    <!-- Mobile Sidebar -->
-    <aside class="mobile-sidebar sidebar-gradient text-white" id="mobileSidebar">
-      <div class="p-6">
-        <div class="text-center mb-8">
-          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
-            <img id="mobileSidebarProfileImage" src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" alt="Kullanıcı Profili" class="w-full h-full object-cover">
-          </div>
-          <h3 class="text-xl font-bold"><?php echo htmlspecialchars($user_name); ?></h3>
-          <p class="text-sm opacity-75">Müşteri</p>
+<!-- ================================
+     HEADER - Fixed at Top (80px height)
+     ================================ -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm flex-none" style="height: 80px;">
+    <div class="flex items-center justify-between h-full px-4 lg:px-6">
+        
+        <!-- Mobile Menu Button -->
+        <button 
+            id="mobileMenuToggleBtn"
+            @click="mobileMenuOpen = !mobileMenuOpen"
+            class="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 hamburger-toggle-dashboard"
+            aria-label="Toggle menu"
+        >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!mobileMenuOpen">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="mobileMenuOpen" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+        
+        <!-- Logo -->
+            <div class="flex items-center space-x-3">
+            <!-- Main header logo placed before the site title -->
+            <div>
+                <img id="siteLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="MyCar logo" class="logo-image object-contain rounded-xl shadow-md header-logo sidebar-logo" />
+            </div>
+            <div class="hidden sm:block">
+                <h1 class="text-lg font-bold text-gray-900 leading-tight">MyCar</h1>
+                <p class="text-xs text-gray-500 -mt-1">Customer Panel</p>
+            </div>
         </div>
+        
+        <!-- User Menu (shared fragment) -->
+        <?php
+            // Prepare variables expected by the fragment
+            $profile_src = !empty($user_profile_image) ? $user_profile_image : ($base_url . '/frontend/assets/img/default-user.png');
+            $home_url = $base_url . '/backend/index.php';
+            $logout_url = $base_url . '/backend/includes/logout.php';
+            include __DIR__ . '/../includes/profile_header_fragment.php';
+        ?>
+    </div>
+</header>
 
-        <nav class="space-y-2">
-          <a 
-                href="#dashboard" 
-                @click="currentSection = 'dashboard'"
-                :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-tachometer-alt mr-3"></i>
-            Genel Bakış
-          </a>
-          <a 
-                href="#carWashSelection"
-                @click="currentSection = 'carWashSelection'"
-                :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-car-wash mr-3"></i>
-            Araç Yıkama Seç
-          </a>
-          <a 
-                href="#reservations"
-                @click="currentSection = 'reservations'"
-                :class="currentSection === 'reservations' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-calendar-alt mr-3"></i>
-            Rezervasyonlarım
-          </a>
-          <a 
-                href="#vehicles"
-                @click="currentSection = 'vehicles'"
-                :class="currentSection === 'vehicles' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-car mr-3"></i>
-            Araçlarım
-          </a>
-          <a 
-                href="#profile"
-                @click="currentSection = 'profile'"
-                :class="currentSection === 'profile' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-user-circle mr-3"></i>
-            Profil
-          </a>
-          <a 
-                href="#settings"
-                @click="currentSection = 'settings'"
-                :class="currentSection === 'settings' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-cog mr-3"></i>
-            Ayarlar
-          </a>
-        </nav>
-      </div>
-    </aside>
+<!-- ================================
+    LAYOUT WRAPPER - Proper Flex Layout Structure
+    Sidebar: Fixed below Header (no internal scroll)
+     ================================ -->
 
-    <!-- Desktop Sidebar -->
-    <aside class="desktop-sidebar sidebar-gradient text-white">
-      <div class="p-6">
-        <div class="text-center mb-8">
-          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
-            <img id="desktopSidebarProfileImage" src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" alt="Kullanıcı Profili" class="w-full h-full object-cover">
-          </div>
-          <h3 class="text-xl font-bold"><?php echo htmlspecialchars($user_name); ?></h3>
-          <p class="text-sm opacity-75">Müşteri</p>
+<!-- Mobile Overlay (backdrop when sidebar is open on mobile, closes sidebar on click)
+     NOTE: avoid aria-hidden/tabindex on overlays that can receive focus — make the backdrop non-focusable
+-->
+<div
+    x-show="mobileMenuOpen"
+    @click="mobileMenuOpen = false"
+    x-transition:enter="transition-opacity ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition-opacity ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 bg-black bg-opacity-60 z-[45] lg:hidden"
+    style="display: none;"
+></div>
+
+<!-- Main Content Wrapper: Takes flex-1 to fill remaining viewport space -->
+<div class="flex flex-1">
+    
+    <!-- ================================
+         SIDEBAR - Fixed below header
+         Desktop: No internal scroll, uses CSS variables for positioning
+         Mobile: Overlay with internal scroll
+         ================================ -->
+    <aside 
+        id="customer-sidebar"
+        class="bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
+               transform transition-transform duration-300 ease-in-out
+               flex flex-col"
+        :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+        x-transition:enter="transition-transform ease-out duration-300"
+        x-transition:enter-start="transform -translate-x-full"
+        x-transition:enter-end="transform translate-x-0"
+        x-transition:leave="transition-transform ease-in duration-200"
+        x-transition:leave-start="transform translate-x-0"
+        x-transition:leave-end="transform -translate-x-full"
+        role="navigation"
+        aria-label="Main navigation"
+        :inert="!mobileMenuOpen && window.innerWidth < 1024"
+    >
+        <!-- User Profile Section (Better readability, always visible at top) -->
+        <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30">
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-2 rounded-full overflow-hidden shadow-lg ring-2 ring-white ring-opacity-30">
+                    <img 
+                        id="sidebarProfileImage" 
+                        src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" 
+                        alt="<?php echo htmlspecialchars($user_name); ?>"
+                        class="w-full h-full object-cover"
+                        onerror="this.src='/carwash_project/frontend/assets/img/default-user.png'"
+                    >
+                </div>
+                <h3 class="text-sm font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
+                <p class="text-xs text-blue-100 opacity-90 truncate mt-1"><?php echo htmlspecialchars($user_email); ?></p>
+            </div>
         </div>
-
-        <nav class="space-y-2">
-          <a 
-                href="#dashboard" 
-                @click="currentSection = 'dashboard'"
-                :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-tachometer-alt mr-3"></i>
-            Genel Bakış
-          </a>
-          <a 
-                href="#carWashSelection"
-                @click="currentSection = 'carWashSelection'"
-                :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-car-wash mr-3"></i>
-            Araç Yıkama Seç
-          </a>
-          <a 
-                href="#reservations"
-                @click="currentSection = 'reservations'"
-                :class="currentSection === 'reservations' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-calendar-check mr-3"></i>
-            Rezervasyonlarım
-          </a>
-          <a 
-                href="#vehicles"
-                @click="currentSection = 'vehicles'"
-                :class="currentSection === 'vehicles' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-car mr-3"></i>
-            Araçlarım
-          </a>
-          <a 
-                href="#profile"
-                @click="currentSection = 'profile'"
-                :class="currentSection === 'profile' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-user-circle mr-3"></i>
-            Profil
-          </a>
-          <a 
-                href="#settings"
-                @click="currentSection = 'settings'"
-                :class="currentSection === 'settings' ? 'bg-white bg-opacity-20' : ''"
-                class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-            <i class="fas fa-cog mr-3"></i>
-            Ayarlar
-          </a>
-        </nav>
-      </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      
-            <!-- Dashboard Section Start -->
-            <section id="dashboard" class="section-content" x-show="currentSection === 'dashboard'">
+        
+        <!-- Navigation Menu (Better spacing and readability) -->
+        <nav class="flex-1 px-3 py-3 space-y-1 flex flex-col" 
+             aria-label="Primary navigation"
+        >
             
-            <!-- Car Wash Selection Section Start -->
-            <section id="carWashSelection" class="section-content" x-show="currentSection === 'carWashSelection'" style="display:none;">
-                <a 
+            <!-- Dashboard -->
+            <a 
+                href="#dashboard" 
+                @click="currentSection = 'dashboard'; mobileMenuOpen = false"
+                :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                role="menuitem"
+                tabindex="0"
+            >
+                <i class="fas fa-tachometer-alt text-base w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium">Genel Bakış</span>
+            </a>
+            
+            <!-- Car Wash Selection -->
+            <a 
                 href="#carWashSelection" 
                 @click="currentSection = 'carWashSelection'; mobileMenuOpen = false"
                 :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
@@ -1665,8 +1225,11 @@ include '../includes/seller_header.php';
                     </div>
                     
                     <form id="vehicleForm" @submit.prevent="saveVehicle()" class="p-6" enctype="multipart/form-data">
+                        <label for="auto_label_108" class="sr-only">CSRF Token</label>
                         <input type="hidden" name="csrf_token" :value="csrfToken" id="auto_label_108">
+                        <label for="auto_label_107" class="sr-only">Action</label>
                         <input type="hidden" name="action" :value="editingVehicle ? 'update' : 'create'" id="auto_label_107">
+                        <label for="auto_label_106" class="sr-only">Vehicle ID</label>
                         <input type="hidden" name="id" :value="editingVehicle?.id || ''" id="auto_label_106">
                         
                         <!-- Form Fields Grid -->
@@ -2582,69 +2145,57 @@ include '../includes/seller_header.php';
 
                             function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
 
-                            // End of carWashSelection script scope
-                        })();
-                        </script>
+                                // -----------------------------
+                                // Bookings (Reservations) Management
+                                // -----------------------------
+                                function getCsrfToken() {
+                                    return (window.CONFIG && window.CONFIG.CSRF_TOKEN) || (document.querySelector('meta[name="csrf-token"]') && document.querySelector('meta[name="csrf-token"]').getAttribute('content')) || '';
+                                }
 
-<!-- ========== BOOKINGS SECTION (RESERVATIONS) ========== -->
-<section x-show="currentSection === 'reservations'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
-    <div class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-800 mb-2">Rezervasyonlarım</h2>
-        <p class="text-gray-600">Tüm rezervasyonlarınızı görüntüleyin ve yönetin</p>
-    </div>
-    
-    <!-- Reservations Table -->
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hizmet</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih/Saat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lokasyon</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fiyat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
-                    </tr>
-                </thead>
-                <tbody id="reservationsTableBody">
-                    <tr><td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Yükleniyor...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
+                                function statusLabel(status) {
+                                    if (!status) return '<span class="px-2 py-1 rounded-full text-xs bg-gray-200 text-gray-700">Bilinmiyor</span>';
+                                    const s = status.toLowerCase();
+                                    if (s === 'confirmed' || s === 'paid') return '<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Onaylandı</span>';
+                                    if (s === 'pending' || s === 'processing') return '<span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">Beklemede</span>';
+                                    if (s === 'cancelled' || s === 'cancel') return '<span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">İptal Edildi</span>';
+                                    return '<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">'+escapeHtml(status)+'</span>';
+                                }
 
-<script>
-// -----------------------------
-// Bookings (Reservations) Management - Global Scope
-// -----------------------------
-(function(){
-    'use strict';
-
-    function getCsrfToken() {
-        return (window.CONFIG && window.CONFIG.CSRF_TOKEN) || (document.querySelector('meta[name="csrf-token"]') && document.querySelector('meta[name="csrf-token"]').getAttribute('content')) || '';
-    }
-
-    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
-
-    function statusLabel(status) {
-        if (!status) return '<span class="px-2 py-1 rounded-full text-xs bg-gray-200 text-gray-700">Bilinmiyor</span>';
-        const s = status.toLowerCase();
-        if (s === 'confirmed' || s === 'paid') return '<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Onaylandı</span>';
-        if (s === 'pending' || s === 'processing') return '<span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">Beklemede</span>';
-        if (s === 'cancelled' || s === 'cancel') return '<span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">İptal Edildi</span>';
-        return '<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">'+escapeHtml(status)+'</span>';
-    }
-
-    async function loadBookings() {
+                                async function loadBookings() {
                                     const tbody = document.getElementById('reservationsTableBody');
                                     if (!tbody) return;
                                     // show loading
                                     tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Yükleniyor...</td></tr>';
                                     try {
-                                        const resp = await fetch('/carwash_project/backend/api/bookings/list.php', { credentials: 'same-origin' });
-                                        const result = await resp.json();
+                                        const resp = await fetch('/carwash_project/backend/api/bookings/list.php', {
+                                            credentials: 'same-origin',
+                                            headers: { 'Accept': 'application/json' }
+                                        });
+
+                                        // Read response as text first so we can handle empty/non-JSON responses gracefully
+                                        const text = await resp.text();
+
+                                        if (!resp.ok) {
+                                            console.error('Bookings API responded with status', resp.status, text);
+                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyonlar yüklenemedi.</td></tr>';
+                                            return;
+                                        }
+
+                                        if (!text || text.trim() === '') {
+                                            // No content — treat as empty bookings list
+                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Aktif rezervasyonunuz yok.</td></tr>';
+                                            return;
+                                        }
+
+                                        let result;
+                                        try {
+                                            result = JSON.parse(text);
+                                        } catch (parseErr) {
+                                            console.error('Failed to parse bookings JSON:', parseErr, text);
+                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyon verisi alınamadı.</td></tr>';
+                                            return;
+                                        }
+
                                         if (!result || !result.success) {
                                             tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyonlar yüklenemedi.</td></tr>';
                                             return;
@@ -2695,6 +2246,18 @@ include '../includes/seller_header.php';
                                         console.error('Load bookings error', err);
                                         tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Sunucu hatası.</td></tr>';
                                     }
+                                }
+
+                                // Expose bookings helpers to global scope so other script blocks can call them
+                                // (these functions are defined inside this IIFE but needed elsewhere on the page)
+                                try {
+                                    window.loadBookings = loadBookings;
+                                    window.showEditBookingModalFromRow = showEditBookingModalFromRow;
+                                    window.hideEditBookingModal = hideEditBookingModal;
+                                    window.submitEditBooking = submitEditBooking;
+                                    window.cancelBookingById = cancelBookingById;
+                                } catch (e) {
+                                    // ignore if assignment fails in restricted environments
                                 }
 
                                 function showEditBookingModalFromRow(tr) {
@@ -2768,18 +2331,22 @@ include '../includes/seller_header.php';
                                         alert(result && result.error ? result.error : 'İptal başarısız');
                                     } catch (err) { console.error(err); alert('Sunucu hatası'); }
                                 }
+                            function escapeAttr(s){ return (s||'').replace(/\"/g,'&quot;'); }
 
-    // Expose booking functions globally
-    window.loadBookings = loadBookings;
-    window.showEditBookingModalFromRow = showEditBookingModalFromRow;
-    window.cancelBookingById = cancelBookingById;
-    window.submitEditBooking = submitEditBooking;
-    window.hideEditBookingModal = hideEditBookingModal;
+                            // Initialize controls when DOM ready
+                            document.addEventListener('DOMContentLoaded', function(){
+                                loadDistrictOptions();
+                                filterCarWashes();
+                                // also update districts when city changes
+                                $id('cityFilter')?.addEventListener('change', function(){ loadDistrictOptions(); filterCarWashes(); });
+                                $id('districtFilter')?.addEventListener('change', filterCarWashes);
+                                $id('carWashNameFilter')?.addEventListener('input', filterCarWashes);
+                                $id('favoriteFilter')?.addEventListener('change', filterCarWashes);
+                            });
 
-})();
-</script>
-
-</section>
+                        })();
+                        </script>
+                                </section>
 
                 <!-- ========== RESERVATIONS SECTION (Inserted from customer_profile.html) ========== -->
                 <section id="reservations" x-show="currentSection === 'reservations'" class="space-y-6" style="display: none;">
@@ -2922,12 +2489,6 @@ include '../includes/seller_header.php';
                 </div>
 
                 <!-- Other sections (carWashSelection, history) would follow the same pattern -->
-
-    </main>
-    <!-- End Main Content -->
-    
-</div>
-<!-- End Dashboard Container -->
 
                 <script>
                 (function(){
@@ -4002,53 +3563,9 @@ include '../includes/seller_header.php';
     });
     
 })();
-
-// =====================================
-// Sidebar Toggle Functions
-// =====================================
-function toggleMobileSidebar() {
-    const sidebar = document.getElementById('mobileSidebar');
-    const overlay = document.getElementById('mobileOverlay');
-    const btn = document.getElementById('mobileMenuBtn');
-    
-    if (sidebar && overlay && btn) {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        btn.classList.toggle('active');
-    }
-}
-
-function closeMobileSidebar() {
-    const sidebar = document.getElementById('mobileSidebar');
-    const overlay = document.getElementById('mobileOverlay');
-    const btn = document.getElementById('mobileMenuBtn');
-    
-    if (sidebar) sidebar.classList.remove('active');
-    if (overlay) overlay.classList.remove('active');
-    if (btn) btn.classList.remove('active');
-}
-
-// Close sidebar on escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeMobileSidebar();
-    }
-});
-
-// Close sidebar when clicking a navigation link on mobile
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileLinks = document.querySelectorAll('.mobile-sidebar nav a');
-    mobileLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            if (window.innerWidth < 1024) {
-                closeMobileSidebar();
-            }
-        });
-    });
-});
 </script>
-
-<?php include '../includes/footer.php'; ?>
 
 </body>
 </html>
+<script>
+// ================================
