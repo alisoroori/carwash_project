@@ -26,7 +26,8 @@ if (strpos($id, 's_') === 0) {
     $reservation = $db->fetchOne('SELECT * FROM reservations WHERE id = :id', ['id' => $id]);
     if (!$reservation) {
         // Fall back to bookings table (new canonical bookings)
-        $b = $db->fetchOne('SELECT b.*, s.name as service_name, c.business_name as carwash_name FROM bookings b LEFT JOIN services s ON s.id = b.service_id LEFT JOIN carwash_profiles c ON c.id = b.carwash_id WHERE b.id = :id', ['id' => $id]);
+        // Prefer canonical `carwashes` for name; fall back to business_profiles if necessary
+        $b = $db->fetchOne('SELECT b.*, s.name as service_name, COALESCE(c.name,c.business_name) as carwash_name FROM bookings b LEFT JOIN services s ON s.id = b.service_id LEFT JOIN carwashes c ON c.id = b.carwash_id WHERE b.id = :id', ['id' => $id]);
         if ($b) {
             // Normalize to expected reservation keys used in template
             $reservation = [

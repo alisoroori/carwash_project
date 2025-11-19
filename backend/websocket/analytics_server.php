@@ -126,7 +126,7 @@ class AnalyticsServer implements MessageComponentInterface {
     }
 
     protected function getActiveCarwashes(): int {
-    $sql = "SELECT COUNT(*) AS cnt FROM carwash_profiles WHERE status = 'active'";
+    $sql = "SELECT COUNT(*) AS cnt FROM carwashes WHERE status = 'active'";
         $res = $this->db->query($sql);
         if ($res && $row = $res->fetch_assoc()) {
             return (int)$row['cnt'];

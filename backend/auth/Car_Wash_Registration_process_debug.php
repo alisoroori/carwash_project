@@ -176,8 +176,9 @@ try {
         }
         
         echo "<h3>🏪 Business Name Check:</h3>";
-    $stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE business_name = ?");
-        $stmt->execute([$business_name]);
+    // Prefer checking canonical `carwashes` table for existing business name
+    $stmt = $conn->prepare("SELECT id FROM carwashes WHERE name = ? OR business_name = ? LIMIT 1");
+        $stmt->execute([$business_name, $business_name]);
         
         if ($stmt->fetch()) {
             echo "<p style='color: red;'>❌ Business name already exists</p>";

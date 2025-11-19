@@ -39,9 +39,10 @@ try {
     // Start transaction
     $conn->begin_transaction();
 
-    // Get carwash ID for verification
-    $stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE owner_id = ?");
-    $stmt->bind_param("i", $_SESSION['user_id']);
+    // Get carwash ID for verification (use canonical `carwashes` table)
+    $stmt = $conn->prepare("SELECT id FROM carwashes WHERE owner_id = ?");
+    $owner_id = (int)($_SESSION['user_id'] ?? 0);
+    $stmt->bind_param("i", $owner_id);
     $stmt->execute();
     $carwash = $stmt->get_result()->fetch_assoc();
 
@@ -50,7 +51,7 @@ try {
     }
 
     // Sanitize inputs
-    $service_id = filter_var($_POST['service_id'], FILTER_SANITIZE_NUMBER_INT);
+    $service_id = (int)filter_var($_POST['service_id'], FILTER_SANITIZE_NUMBER_INT);
     $current_status = $_POST['current_status'] === 'active' ? 'active' : 'inactive';
     $new_status = $current_status === 'active' ? 'inactive' : 'active';
 

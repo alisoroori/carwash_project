@@ -163,11 +163,21 @@ try {
       $pdo = $db->getPdo();
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-      $tblCheck = $pdo->prepare("SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = :tbl");
-      $tblCheck->execute(['tbl' => 'business_profiles']);
-      $hasBusinessProfiles = (int) $tblCheck->fetch(PDO::FETCH_ASSOC)['cnt'] > 0;
+      $tblCheck = $pdo->prepare("SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('carwashes','business_profiles')");
+      $tblCheck->execute();
+      $found = $tblCheck->fetchAll(PDO::FETCH_COLUMN, 0);
+      $hasCarwashes = in_array('carwashes', $found, true);
+      $hasBusinessProfiles = in_array('business_profiles', $found, true);
 
-      if ($hasBusinessProfiles) {
+      if ($hasCarwashes) {
+        $fetch = $pdo->prepare("SELECT id,user_id, COALESCE(name,business_name) AS business_name, address, postal_code, COALESCE(phone,contact_phone) AS phone, COALESCE(mobile_phone,NULL) AS mobile_phone, COALESCE(email,contact_email) AS email, COALESCE(working_hours,opening_hours) AS working_hours, COALESCE(logo_path,featured_image) AS logo_path, social_media, created_at, updated_at FROM carwashes WHERE user_id = :user_id LIMIT 1");
+        $fetch->execute(['user_id' => $userId]);
+        $business = $fetch->fetch(PDO::FETCH_ASSOC) ?: [];
+        if (!empty($business['working_hours'])) {
+          $decoded = json_decode($business['working_hours'], true);
+          $business['working_hours'] = $decoded === null ? $business['working_hours'] : $decoded;
+        }
+      } elseif ($hasBusinessProfiles) {
         $fetch = $pdo->prepare("SELECT id,user_id,business_name,address,postal_code,phone AS phone,mobile_phone AS mobile_phone,email AS email,working_hours AS working_hours,logo_path,created_at,updated_at FROM business_profiles WHERE user_id = :user_id LIMIT 1");
         $fetch->execute(['user_id' => $userId]);
         $business = $fetch->fetch(PDO::FETCH_ASSOC) ?: [];
@@ -175,41 +185,9 @@ try {
           $decoded = json_decode($business['working_hours'], true);
           $business['working_hours'] = $decoded === null ? $business['working_hours'] : $decoded;
         }
+      
       } else {
-        $fetch = $pdo->prepare("SELECT id,user_id,business_name,address,postal_code,contact_phone AS phone, contact_email AS email, opening_hours AS working_hours, featured_image AS logo_path, social_media, created_at, updated_at FROM carwash_profiles WHERE user_id = :user_id LIMIT 1");
-        $fetch->execute(['user_id' => $userId]);
-        $business = $fetch->fetch(PDO::FETCH_ASSOC) ?: [];
-        if (!empty($business)) {
-          if (!empty($business['working_hours'])) {
-            $decoded = json_decode($business['working_hours'], true);
-            $business['working_hours'] = $decoded === null ? $business['working_hours'] : $decoded;
-          }
-
-          // Extract mobile_phone from social_media JSON (legacy fallback)
-          $business['mobile_phone'] = $business['mobile_phone'] ?? null;
-          if (!empty($business['social_media'])) {
-            $sm = json_decode($business['social_media'], true);
-            if (is_array($sm)) {
-              foreach (['mobile_phone', 'mobile', 'phone', 'telephone', 'tel'] as $k) {
-                if (!empty($sm[$k])) {
-                  $business['mobile_phone'] = $sm[$k];
-                  break;
-                }
-              }
-
-              if (empty($business['mobile_phone']) && isset($sm['whatsapp'])) {
-                if (is_array($sm['whatsapp'])) {
-                  $business['mobile_phone'] = $sm['whatsapp']['number'] ?? $sm['whatsapp']['phone'] ?? $business['mobile_phone'];
-                } elseif (is_string($sm['whatsapp'])) {
-                  $business['mobile_phone'] = $sm['whatsapp'];
-                }
-              }
-            }
-          }
-
-          // Remove social_media from $business to avoid leaking raw JSON into the view
-          unset($business['social_media']);
-        }
+        $business = [];
       }
 
       // Populate session fallbacks so view-mode that uses $_SESSION stays consistent
@@ -705,7 +683,7 @@ try {
           <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
             <img id="mobileSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover sidebar-logo">
           </div>
-          <h3 class="text-xl font-bold" id="mobileSidebarBusinessName">CarWash Merkez</h3>
+          <h3 class="text-xl font-bold" id="mobileSidebarBusinessName"><?php echo htmlspecialchars($business['business_name'] ?? $_SESSION['business_name'] ?? 'CarWash Merkez', ENT_QUOTES, 'UTF-8'); ?></h3>
           <p class="text-sm opacity-75">Premium İşletme</p>
         </div>
 
@@ -757,7 +735,7 @@ try {
           <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
             <img id="desktopSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover sidebar-logo">
           </div>
-          <h3 class="text-xl font-bold" id="desktopSidebarBusinessName">CarWash Merkez</h3>
+          <h3 class="text-xl font-bold" id="desktopSidebarBusinessName"><?php echo htmlspecialchars($business['business_name'] ?? $_SESSION['business_name'] ?? 'CarWash Merkez', ENT_QUOTES, 'UTF-8'); ?></h3>
           <p class="text-sm opacity-75">Premium İşletme</p>
         </div>
 

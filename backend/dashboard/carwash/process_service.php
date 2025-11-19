@@ -29,9 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get carwash ID
-$stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE owner_id = ?");
-$stmt->bind_param("i", $_SESSION['user_id']);
+// Get carwash ID (use canonical `carwashes` table)
+$stmt = $conn->prepare("SELECT id FROM carwashes WHERE owner_id = ?");
+$owner_id = (int)($_SESSION['user_id'] ?? 0);
+$stmt->bind_param("i", $owner_id);
 $stmt->execute();
 $carwash = $stmt->get_result()->fetch_assoc();
 
@@ -57,8 +58,8 @@ try {
     // Sanitize inputs
     $service_name = filter_var($_POST['service_name'], FILTER_SANITIZE_STRING);
     $description = filter_var($_POST['description'], FILTER_SANITIZE_STRING);
-    $duration = filter_var($_POST['duration'], FILTER_SANITIZE_NUMBER_INT);
-    $price = filter_var($_POST['price'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+    $duration = (int)filter_var($_POST['duration'], FILTER_SANITIZE_NUMBER_INT);
+    $price = (float)filter_var($_POST['price'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 
     // Validate inputs
     if ($duration < 1) {
@@ -79,13 +80,14 @@ try {
                 price = ?
             WHERE id = ? AND carwash_id = ?
         ");
+        $service_id = (int)$_POST['id'];
         $stmt->bind_param(
-            "ssiidi",
+            "ssidii",
             $service_name,
             $description,
             $duration,
             $price,
-            $_POST['id'],
+            $service_id,
             $carwash['id']
         );
 

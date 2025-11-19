@@ -18,7 +18,7 @@ try {
     $db = Database::getInstance();
 
     $rows = $db->fetchAll(
-        'SELECT id, business_name AS name, address, city, district, contact_phone AS phone, average_rating AS rating, verified, profile_image AS logo FROM carwash_profiles ORDER BY business_name'
+        "SELECT id, COALESCE(name,business_name) AS name, address, city, district, COALESCE(phone,contact_phone) AS phone, average_rating AS rating, verified, COALESCE(logo_path,profile_image,featured_image) AS logo FROM carwashes ORDER BY COALESCE(name,business_name)"
     );
 
     $result = [];

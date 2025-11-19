@@ -1,6 +1,6 @@
 # ================================
 # auto_migrate_district.ps1
-# Check and auto-create 'district' column in carwash_profiles
+# Check and auto-create 'district' column in `carwashes` (canonical table)
 # ================================
 
 Write-Host "=== Checking MySQL connection and schema ===" -ForegroundColor Cyan
@@ -50,7 +50,7 @@ catch {
 # --- Check if table exists ---
 $tableCheckQuery = @"
 SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
-WHERE TABLE_SCHEMA = '$database' AND TABLE_NAME = 'carwash_profiles';
+WHERE TABLE_SCHEMA = '$database' AND TABLE_NAME = 'carwashes';
 "@
 
 $cmd = New-Object MySql.Data.MySqlClient.MySqlCommand($tableCheckQuery, $conn)
@@ -61,24 +61,24 @@ if ($tableExists -eq 0) {
     $conn.Close()
     exit
 } else {
-    Write-Host "✅ Table 'carwash_profiles' exists." -ForegroundColor Green
+    Write-Host "✅ Table 'carwashes' exists." -ForegroundColor Green
 }
 
 # --- Check if 'district' column exists ---
 $columnCheckQuery = @"
 SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_SCHEMA = '$database' AND TABLE_NAME = 'carwash_profiles' AND COLUMN_NAME = 'district';
+WHERE TABLE_SCHEMA = '$database' AND TABLE_NAME = 'carwashes' AND COLUMN_NAME = 'district';
 "@
 
 $cmd = New-Object MySql.Data.MySqlClient.MySqlCommand($columnCheckQuery, $conn)
 $columnExists = $cmd.ExecuteScalar()
 
 if ($columnExists -gt 0) {
-    Write-Host "✅ Column 'district' already exists in 'carwash_profiles'." -ForegroundColor Green
+    Write-Host "✅ Column 'district' already exists in 'carwashes'." -ForegroundColor Green
 } else {
     Write-Host "⚠ Column 'district' not found. Creating column..." -ForegroundColor Yellow
     try {
-        $alterQuery = "ALTER TABLE carwash_profiles ADD COLUMN district VARCHAR(255) NULL;"
+        $alterQuery = "ALTER TABLE carwashes ADD COLUMN district VARCHAR(255) NULL;"
         $cmd = New-Object MySql.Data.MySqlClient.MySqlCommand($alterQuery, $conn)
         $cmd.ExecuteNonQuery()
         Write-Host "✅ Column 'district' has been successfully created." -ForegroundColor Green

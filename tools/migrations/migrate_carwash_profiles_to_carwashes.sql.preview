@@ -1,0 +1,369 @@
+-- migrate_carwash_profiles_to_carwashes.sql.preview
+-- Strict migration preview: non-destructive by default.
+-- Purpose: move rows from `carwash_profiles` -> `carwashes` with careful dedupe/merge rules.
+-- Usage (preview/dry-run):
+--   1) Inspect this file and adjust mapping if your schemas differ.
+--   2) Run the checks below in your MySQL client: mysql -u user -p your_db < migrate_carwash_profiles_to_carwashes.sql.preview
+--   3) To actually apply changes, copy the final APPLY block into your SQL client after verifying results and backups.
+
+-- =====================================================================
+-- 0) Safety header - DO NOT RUN THE APPLY BLOCK UNTIL YOU HAVE A BACKUP
+-- =====================================================================
+-- Recommended backup (shell):
+-- mysqldump -u root -p --single-transaction --routines --events --databases your_db > backup_before_carwash_migration.sql
+
+-- =====================================================================
+-- 1) Sanity checks: verify source and target tables exist and list counts
+-- =====================================================================
+SELECT 'CHECK: TABLES PRESENT' AS info;
+SELECT TABLE_NAME
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+  AND table_name IN ('carwash_profiles','carwashes','business_profiles');
+
+SELECT 'CHECK: ROW COUNTS' AS info;
+SELECT 'carwash_profiles' AS tbl, COUNT(*) AS cnt FROM carwash_profiles;
+SELECT 'carwashes' AS tbl, COUNT(*) AS cnt FROM carwashes;
+SELECT 'business_profiles' AS tbl, COUNT(*) AS cnt FROM business_profiles;
+
+-- =====================================================================
+-- 2) Identify duplicates / potential conflicts in source
+--    A) By user_id (preferred unique key)
+--    B) By business_name + address (fallback dedupe rule)
+-- =====================================================================
+SELECT 'DUPLICATE: BY user_id' AS info;
+SELECT user_id, COUNT(*) AS cnt
+FROM carwash_profiles
+GROUP BY user_id
+HAVING user_id IS NOT NULL AND COUNT(*) > 1
+ORDER BY cnt DESC;
+
+SELECT 'DUPLICATE: BY business_name + address' AS info;
+SELECT business_name, address, COUNT(*) AS cnt
+FROM carwash_profiles
+GROUP BY business_name, address
+HAVING business_name IS NOT NULL AND address IS NOT NULL AND COUNT(*) > 1
+ORDER BY cnt DESC;
+
+-- =====================================================================
+-- 3) Conflicts between target and source (where both contain a row for same user_id
+--    or where name+address match but fields differ). These should be reviewed.
+-- =====================================================================
+SELECT 'CONFLICTS: same user_id present in carwashes' AS info;
+SELECT cp.*, cw.id AS carwashes_id, cw.name AS cw_name, cw.address AS cw_address
+FROM carwash_profiles cp
+JOIN carwashes cw ON cw.user_id = cp.user_id
+LIMIT 200;
+
+SELECT 'CONFLICTS: same name+address present in carwashes' AS info;
+SELECT cp.*, cw.id AS carwashes_id, cw.name AS cw_name, cw.address AS cw_address
+FROM carwash_profiles cp
+JOIN carwashes cw ON TRIM(LOWER(cp.business_name)) = TRIM(LOWER(COALESCE(cw.name, cw.business_name)))
+  AND TRIM(LOWER(cp.address)) = TRIM(LOWER(COALESCE(cw.address, '')))
+LIMIT 200;
+
+-- =====================================================================
+-- 4) Helper: extract mobile-like values from social_media (best-effort)
+--    NOTE: JSON_EXTRACT requires MySQL 5.7+. If your server does not support JSON functions,
+--    this section will produce NULLs and you should inspect `social_media` raw values manually.
+-- =====================================================================
+SELECT 'SAMPLE: social_media mobile extraction' AS info;
+SELECT id, user_id, business_name, contact_phone,
+  JSON_UNQUOTE(JSON_EXTRACT(social_media, '$.mobile_phone')) AS sm_mobile_phone,
+  JSON_UNQUOTE(JSON_EXTRACT(social_media, '$.mobile')) AS sm_mobile,
+  JSON_UNQUOTE(JSON_EXTRACT(social_media, '$.phone')) AS sm_phone,
+  JSON_UNQUOTE(JSON_EXTRACT(social_media, '$.whatsapp.number')) AS sm_whatsapp_number,
+  social_media
+FROM carwash_profiles
+WHERE social_media IS NOT NULL AND social_media <> ''
+LIMIT 200;
+
+-- =====================================================================
+-- 5) PREVIEW: Create a staging SELECT that shows how rows would be mapped into `carwashes`.
+--    This SELECT demonstrates the key mapping and computed mobile_phone extraction.
+-- =====================================================================
+SELECT 'PREVIEW: mapped rows (sample)' AS info;
+SELECT cp.id AS src_id, cp.user_id, cp.business_name AS src_business_name, cp.address AS src_address,
+  -- try to compute a mobile_phone from explicit column or social_media JSON keys, or fallback to contact_phone
+  COALESCE(
+    NULLIF(cp.mobile_phone, ''),
+    JSON_UNQUOTE(JSON_EXTRACT(cp.social_media, '$.mobile_phone')),
+    JSON_UNQUOTE(JSON_EXTRACT(cp.social_media, '$.mobile')),
+    JSON_UNQUOTE(JSON_EXTRACT(cp.social_media, '$.phone')),
+    cp.contact_phone
+  ) AS computed_mobile_phone,
+  cp.contact_phone AS src_contact_phone,
+  cp.contact_email AS src_contact_email,
+  cp.featured_image AS src_featured_image,
+  cp.opening_hours AS src_opening_hours,
+  cp.social_media AS src_social_media,
+  cp.created_at AS src_created_at,
+  cp.updated_at AS src_updated_at
+FROM carwash_profiles cp
+LIMIT 200;
+
+-- =====================================================================
+-- 6) APPLY BLOCK (NON-DESTRUCTIVE by default). This block shows the INSERT ... ON DUPLICATE KEY UPDATE.
+--    It is wrapped in a transaction and commented out. To apply, remove the /* */ and run on a tested/staging DB.
+--
+-- Notes about uniqueness and keys:
+-- - We recommend having a unique constraint on `carwashes.user_id` (one-to-one mapping). If not present,
+--   consider creating `UNIQUE KEY uniq_carwashes_user (user_id)` AFTER you have validated duplicates.
+-- - Optionally create a composite unique key on `(name, address)` if you want dedupe by those fields.
+--   Example (commented): ALTER TABLE carwashes ADD UNIQUE KEY uniq_carwashes_name_address (name(191), address(191));
+--
+/*
+START TRANSACTION;
+
+-- Create unique index on user_id if you have already resolved duplicates and want DB-level protection
+-- ALTER TABLE carwashes ADD UNIQUE KEY IF NOT EXISTS uniq_carwashes_user (user_id);
+
+-- The INSERT uses COALESCE and simple rules to prefer non-null (VALUES) fields.
+-- Merge rules used in ON DUPLICATE KEY UPDATE:
+--   - For scalar fields (name,address,phone,email,postal_code,logo_path): prefer VALUES() if not null/empty, else keep existing
+--   - For mobile_phone: prefer existing non-empty, else VALUES(), else try to extract from social_media later
+--   - For social_media: if existing is empty, use VALUES(social_media); otherwise keep existing (avoid overwriting)
+--   - For working_hours and updated_at: prefer the one with later updated_at timestamp
+
+INSERT INTO carwashes (
+  user_id, name, address, phone, mobile_phone, email, postal_code, logo_path, social_media, working_hours, created_at, updated_at
+)
+SELECT
+  cp.user_id,
+  cp.business_name AS name,
+  cp.address,
+  cp.contact_phone AS phone,
+  -- compute mobile phone via column or social_media JSON (best-effort)
+  COALESCE(NULLIF(cp.mobile_phone, ''),
+           JSON_UNQUOTE(JSON_EXTRACT(cp.social_media, '$.mobile_phone')),
+           JSON_UNQUOTE(JSON_EXTRACT(cp.social_media, '$.mobile')),
+           JSON_UNQUOTE(JSON_EXTRACT(cp.social_media, '$.phone')),
+           cp.contact_phone) AS mobile_phone,
+  cp.contact_email AS email,
+  cp.postal_code,
+  cp.featured_image AS logo_path,
+  cp.social_media,
+  cp.opening_hours AS working_hours,
+  cp.created_at,
+  cp.updated_at
+FROM carwash_profiles cp
+LEFT JOIN carwashes cw ON cw.user_id = cp.user_id
+WHERE 1=1
+  -- Optionally restrict to rows where carwashes.user_id is NULL to avoid touching existing ones
+  -- AND cw.user_id IS NULL
+;
+
+-- ON DUPLICATE KEY UPDATE (example merging strategy)
+-- If a UNIQUE KEY on `user_id` exists, this block will run for those duplicates.
+-- Adjust field logic as needed for your schema and data quality.
+--
+-- NOTE: MySQL uses VALUES(column) to reference the inserted value in ON DUPLICATE KEY UPDATE
+-- The script below demonstrates conservative merging rules.
+
+-- INSERT ... ON DUPLICATE KEY UPDATE
+-- name = COALESCE(NULLIF(VALUES(name), ''), carwashes.name),
+-- address = COALESCE(NULLIF(VALUES(address), ''), carwashes.address),
+-- phone = COALESCE(NULLIF(VALUES(phone), ''), carwashes.phone),
+-- mobile_phone = COALESCE(NULLIF(carwashes.mobile_phone, ''), NULLIF(VALUES(mobile_phone), '')),
+-- email = COALESCE(NULLIF(VALUES(email), ''), carwashes.email),
+-- postal_code = COALESCE(NULLIF(VALUES(postal_code), ''), carwashes.postal_code),
+-- logo_path = COALESCE(NULLIF(VALUES(logo_path), ''), carwashes.logo_path),
+-- social_media = CASE WHEN COALESCE(carwashes.social_media, '') = '' THEN VALUES(social_media) ELSE carwashes.social_media END,
+-- working_hours = CASE WHEN VALUES(updated_at) > carwashes.updated_at THEN VALUES(working_hours) ELSE carwashes.working_hours END,
+-- updated_at = GREATEST(COALESCE(carwashes.updated_at, '1970-01-01 00:00:00'), COALESCE(VALUES(updated_at), '1970-01-01 00:00:00'));
+
+-- COMMIT;
+*/
+
+-- =====================================================================
+-- 7) SUMMARY QUERIES - after apply, list rows that were affected / merged
+--    These queries should be run after a successful apply to review merges.
+-- =====================================================================
+-- Rows in carwashes that were created in the last 24 hours (example)
+SELECT * FROM carwashes WHERE created_at >= NOW() - INTERVAL 1 DAY ORDER BY created_at DESC LIMIT 200;
+
+-- Potential merges (rows where both source and target matched by user_id)
+SELECT cp.user_id, cp.id AS src_id, cw.id AS tgt_id, cp.business_name AS src_name, cw.name AS tgt_name, cp.address AS src_address, cw.address AS tgt_address
+FROM carwash_profiles cp
+JOIN carwashes cw ON cw.user_id = cp.user_id
+LIMIT 500;
+
+-- Flag rows with inconsistent phone data between source and target
+SELECT cp.user_id, cp.id AS src_id, cw.id AS tgt_id, cp.contact_phone AS src_phone, cw.phone AS tgt_phone
+FROM carwash_profiles cp
+JOIN carwashes cw ON cw.user_id = cp.user_id
+WHERE (cp.contact_phone IS NOT NULL AND cp.contact_phone <> '')
+  AND (cw.phone IS NOT NULL AND cw.phone <> '')
+  AND (cp.contact_phone <> cw.phone)
+LIMIT 500;
+
+-- =====================================================================
+-- End of preview
+-- =====================================================================
+-- Dry-run migration preview: carwash_profiles -> carwashes
+-- Generated: 2025-11-19
+-- Purpose: Non-destructive preview SQL that inspects schemas, identifies ambiguous rows,
+-- and produces INSERT ... SELECT statements to migrate data from `carwash_profiles` to `carwashes`.
+-- IMPORTANT: This is only a preview. Do NOT run without review and backup.
+
+-- 1) Inspect whether `carwashes` table exists in this DB (run manually in your DB client):
+SELECT COUNT(*) AS carwashes_table_exists
+FROM information_schema.tables
+WHERE table_schema = DATABASE() AND table_name = 'carwashes';
+
+-- 2) If `carwashes` exists, list its columns (run in DB to inspect types):
+SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT
+FROM information_schema.columns
+WHERE table_schema = DATABASE() AND table_name = 'carwashes'
+ORDER BY ORDINAL_POSITION;
+
+-- 3) Conservative inferred mapping between `carwash_profiles` (source) and `carwashes` (target):
+-- Source columns (examples found in repo):
+--   carwash_profiles: id, user_id, business_name, address, postal_code, city, district,
+--                    contact_phone, contact_email, opening_hours, featured_image, social_media,
+--                    services, rating, created_at, updated_at, status
+--   carwashes (in code/tests): id, user_id, name, address, postal_code, city, district,
+--                    phone, mobile_phone, email, status, logo_path, social_media, opening_hours,
+--                    services, rating, created_at, updated_at
+-- Mapping rules used by this preview:
+--   carwashes.name         <= COALESCE(carwash_profiles.business_name, carwash_profiles.name)
+--   carwashes.phone        <= COALESCE(contact_phone, phone)
+--   carwashes.mobile_phone <= JSON_EXTRACT(social_media, '$.mobile_phone') when present
+--   carwashes.logo_path    <= featured_image or logo_path
+--   carwashes.opening_hours<= opening_hours or working_hours
+--   social_media and services are copied as-is (JSON/text) where available
+
+-- 4) Preview: detect ambiguous / duplicate source rows
+--   a) Duplicate business_name + address in source
+SELECT business_name, address, COUNT(*) AS cnt
+FROM carwash_profiles
+GROUP BY business_name, address
+HAVING cnt > 1;
+
+--   b) Rows in source that look like they already exist in `carwashes` (match by user_id OR exact name)
+--      This query is safe to run: it only SELECTs conflicts for manual review.
+SELECT cp.id AS source_id, cp.user_id AS source_user_id, cp.business_name AS source_name, cp.address AS source_address,
+       cw.id AS target_id, cw.user_id AS target_user_id, cw.name AS target_name, cw.address AS target_address
+FROM carwash_profiles cp
+LEFT JOIN carwashes cw ON (cw.user_id IS NOT NULL AND cw.user_id = cp.user_id) OR (cw.name = cp.business_name)
+WHERE cw.id IS NOT NULL
+LIMIT 200;
+
+--   c) Extract mobile_phone values from social_media JSON in source (if present):
+SELECT id, user_id, business_name,
+       social_media,
+       JSON_UNQUOTE(JSON_EXTRACT(social_media, '$.mobile_phone')) AS extracted_mobile_phone
+FROM carwash_profiles
+WHERE social_media IS NOT NULL
+  AND JSON_EXTRACT(social_media, '$.mobile_phone') IS NOT NULL
+LIMIT 500;
+
+-- 5) Construct INSERT ... SELECT preview (non-destructive):
+--    Strategy: insert rows from carwash_profiles into carwashes where there is no matching carwashes row
+--    (match by user_id OR name). This prevents obvious duplicates in many cases.
+--    NOTE: Adjust columns below to match your `carwashes` schema before running.
+
+-- Preview INSERT (dry-run). Replace with an actual INSERT ... SELECT when you are ready to run.
+-- This SELECT prints what would be inserted; review carefully.
+SELECT
+  cp.id AS would_insert_id,
+  COALESCE(cp.user_id, NULL) AS would_insert_user_id,
+  COALESCE(cp.business_name, NULL) AS would_insert_name,
+  COALESCE(cp.address, NULL) AS would_insert_address,
+  COALESCE(cp.postal_code, '') AS would_insert_postal_code,
+  COALESCE(cp.city, '') AS would_insert_city,
+  COALESCE(cp.district, '') AS would_insert_district,
+  COALESCE(cp.contact_phone, NULL) AS would_insert_phone,
+  -- mobile_phone: try social_media.mobile_phone, else NULL
+  NULLIF(JSON_UNQUOTE(JSON_EXTRACT(cp.social_media, '$.mobile_phone')), 'null') AS would_insert_mobile_phone,
+  COALESCE(cp.contact_email, NULL) AS would_insert_email,
+  COALESCE(cp.status, 'active') AS would_insert_status,
+  COALESCE(cp.featured_image, NULL) AS would_insert_logo_path,
+  COALESCE(cp.social_media, NULL) AS would_insert_social_media,
+  COALESCE(cp.opening_hours, NULL) AS would_insert_opening_hours,
+  COALESCE(cp.services, NULL) AS would_insert_services,
+  COALESCE(cp.rating, 0) AS would_insert_rating,
+  COALESCE(cp.created_at, NOW()) AS would_insert_created_at,
+  COALESCE(cp.updated_at, NOW()) AS would_insert_updated_at
+FROM carwash_profiles cp
+LEFT JOIN carwashes cw ON (cw.user_id IS NOT NULL AND cw.user_id = cp.user_id) OR (cw.name = cp.business_name)
+WHERE cw.id IS NULL
+LIMIT 1000;
+
+-- 6) OPTIONAL: If you are confident and `carwashes` schema exactly matches the target columns,
+--    this is the INSERT ... SELECT you would run (example). DO NOT RUN until you've backed up the DB
+--    and validated the mapping above. The statement below is commented out.
+
+/*
+START TRANSACTION;
+
+INSERT INTO carwashes (
+  user_id, name, address, postal_code, city, district, phone, mobile_phone, email,
+  status, logo_path, social_media, opening_hours, services, rating, created_at, updated_at
+)
+SELECT
+  cp.user_id,
+  COALESCE(cp.business_name, cp.name),
+  cp.address,
+  COALESCE(cp.postal_code, ''),
+  COALESCE(cp.city, ''),
+  COALESCE(cp.district, ''),
+  COALESCE(cp.contact_phone, NULL),
+  NULLIF(JSON_UNQUOTE(JSON_EXTRACT(cp.social_media, '$.mobile_phone')), 'null'),
+  COALESCE(cp.contact_email, NULL),
+  COALESCE(cp.status, 'active'),
+  COALESCE(cp.featured_image, NULL),
+  COALESCE(cp.social_media, NULL),
+  COALESCE(cp.opening_hours, NULL),
+  COALESCE(cp.services, NULL),
+  COALESCE(cp.rating, 0),
+  COALESCE(cp.created_at, NOW()),
+  COALESCE(cp.updated_at, NOW())
+FROM carwash_profiles cp
+LEFT JOIN carwashes cw ON (cw.user_id IS NOT NULL AND cw.user_id = cp.user_id) OR (cw.name = cp.business_name)
+WHERE cw.id IS NULL;
+
+-- Optional: On duplicate key update variant (if `carwashes` has a UNIQUE on `user_id` or `name`):
+-- INSERT ... ON DUPLICATE KEY UPDATE name=VALUES(name), address=VALUES(address), ...
+
+-- Do not commit here in dry-run. Run verification queries, then COMMIT when confident.
+ROLLBACK;
+*/
+
+-- 7) Suggested queries to produce CSV / lists of ambiguous rows for manual review (run externally):
+--   a) Source rows with NULL or empty names (need attention):
+SELECT id, user_id, business_name, address FROM carwash_profiles WHERE business_name IS NULL OR TRIM(business_name) = '' LIMIT 200;
+
+--   b) Source rows with JSON social_media but no mobile_phone extracted (possible different key names):
+SELECT id, social_media
+FROM carwash_profiles
+WHERE social_media IS NOT NULL
+  AND JSON_EXTRACT(social_media, '$.mobile_phone') IS NULL
+LIMIT 200;
+
+--   c) Potential duplicates between source rows (different IDs but same phone or same name+address):
+SELECT a.id AS id_a, b.id AS id_b, a.business_name, a.address, a.contact_phone
+FROM carwash_profiles a
+JOIN carwash_profiles b ON a.id < b.id
+  AND (
+    (a.contact_phone IS NOT NULL AND a.contact_phone = b.contact_phone)
+    OR (a.business_name = b.business_name AND a.address = b.address)
+  )
+LIMIT 500;
+
+-- 8) Summary of ambiguous mappings (for reviewer):
+--   - `social_media` JSON may contain `mobile_phone`, `mobile`, or other keys. The preview extracts `$.mobile_phone`. If other keys are used, you must extend the extraction logic.
+--   - `featured_image` (source) maps to `logo_path` (target). Confirm column names/types.
+--   - `contact_phone` (source) maps to `phone` (target); `mobile_phone` may be absent as a column in some databases.
+--   - `status` column may be missing in some `carwash_profiles` environments (logs show 'status' missing). If `carwashes` requires `status`, set a default value (e.g., 'active').
+--   - Services/working hours formats may differ (JSON vs CSV). Verify formats before copying.
+
+-- 9) Execution checklist (manual):
+--   [ ] BACKUP the production DB (mysqldump or snapshot).
+--   [ ] Run the inspection queries above (table existence, columns, sample SELECTs).
+--   [ ] Review the SELECT preview ("would_insert_...") output and ambiguous queries.
+--   [ ] Adjust INSERT column list to exactly match your `carwashes` schema.
+--   [ ] Run the INSERT ... SELECT inside a transaction on staging, then ROLLBACK to review how many rows would insert.
+--   [ ] When happy, run against staging and verify app behavior; then schedule production migration window.
+
+-- End of preview

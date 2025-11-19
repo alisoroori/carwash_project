@@ -1,0 +1,49 @@
+-- migrate_carwash_profiles_to_carwashes.sql
+-- Preview / safe migration script. Review before running.
+-- This script is intended as a guide. Prefer using the PHP runner in the same directory
+-- which performs dry-run checks and can optionally apply changes: run_migrate_carwash_profiles.php
+
+-- 1) Check existence of tables
+-- SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('carwashes','carwash_profiles','business_profiles');
+
+-- 2) Recommended transactional migration (example):
+-- START TRANSACTION;
+--
+-- -- Create `carwashes` from `carwash_profiles` structure if needed
+-- CREATE TABLE IF NOT EXISTS carwashes LIKE carwash_profiles;
+--
+-- -- Insert rows from carwash_profiles into carwashes when there is no matching user_id
+-- INSERT INTO carwashes (user_id, name, address, phone, email, postal_code, logo_path, social_media, working_hours, created_at, updated_at)
+-- SELECT
+--   cp.user_id,
+--   cp.business_name AS name,
+--   cp.address,
+--   cp.contact_phone AS phone,
+--   cp.contact_email AS email,
+--   cp.postal_code,
+--   cp.featured_image AS logo_path,
+--   cp.social_media,
+--   cp.opening_hours AS working_hours,
+--   cp.created_at,
+--   cp.updated_at
+-- FROM carwash_profiles cp
+-- LEFT JOIN carwashes cw ON cw.user_id = cp.user_id
+-- WHERE cw.user_id IS NULL;
+--
+-- -- Optional: update carwashes.mobile_phone from social_media JSON where mobile_phone is null
+-- -- This requires MySQL JSON functions (MySQL 5.7+)
+-- UPDATE carwashes cw
+-- JOIN (
+--   SELECT id, JSON_UNQUOTE(JSON_EXTRACT(social_media, '$.mobile_phone')) AS mobile_from_sm
+--   FROM carwashes
+--   WHERE JSON_TYPE(social_media) IS NOT NULL
+-- ) j ON j.id = cw.id
+-- SET cw.mobile_phone = COALESCE(cw.mobile_phone, j.mobile_from_sm)
+-- WHERE cw.mobile_phone IS NULL;
+--
+-- -- Commit when verified
+-- COMMIT;
+
+-- NOTE:
+-- - This script assumes `carwash_profiles` exists and has columns used above.
+-- - Run the PHP runner `php run_migrate_carwash_profiles.php` for a safer dry-run and to apply.

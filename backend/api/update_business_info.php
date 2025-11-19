@@ -144,12 +144,73 @@ try {
         $affectedRows = 0;
         $insertedId = null;
 
-        // Decide which table to use: prefer `business_profiles` if it exists, else use `carwash_profiles`
-        $tableCheck = $pdo->prepare("SELECT COUNT(*) as cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = :tbl");
-        $tableCheck->execute(['tbl' => 'business_profiles']);
-        $hasBusinessProfiles = (int)$tableCheck->fetch(PDO::FETCH_ASSOC)['cnt'] > 0;
+        // Decide which table to use: prefer `carwashes` -> `business_profiles` (legacy `carwash_profiles` removed)
+        $tableCheck = $pdo->prepare("SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('carwashes','business_profiles')");
+        $tableCheck->execute();
+        $found = $tableCheck->fetchAll(PDO::FETCH_COLUMN, 0);
+        $hasCarwashes = in_array('carwashes', $found, true);
+        $hasBusinessProfiles = in_array('business_profiles', $found, true);
 
-        if ($hasBusinessProfiles) {
+        if ($hasCarwashes) {
+            // Use new canonical `carwashes` table
+            $stmt = $pdo->prepare("SELECT id FROM carwashes WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $userId]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $params = [
+                'name' => $businessName,
+                'address' => $address,
+                'phone' => $phone,
+                'mobile_phone' => $mobilePhone,
+                'postal_code' => $postal_code,
+                'email' => $email,
+                'working_hours' => json_encode($workingHours),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'user_id' => $userId
+            ];
+
+            if ($existing) {
+                $set = "name = :name, address = :address, phone = :phone, mobile_phone = :mobile_phone, email = :email, working_hours = :working_hours, updated_at = :updated_at, postal_code = :postal_code";
+                if ($logoPath) {
+                    $set .= ", logo_path = :logo_path";
+                    $params['logo_path'] = $logoPath;
+                }
+                $sql = "UPDATE carwashes SET {$set} WHERE user_id = :user_id";
+                $upd = $pdo->prepare($sql);
+                $upd->execute($params);
+                $affectedRows = $upd->rowCount();
+                if ($affectedRows === 0) {
+                    $pdo->rollBack();
+                    Response::error('Veritabanına yazılamadı (güncelleme etkilenen satır yok).', 500);
+                }
+            } else {
+                $insertParams = [
+                    'user_id' => $userId,
+                    'name' => $businessName,
+                    'address' => $address,
+                    'phone' => $phone,
+                    'mobile_phone' => $mobilePhone,
+                    'postal_code' => $postal_code,
+                    'email' => $email,
+                    'working_hours' => json_encode($workingHours),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+
+                if ($logoPath) {
+                    $insertSql = 'INSERT INTO carwashes (user_id,name,address,phone,mobile_phone,postal_code,email,working_hours,logo_path,created_at,updated_at) VALUES (:user_id,:name,:address,:phone,:mobile_phone,:postal_code,:email,:working_hours,:logo_path,:created_at,:updated_at)';
+                    $insertParams['logo_path'] = $logoPath;
+                } else {
+                    $insertSql = 'INSERT INTO carwashes (user_id,name,address,phone,mobile_phone,postal_code,email,working_hours,created_at,updated_at) VALUES (:user_id,:name,:address,:phone,:mobile_phone,:postal_code,:email,:working_hours,:created_at,:updated_at)';
+                }
+
+                $ins = $pdo->prepare($insertSql);
+                $ins->execute($insertParams);
+                $insertedId = $pdo->lastInsertId();
+                $affectedRows = $ins->rowCount() ?: ($insertedId ? 1 : 0);
+            }
+
+        } elseif ($hasBusinessProfiles) {
             // Use business_profiles table (existing logic)
             $stmt = $pdo->prepare("SELECT id FROM business_profiles WHERE user_id = :user_id");
             $stmt->execute(['user_id' => $userId]);
@@ -213,86 +274,9 @@ try {
             }
 
         } else {
-            // business_profiles table not present. Fall back to carwash_profiles and map fields.
-            $stmt = $pdo->prepare("SELECT id FROM carwash_profiles WHERE user_id = :user_id");
-            $stmt->execute(['user_id' => $userId]);
-            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            // Map fields: business_name -> business_name, address -> address,
-            // phone -> contact_phone, email -> contact_email, working_hours -> opening_hours, logo -> featured_image
-            $params = [
-                'business_name' => $businessName,
-                'address' => $address,
-                'contact_phone' => $phone,
-                'contact_email' => $email,
-                'postal_code' => $postal_code,
-                'opening_hours' => json_encode($workingHours),
-                'updated_at' => date('Y-m-d H:i:s'),
-                'user_id' => $userId
-            ];
-
-            if ($existing) {
-                // Preserve or merge social_media so we can store the mobile phone even when schema lacks mobile_phone
-                $smStmt = $pdo->prepare("SELECT social_media FROM carwash_profiles WHERE user_id = :user_id LIMIT 1");
-                $smStmt->execute(['user_id' => $userId]);
-                $smRow = $smStmt->fetch(PDO::FETCH_ASSOC);
-                $socialMedia = [];
-                if ($smRow && !empty($smRow['social_media'])) {
-                    $decodedSM = json_decode($smRow['social_media'], true);
-                    if (is_array($decodedSM)) $socialMedia = $decodedSM;
-                }
-
-                if (!empty($mobilePhone)) {
-                    $socialMedia['mobile_phone'] = $mobilePhone;
-                }
-
-                $params['social_media'] = json_encode($socialMedia);
-
-                $set = "business_name = :business_name, address = :address, contact_phone = :contact_phone, contact_email = :contact_email, opening_hours = :opening_hours, social_media = :social_media, updated_at = :updated_at";
-                $set .= ", postal_code = :postal_code";
-                if ($logoPath) {
-                    $set .= ", featured_image = :featured_image";
-                    $params['featured_image'] = $logoPath;
-                }
-                $sql = "UPDATE carwash_profiles SET {$set} WHERE user_id = :user_id";
-                $upd = $pdo->prepare($sql);
-                $upd->execute($params);
-                $affectedRows = $upd->rowCount();
-                if ($affectedRows === 0) {
-                    $pdo->rollBack();
-                    Response::error('Veritabanına yazılamadı (güncelleme etkilenen satır yok).', 500);
-                }
-            } else {
-                // Insert minimal carwash_profiles row (city is NOT NULL in schema, provide empty string)
-                $socialMedia = [];
-                if (!empty($mobilePhone)) $socialMedia['mobile_phone'] = $mobilePhone;
-
-                $insertParams = [
-                    'user_id' => $userId,
-                    'business_name' => $businessName,
-                    'address' => $address,
-                    'city' => '',
-                    'postal_code' => $postal_code,
-                    'contact_phone' => $phone,
-                    'contact_email' => $email,
-                    'opening_hours' => json_encode($workingHours),
-                    'social_media' => json_encode($socialMedia),
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ];
-
-                if ($logoPath) {
-                    $insertSql = 'INSERT INTO carwash_profiles (user_id,business_name,address,city,postal_code,contact_phone,contact_email,opening_hours,social_media,featured_image,created_at,updated_at) VALUES (:user_id,:business_name,:address,:city,:postal_code,:contact_phone,:contact_email,:opening_hours,:social_media,:featured_image,:created_at,:updated_at)';
-                    $insertParams['featured_image'] = $logoPath;
-                } else {
-                    $insertSql = 'INSERT INTO carwash_profiles (user_id,business_name,address,city,postal_code,contact_phone,contact_email,opening_hours,social_media,created_at,updated_at) VALUES (:user_id,:business_name,:address,:city,:postal_code,:contact_phone,:contact_email,:opening_hours,:social_media,:created_at,:updated_at)';
-                }
-
-                $ins = $pdo->prepare($insertSql);
-                $ins->execute($insertParams);
-                $insertedId = $pdo->lastInsertId();
-                $affectedRows = $ins->rowCount() ?: ($insertedId ? 1 : 0);
-            }
+            // No known profile table exists in this database
+            $pdo->rollBack();
+            Response::error('Veritabanında uygun işletme tablosu bulunamadı (carwashes veya business_profiles).', 500);
         }
 
         // If we get here, at least one row was affected or inserted
@@ -308,23 +292,40 @@ try {
                 $row['working_hours'] = $decoded === null ? $row['working_hours'] : $decoded;
             }
         } else {
-            $fetch = $pdo->prepare("SELECT id, user_id, business_name, address, postal_code, city, contact_phone AS phone, contact_email AS email, opening_hours AS working_hours, social_media, featured_image AS logo_path, created_at, updated_at FROM carwash_profiles WHERE user_id = :user_id LIMIT 1");
-            $fetch->execute(['user_id' => $userId]);
-            $row = $fetch->fetch(PDO::FETCH_ASSOC);
-            if ($row && isset($row['working_hours'])) {
-                $decoded = json_decode($row['working_hours'], true);
-                $row['working_hours'] = $decoded === null ? $row['working_hours'] : $decoded;
-            }
-            // If mobile phone is not a dedicated column, try to extract from social_media JSON
-            if ($row && empty($row['phone']) && !empty($row['social_media'])) {
-                $sm = json_decode($row['social_media'], true);
-                if (is_array($sm) && !empty($sm['mobile_phone'])) {
-                    $row['mobile_phone'] = $sm['mobile_phone'];
+            // Fetch latest from carwashes (preferred) or business_profiles
+            if ($hasCarwashes) {
+                $fetch = $pdo->prepare("SELECT id, user_id, COALESCE(name,business_name) AS business_name, address, postal_code, COALESCE(phone,contact_phone) AS phone, COALESCE(mobile_phone,NULL) AS mobile_phone, COALESCE(email,contact_email) AS email, COALESCE(working_hours,opening_hours) AS working_hours, COALESCE(logo_path,featured_image) AS logo_path, social_media, created_at, updated_at FROM carwashes WHERE user_id = :user_id LIMIT 1");
+                $fetch->execute(['user_id' => $userId]);
+                $row = $fetch->fetch(PDO::FETCH_ASSOC);
+                if ($row && isset($row['working_hours'])) {
+                    $decoded = json_decode($row['working_hours'], true);
+                    $row['working_hours'] = $decoded === null ? $row['working_hours'] : $decoded;
                 }
-            } elseif ($row && !empty($row['social_media'])) {
+            } elseif ($hasBusinessProfiles) {
+                $fetch = $pdo->prepare("SELECT id, user_id, business_name, address, postal_code, phone, mobile_phone, email, working_hours, logo_path, created_at, updated_at FROM business_profiles WHERE user_id = :user_id LIMIT 1");
+                $fetch->execute(['user_id' => $userId]);
+                $row = $fetch->fetch(PDO::FETCH_ASSOC);
+                if ($row && isset($row['working_hours'])) {
+                    $decoded = json_decode($row['working_hours'], true);
+                    $row['working_hours'] = $decoded === null ? $row['working_hours'] : $decoded;
+                }
+            } else {
+                $row = null;
+            }
+            // If mobile phone is missing, try to extract from social_media JSON if available
+            if ($row && empty($row['mobile_phone']) && !empty($row['social_media'])) {
                 $sm = json_decode($row['social_media'], true);
-                if (is_array($sm) && !empty($sm['mobile_phone'])) {
-                    $row['mobile_phone'] = $sm['mobile_phone'];
+                if (is_array($sm)) {
+                    foreach (['mobile_phone','mobile','phone','telephone','tel'] as $k) {
+                        if (!empty($sm[$k])) { $row['mobile_phone'] = $sm[$k]; break; }
+                    }
+                    if (empty($row['mobile_phone']) && isset($sm['whatsapp'])) {
+                        if (is_array($sm['whatsapp'])) {
+                            $row['mobile_phone'] = $sm['whatsapp']['number'] ?? $sm['whatsapp']['phone'] ?? $row['mobile_phone'];
+                        } elseif (is_string($sm['whatsapp'])) {
+                            $row['mobile_phone'] = $sm['whatsapp'];
+                        }
+                    }
                 }
             }
         }

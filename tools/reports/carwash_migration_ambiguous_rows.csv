@@ -1,0 +1,13 @@
+---,"Ambiguous rows export for carwash_profiles -> carwashes migration"
+---,"Generated: 2025-11-19 16:35:55"
+---,"Non-destructive: This script runs SELECT queries only. No changes are made to the database."
+category,source_id,source_user_id,business_name,address,contact_phone,social_media,extracted_mobile_phone,conflict_target_id,conflict_target_user_id,conflict_target_name,conflict_target_address,notes
+error,,,,,,,,,,,,"Failed conflicts_with_carwashes query: Error executing database query"
+mobile_found,3,16,"CarWash giresun","Pazarcı, 4075. Sk., 07600 Manavgat/Antalya","0216 123 4567","{""mobile_phone"":""05579840837""}",05579840837,,,,,"mobile_phone extracted from social_media"
+
+---,SUMMARY:
+---,"duplicate_name_address rows (approx): 0"
+---,"conflicts_with_carwashes rows: 0"
+---,"mobile_found rows: 1"
+---,"mobile_missing rows: 0"
+---,"same_phone_duplicates rows: 0"

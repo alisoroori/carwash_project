@@ -45,12 +45,41 @@ try {
     // Ensure exceptions are thrown on PDO errors (Database already sets this, but enforce here)
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Note: use `carwash_profiles` (the project's carwash table) rather than a non-existent `car_washes` table
-        $query = "SELECT b.*, u.name AS user_name, s.name AS service_name, cw.business_name AS carwash_name
-            FROM bookings b
+    // Prefer joining against `carwashes` (canonical) if present, otherwise fall back to `business_profiles` if present
+    try {
+        $tblCheck = $pdo->prepare("SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = :tbl");
+        $tblCheck->execute(['tbl' => 'carwashes']);
+        $hasCarwashes = (int)$tblCheck->fetch(PDO::FETCH_ASSOC)['cnt'] > 0;
+    } catch (Exception $e) {
+        // On any error, assume table absent and fall back
+        $hasCarwashes = false;
+    }
+
+    if ($hasCarwashes) {
+        $cwSelect = 'cw.name AS carwash_name';
+        $cwJoin = 'LEFT JOIN carwashes cw ON cw.id = b.carwash_id';
+    } else {
+        // Try business_profiles as a secondary source; if not present, return null carwash name
+        try {
+            $tblCheck->execute(['tbl' => 'business_profiles']);
+            $hasBusinessProfiles = (int)$tblCheck->fetch(PDO::FETCH_ASSOC)['cnt'] > 0;
+        } catch (Exception $e) {
+            $hasBusinessProfiles = false;
+        }
+
+        if (!empty($hasBusinessProfiles)) {
+            $cwSelect = 'cw.business_name AS carwash_name';
+            $cwJoin = 'LEFT JOIN business_profiles cw ON cw.id = b.carwash_id';
+        } else {
+            $cwSelect = 'NULL AS carwash_name';
+            $cwJoin = '';
+        }
+    }
+
+    $query = "SELECT b.*, u.name AS user_name, s.name AS service_name, {$cwSelect} FROM bookings b
             LEFT JOIN users u ON u.id = b.user_id
             LEFT JOIN services s ON s.id = b.service_id
-            LEFT JOIN carwash_profiles cw ON cw.id = b.carwash_id
+            {$cwJoin}
             WHERE b.user_id = :uid
             ORDER BY b.id DESC";
 

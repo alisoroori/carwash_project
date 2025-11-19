@@ -30,9 +30,9 @@ try {
     // Start transaction
     $conn->begin_transaction();
 
-    // Get carwash ID
-    $stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE owner_id = ?");
-    $stmt->bind_param("i", $_SESSION['user_id']);
+    // Get carwash ID from canonical `carwashes` table
+    $stmt = $conn->prepare("SELECT id FROM carwashes WHERE user_id = ? OR owner_id = ? LIMIT 1");
+    $stmt->bind_param("ii", $_SESSION['user_id'], $_SESSION['user_id']);
     $stmt->execute();
     $carwash = $stmt->get_result()->fetch_assoc();
 
@@ -71,7 +71,7 @@ try {
 
         if ($existing) {
             // Update existing record
-            $stmt = $conn->prepare("
+            $stmt = $conn->prepare(" 
                 UPDATE working_hours 
                 SET is_open = ?,
                     open_time = ?,
@@ -79,7 +79,8 @@ try {
                     updated_at = NOW()
                 WHERE carwash_id = ? AND day = ?
             ");
-            $stmt->bind_param("issss", $is_open, $open_time, $close_time, $carwash['id'], $day);
+            // param types: is_open (int), open_time (string), close_time (string), carwash_id (int), day (string)
+            $stmt->bind_param("issis", $is_open, $open_time, $close_time, $carwash['id'], $day);
         } else {
             // Insert new record
             $stmt = $conn->prepare("
@@ -101,8 +102,8 @@ try {
     }
 
     // Update carwash working_hours field
-    $stmt = $conn->prepare("
-           UPDATE carwash_profiles 
+    $stmt = $conn->prepare(" 
+           UPDATE carwashes 
         SET working_hours = ? 
         WHERE id = ?
     ");

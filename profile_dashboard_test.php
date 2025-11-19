@@ -31,7 +31,8 @@ if ($conn->connect_error) {
 // --- Tables and Columns ---
 $tables = [
     "users" => ["id","name","email","profile_image","phone","address"],
-    "carwash_profiles" => ["id","user_id","profile_image","address","district"]
+    "carwash_profiles" => ["id","user_id","profile_image","address","district"],
+    "carwashes" => ["id","user_id","logo_path","address","district"]
 ];
 
 if ($dbSuccess) {

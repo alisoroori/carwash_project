@@ -132,10 +132,10 @@ try {
         exit();
     }
     
-    // Check if business name already exists
-    $stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE business_name = ?");
+    // Check if business name already exists in canonical `carwashes` table
+    $stmt = $conn->prepare("SELECT id FROM carwashes WHERE name = ?");
     $stmt->execute([$business_name]);
-    
+
     if ($stmt->fetch()) {
         $_SESSION['error_message'] = 'Bu işletme adı zaten kayıtlı';
         header('Location: Car_Wash_Registration.php');
@@ -212,62 +212,34 @@ try {
         $stmt->execute([$username, $business_name, $email, $hashed_password, $phone]);
         $user_id = $conn->lastInsertId();
         
-        // Insert carwash business record
-        $carwash_sql = "INSERT INTO carwash_profiles (
+        // Insert carwash business record into canonical `carwashes` table
+        // Map the most common fields; optional/extra fields can be added to the target schema via migration
+        $carwash_sql = "INSERT INTO carwashes (
             user_id,
-            owner_id,
-            business_name,
+            name,
             email,
-            contact_phone,
-            tax_number,
-            license_number,
-            owner_name,
-            tc_kimlik,
-            owner_phone,
-            birth_date,
+            phone,
             city,
             district,
             address,
-            exterior_price,
-            interior_price,
-            detailing_price,
-            opening_time,
-            closing_time,
-            capacity,
-            description,
-            profile_image,
-            logo_image,
-            status,
-            created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
-        
+            logo_path,
+            created_at,
+            updated_at,
+            status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), 'pending')";
+
         $stmt = $conn->prepare($carwash_sql);
         $stmt->execute([
-            $user_id,           // user_id - references the user we just created
-            $user_id,           // owner_id - same user_id for foreign key constraint
-            $business_name,     // name
-            $email,             // email
-            $phone,             // phone
-            $tax_number,        // tax_number
-            $license_number,    // license_number
-            $owner_name,        // owner_name
-            $owner_id,          // tc_kimlik - Turkish ID number
-            $owner_phone,       // owner_phone
-            $birth_date ?: null, // birth_date
-            $city,              // city
-            $district,          // district
-            $address,           // address
-            $exterior_price,    // exterior_price
-            $interior_price,    // interior_price
-            $detailing_price,   // detailing_price
-            $opening_time ?: null, // opening_time
-            $closing_time ?: null, // closing_time
-            $capacity ?: null,  // capacity
-            $description,       // description
-            $profile_image,     // profile_image
-            $logo_image         // logo_image
+            $user_id,
+            $business_name,
+            $email,
+            $phone,
+            $city,
+            $district,
+            $address,
+            $logo_image ? '/carwash_project/backend/uploads/' . $logo_image : null
         ]);
-        
+
         $carwash_id = $conn->lastInsertId();
         
         // Insert services if services table exists

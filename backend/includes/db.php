@@ -56,10 +56,21 @@ function getDBConnection()
  */
 function verifyDatabaseTables()
 {
-    $requiredTables = ['users', 'carwash_profiles', 'services', 'bookings', 'reviews', 'settings'];
+    // Prefer canonical `carwashes`; accept legacy `carwash_profiles` if present
+    $requiredTables = ['users', 'carwashes', 'services', 'bookings', 'reviews', 'settings'];
     $conn = getDBConnection();
 
     foreach ($requiredTables as $table) {
+        // For `carwashes` allow legacy `carwash_profiles` as fallback
+        if ($table === 'carwashes') {
+            $q1 = $conn->query("SHOW TABLES LIKE 'carwashes'");
+            $q2 = $conn->query("SHOW TABLES LIKE 'carwash_profiles'");
+            if (!$q1->fetch() && !$q2->fetch()) {
+                throw new Exception("Required table 'carwashes' (or legacy 'carwash_profiles') not found in database");
+            }
+            continue;
+        }
+
         // Fix: Use direct query instead of prepared statement for SHOW TABLES
         $query = "SHOW TABLES LIKE '" . $table . "'";
         $stmt = $conn->query($query);
@@ -81,7 +92,8 @@ function getDatabaseStats()
     $conn = getDBConnection();
     $stats = [];
 
-    $tables = ['users', 'carwash_profiles', 'services', 'bookings', 'reviews', 'settings'];
+    // Prefer `carwashes` for stats; if not present some environments may still use `carwash_profiles`
+    $tables = ['users', 'carwashes', 'services', 'bookings', 'reviews', 'settings'];
 
     foreach ($tables as $table) {
         // Use direct query to avoid SQL syntax issues

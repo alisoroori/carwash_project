@@ -49,8 +49,8 @@ $locations = []; // city => [districts]
 if (class_exists('\App\Classes\Database')) {
     try {
         $db = \App\Classes\Database::getInstance();
-  // Use the same table/fields as the carwashes API (carwash_profiles) so data matches dashboard
-  $carwashes = $db->fetchAll('SELECT id, business_name AS name, city, district FROM carwash_profiles ORDER BY business_name');
+  // Use canonical `carwashes` table and normalize fields to match the API
+  $carwashes = $db->fetchAll("SELECT id, COALESCE(name,business_name) AS name, city, district FROM carwashes ORDER BY COALESCE(name,business_name)");
         if ($selectedCarwashId) {
             $services = $db->fetchAll('SELECT id, name, price FROM services WHERE carwash_id = :cw ORDER BY name', ['cw' => $selectedCarwashId]);
         }
@@ -65,8 +65,8 @@ if (class_exists('\App\Classes\Database')) {
         if (function_exists('getDBConnection')) {
             try {
                 $conn = getDBConnection();
-                // legacy fallback: read from carwash_profiles to match API
-                $res = $conn->query("SELECT id, business_name AS name, city, district FROM carwash_profiles ORDER BY business_name");
+                // Read from canonical `carwashes` table (legacy `carwash_profiles` removed)
+                $res = $conn->query("SELECT id, COALESCE(name,business_name) AS name, city, district FROM carwashes ORDER BY COALESCE(name,business_name)");
                 while ($r = $res->fetch_assoc()) $carwashes[] = $r;
                 if ($selectedCarwashId) {
                     $stmt = $conn->prepare('SELECT id, name, price FROM services WHERE carwash_id = ? ORDER BY name');

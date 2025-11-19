@@ -1,0 +1,73 @@
+carwash_profiles occurrences report
+Generated: 2025-11-19
+
+Note: This report lists files and representative matching lines where the identifier `carwash_profiles` appears.
+Review before any automated replacements.
+
+--- Matches (file : snippet) ---
+
+backend/dashboard/Car_Wash_Dashboard.php :
+    $fetch = $pdo->prepare("SELECT id,user_id,business_name,address,postal_code,contact_phone AS phone, contact_email AS email, opening_hours AS working_hours, featured_image AS logo_path, social_media, created_at, updated_at FROM carwash_profiles WHERE user_id = :user_id LIMIT 1");
+
+backend/dashboard/Customer_Dashboard.php :
+    // Use canonical `carwash_profiles` table and alias columns to the keys the frontend expects
+    $candidates = ['carwash_profiles','carwashes','business_profiles'];
+    if ($source === 'carwash_profiles') {
+        $sql = "SELECT id, business_name AS name, address, postal_code, city, district, contact_phone AS phone, contact_email AS email, status, featured_image AS logo_path, social_media, opening_hours AS working_hours, services, rating FROM carwash_profiles ORDER BY business_name";
+
+backend/api/bookings/list.php :
+    // Note: use `carwash_profiles` (the project's carwash table) rather than a non-existent `car_washes` table
+    LEFT JOIN carwash_profiles cw ON cw.id = b.carwash_id
+
+backend/api/update_business_info.php :
+    // Decide which table to use: prefer `business_profiles` if it exists, else use `carwash_profiles`
+    $stmt = $pdo->prepare("SELECT id FROM carwash_profiles WHERE user_id = :user_id");
+    $smStmt = $pdo->prepare("SELECT social_media FROM carwash_profiles WHERE user_id = :user_id LIMIT 1");
+    $sql = "UPDATE carwash_profiles SET {$set} WHERE user_id = :user_id";
+    INSERT INTO carwash_profiles (...)
+
+backend/api/get_business_info.php :
+    $stmt = $pdo->prepare('SELECT id, user_id, business_name, address, postal_code, city, contact_phone AS phone, contact_email AS email, opening_hours AS working_hours, featured_image AS logo_path, social_media, created_at, updated_at FROM carwash_profiles WHERE user_id = :user_id LIMIT 1');
+
+tools/add_sample_carwash_and_booking.sql :
+    INSERT INTO carwash_profiles (user_id, business_name, address, city, country) ...
+
+tools/roundtrip_test.php :
+    $stmt->execute(['tbl' => 'carwash_profiles']);
+    // carwash_profiles: persist mobile into social_media JSON if column mobile_phone missing
+
+tools/ensure_sample_data_and_booking.sql :
+    -- Ensure at least one carwash_profiles row
+    INSERT INTO carwash_profiles (business_name, address)
+
+migrate_add_district.ps1 :
+    # Check if 'district' column exists in carwash_profiles
+
+migrations/001_initial_schema.sql :
+    CREATE TABLE IF NOT EXISTS `carwash_profiles` (
+    ... foreign keys referencing carwash_profiles ...
+
+logs/app.log :
+    Query failed: Unknown column 'district' in 'field list' - Query: SELECT id, business_name AS name, city, district FROM carwash_profiles ORDER BY business_name
+
+backend/includes/header.php :
+    $stmt = $pdo->prepare('SELECT logo_image FROM carwash_profiles WHERE id = :id OR user_id = :uid LIMIT 1');
+
+backend/classes/LocationFilter.php :
+    FROM carwash_profiles c
+
+backend/checkout/invoice.php :
+    LEFT JOIN carwash_profiles c ON c.id = b.carwash_id
+
+tests and test fixtures (multiple files) reference `carwash_profiles`.
+
+--- Observations from quick scan ---
+- `carwash_profiles` is referenced across APIs, dashboards, migrations, tools, tests and logs.
+- Logs (app.log) show repeated SQL errors for missing columns (`district`, `status`) when selecting from `carwash_profiles` — evidence of schema drift.
+- Tools and helper scripts (roundtrip_test.php, migrate_add_district.ps1, database_fix.php) assume `carwash_profiles` may be missing certain columns and include fixes.
+
+--- Next steps recommended ---
+1) Review this report; if it looks complete, I will produce a dry-run SQL migration preview mapping `carwash_profiles` -> `carwashes` (Step 2).
+2) I will also inspect `carwashes` schema (searching repo SQL/migrations). If a `CREATE TABLE` for `carwashes` is not present, I will note it and list which files already use `carwashes`.
+
+(End of report)

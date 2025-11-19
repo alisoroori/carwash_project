@@ -1920,10 +1920,78 @@ if (!isset($base_url)) {
                                     <label for="cityFilter" class="block text-sm font-bold text-gray-700 mb-2">Şehir</label>
                                     <?php
                                         // Fetch carwashes from DB for dynamic city/district lists and client-side filtering
+                                        // Use canonical `carwashes` table and alias columns to the keys the frontend expects
                                         $carwashes = [];
                                         $carwash_error = null;
                                         try {
-                                            $carwashes = $db->fetchAll("SELECT * FROM carwashes");
+                                            // Runtime-detect which table exists and prefer a table that contains rows
+                                            $pdo = $db->getPdo();
+                                            $tblExistsStmt = $pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = :tbl");
+
+                                            // Use canonical `carwashes` table only for customer selection UI
+                                            $carwashes = [];
+                                            try {
+                                                $pdo = $db->getPdo();
+                                                $tblExistsStmt->execute(['tbl' => 'carwashes']);
+                                                if ((int)$tblExistsStmt->fetchColumn() > 0) {
+                                                    // Use a full-row select so new/changed columns are automatically included
+                                                    $sql = "SELECT * FROM carwashes ORDER BY name";
+                                                    $carwashes = $db->fetchAll($sql);
+                                                } else {
+                                                    // No canonical table found — surface clear message to JavaScript/UI
+                                                    throw new Exception('No `carwashes` table found in database');
+                                                }
+                                            } catch (Exception $e) {
+                                                $carwash_error = $e->getMessage();
+                                                $carwashes = [];
+                                            }
+
+                                            // Normalize rows to ensure consistent keys for the frontend
+                                            foreach ($carwashes as &$cw) {
+                                                // name
+                                                if (empty($cw['name']) && !empty($cw['business_name'])) $cw['name'] = $cw['business_name'];
+
+                                                // phone: prefer phone, then mobile_phone, then social_media
+                                                if (empty($cw['phone'])) {
+                                                    if (!empty($cw['mobile_phone'])) $cw['phone'] = $cw['mobile_phone'];
+                                                    elseif (!empty($cw['contact_phone'])) $cw['phone'] = $cw['contact_phone'] ?? '';
+                                                    else {
+                                                        // try social_media JSON
+                                                        if (!empty($cw['social_media'])) {
+                                                            $sm = json_decode($cw['social_media'], true);
+                                                            if (is_array($sm)) {
+                                                                foreach (['mobile_phone','mobile','phone','telephone','tel'] as $k) {
+                                                                    if (!empty($sm[$k])) { $cw['phone'] = $sm[$k]; break; }
+                                                                }
+                                                                if (empty($cw['phone']) && isset($sm['whatsapp'])) {
+                                                                    if (is_array($sm['whatsapp'])) $cw['phone'] = $sm['whatsapp']['number'] ?? $sm['whatsapp']['phone'] ?? $cw['phone'];
+                                                                    elseif (is_string($sm['whatsapp'])) $cw['phone'] = $sm['whatsapp'];
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                // logo path normalization
+                                                if (empty($cw['logo_path'])) {
+                                                    if (!empty($cw['featured_image'])) $cw['logo_path'] = $cw['featured_image'];
+                                                }
+
+                                                // working_hours normalization
+                                                if (!empty($cw['working_hours']) && is_string($cw['working_hours'])) {
+                                                    $decoded = json_decode($cw['working_hours'], true);
+                                                    $cw['working_hours'] = $decoded === null ? $cw['working_hours'] : $decoded;
+                                                }
+
+                                                // Provide defaults for missing keys used by frontend
+                                                $cw['city'] = $cw['city'] ?? '';
+                                                $cw['district'] = $cw['district'] ?? '';
+                                                $cw['address'] = $cw['address'] ?? '';
+                                                $cw['status'] = $cw['status'] ?? '';
+                                                $cw['rating'] = isset($cw['rating']) ? (float)$cw['rating'] : 4.6;
+                                                $cw['services'] = isset($cw['services']) ? (is_string($cw['services']) ? (json_decode($cw['services'], true) ?: []) : ($cw['services'] ?: [])) : [];
+                                            }
+                                            unset($cw);
                                         } catch (Exception $e) {
                                             // Keep $carwashes empty and record error for JS display
                                             $carwash_error = $e->getMessage();
@@ -1990,7 +2058,7 @@ if (!isset($base_url)) {
                                             $cw_district = htmlspecialchars($cw['district'] ?? '', ENT_QUOTES, 'UTF-8');
                                             $cw_status = htmlspecialchars($cw['status'] ?? '', ENT_QUOTES, 'UTF-8');
                                         ?>
-                                        <div class="bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col">
+                                        <div data-id="<?php echo $cw_id; ?>" data-name="<?php echo $cw_name; ?>" class="bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col">
                                             <div class="flex justify-between items-start mb-4">
                                                 <div>
                                                     <h4 class="font-bold text-lg"><?php echo $cw_name; ?></h4>
@@ -2021,6 +2089,9 @@ if (!isset($base_url)) {
                             const allCarWashes = <?php echo json_encode(array_values($carwashes), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?> || [];
                             const districtsByCity = <?php echo json_encode($districtsByCity, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?> || {};
                             const carwashLoadError = <?php echo json_encode($carwash_error, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?> || null;
+
+                            // Log how many records were loaded from server for quick debugging
+                            try { console.log('Carwash records available:', Array.isArray(allCarWashes) ? allCarWashes.length : 0); } catch(e){}
 
                             if (carwashLoadError) {
                                 console.error('Carwashes load error:', carwashLoadError);
@@ -2066,9 +2137,13 @@ if (!isset($base_url)) {
                                     return;
                                 }
 
+                                console.log('Carwash records available:', filteredWashes.length);
                                 filteredWashes.forEach(carWash => {
                                     const div = document.createElement('div');
                                     div.className = 'bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col';
+                                    // store id/name attributes to allow the whole card to be clickable
+                                    div.setAttribute('data-id', carWash.id || '');
+                                    div.setAttribute('data-name', carWash.name || '');
                                     div.innerHTML = `
                                         <div class="flex justify-between items-start mb-4">
                                             <div>
@@ -2087,6 +2162,15 @@ if (!isset($base_url)) {
                                         <button data-id="${carWash.id || ''}" data-name="${escapeAttr(carWash.name)}" class="mt-auto gradient-bg text-white px-4 py-2 rounded-lg hover:shadow-lg select-for-reservation">Rezervasyon Yap</button>
                                     `;
                                     carWashListDiv.appendChild(div);
+
+                                    // Make the whole card clickable (except when clicking controls like links or buttons)
+                                    div.addEventListener('click', function(evt){
+                                        const tag = (evt.target && evt.target.tagName) ? evt.target.tagName.toLowerCase() : '';
+                                        if (tag === 'a' || tag === 'button' || evt.target.closest && evt.target.closest('button, a')) return;
+                                        const id = this.getAttribute('data-id') || '';
+                                        const name = this.getAttribute('data-name') || '';
+                                        if (id) selectCarWashForReservation(name, id);
+                                    });
                                 });
 
                                 // Attach reservation handlers
@@ -2127,15 +2211,16 @@ if (!isset($base_url)) {
                                 // Populate the location field inside the moved form
                                 const loc = $id('location');
                                 if (loc) {
-                                    // If option not present, add it
-                                    let opt = Array.from(loc.options).find(o => o.value === carWashName);
+                                    // Use option value = id (preferred) and text = name
+                                    let opt = Array.from(loc.options).find(o => o.value === String(carWashId) || o.textContent === carWashName);
                                     if (!opt) {
                                         opt = document.createElement('option');
-                                        opt.value = carWashName;
-                                        opt.textContent = carWashName;
+                                        opt.value = carWashId || carWashName;
+                                        opt.textContent = carWashName || carWashId;
                                         loc.appendChild(opt);
                                     }
-                                    loc.value = carWashName;
+                                    // select by id if available, otherwise by name
+                                    loc.value = carWashId || carWashName;
                                 }
 
                                 // Set hidden id field if present
@@ -2342,6 +2427,30 @@ if (!isset($base_url)) {
                                 $id('districtFilter')?.addEventListener('change', filterCarWashes);
                                 $id('carWashNameFilter')?.addEventListener('input', filterCarWashes);
                                 $id('favoriteFilter')?.addEventListener('change', filterCarWashes);
+
+                                // Attach click handlers to any initial server-rendered cards so whole-card click works
+                                try {
+                                    document.querySelectorAll('#carWashList > div[data-id]').forEach(function(card){
+                                        card.addEventListener('click', function(evt){
+                                            const tag = (evt.target && evt.target.tagName) ? evt.target.tagName.toLowerCase() : '';
+                                            if (tag === 'a' || tag === 'button' || (evt.target.closest && evt.target.closest('button, a'))) return;
+                                            const id = this.getAttribute('data-id') || '';
+                                            const name = this.getAttribute('data-name') || '';
+                                            if (id) selectCarWashForReservation(name, id);
+                                        });
+                                    });
+
+                                    // Ensure server-rendered "Rezervasyon Yap" buttons also trigger selection
+                                    document.querySelectorAll('.select-for-reservation').forEach(btn => {
+                                        btn.removeEventListener('click', btn._selHandler);
+                                        btn._selHandler = function(){
+                                            const name = this.getAttribute('data-name') || '';
+                                            const id = this.getAttribute('data-id') || '';
+                                            selectCarWashForReservation(name, id);
+                                        };
+                                        btn.addEventListener('click', btn._selHandler);
+                                    });
+                                } catch (e) { console.warn('Attach initial carwash handlers failed', e); }
                             });
 
                         })();
@@ -2432,9 +2541,9 @@ if (!isset($base_url)) {
                                     <select id="location" name="location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                                         <option value="">Konum Seçiniz</option>
                                         <?php if (!empty($carwashes)): ?>
-                                            <?php foreach ($carwashes as $cw_opt): ?>
-                                                <option value="<?php echo htmlspecialchars($cw_opt['name'] ?? $cw_opt['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($cw_opt['name'] ?? $cw_opt['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></option>
-                                            <?php endforeach; ?>
+                                                <?php foreach ($carwashes as $cw_opt): ?>
+                                                    <option value="<?php echo htmlspecialchars($cw_opt['id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($cw_opt['name'] ?? $cw_opt['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></option>
+                                                <?php endforeach; ?>
                                         <?php else: ?>
                                             <!-- fallback options left minimal -->
                                         <?php endif; ?>
