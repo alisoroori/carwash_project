@@ -2282,14 +2282,15 @@ if (!empty($logo_filename)) {
                   <p class="text-base text-gray-900"><?php echo htmlspecialchars($role_display); ?></p>
                 </div>
               </div>
-            </div>
-          </div>
+
               <div class="flex justify-end pt-6 border-t border-gray-200">
                 <button id="editProfileBtnBottom" type="button" onclick="toggleProfileEdit(true)" class="px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2">
                   <i class="fas fa-edit"></i>
                   <span>Düzenle</span>
                 </button>
               </div>
+            </div>
+          </div>
 
           <!-- EDIT MODE: Profile Form -->
           <div id="profileEditMode" class="bg-white rounded-2xl shadow-lg p-8 hidden">
@@ -2298,9 +2299,44 @@ if (!empty($logo_filename)) {
               <div class="mb-6 pb-6 border-b border-gray-200">
                 <h4 class="text-lg font-bold text-gray-900 mb-4">Profil Fotoğrafı</h4>
                 <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
-                  <div id="servicesList" class="space-y-4">
-                    <!-- Services will be loaded here via JS (calls /backend/api/services/list.php) -->
+                  <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
+                    <img 
+                      id="profileEditImagePreview"
+                      src="<?php echo htmlspecialchars($_SESSION['profile_image'] ?? '/carwash_project/frontend/images/default-avatar.svg'); ?>" 
+                      alt="Profil Fotoğrafı Önizleme" 
+                      class="w-full h-full object-cover"
+                    >
                   </div>
+                  <div>
+                    <input 
+                      type="file" 
+                      id="profile_image_upload" 
+                      name="profile_image" 
+                      class="hidden" 
+                      accept="image/*" 
+                      onchange="previewProfileImage(event)"
+                    >
+                    <button 
+                      type="button" 
+                      onclick="document.getElementById('profile_image_upload').click()" 
+                      class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                      <i class="fas fa-upload mr-2"></i>Fotoğraf Yükle
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Profile Form Fields -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Display Name -->
+                <div>
+                  <label for="profile_display_name" class="block text-sm font-bold text-gray-700 mb-2">
+                    İsim <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text"
+                    id="profile_display_name"
                     name="name"
                     value="<?php echo htmlspecialchars($_SESSION['name'] ?? $_SESSION['business_name'] ?? ''); ?>"
                     required
