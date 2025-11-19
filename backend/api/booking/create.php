@@ -77,11 +77,11 @@ try {
 
         // Check service availability
         $stmt = $conn->prepare("
-            SELECT s.*, c.id as carwash_id 
-            FROM services s
-            JOIN carwash_profiles c ON s.carwash_id = c.id
-            WHERE s.id = ? AND s.status = 'active'
-        ");
+                SELECT s.*, c.id as carwash_id 
+                FROM services s
+                JOIN carwashes c ON s.carwash_id = c.id
+                WHERE s.id = ? AND s.status = 'active'
+            ");
 
         $stmt->execute([$service_id]);
         $service = $stmt->fetch();

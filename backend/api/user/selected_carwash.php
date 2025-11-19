@@ -24,7 +24,7 @@ if (empty($user_id)) {
 }
 
 // verify carwash exists
-$cw = $db->fetchOne("SELECT id FROM carwash_profiles WHERE id = :id", ['id' => $carwash_id]);
+$cw = $db->fetchOne("SELECT id FROM carwashes WHERE id = :id", ['id' => $carwash_id]);
 if (!$cw) {
     Response::notFound('Carwash not found');
 }

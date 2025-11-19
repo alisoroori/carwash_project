@@ -1,0 +1,209 @@
+{
+    "meta": {
+        "checked_at": "2025-11-19T21:40:56+03:30",
+        "carwash_id": 1,
+        "checked_by": "ali",
+        "php_sapi": "cli"
+    },
+    "connection": {
+        "ok": true
+    },
+    "schema": {
+        "carwashes_exists": true,
+        "columns": [
+            "id",
+            "name",
+            "description",
+            "address",
+            "city",
+            "state",
+            "zip_code",
+            "country",
+            "latitude",
+            "longitude",
+            "phone",
+            "email",
+            "website",
+            "opening_hours",
+            "image",
+            "rating",
+            "total_reviews",
+            "is_active",
+            "owner_id",
+            "created_at",
+            "updated_at",
+            "user_id",
+            "tax_number",
+            "license_number",
+            "owner_name",
+            "owner_phone",
+            "birth_date",
+            "district",
+            "exterior_price",
+            "interior_price",
+            "detailing_price",
+            "opening_time",
+            "closing_time",
+            "capacity",
+            "profile_image",
+            "logo_image",
+            "status",
+            "tc_kimlik",
+            "logo_path",
+            "mobile_phone",
+            "social_media",
+            "working_hours",
+            "services",
+            "postal_code",
+            "certificate_path"
+        ],
+        "field_mapping": {
+            "business_name": "name",
+            "address": "address",
+            "phone": "phone",
+            "mobile_phone": "mobile_phone",
+            "email": "email",
+            "logo_path": "logo_path",
+            "working_hours": "working_hours",
+            "postal_code": "postal_code",
+            "ruhsat_no": "name",
+            "vergi_no": "name",
+            "city": "city",
+            "district": "district",
+            "certificate": "name"
+        }
+    },
+    "row": {
+        "name": "Downtown CarWash",
+        "address": "123 Main Street",
+        "phone": "+1-555-1000",
+        "mobile_phone": null,
+        "email": "downtown@carwash.com",
+        "logo_path": null,
+        "working_hours": null,
+        "postal_code": "10001",
+        "city": "New York",
+        "district": null
+    },
+    "field_checks": {
+        "business_name": {
+            "label": "İşletme Adı",
+            "expected_key": "business_name",
+            "mapped_column": "name",
+            "value_present": true,
+            "value_preview": "Downtown CarWash",
+            "issues": []
+        },
+        "address": {
+            "label": "Adres",
+            "expected_key": "address",
+            "mapped_column": "address",
+            "value_present": true,
+            "value_preview": "123 Main Street",
+            "issues": []
+        },
+        "phone": {
+            "label": "Telefon",
+            "expected_key": "phone",
+            "mapped_column": "phone",
+            "value_present": true,
+            "value_preview": "+1-555-1000",
+            "issues": []
+        },
+        "mobile_phone": {
+            "label": "Cep Telefonu",
+            "expected_key": "mobile_phone",
+            "mapped_column": "mobile_phone",
+            "value_present": false,
+            "value_preview": null,
+            "issues": []
+        },
+        "email": {
+            "label": "Email",
+            "expected_key": "email",
+            "mapped_column": "email",
+            "value_present": true,
+            "value_preview": "downtown@carwash.com",
+            "issues": []
+        },
+        "logo_path": {
+            "label": "İşletme Logosu",
+            "expected_key": "logo_path",
+            "mapped_column": "logo_path",
+            "value_present": false,
+            "value_preview": null,
+            "issues": [
+                "logo_path is empty"
+            ]
+        },
+        "working_hours": {
+            "label": "Çalışma Saatleri",
+            "expected_key": "working_hours",
+            "mapped_column": "working_hours",
+            "value_present": false,
+            "value_preview": null,
+            "issues": []
+        },
+        "postal_code": {
+            "label": "Posta Kodu",
+            "expected_key": "postal_code",
+            "mapped_column": "postal_code",
+            "value_present": true,
+            "value_preview": "10001",
+            "issues": []
+        },
+        "ruhsat_no": {
+            "label": "Ruhsat Numarası",
+            "expected_key": "ruhsat_no",
+            "mapped_column": "name",
+            "value_present": true,
+            "value_preview": "Downtown CarWash",
+            "issues": []
+        },
+        "vergi_no": {
+            "label": "Vergi Numarası",
+            "expected_key": "vergi_no",
+            "mapped_column": "name",
+            "value_present": true,
+            "value_preview": "Downtown CarWash",
+            "issues": []
+        },
+        "city": {
+            "label": "Şehir",
+            "expected_key": "city",
+            "mapped_column": "city",
+            "value_present": true,
+            "value_preview": "New York",
+            "issues": []
+        },
+        "district": {
+            "label": "İlçe",
+            "expected_key": "district",
+            "mapped_column": "district",
+            "value_present": false,
+            "value_preview": null,
+            "issues": []
+        },
+        "certificate": {
+            "label": "Sertifika Yükle (optional)",
+            "expected_key": "certificate",
+            "mapped_column": "name",
+            "value_present": true,
+            "value_preview": "Downtown CarWash",
+            "issues": []
+        }
+    },
+    "logo_file_check": [],
+    "write_test": {
+        "attempt": "UPDATE executed inside transaction (no commit)",
+        "rows_affected": 1,
+        "result": "rolled_back"
+    },
+    "notes": [],
+    "logo_uploads_dir": {
+        "path": "C:\\xampp\\htdocs\\carwash_project\\tools\/..\/backend\/uploads\/business_logo\/",
+        "exists": true,
+        "is_readable": true,
+        "is_writable": true
+    }
+}

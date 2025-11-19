@@ -17,8 +17,8 @@ if (empty($userId) || !Auth::hasRole('customer')) {
 
 // Get available carwashes via PSR-4 Database
 $db = Database::getInstance();
-$carwashes = $db->fetchAll("SELECT id, business_name, business_name AS name, address, contact_phone, contact_phone AS phone, average_rating as rating, verified
-    FROM carwash_profiles WHERE 1");
+$carwashes = $db->fetchAll("SELECT id, name, name AS business_name, address, phone AS contact_phone, phone AS phone, average_rating as rating, verified
+    FROM carwashes WHERE 1");
 ?>
 
 <!DOCTYPE html>

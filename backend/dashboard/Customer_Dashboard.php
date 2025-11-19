@@ -796,7 +796,31 @@ if (!isset($base_url)) {
             <div class="flex items-center space-x-3">
             <!-- Main header logo placed before the site title -->
             <div>
-                <img id="siteLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="MyCar logo" class="logo-image object-contain rounded-xl shadow-md header-logo sidebar-logo" />
+                <?php
+                // Normalize session-stored logo (filename or path) to public URL
+                $site_logo = $base_url . '/backend/logo01.png';
+                $raw = $_SESSION['logo_path'] ?? null;
+                if (!empty($raw)) {
+                    if (preg_match('#^(?:https?://|/)#i', $raw)) {
+                        $candidate = $raw;
+                    } else {
+                        $candidate = $base_url . '/backend/uploads/business_logo/' . ltrim($raw, '/');
+                    }
+                    $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\/');
+                    if (!preg_match('#^(?:https?://|/)#i', $raw)) {
+                        $filePath = $docRoot . '/carwash_project/backend/uploads/business_logo/' . ltrim($raw, '/');
+                    } else {
+                        $filePath = $docRoot . parse_url($candidate, PHP_URL_PATH);
+                    }
+                    if (file_exists($filePath)) {
+                        $site_logo = $candidate;
+                    } else {
+                        @file_put_contents(__DIR__ . '/../../logs/logo_missing.log', date('Y-m-d H:i:s') . " - customer dashboard logo missing: {$filePath}\n", FILE_APPEND | LOCK_EX);
+                        unset($_SESSION['logo_path']);
+                    }
+                }
+                ?>
+                <img id="siteLogo" src="<?php echo htmlspecialchars($site_logo, ENT_QUOTES, 'UTF-8'); ?>" alt="MyCar logo" class="logo-image object-contain rounded-xl shadow-md header-logo sidebar-logo" />
             </div>
             <div class="hidden sm:block">
                 <h1 class="text-lg font-bold text-gray-900 leading-tight">MyCar</h1>

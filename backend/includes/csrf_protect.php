@@ -40,10 +40,39 @@ function verify_csrf_token(?string $token): bool {
 
 function require_valid_csrf(): void {
     $token = $_POST['csrf_token'] ?? null;
-    if (empty($token) && !empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
-        $token = $_SERVER['HTTP_X_CSRF_TOKEN'];
+    // Accept a variety of common header names for CSRF token to be tolerant
+    $headerCandidates = [
+        'HTTP_X_CSRF_TOKEN',
+        'HTTP_X_CSRFTOKEN',
+        'HTTP_X_XSRF_TOKEN',
+        'HTTP_X_CSRF',
+        'HTTP_X_XSRF'
+    ];
+    foreach ($headerCandidates as $h) {
+        if (empty($token) && !empty($_SERVER[$h])) {
+            $token = $_SERVER[$h];
+            break;
+        }
     }
     if (!verify_csrf_token($token)) {
+        // Log blocked attempt for debugging (mask tokens)
+        try {
+            $logDir = __DIR__ . '/../../logs';
+            if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
+            $logFile = $logDir . '/csrf_blocked.log';
+            $now = date('Y-m-d H:i:s');
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            $uri = $_SERVER['REQUEST_URI'] ?? 'unknown';
+            $provided = is_string($token) ? $token : '';
+            $sess = $_SESSION['csrf_token'] ?? '';
+            $mask = function($s){ if (!$s) return ''; $s = (string)$s; $len = strlen($s); return substr($s,0,6) . '...' . $len; };
+            $userId = $_SESSION['user_id'] ?? ($_SESSION['user']['id'] ?? null);
+            $line = "[{$now}] CSRF mismatch from {$ip} {$uri} user_id=" . ($userId ?? 'anon') . " provided=" . $mask($provided) . " session=" . $mask($sess) . PHP_EOL;
+            @file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
+        } catch (Exception $e) {
+            // ignore logging failures
+        }
+
         if (!headers_sent()) http_response_code(403);
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(['success' => false, 'errors' => ['Invalid CSRF token']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

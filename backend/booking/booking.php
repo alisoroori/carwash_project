@@ -11,9 +11,8 @@ if (!$carwash_id) {
     exit();
 }
 
-// Get carwash details
 $stmt = $conn->prepare("
-    SELECT * FROM carwash_profiles WHERE id = ?
+    SELECT * FROM carwashes WHERE id = ?
 ");
 $stmt->bind_param('i', $carwash_id);
 $stmt->execute();

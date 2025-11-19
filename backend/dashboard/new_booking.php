@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
     exit();
 }
 
-$carwashes_query = "SELECT id, business_name AS name, city, district FROM carwash_profiles WHERE status = 'active'";
+$carwashes_query = "SELECT id, name, city, district FROM carwashes WHERE status = 'active'";
 $carwashes = $conn->query($carwashes_query);
 
 // Support partial embedding: if ?partial=1, return only the form fragment

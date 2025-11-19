@@ -39,9 +39,9 @@ if (is_array($countRow)) {
 }
 $p->setTotal($total);
 
-$stmt = $db->prepare("SELECT b.*, c.business_name as business_name, c.contact_phone as profile_phone, s.name as service_name, s.price as service_price
+$stmt = $db->prepare("SELECT b.*, c.name as business_name, c.phone as profile_phone, s.name as service_name, s.price as service_price
     FROM bookings b
-    LEFT JOIN carwash_profiles c ON b.carwash_id = c.id
+    LEFT JOIN carwashes c ON b.carwash_id = c.id
     LEFT JOIN services s ON b.service_id = s.id
     WHERE b.user_id = :uid
     ORDER BY b.booking_date DESC, b.booking_time DESC

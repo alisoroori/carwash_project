@@ -24,31 +24,42 @@ try {
         Response::unauthorized();
     }
 
-    // Check which table exists and prefer `carwashes`, then `business_profiles` (legacy `carwash_profiles` removed)
-    $tableCheck = $pdo->prepare("SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('carwashes','business_profiles')");
+    // `carwashes` is the authoritative source for business info in this app
+    $tableCheck = $pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'carwashes'");
     $tableCheck->execute();
-    $found = $tableCheck->fetchAll(PDO::FETCH_COLUMN, 0);
-    $hasCarwashes = in_array('carwashes', $found, true);
-    $hasBusinessProfiles = in_array('business_profiles', $found, true);
+    $hasCarwashes = (bool)$tableCheck->fetchColumn();
 
-    if ($hasCarwashes) {
-        $stmt = $pdo->prepare('SELECT id, user_id, COALESCE(name,business_name) AS business_name, address, postal_code, COALESCE(phone,contact_phone) AS phone, COALESCE(mobile_phone,NULL) AS mobile_phone, COALESCE(email,contact_email) AS email, COALESCE(working_hours,opening_hours) AS working_hours, COALESCE(logo_path,featured_image) AS logo_path, social_media, created_at, updated_at FROM carwashes WHERE user_id = :user_id LIMIT 1');
-        $stmt->execute(['user_id' => $userId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row && isset($row['working_hours'])) {
-            $decoded = json_decode($row['working_hours'], true);
-            $row['working_hours'] = $decoded === null ? $row['working_hours'] : $decoded;
+    if (!$hasCarwashes) {
+        Response::error('Carwashes table not found on this installation.', 500);
+    }
+
+    $stmt = $pdo->prepare('SELECT id, user_id, name AS business_name, address, COALESCE(postal_code, zip_code) AS postal_code, phone, mobile_phone, email, COALESCE(working_hours, opening_hours) AS working_hours, COALESCE(logo_path, logo_image, profile_image, image) AS logo_path, COALESCE(license_number, "") AS license_number, COALESCE(tax_number, "") AS tax_number, COALESCE(city, "") AS city, COALESCE(district, "") AS district, social_media, services, COALESCE(certificate_path, "") AS certificate_path, created_at, updated_at FROM carwashes WHERE user_id = :user_id LIMIT 1');
+    $stmt->execute(['user_id' => $userId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row && isset($row['working_hours'])) {
+        $decoded = json_decode($row['working_hours'], true);
+        $row['working_hours'] = $decoded === null ? $row['working_hours'] : $decoded;
+    }
+
+    // Normalize logo_path to full web URL if stored as filename
+    if ($row && !empty($row['logo_path'])) {
+        $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/carwash_project';
+        $lp = $row['logo_path'];
+        if (preg_match('#^(?:https?://|/)#i', $lp)) {
+            $row['logo_path'] = $lp;
+        } else {
+            $row['logo_path'] = $base_url . '/backend/uploads/business_logo/' . ltrim($lp, '/');
         }
-    } elseif ($hasBusinessProfiles) {
-        $stmt = $pdo->prepare('SELECT id, user_id, business_name, address, postal_code, phone, mobile_phone, email, working_hours, logo_path, created_at, updated_at FROM business_profiles WHERE user_id = :user_id LIMIT 1');
-        $stmt->execute(['user_id' => $userId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row && isset($row['working_hours'])) {
-            $decoded = json_decode($row['working_hours'], true);
-            $row['working_hours'] = $decoded === null ? $row['working_hours'] : $decoded;
+        $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\/');
+        if (!preg_match('#^(?:https?://|/)#i', $lp)) {
+            $filePath = $docRoot . '/carwash_project/backend/uploads/business_logo/' . ltrim($lp, '/');
+        } else {
+            $filePath = $docRoot . parse_url($row['logo_path'], PHP_URL_PATH);
         }
-    } else {
-        Response::error('İşletme kaydı için uygun tablo bulunamadı.', 404);
+        if (!file_exists($filePath)) {
+            @file_put_contents(__DIR__ . '/../../logs/logo_missing.log', date('Y-m-d H:i:s') . " - get_business_info missing logo: {$filePath}\n", FILE_APPEND | LOCK_EX);
+            $row['logo_path'] = $base_url . '/backend/logo01.png';
+        }
     }
 
     if (!$row) {

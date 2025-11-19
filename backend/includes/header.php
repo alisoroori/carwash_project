@@ -87,9 +87,8 @@ $user_email = $is_logged_in ? ($_SESSION['email'] ?? '') : '';
 // Determine site logo source (shared): prefer session value, then DB lookup by carwash_id/user_id, otherwise fallback
 $default_logo = $base_url . '/backend/logo01.png';
 $logo_src = $default_logo;
-if (!empty($_SESSION['logo_path'])) {
-  $logo_src = $_SESSION['logo_path'];
-} else {
+$raw_logo = $_SESSION['logo_path'] ?? null;
+if (empty($raw_logo)) {
   // Try to read from DB if carwash_id or user_id present
   $cwId = $_SESSION['carwash_id'] ?? null;
   $uid = $_SESSION['user_id'] ?? null;
@@ -98,20 +97,55 @@ if (!empty($_SESSION['logo_path'])) {
       if (class_exists(\App\Classes\Database::class)) {
         $db = \App\Classes\Database::getInstance();
         $pdo = method_exists($db, 'getPdo') ? $db->getPdo() : $db;
-        $stmt = $pdo->prepare('SELECT logo_image FROM carwash_profiles WHERE id = :id OR user_id = :uid LIMIT 1');
+        // Prefer `carwashes` with `logo_path` column
+        $stmt = $pdo->prepare('SELECT logo_path FROM carwashes WHERE id = :id OR user_id = :uid LIMIT 1');
         $stmt->execute([':id' => $cwId ?: 0, ':uid' => $uid ?: 0]);
-        $logoName = $stmt->fetchColumn();
-        if ($logoName) {
-          $logo_src = '/carwash_project/backend/uploads/' . $logoName;
-          // cache in session for subsequent requests
-          $_SESSION['logo_path'] = $logo_src;
+        $logoPath = $stmt->fetchColumn();
+        if ($logoPath) {
+          $raw_logo = $logoPath;
+          // cache a filename-only value in session when possible
+          if (preg_match('#(/|\\\\|https?://)#i', $raw_logo)) {
+              $fname = basename($raw_logo);
+              if (!empty($fname)) {
+                  $_SESSION['logo_path'] = $fname;
+              } else {
+                  $_SESSION['logo_path'] = $raw_logo;
+              }
+          } else {
+              $_SESSION['logo_path'] = $raw_logo;
+          }
         }
       }
     } catch (Throwable $e) {
       // don't break the page; fall back to default logo
       error_log('Logo lookup failed: ' . $e->getMessage());
-      $logo_src = $default_logo;
+      $raw_logo = null;
     }
+  }
+}
+
+// Normalize $raw_logo into a web-accessible $logo_src (prefer business_logo folder for filename-only values)
+if (!empty($raw_logo)) {
+  if (preg_match('#^(?:https?://|/)#i', $raw_logo)) {
+    $candidate = $raw_logo;
+  } else {
+    // treat as filename and map to business_logo folder
+    $candidate = $base_url . '/backend/uploads/business_logo/' . ltrim($raw_logo, '/');
+  }
+  // Verify file exists on disk
+  $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\/');
+  if (!preg_match('#^(?:https?://|/)#i', $raw_logo)) {
+    $filePath = $docRoot . '/carwash_project/backend/uploads/business_logo/' . ltrim($raw_logo, '/');
+  } else {
+    $filePath = $docRoot . parse_url($candidate, PHP_URL_PATH);
+  }
+  if (file_exists($filePath)) {
+    $logo_src = $candidate;
+  } else {
+    // fallback to default and clear session
+    @file_put_contents(__DIR__ . '/../../logs/logo_missing.log', date('Y-m-d H:i:s') . " - header logo missing: {$filePath}\n", FILE_APPEND | LOCK_EX);
+    $logo_src = $default_logo;
+    unset($_SESSION['logo_path']);
   }
 }
 // Language detection: allow explicit session or GET override, else use Accept-Language

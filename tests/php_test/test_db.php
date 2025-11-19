@@ -33,7 +33,7 @@ require_once 'backend/includes/test_db.php';
                     echo '<p class="text-gray-600 mb-6">Sunucu zamanÄ±: ' . $time . '</p>';
 
                     // Test required tables
-                    $tables = ['users', 'carwash_profiles', 'services', 'bookings'];
+                    $tables = ['users', 'carwashes', 'services', 'bookings'];
                     echo '<div class="space-y-4">';
                     echo '<h2 class="text-xl font-semibold text-gray-700">Tablo KontrolÃ¼:</h2>';
 

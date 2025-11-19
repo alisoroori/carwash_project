@@ -18,7 +18,7 @@ class LocationFilter
                 cl.address,
                 AVG(r.rating) as avg_rating,
                 COUNT(DISTINCT b.id) as booking_count
-            FROM carwash_profiles c
+            FROM carwashes c
             JOIN carwash_locations cl ON c.id = cl.carwash_id
             LEFT JOIN reviews r ON c.id = r.carwash_id
             LEFT JOIN bookings b ON c.id = b.carwash_id

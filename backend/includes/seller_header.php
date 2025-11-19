@@ -21,8 +21,51 @@ $user_role = $_SESSION['role'] ?? 'carwash';
 
 // Header logo is always MyCar logo (fixed branding)
 $logo_src = $base_url . '/backend/logo01.png';
-// Sidebar logo can be customized (stored in session)
-$sidebar_logo_src = $_SESSION['logo_path'] ?? ($base_url . '/backend/logo01.png');
+$raw = $_SESSION['logo_path'] ?? null;
+$sidebar_logo_src = $base_url . '/backend/logo01.png';
+// Normalize stored session value: prefer filename-only. If a URL or path is stored, extract basename.
+if (!empty($raw)) {
+    // If the session contains a full web path or absolute path, reduce to filename
+    if (preg_match('#(/|\\\\|https?://)#i', $raw)) {
+        $basename = basename($raw);
+        if (!empty($basename)) {
+            $_SESSION['logo_path'] = $basename;
+            $raw = $basename;
+        }
+    }
+
+    // Build candidate public URL from filename and verify it exists on disk
+    $candidate = $base_url . '/backend/uploads/business_logo/' . ltrim($raw, '/');
+    $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/') ;
+    $filePath = $docRoot . '/carwash_project/backend/uploads/business_logo/' . ltrim($raw, '/');
+    if (file_exists($filePath)) {
+        $sidebar_logo_src = $candidate;
+    } else {
+        // try alternate legacy locations and promote if found
+        $alts = [
+            $docRoot . '/carwash_project/backend/auth/uploads/logos/' . $raw,
+            $docRoot . '/carwash_project/backend/uploads/' . $raw,
+            $docRoot . '/carwash_project/backend/uploads/profile_images/' . $raw,
+        ];
+        $found = false;
+        foreach ($alts as $a) {
+            if (file_exists($a)) {
+                $web = str_replace($docRoot, '', $a);
+                if ($web === '' || $web[0] !== '/') $web = '/' . ltrim($web, '/');
+                // store filename only for consistency
+                $_SESSION['logo_path'] = basename($a);
+                // Construct public URL pointing to canonical business_logo when possible
+                $sidebar_logo_src = $base_url . '/backend/uploads/business_logo/' . basename($a);
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $sidebar_logo_src = $base_url . '/backend/logo01.png';
+            unset($_SESSION['logo_path']);
+        }
+    }
+}
 $profile_src = $_SESSION['profile_image'] ?? ($base_url . '/frontend/images/default-avatar.svg');
 
 // Current logged-in user's display name and email (used in header)
@@ -142,6 +185,18 @@ if (empty($workplace_status)) $workplace_status = 'open';
             document.head.appendChild(s);
         }
     </script>
+        <?php
+        // Ensure a CSRF token is available for JS-driven forms and APIs
+        $csrf_file = __DIR__ . '/csrf_protect.php';
+        if (file_exists($csrf_file)) {
+            require_once $csrf_file;
+            // generate token if missing
+            if (empty($_SESSION['csrf_token'])) generate_csrf_token();
+            $csrf_meta = htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8');
+            echo "\n    <meta name=\"csrf-token\" content=\"{$csrf_meta}\">\n";
+            echo "    <script>window.CONFIG = window.CONFIG || {}; window.CONFIG.CSRF_TOKEN = '{$csrf_meta}';</script>\n";
+        }
+        ?>
 </head>
 <body>
 

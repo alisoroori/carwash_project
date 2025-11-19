@@ -137,7 +137,7 @@ if (isset($_GET['health_check'])) {
 
         // Simple table check without verification
         $stats = [];
-    $tables = ['users', 'carwash_profiles', 'services', 'bookings', 'reviews', 'settings'];
+    $tables = ['users', 'carwashes', 'services', 'bookings', 'reviews', 'settings'];
 
         foreach ($tables as $table) {
             try {

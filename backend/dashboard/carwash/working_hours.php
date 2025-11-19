@@ -19,7 +19,7 @@ if (file_exists(__DIR__ . '/../../includes/lang_helper.php')) {
     <title>Ã‡alÄ±ÅŸma Saatleri - AquaTR</title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-$stmt = $conn->prepare("SELECT id FROM carwash_profiles WHERE owner_id = ?");
+$stmt = $conn->prepare("SELECT id FROM carwashes WHERE owner_id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $carwash = $stmt->get_result()->fetch_assoc();

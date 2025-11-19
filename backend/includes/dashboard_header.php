@@ -115,9 +115,8 @@ $navigation_menu = array();
 // Determine shared logo path (prefer session, then DB lookup, otherwise default)
 $default_logo = $base_url . '/backend/logo01.png';
 $logo_src = $default_logo;
-if (!empty($_SESSION['logo_path'])) {
-    $logo_src = $_SESSION['logo_path'];
-} else {
+$raw_logo = $_SESSION['logo_path'] ?? null;
+if (empty($raw_logo)) {
     $cwId = $_SESSION['carwash_id'] ?? null;
     $uid = $_SESSION['user_id'] ?? null;
     if ($cwId || $uid) {
@@ -125,17 +124,50 @@ if (!empty($_SESSION['logo_path'])) {
             if (class_exists(\App\Classes\Database::class)) {
                 $db = \App\Classes\Database::getInstance();
                 $pdo = method_exists($db, 'getPdo') ? $db->getPdo() : $db;
-                $stmt = $pdo->prepare('SELECT logo_image FROM carwash_profiles WHERE id = :id OR user_id = :uid LIMIT 1');
+                // Read from `carwashes` and prefer `logo_path` column
+                $stmt = $pdo->prepare('SELECT logo_path FROM carwashes WHERE id = :id OR user_id = :uid LIMIT 1');
                 $stmt->execute([':id' => $cwId ?: 0, ':uid' => $uid ?: 0]);
-                $logoName = $stmt->fetchColumn();
-                if ($logoName) {
-                    $logo_src = '/carwash_project/backend/uploads/' . $logoName;
-                    $_SESSION['logo_path'] = $logo_src;
+                $logoPath = $stmt->fetchColumn();
+                if ($logoPath) {
+                    $raw_logo = $logoPath;
+                    // store filename-only in session when possible
+                    if (preg_match('#(/|\\\\|https?://)#i', $raw_logo)) {
+                        $fname = basename($raw_logo);
+                        if (!empty($fname)) {
+                            $_SESSION['logo_path'] = $fname;
+                        } else {
+                            $_SESSION['logo_path'] = $raw_logo;
+                        }
+                    } else {
+                        $_SESSION['logo_path'] = $raw_logo;
+                    }
                 }
             }
         } catch (Throwable $e) {
             error_log('Dashboard header logo lookup failed: ' . $e->getMessage());
         }
+    }
+}
+
+// Normalize raw logo into web path (map filename -> business_logo folder)
+if (!empty($raw_logo)) {
+    if (preg_match('#^(?:https?://|/)#i', $raw_logo)) {
+        $candidate = $raw_logo;
+    } else {
+        $candidate = $base_url . '/backend/uploads/business_logo/' . ltrim($raw_logo, '/');
+    }
+    $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\/');
+    if (!preg_match('#^(?:https?://|/)#i', $raw_logo)) {
+        $filePath = $docRoot . '/carwash_project/backend/uploads/business_logo/' . ltrim($raw_logo, '/');
+    } else {
+        $filePath = $docRoot . parse_url($candidate, PHP_URL_PATH);
+    }
+    if (file_exists($filePath)) {
+        $logo_src = $candidate;
+    } else {
+        @file_put_contents(__DIR__ . '/../../logs/logo_missing.log', date('Y-m-d H:i:s') . " - dashboard header logo missing: {$filePath}\n", FILE_APPEND | LOCK_EX);
+        $logo_src = $default_logo;
+        unset($_SESSION['logo_path']);
     }
 }
 ?>

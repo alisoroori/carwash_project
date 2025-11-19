@@ -23,8 +23,8 @@ class SchemaChecker {
         'user_profiles' => [
             'id', 'user_id', 'address', 'city'
         ],
-        'carwash_profiles' => [
-            'id', 'user_id', 'business_name', 'address', 'city'
+        'carwashes' => [
+            'id', 'user_id', 'name', 'address', 'city'
         ],
         'vehicles' => [
             'id', 'user_id', 'brand', 'model'

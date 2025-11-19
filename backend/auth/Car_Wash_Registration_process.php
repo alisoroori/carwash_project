@@ -148,8 +148,8 @@ try {
     // Handle file uploads following project upload patterns
     $profile_image = null;
     $logo_image = null;
-    $upload_dir = __DIR__ . '/uploads/';
-    
+    // Store logos in canonical backend/uploads/business_logo folder and profiles under uploads/profiles
+    $upload_dir = __DIR__ . '/../uploads/business_logo/';
     // Create uploads directory if it doesn't exist
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0755, true);
@@ -162,6 +162,7 @@ try {
         
         if (in_array($file_extension, $allowed_extensions)) {
             $profile_image = 'profile_' . uniqid() . '.' . $file_extension;
+            // store profile images under uploads/business_logo parent (legacy profile images may differ)
             move_uploaded_file($_FILES['profile_image']['tmp_name'], $upload_dir . $profile_image);
         }
     }
@@ -212,37 +213,131 @@ try {
         $stmt->execute([$username, $business_name, $email, $hashed_password, $phone]);
         $user_id = $conn->lastInsertId();
         
-        // Insert carwash business record into canonical `carwashes` table
-        // Map the most common fields; optional/extra fields can be added to the target schema via migration
-        $carwash_sql = "INSERT INTO carwashes (
-            user_id,
-            name,
-            email,
-            phone,
-            city,
-            district,
-            address,
-            logo_path,
-            created_at,
-            updated_at,
-            status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), 'pending')";
+        // Insert or MERGE carwash business record into canonical `carwashes` table
+        // If an authoritative carwash already exists (by user_id or name), merge form fields
+        $carwash_id = null;
+        $existing = null;
 
-        $stmt = $conn->prepare($carwash_sql);
-        $stmt->execute([
-            $user_id,
-            $business_name,
-            $email,
-            $phone,
-            $city,
-            $district,
-            $address,
-            $logo_image ? '/carwash_project/backend/uploads/' . $logo_image : null
-        ]);
+        // Try to find existing carwash by user_id (should be none for new user) or by name
+        $findStmt = $conn->prepare("SELECT * FROM carwashes WHERE user_id = ? OR name = ? LIMIT 1");
+        $findStmt->execute([$user_id, $business_name]);
+        $existing = $findStmt->fetch(PDO::FETCH_ASSOC);
 
-        $carwash_id = $conn->lastInsertId();
+        if ($existing) {
+            $carwash_id = $existing['id'];
+            // Build merged values: prefer existing non-empty values, otherwise use form values
+            $merged = [];
+            // Simple scalar fields
+            $fields = ['name' => $business_name, 'email' => $email, 'phone' => $phone, 'mobile_phone' => ($owner_phone ?: null), 'city' => $city, 'district' => $district, 'address' => $address, 'description' => $description];
+            foreach ($fields as $col => $val) {
+                $existingVal = isset($existing[$col]) ? $existing[$col] : null;
+                // If existing is empty and form provided a value -> use it
+                if (($existingVal === null || $existingVal === '') && ($val !== null && $val !== '')) {
+                    $merged[$col] = $val;
+                }
+                // If both exist and differ, log conflict for review but keep existing
+                if (($existingVal !== null && $existingVal !== '') && ($val !== null && $val !== '') && ((string)$existingVal !== (string)$val)) {
+                    error_log("[Registration Merge] field conflict for carwash_id={$carwash_id} col={$col}: existing=" . $existingVal . " form=" . $val);
+                }
+            }
+
+            // Logo: if uploaded and existing empty, set; if both present and different, log conflict
+            $uploadedLogoName = $logo_image ? $logo_image : null;
+            if (!empty($uploadedLogoName)) {
+                if (empty($existing['logo_path'])) {
+                    // store filename only in DB
+                    $merged['logo_path'] = $uploadedLogoName;
+                } elseif ($existing['logo_path'] !== $uploadedLogoName) {
+                    error_log("[Registration Merge] logo_path conflict for carwash_id={$carwash_id}: existing=" . $existing['logo_path'] . " form=" . $uploadedLogoName);
+                }
+            }
+
+            // Working hours: if opening/closing provided and no existing working_hours, set a simple range
+            if ((!empty($opening_time) || !empty($closing_time)) && (empty($existing['working_hours']) || $existing['working_hours'] === null)) {
+                $wh = ['default' => ['open' => $opening_time ?: null, 'close' => $closing_time ?: null]];
+                $merged['working_hours'] = json_encode($wh);
+            }
+
+            // Services: merge arrays (union) into JSON if present
+            if (!empty($services)) {
+                $existingServices = [];
+                if (!empty($existing['services'])) {
+                    $decoded = json_decode($existing['services'], true);
+                    if (is_array($decoded)) $existingServices = $decoded;
+                }
+                $mergedServices = array_values(array_unique(array_merge($existingServices, $services)));
+                if (!empty($mergedServices)) $merged['services'] = json_encode($mergedServices);
+            }
+
+            // Mobile phone field fallback from owner_phone if available and empty in existing
+            if (!empty($owner_phone) && (empty($existing['mobile_phone']) || $existing['mobile_phone'] === null)) {
+                $merged['mobile_phone'] = $owner_phone;
+            }
+
+            // If existing.user_id is NULL, associate the new user
+            if (empty($existing['user_id'])) {
+                $merged['user_id'] = $user_id;
+            }
+
+            // If there are merged values, perform an UPDATE only for those columns
+            if (!empty($merged)) {
+                $setParts = [];
+                $params = [];
+                foreach ($merged as $col => $val) {
+                    $setParts[] = "`$col` = ?";
+                    $params[] = $val;
+                }
+                $params[] = $carwash_id;
+                $updateSql = "UPDATE carwashes SET " . implode(', ', $setParts) . ", updated_at = NOW() WHERE id = ?";
+                $updStmt = $conn->prepare($updateSql);
+                $updStmt->execute($params);
+            }
+
+        } else {
+            // No existing carwash: insert new record
+            $carwash_sql = "INSERT INTO carwashes (
+                user_id,
+                name,
+                email,
+                phone,
+                mobile_phone,
+                city,
+                district,
+                address,
+                logo_path,
+                working_hours,
+                services,
+                description,
+                created_at,
+                updated_at,
+                status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), 'pending')";
+
+            $stmt = $conn->prepare($carwash_sql);
+            $working_hours_json = null;
+            if (!empty($opening_time) || !empty($closing_time)) {
+                $working_hours_json = json_encode(['default' => ['open' => $opening_time ?: null, 'close' => $closing_time ?: null]]);
+            }
+            $services_json = !empty($services) ? json_encode(array_values(array_unique($services))) : null;
+                $stmt->execute([
+                $user_id,
+                $business_name,
+                $email,
+                $phone,
+                $owner_phone ?: null,
+                $city,
+                $district,
+                $address,
+                $logo_image ? $logo_image : null,
+                $working_hours_json,
+                $services_json,
+                $description
+            ]);
+
+            $carwash_id = $conn->lastInsertId();
+        }
         
-        // Insert services if services table exists
+        // Insert or merge services if services table exists
         if (!empty($services)) {
             try {
                 foreach ($services as $service) {
@@ -258,14 +353,28 @@ try {
                             $price = $detailing_price;
                             break;
                     }
-                    
-                    $service_sql = "INSERT INTO services (carwash_id, name, price, status) VALUES (?, ?, ?, 'active')";
+
+                    // Check if service already exists for this carwash
+                    $chk = $conn->prepare("SELECT id, price FROM services WHERE carwash_id = ? AND name = ? LIMIT 1");
+                    $chk->execute([$carwash_id, $service]);
+                    $existingService = $chk->fetch(PDO::FETCH_ASSOC);
+                    if ($existingService) {
+                        // If existing price is empty/zero and form provides a price, update it
+                        $existingPrice = isset($existingService['price']) ? (float)$existingService['price'] : 0;
+                        if ($existingPrice <= 0 && $price > 0) {
+                            $upd = $conn->prepare("UPDATE services SET price = ?, status = 'active', updated_at = NOW() WHERE id = ?");
+                            $upd->execute([$price, $existingService['id']]);
+                        }
+                        continue;
+                    }
+
+                    $service_sql = "INSERT INTO services (carwash_id, name, price, status, created_at, updated_at) VALUES (?, ?, ?, 'active', NOW(), NOW())";
                     $stmt = $conn->prepare($service_sql);
                     $stmt->execute([$carwash_id, $service, $price]);
                 }
             } catch (PDOException $e) {
                 // Services table might not exist, continue without error
-                error_log("Services insertion failed: " . $e->getMessage());
+                error_log("Services insertion/merge failed: " . $e->getMessage());
             }
         }
         
@@ -280,8 +389,8 @@ try {
         $_SESSION['carwash_id'] = $carwash_id;
         // If a logo was uploaded, expose its web path in the session so headers/sidebars can use it
         if (!empty($logo_image)) {
-            // Store web-accessible path (keeps behaviour consistent with other handlers)
-            $_SESSION['logo_path'] = '/carwash_project/backend/uploads/' . $logo_image;
+            // Store filename only in session; header includes will build public URL
+            $_SESSION['logo_path'] = $logo_image;
         }
         
         // Set success message following project messaging patterns

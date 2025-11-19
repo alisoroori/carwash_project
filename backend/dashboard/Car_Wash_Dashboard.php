@@ -163,30 +163,34 @@ try {
       $pdo = $db->getPdo();
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-      $tblCheck = $pdo->prepare("SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('carwashes','business_profiles')");
+      // Ensure `carwashes` is the authoritative source for business info
+      $tblCheck = $pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'carwashes'");
       $tblCheck->execute();
-      $found = $tblCheck->fetchAll(PDO::FETCH_COLUMN, 0);
-      $hasCarwashes = in_array('carwashes', $found, true);
-      $hasBusinessProfiles = in_array('business_profiles', $found, true);
+      $hasCarwashes = (bool)$tblCheck->fetchColumn();
 
       if ($hasCarwashes) {
-        $fetch = $pdo->prepare("SELECT id,user_id, COALESCE(name,business_name) AS business_name, address, postal_code, COALESCE(phone,contact_phone) AS phone, COALESCE(mobile_phone,NULL) AS mobile_phone, COALESCE(email,contact_email) AS email, COALESCE(working_hours,opening_hours) AS working_hours, COALESCE(logo_path,featured_image) AS logo_path, social_media, created_at, updated_at FROM carwashes WHERE user_id = :user_id LIMIT 1");
+        // Select only columns that exist in the `carwashes` schema and avoid legacy column names
+        $fetch = $pdo->prepare(
+          "SELECT id, user_id, name AS business_name, address, COALESCE(postal_code, zip_code) AS postal_code, phone, mobile_phone, email, COALESCE(working_hours, opening_hours) AS working_hours, COALESCE(logo_path, logo_image, profile_image, image) AS logo_path, COALESCE(license_number, '') AS license_number, COALESCE(tax_number, '') AS tax_number, COALESCE(city, '') AS city, COALESCE(district, '') AS district, social_media, services, COALESCE(certificate_path, '') AS certificate_path, created_at, updated_at FROM carwashes WHERE user_id = :user_id LIMIT 1"
+        );
         $fetch->execute(['user_id' => $userId]);
         $business = $fetch->fetch(PDO::FETCH_ASSOC) ?: [];
-        if (!empty($business['working_hours'])) {
+
+        // Decode JSON fields if present
+        if (!empty($business['working_hours']) && is_string($business['working_hours'])) {
           $decoded = json_decode($business['working_hours'], true);
           $business['working_hours'] = $decoded === null ? $business['working_hours'] : $decoded;
         }
-      } elseif ($hasBusinessProfiles) {
-        $fetch = $pdo->prepare("SELECT id,user_id,business_name,address,postal_code,phone AS phone,mobile_phone AS mobile_phone,email AS email,working_hours AS working_hours,logo_path,created_at,updated_at FROM business_profiles WHERE user_id = :user_id LIMIT 1");
-        $fetch->execute(['user_id' => $userId]);
-        $business = $fetch->fetch(PDO::FETCH_ASSOC) ?: [];
-        if (!empty($business['working_hours'])) {
-          $decoded = json_decode($business['working_hours'], true);
-          $business['working_hours'] = $decoded === null ? $business['working_hours'] : $decoded;
+        if (!empty($business['services']) && is_string($business['services'])) {
+          $svc = json_decode($business['services'], true);
+          $business['services'] = $svc === null ? $business['services'] : $svc;
         }
-      
+        if (!empty($business['social_media']) && is_string($business['social_media'])) {
+          $sm = json_decode($business['social_media'], true);
+          $business['social_media'] = $sm === null ? $business['social_media'] : $sm;
+        }
       } else {
+        // No authoritative table found — fall back to session values only
         $business = [];
       }
 
@@ -198,7 +202,19 @@ try {
         if (!empty($business['address'])) $_SESSION['address'] = $business['address'];
         if (!empty($business['postal_code'])) $_SESSION['postal_code'] = $business['postal_code'];
         if (!empty($business['mobile_phone'])) $_SESSION['mobile_phone'] = $business['mobile_phone'];
-        if (!empty($business['logo_path'])) $_SESSION['logo_path'] = $business['logo_path'];
+        if (!empty($business['logo_path'])) {
+          $lp = $business['logo_path'];
+          // store filename only when DB contains a path or URL
+          if (preg_match('#(/|\\\\|https?://)#i', $lp)) {
+            $_SESSION['logo_path'] = basename($lp);
+          } else {
+            $_SESSION['logo_path'] = $lp;
+          }
+        }
+        if (!empty($business['license_number'])) $_SESSION['license_number'] = $business['license_number'];
+        if (!empty($business['tax_number'])) $_SESSION['tax_number'] = $business['tax_number'];
+        if (!empty($business['city'])) $_SESSION['city'] = $business['city'];
+        if (!empty($business['district'])) $_SESSION['district'] = $business['district'];
       }
     } catch (Exception $e) {
       // Do not break the page if DB read fails; log and continue with session defaults
@@ -211,6 +227,32 @@ try {
 } catch (Exception $e) {
   $business = [];
 }
+
+// Normalize logo URLs: DB stores filename; build full web URL here and fallback to default if missing
+$base_url = $base_url ?? ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/carwash_project';
+$default_logo_url = $base_url . '/backend/logo01.png';
+$logo_filename = $business['logo_path'] ?? ($_SESSION['logo_path'] ?? null);
+$mobile_logo_url = $desktop_logo_url = $current_logo_url = $business_view_logo = $default_logo_url;
+if (!empty($logo_filename)) {
+  if (preg_match('#^(?:https?://|/)#i', $logo_filename)) {
+    $candidate = $logo_filename;
+  } else {
+    $candidate = $base_url . '/backend/uploads/business_logo/' . ltrim($logo_filename, '/');
+  }
+  $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/');
+  $filePath = $docRoot . parse_url($candidate, PHP_URL_PATH);
+  if (file_exists($filePath)) {
+    $mobile_logo_url = $desktop_logo_url = $current_logo_url = $business_view_logo = $candidate;
+    // keep session storing filename only
+    $_SESSION['logo_path'] = $logo_filename;
+  } else {
+    // log missing files for debugging
+    @file_put_contents(__DIR__ . '/../../logs/logo_missing.log', date('Y-m-d H:i:s') . " - missing logo for user " . ($_SESSION['user_id'] ?? 'anon') . ": {$filePath}\n", FILE_APPEND | LOCK_EX);
+    // fallback to default (already set)
+    unset($_SESSION['logo_path']);
+  }
+}
+
 ?>
 
 <!-- Dashboard Specific Styles -->
@@ -680,8 +722,8 @@ try {
     <aside class="mobile-sidebar sidebar-gradient text-white" id="mobileSidebar">
       <div class="p-6">
         <div class="text-center mb-8">
-          <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
-            <img id="mobileSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover sidebar-logo">
+            <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+            <img id="mobileSidebarLogo" src="<?php echo htmlspecialchars($mobile_logo_url, ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover sidebar-logo">
           </div>
           <h3 class="text-xl font-bold" id="mobileSidebarBusinessName"><?php echo htmlspecialchars($business['business_name'] ?? $_SESSION['business_name'] ?? 'CarWash Merkez', ENT_QUOTES, 'UTF-8'); ?></h3>
           <p class="text-sm opacity-75">Premium İşletme</p>
@@ -733,7 +775,7 @@ try {
       <div class="p-6">
         <div class="text-center mb-8">
           <div class="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
-            <img id="desktopSidebarLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover sidebar-logo">
+            <img id="desktopSidebarLogo" src="<?php echo htmlspecialchars($desktop_logo_url, ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover sidebar-logo">
           </div>
           <h3 class="text-xl font-bold" id="desktopSidebarBusinessName"><?php echo htmlspecialchars($business['business_name'] ?? $_SESSION['business_name'] ?? 'CarWash Merkez', ENT_QUOTES, 'UTF-8'); ?></h3>
           <p class="text-sm opacity-75">Premium İşletme</p>
@@ -1860,7 +1902,7 @@ try {
             <div id="businessViewMode" class="space-y-6">
               <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
                 <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
-                  <img id="businessViewLogo" src="<?php echo htmlspecialchars($_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover">
+                  <img id="businessViewLogo" src="<?php echo htmlspecialchars($business_view_logo, ENT_QUOTES, 'UTF-8'); ?>" alt="Business Logo" class="w-full h-full object-cover">
                 </div>
                 <div>
                   <h3 id="businessViewName" class="text-2xl font-bold text-gray-900"><?php echo htmlspecialchars($_SESSION['business_name'] ?? 'CarWash Merkez'); ?></h3>
@@ -1887,6 +1929,25 @@ try {
                 </div>
               </div>
 
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">Ruhsat Numarası</label>
+                  <p id="businessViewLicense" class="text-base text-gray-900"><?php echo htmlspecialchars($business['license_number'] ?? $_SESSION['license_number'] ?? '-'); ?></p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">Vergi Numarası</label>
+                  <p id="businessViewTax" class="text-base text-gray-900"><?php echo htmlspecialchars($business['tax_number'] ?? $_SESSION['tax_number'] ?? '-'); ?></p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">Şehir</label>
+                  <p id="businessViewCity" class="text-base text-gray-900"><?php echo htmlspecialchars($business['city'] ?? $_SESSION['city'] ?? '-'); ?></p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-semibold text-gray-500">İlçe</label>
+                  <p id="businessViewDistrict" class="text-base text-gray-900"><?php echo htmlspecialchars($business['district'] ?? $_SESSION['district'] ?? '-'); ?></p>
+                </div>
+              </div>
+
               <div class="flex justify-end pt-6 border-t border-gray-200">
                 <button id="editBusinessBtn" type="button" onclick="toggleBusinessEdit(true)" class="px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2">
                   <i class="fas fa-edit"></i>
@@ -1896,7 +1957,7 @@ try {
             </div>
 
             <!-- Business EDIT MODE (form) - hidden by default -->
-            <form id="businessInfoForm" class="space-y-4 hidden">
+            <form id="businessInfoForm" class="space-y-4 hidden" enctype="multipart/form-data">
               <!-- Hidden business_id (optional) - backend will use session user_id if empty -->
               <input type="hidden" name="business_id" id="business_id" value="<?php echo htmlspecialchars($business['id'] ?? $_SESSION['business_id'] ?? ''); ?>">
                 <div>
@@ -1937,7 +1998,7 @@ try {
                 <div>
                   <label class="block text-sm font-bold text-gray-700 mb-2">İşletme Logosu</label>
                   <div class="flex items-center space-x-4">
-                    <img id="currentLogo" src="<?php echo htmlspecialchars($business['logo_path'] ?? $_SESSION['logo_path'] ?? '/carwash_project/backend/logo01.png', ENT_QUOTES, 'UTF-8'); ?>" alt="Current Business Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
+                    <img id="currentLogo" src="<?php echo htmlspecialchars($current_logo_url, ENT_QUOTES, 'UTF-8'); ?>" alt="Current Business Logo" class="w-20 h-20 rounded-lg object-cover border header-logo sidebar-logo">
                     <label for="logoUpload" class="sr-only">Choose file</label><input type="file" id="logoUpload" name="logo" class="hidden" accept="image/*" onchange="previewLogo(event)">
                     <button type="button" onclick="document.getElementById('logoUpload').click()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
                       <i class="fas fa-upload mr-2"></i>Logo Yükle
@@ -2021,6 +2082,28 @@ try {
                   <label class="block text-sm font-bold text-gray-700 mb-2">Posta Kodu</label>
                   <label for="auto_133" class="sr-only">Postal Code</label>
                   <input type="text" name="postal_code" id="auto_133" value="<?php echo htmlspecialchars($business['postal_code'] ?? $_SESSION['postal_code'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Ruhsat Numarası</label>
+                    <input type="text" name="license_number" value="<?php echo htmlspecialchars($business['license_number'] ?? $_SESSION['license_number'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" maxlength="100">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Vergi Numarası</label>
+                    <input type="text" name="tax_number" value="<?php echo htmlspecialchars($business['tax_number'] ?? $_SESSION['tax_number'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" maxlength="50">
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Şehir</label>
+                    <input type="text" name="city" value="<?php echo htmlspecialchars($business['city'] ?? $_SESSION['city'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" maxlength="100">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">İlçe</label>
+                    <input type="text" name="district" value="<?php echo htmlspecialchars($business['district'] ?? $_SESSION['district'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" maxlength="100">
+                  </div>
                 </div>
 
                 <!-- Certificate Upload Section -->
@@ -2609,13 +2692,18 @@ try {
         // Türkçe: Başlangıçtaki geçiş durumunu localStorage veya varsayılan değere göre ayarla.
         // English: Set initial toggle state based on localStorage or default.
         const status = localStorage.getItem('workplaceStatus');
-        const toggle = document.getElementById('workplaceStatus');
-        if (status === 'off') {
-          toggle.checked = false;
+        const toggle = document.getElementById('workplaceStatus') || document.getElementById('workplaceStatusToggle');
+        if (toggle) {
+          if (status === 'off') {
+            toggle.checked = false;
+          } else {
+            toggle.checked = true; // Default to On
+          }
+          toggleWorkplaceStatus(); // Apply initial styling
         } else {
-          toggle.checked = true; // Default to On
+          // No toggle found on page; skip initial toggle setup
+          console.warn('Workplace toggle element not found; skipping toggle initialization');
         }
-        toggleWorkplaceStatus(); // Apply initial styling
       });
 
       // Farsça: توابع پنل اعلان.
@@ -2656,12 +2744,13 @@ try {
       // Türkçe: İşyeri Durumu Geçiş Fonksiyonu.
       // English: Workplace Status Toggle Function.
       function toggleWorkplaceStatus() {
-        const toggle = document.getElementById('workplaceStatus');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const statusText = document.getElementById('statusText');
-        const toggleLabel = document.getElementById('toggleLabel');
-        
-        if (toggle.checked) {
+        // Support both older and seller-header IDs
+        const toggle = document.getElementById('workplaceStatus') || document.getElementById('workplaceStatusToggle');
+        const statusIndicator = document.getElementById('statusIndicator') || document.getElementById('workplaceStatusIndicator');
+        const statusText = document.getElementById('statusText') || document.getElementById('workplaceStatusText');
+        const toggleLabel = document.getElementById('toggleLabel') || null;
+
+        if (toggle && toggle.checked) {
           localStorage.setItem('workplaceStatus', 'on');
           if (statusIndicator) {
             statusIndicator.className = 'status-indicator status-open';
@@ -2836,9 +2925,18 @@ try {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kaydediliyor...';
             
-            // Send to backend API
+            // Ensure CSRF token is included (meta tag or global CONFIG) and send cookies
+            try {
+              const csrfMeta = document.querySelector('meta[name="csrf-token"]')?.content || (window.CONFIG && window.CONFIG.CSRF_TOKEN) || '';
+              if (csrfMeta) formData.append('csrf_token', csrfMeta);
+            } catch (ex) {
+              // ignore if meta not available
+            }
+
+            // Send to backend API (include credentials to ensure session cookie is sent)
             fetch('/carwash_project/backend/api/update_business_info.php', {
               method: 'POST',
+              credentials: 'same-origin',
               body: formData
             })
             .then(response => response.json())
@@ -2859,7 +2957,7 @@ try {
                 }
 
                 // Reload the authoritative business data from the server and update the VIEW section
-                fetch('/carwash_project/backend/api/get_business_info.php')
+                fetch('/carwash_project/backend/api/get_business_info.php', { credentials: 'same-origin' })
                   .then(r => r.json())
                   .then(bres => {
                     if (bres && bres.success === true && bres.data) {

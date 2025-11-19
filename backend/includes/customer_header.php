@@ -22,7 +22,27 @@ if (file_exists(__DIR__ . '/dashboard_header.php')) {
 
 // Ensure we have a usable logo path for the MyCar brand
 $base_url = isset($base_url) ? $base_url : ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/carwash_project';
-$logo_path = $_SESSION['logo_path'] ?? ($base_url . '/backend/logo01.png');
+$raw_logo = $_SESSION['logo_path'] ?? null;
+$logo_path = $base_url . '/backend/logo01.png';
+if (!empty($raw_logo)) {
+    if (preg_match('#^(?:https?://|/)#i', $raw_logo)) {
+        $candidate = $raw_logo;
+    } else {
+        $candidate = $base_url . '/backend/uploads/business_logo/' . ltrim($raw_logo, '/');
+    }
+    $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\/');
+    if (!preg_match('#^(?:https?://|/)#i', $raw_logo)) {
+        $filePath = $docRoot . '/carwash_project/backend/uploads/business_logo/' . ltrim($raw_logo, '/');
+    } else {
+        $filePath = $docRoot . parse_url($candidate, PHP_URL_PATH);
+    }
+    if (file_exists($filePath)) {
+        $logo_path = $candidate;
+    } else {
+        @file_put_contents(__DIR__ . '/../../logs/logo_missing.log', date('Y-m-d H:i:s') . " - customer header logo missing: {$filePath}\n", FILE_APPEND | LOCK_EX);
+        unset($_SESSION['logo_path']);
+    }
+}
 ?>
 
 <!-- Customer header overrides: make header fixed, move menus outside header, add logo -->

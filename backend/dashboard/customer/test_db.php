@@ -58,9 +58,9 @@ try {
 
     // Fetch recent bookings with related carwash and service names (if tables exist)
     $bookings = $db->fetchAll(
-        'SELECT b.id, b.booking_date, b.booking_time, b.status, c.business_name AS carwash_name, s.name AS service_name
+        'SELECT b.id, b.booking_date, b.booking_time, b.status, c.name AS carwash_name, s.name AS service_name
          FROM bookings b
-         LEFT JOIN carwash_profiles c ON b.carwash_id = c.id
+         LEFT JOIN carwashes c ON b.carwash_id = c.id
          LEFT JOIN services s ON b.service_id = s.id
          WHERE b.user_id = :uid
          ORDER BY b.booking_date DESC, b.booking_time DESC

@@ -192,7 +192,7 @@ function columnExists(PDO $pdo, string $tableName, string $columnName, string $s
 $required = [
     'bookings' => ['id', 'user_id', 'status', 'carwash_id', 'created_at'],
     'users' => ['id', 'email', 'name'],
-    'carwash_profiles' => ['id', 'business_name', 'address'],
+    'carwashes' => ['id', 'name', 'address'],
     'services' => ['id', 'name', 'price'],
     'payments' => ['id', 'booking_id', 'total_amount', 'status'],
     'booking_status' => ['id', 'name'],
@@ -275,7 +275,7 @@ if ($pdo instanceof \PDO && $testedUserId !== null) {
     $q2 = 'SELECT b.id, b.user_id, b.status, b.carwash_id, b.created_at,
                  cp.business_name AS carwash_name, s.name AS service_name
            FROM bookings b
-           LEFT JOIN carwash_profiles cp ON cp.id = b.carwash_id
+           LEFT JOIN carwashes cp ON cp.id = b.carwash_id
            LEFT JOIN services s ON s.id = b.service_id
            WHERE b.user_id = :uid
            ORDER BY b.created_at DESC
@@ -308,7 +308,7 @@ if ($pdo instanceof \PDO && $testedUserId !== null) {
     ];
     $coreQueryResults['counts'] = $r3;
 
-    // 4) Available services (from services or carwash_profiles -> services relation)
+    // 4) Available services (from services or carwashes -> services relation)
     $servicesFound = false;
     if (tableExists($pdo, 'services')) {
         $q4 = 'SELECT id, name, price FROM services WHERE status = "active" LIMIT 50';
@@ -342,7 +342,7 @@ if ($pdo instanceof \PDO && $testedUserId !== null) {
             $referentialMeta['user_lookup'] = $u;
         }
         if ($sampleCarwashId) {
-            $c = timedQuery($pdo, 'SELECT id FROM carwash_profiles WHERE id = :id LIMIT 1', [':id' => $sampleCarwashId]);
+            $c = timedQuery($pdo, 'SELECT id FROM carwashes WHERE id = :id LIMIT 1', [':id' => $sampleCarwashId]);
             if (!$c['ok'] || $c['count'] === 0) $referentialOk = false;
             $referentialMeta['carwash_lookup'] = $c;
         }
@@ -554,7 +554,7 @@ $debugPayload = [
         <div class="small">FAQ / Quick fixes:
             <ol>
                 <li>Check DB credentials in <code>backend/includes/config.php</code> or environment variables.</li>
-                <li>Ensure required tables exist: <code>bookings</code>, <code>users</code>, <code>carwash_profiles</code>, <code>services</code>, <code>payments</code>.</li>
+                <li>Ensure required tables exist: <code>bookings</code>, <code>users</code>, <code>carwashes</code>, <code>services</code>, <code>payments</code>.</li>
                 <li>Run migrations or import <code>database/carwash.sql</code>.</li>
             </ol>
         </div>
