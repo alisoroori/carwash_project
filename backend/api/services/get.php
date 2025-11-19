@@ -1,48 +1,61 @@
 <?php
+declare(strict_types=1);
 
-require_once '../includes/api_bootstrap.php';
+header('Content-Type: application/json; charset=utf-8');
+if (session_status() === PHP_SESSION_NONE) session_start();
 
+// Keep PHP warnings from polluting JSON
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/../../includes/bootstrap.php';
+require_once dirname(__DIR__, 3) . '/vendor/autoload.php';
+
+use App\Classes\Database;
 
 try {
-    $carwash_id = isset($_GET['carwash_id']) ?
-        filter_var($_GET['carwash_id'], FILTER_VALIDATE_INT) : null;
+    // Debug: log session state
+    error_log('services/get.php: SESSION = ' . json_encode(['user_id' => $_SESSION['user_id'] ?? null, 'carwash_id' => $_SESSION['carwash_id'] ?? null, 'role' => $_SESSION['role'] ?? null]));
 
-    $sql = "SELECT s.*, c.name as carwash_name 
-            FROM services s
-            JOIN carwash c ON s.carwash_id = c.id
-            WHERE s.status = 'active'";
-
-    $params = [];
-    if ($carwash_id) {
-        $sql .= " AND s.carwash_id = ?";
-        $params[] = $carwash_id;
+    // Require an authenticated session: either carwash_id directly or user_id to resolve
+    if (empty($_SESSION['carwash_id']) && empty($_SESSION['user_id'])) {
+        error_log('services/get.php: NOT_AUTHENTICATED - no user_id or carwash_id in session');
+        echo json_encode(['success' => false, 'error' => 'NOT_AUTHENTICATED'], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
-    $stmt = $conn->prepare($sql);
-    $stmt->execute($params);
-    $result = $stmt->get_result();
+    $db = Database::getInstance();
+    $pdo = $db->getPdo();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $services = [];
-    while ($row = $result->fetch_assoc()) {
-        $services[] = [
-            'id' => (int)$row['id'],
-            'name' => $row['name'],
-            'description' => $row['description'],
-            'price' => (float)$row['price'],
-            'duration' => (int)$row['duration'],
-            'carwash_id' => (int)$row['carwash_id'],
-            'carwash_name' => $row['carwash_name']
-        ];
+    // Determine carwash id: prefer explicit session value, otherwise resolve from user_id
+    if (!empty($_SESSION['carwash_id'])) {
+        $carwashId = (int)$_SESSION['carwash_id'];
+    } else {
+        $stmt = $pdo->prepare('SELECT id FROM carwashes WHERE user_id = :uid LIMIT 1');
+        $stmt->execute(['uid' => (int)$_SESSION['user_id']]);
+        $cw = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$cw) {
+            echo json_encode(['success' => false, 'error' => 'NOT_AUTHENTICATED'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $carwashId = (int)$cw['id'];
     }
 
-    echo json_encode([
-        'success' => true,
-        'services' => $services
-    ]);
-} catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+    // Fetch services for this carwash only
+    error_log('services/get.php: Fetching services for carwash_id=' . $carwashId);
+    $stmt = $pdo->prepare('SELECT id, name, description, price, duration FROM services WHERE carwash_id = :cw ORDER BY id DESC');
+    $stmt->execute(['cw' => $carwashId]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    error_log('services/get.php: Found ' . count($rows) . ' services');
+
+    echo json_encode(['success' => true, 'data' => $rows], JSON_UNESCAPED_UNICODE);
+    exit;
+} catch (Throwable $e) {
+    error_log('services/get.php ERROR: ' . $e->getMessage());
+    $msg = $e->getMessage();
+    echo json_encode(['success' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
+    exit;
 }
+

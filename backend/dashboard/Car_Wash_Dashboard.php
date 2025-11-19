@@ -1054,73 +1054,232 @@ if (!empty($logo_filename)) {
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih/Saat</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fiyat</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Öncelik</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200">
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4">
-                    <div>
-                      <div class="font-medium">Ahmet Yılmaz</div>
-                      <div class="text-sm text-gray-500">0555 123 4567</div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 text-sm">Dış Yıkama + İç Temizlik</td>
-                  <td class="px-6 py-4 text-sm">Toyota Corolla<br>34 ABC 123</td>
-                  <td class="px-6 py-4 text-sm">15.12.2024<br>10:00</td>
-                  <td class="px-6 py-4"><span class="status-confirmed px-2 py-1 rounded-full text-xs">Onaylandı</span></td>
-                  <td class="px-6 py-4 font-medium">₺130</td>
-                  <td class="px-6 py-4"><span class="priority-medium px-2 py-1 rounded-full text-xs">Orta</span></td>
-                  <td class="px-6 py-4 text-sm">
-                    <button class="text-blue-600 hover:text-blue-900 mr-2">Düzenle</button>
-                    <button class="text-green-600 hover:text-green-900 mr-2">Tamamla</button>
-                    <button class="text-red-600 hover:text-red-900">İptal</button>
-                  </td>
-                </tr>
-
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4">
-                    <div>
-                      <div class="font-medium">Fatma Kaya</div>
-                      <div class="text-sm text-gray-500">0555 987 6543</div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 text-sm">Tam Detaylandırma</td>
-                  <td class="px-6 py-4 text-sm">Honda Civic<br>34 XYZ 789</td>
-                  <td class="px-6 py-4 text-sm">15.12.2024<br>14:00</td>
-                  <td class="px-6 py-4"><span class="status-in-progress px-2 py-1 rounded-full text-xs">Devam Ediyor</span></td>
-                  <td class="px-6 py-4 font-medium">₺200</td>
-                  <td class="px-6 py-4"><span class="priority-high px-2 py-1 rounded-full text-xs">Yüksek</span></td>
-                  <td class="px-6 py-4 text-sm">
-                    <button class="text-blue-600 hover:text-blue-900 mr-2">Detay</button>
-                    <button class="text-green-600 hover:text-green-900 mr-2">Tamamla</button>
-                  </td>
-                </tr>
-
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4">
-                    <div>
-                      <div class="font-medium">Mehmet Demir</div>
-                      <div class="text-sm text-gray-500">0555 456 7890</div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 text-sm">Premium Paket</td>
-                  <td class="px-6 py-4 text-sm">BMW 3 Serisi<br>34 DEF 456</td>
-                  <td class="px-6 py-4 text-sm">15.12.2024<br>16:00</td>
-                  <td class="px-6 py-4"><span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span></td>
-                  <td class="px-6 py-4 font-medium">₺250</td>
-                  <td class="px-6 py-4"><span class="priority-low px-2 py-1 rounded-full text-xs">Düşük</span></td>
-                  <td class="px-6 py-4 text-sm">
-                    <button class="text-green-600 hover:text-green-900 mr-2">Onayla</button>
-                    <button class="text-yellow-600 hover:text-yellow-900 mr-2">Yeniden Planla</button>
-                    <button class="text-red-600 hover:text-red-900">Reddet</button>
+              <tbody id="carwashReservationsBody" class="divide-y divide-gray-200">
+                <tr id="carwashReservationsLoading">
+                  <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>Yükleniyor...
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
+
+        <!-- Reservation Management Script -->
+        <script>
+          (function() {
+            // Helper to escape HTML
+            function escapeHtml(s) {
+              if (!s) return '';
+              return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+            }
+
+            // Load reservations from the API
+            async function loadCarwashReservations() {
+              const tbody = document.getElementById('carwashReservationsBody');
+              if (!tbody) return;
+
+              try {
+                const resp = await fetch('/carwash_project/backend/api/bookings/carwash_list.php', { 
+                  credentials: 'same-origin' 
+                });
+
+                if (!resp.ok) {
+                  tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-sm text-red-600 text-center">Liste alınamadı (HTTP ' + resp.status + ')</td></tr>';
+                  console.error('carwash_list HTTP error:', resp.status);
+                  return;
+                }
+
+                const data = await resp.json();
+                
+                if (!data || !data.success) {
+                  tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-sm text-red-600 text-center">Liste alınamadı: ' + escapeHtml(data && data.message ? data.message : 'Bilinmeyen hata') + '</td></tr>';
+                  return;
+                }
+
+                const rows = data.data || [];
+                
+                if (rows.length === 0) {
+                  tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-sm text-gray-500 text-center">Henüz rezervasyon bulunmuyor.</td></tr>';
+                  return;
+                }
+
+                tbody.innerHTML = '';
+                
+                rows.forEach(r => {
+                  const tr = document.createElement('tr');
+                  tr.className = 'hover:bg-gray-50';
+                  
+                  const statusBadge = (() => {
+                    switch((r.status || '').toLowerCase()) {
+                      case 'confirmed': return '<span class="status-confirmed px-2 py-1 rounded-full text-xs">Onaylandı</span>';
+                      case 'in_progress': 
+                      case 'in progress': return '<span class="status-in-progress px-2 py-1 rounded-full text-xs">Devam Ediyor</span>';
+                      case 'completed': return '<span class="status-completed px-2 py-1 rounded-full text-xs">Tamamlandı</span>';
+                      case 'cancelled': return '<span class="status-cancelled px-2 py-1 rounded-full text-xs">İptal</span>';
+                      default: return '<span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span>';
+                    }
+                  })();
+
+                  const price = r.total_price ? ('₺' + parseFloat(r.total_price).toFixed(2)) : '-';
+                  const vehicle = r.vehicle_plate 
+                    ? (escapeHtml(r.vehicle_type || 'Araç') + '<br>' + escapeHtml(r.vehicle_plate)) 
+                    : (escapeHtml(r.vehicle_model || '-'));
+
+                  const isPending = (r.status || '').toLowerCase() === 'pending';
+                  const actions = isPending
+                    ? `<button data-id="${r.id}" class="approveBtn text-green-600 hover:text-green-900 mr-2" title="Rezervasyonu onayla">Onayla</button>
+                       <button data-id="${r.id}" class="rejectBtn text-red-600 hover:text-red-900" title="Rezervasyonu reddet">Reddet</button>`
+                    : `<button data-id="${r.id}" class="viewBtn text-blue-600 hover:text-blue-900" title="Rezervasyon detayı">Detay</button>`;
+
+                  tr.innerHTML = `
+                    <td class="px-6 py-4">
+                      <div>
+                        <div class="font-medium">${escapeHtml(r.user_name || r.customer_name || 'Bilinmiyor')}</div>
+                        <div class="text-sm text-gray-500">${escapeHtml(r.user_phone || r.phone || '')}</div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm">${escapeHtml(r.service_name || r.service_type || '-')}</td>
+                    <td class="px-6 py-4 text-sm">${vehicle}</td>
+                    <td class="px-6 py-4 text-sm">${escapeHtml(r.booking_date || r.date || '')}<br>${escapeHtml(r.booking_time || r.time || '')}</td>
+                    <td class="px-6 py-4">${statusBadge}</td>
+                    <td class="px-6 py-4 font-medium">${price}</td>
+                    <td class="px-6 py-4 text-sm">${actions}</td>
+                  `;
+
+                  tbody.appendChild(tr);
+                });
+
+                // Attach event handlers
+                tbody.querySelectorAll('.approveBtn').forEach(btn => {
+                  btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    if (!confirm('Bu rezervasyonu onaylamak istiyor musunuz?')) return;
+                    await approveReservation(id);
+                  });
+                });
+
+                tbody.querySelectorAll('.rejectBtn').forEach(btn => {
+                  btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    if (!confirm('Bu rezervasyonu reddetmek istiyor musunuz?')) return;
+                    await rejectReservation(id);
+                  });
+                });
+
+              } catch (err) {
+                console.error('loadCarwashReservations error:', err);
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-sm text-red-600 text-center">Yükleme hatası: ' + escapeHtml(err.message || String(err)) + '</td></tr>';
+              }
+            }
+
+            // Approve a reservation
+            async function approveReservation(id) {
+              try {
+                const fd = new FormData();
+                fd.append('booking_id', id);
+                
+                // Include CSRF token if available
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                if (csrfMeta) {
+                  fd.append('csrf_token', csrfMeta.getAttribute('content'));
+                }
+
+                const resp = await fetch('/carwash_project/backend/api/bookings/approve.php', { 
+                  method: 'POST', 
+                  body: fd, 
+                  credentials: 'same-origin' 
+                });
+
+                const result = await resp.json();
+
+                if (result && result.success) {
+                  if (typeof showNotification === 'function') {
+                    showNotification('Rezervasyon onaylandı', 'success');
+                  }
+                  await loadCarwashReservations();
+                } else {
+                  const msg = result && result.message ? result.message : 'Bilinmeyen hata';
+                  if (typeof showNotification === 'function') {
+                    showNotification('Onay başarısız: ' + msg, 'error');
+                  } else {
+                    alert('Onay başarısız: ' + msg);
+                  }
+                }
+              } catch (err) {
+                console.error('approveReservation error:', err);
+                if (typeof showNotification === 'function') {
+                  showNotification('Hata: ' + (err.message || 'Bilinmeyen hata'), 'error');
+                } else {
+                  alert('Hata: ' + (err.message || 'Bilinmeyen hata'));
+                }
+              }
+            }
+
+            // Reject a reservation
+            async function rejectReservation(id) {
+              try {
+                const fd = new FormData();
+                fd.append('booking_id', id);
+                fd.append('action', 'reject');
+
+                // Include CSRF token if available
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                if (csrfMeta) {
+                  fd.append('csrf_token', csrfMeta.getAttribute('content'));
+                }
+
+                const resp = await fetch('/carwash_project/backend/api/bookings/approve.php', { 
+                  method: 'POST', 
+                  body: fd, 
+                  credentials: 'same-origin' 
+                });
+
+                const result = await resp.json();
+
+                if (result && result.success) {
+                  if (typeof showNotification === 'function') {
+                    showNotification('Rezervasyon reddedildi', 'success');
+                  }
+                  await loadCarwashReservations();
+                } else {
+                  const msg = result && result.message ? result.message : 'Bilinmeyen hata';
+                  if (typeof showNotification === 'function') {
+                    showNotification('Reddetme başarısız: ' + msg, 'error');
+                  } else {
+                    alert('Reddetme başarısız: ' + msg);
+                  }
+                }
+              } catch (err) {
+                console.error('rejectReservation error:', err);
+                if (typeof showNotification === 'function') {
+                  showNotification('Hata: ' + (err.message || 'Bilinmeyen hata'), 'error');
+                } else {
+                  alert('Hata: ' + (err.message || 'Bilinmeyen hata'));
+                }
+              }
+            }
+
+            // Initialize on DOM ready
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', loadCarwashReservations);
+            } else {
+              loadCarwashReservations();
+            }
+
+            // Reload when filter changes
+            const filterStatus = document.getElementById('filterStatus');
+            if (filterStatus) {
+              filterStatus.addEventListener('change', loadCarwashReservations);
+            }
+
+            // Expose reload function globally for manual refresh
+            window.reloadCarwashReservations = loadCarwashReservations;
+          })();
+        </script>
       </section>
 
       <!-- Customer Management -->
@@ -1277,81 +1436,9 @@ if (!empty($logo_filename)) {
                 </button>
               </div>
 
-              <div class="space-y-4">
-                <div class="flex items-center justify-between p-4 border rounded-lg">
-                  <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-car text-blue-600"></i>
-                    </div>
-                    <div>
-                      <h4 class="font-bold">Dış Yıkama + İç Temizlik</h4>
-                      <p class="text-sm text-gray-600">45 dakika - Premium kalite</p>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <div class="font-bold text-lg">₺130</div>
-                    <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Hizmeti düzenle">
-                        <i class="fas fa-edit" aria-hidden="true"></i>
-                        <span class="sr-only">Düzenle</span>
-                      </button>
-                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Hizmeti sil">
-                        <i class="fas fa-trash" aria-hidden="true"></i>
-                        <span class="sr-only">Sil</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-between p-4 border rounded-lg">
-                  <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-scrubber text-green-600"></i>
-                    </div>
-                    <div>
-                      <h4 class="font-bold">Tam Detaylandırma</h4>
-                      <p class="text-sm text-gray-600">90 dakika - Profesyonel bakım</p>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <div class="font-bold text-lg">₺200</div>
-                    <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Hizmeti düzenle">
-                        <i class="fas fa-edit" aria-hidden="true"></i>
-                        <span class="sr-only">Düzenle</span>
-                      </button>
-                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Hizmeti sil">
-                        <i class="fas fa-trash" aria-hidden="true"></i>
-                        <span class="sr-only">Sil</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-between p-4 border rounded-lg">
-                  <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-crown text-purple-600"></i>
-                    </div>
-                    <div>
-                      <h4 class="font-bold">Premium Paket</h4>
-                      <p class="text-sm text-gray-600">120 dakika - VIP hizmet</p>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <div class="font-bold text-lg">₺250</div>
-                    <div class="flex space-x-2">
-                      <button class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Düzenle">
-                        <i class="fas fa-edit" aria-hidden="true"></i>
-                        <span class="sr-only">Düzenle</span>
-                      </button>
-                      <button class="text-red-600 hover:text-red-900" title="Sil" aria-label="Sil">
-                        <i class="fas fa-trash" aria-hidden="true"></i>
-                        <span class="sr-only">Sil</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              <!-- Dynamic services container - populated by loadServices() -->
+              <div id="servicesList" class="space-y-4">
+                <div class="text-sm text-gray-500">Hizmetler yükleniyor...</div>
               </div>
             </div>
           </div>
@@ -2211,43 +2298,9 @@ if (!empty($logo_filename)) {
               <div class="mb-6 pb-6 border-b border-gray-200">
                 <h4 class="text-lg font-bold text-gray-900 mb-4">Profil Fotoğrafı</h4>
                 <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
-                  <div class="flex-shrink-0">
-                    <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
-                      <img 
-                        id="profileEditImagePreview"
-                        src="<?php echo htmlspecialchars($_SESSION['profile_image'] ?? '/carwash_project/frontend/images/default-avatar.svg'); ?>" 
-                        alt="Profil Önizleme" 
-                        class="w-full h-full object-cover"
-                      >
-                    </div>
+                  <div id="servicesList" class="space-y-4">
+                    <!-- Services will be loaded here via JS (calls /backend/api/services/list.php) -->
                   </div>
-                  <div class="flex-1">
-                    <label for="profile_image" class="block text-sm font-bold text-gray-700 mb-2">
-                      Yeni Fotoğraf Yükle
-                    </label>
-                    <input 
-                      type="file" 
-                      id="profile_image" 
-                      name="profile_image" 
-                      accept="image/jpeg,image/png,image/jpg,image/webp"
-                      onchange="previewProfileImage(event)"
-                      class="block w-full text-sm text-gray-900 border-2 border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                    >
-                    <p class="mt-2 text-xs text-gray-500">JPG, PNG veya WEBP formatında. Maksimum 3MB.</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Form Fields -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Display Name -->
-                <div>
-                  <label for="profile_display_name" class="block text-sm font-bold text-gray-700 mb-2">
-                    İsim (Görünen) <span class="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="profile_display_name"
                     name="name"
                     value="<?php echo htmlspecialchars($_SESSION['name'] ?? $_SESSION['business_name'] ?? ''); ?>"
                     required
@@ -2561,27 +2614,29 @@ if (!empty($logo_filename)) {
       <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
         <h3 class="text-xl font-bold mb-4">Yeni Hizmet Ekle</h3>
         <form id="serviceForm" class="space-y-4">
+          <input type="hidden" id="service_id" name="id" value="">
+          <div id="serviceFormError" class="text-sm text-red-600 hidden" role="alert"></div>
           <div>
             <label for="auto_160" class="sr-only">Hizmet Adı</label>
-            <input type="text" id="auto_160" placeholder="Hizmet Adı" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <input type="text" id="auto_160" placeholder="Örneğin: İç Temizlik" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
           </div>
           <div>
             <label for="auto_161" class="sr-only">Hizmet Açıklaması</label>
-            <textarea id="auto_161" rows="3" placeholder="Hizmet açıklaması" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+            <textarea id="auto_161" rows="3" placeholder="Örneğin: Araç içi detaylı temizlik" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="auto_162" class="sr-only">Süre (dk)</label>
-              <input type="number" id="auto_162" placeholder="150" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <input type="number" id="auto_162" placeholder="Örneğin: 30 dakika" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
             </div>
             <div>
               <label for="auto_163" class="sr-only">Fiyat (₺)</label>
-              <input type="number" id="auto_163" placeholder="150" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <input type="number" id="auto_163" placeholder="Örneğin: 45 ₺" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
             </div>
           </div>
           <div class="flex space-x-3">
-            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Ekle</button>
-            <button type="button" onclick="closeServiceModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
+            <button type="submit" id="serviceSaveBtn" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Kaydet</button>
+            <button type="button" id="serviceCancelBtn" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
           </div>
         </form>
       </div>
@@ -2721,13 +2776,250 @@ if (!empty($logo_filename)) {
       // Farsça: توابع مودال خدمات.
       // Türkçe: Hizmet Modalı fonksiyonları.
       // English: Service Modal functions.
-      function openServiceModal() {
-        document.getElementById('serviceModal').classList.remove('hidden');
+      // Ensure a global escapeHtml exists (fallback) so later code can safely call it
+      if (typeof escapeHtml !== 'function') {
+        function escapeHtml(s) {
+          if (!s) return '';
+          return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+      }
+      function getCsrfToken() {
+        const m = document.querySelector('meta[name="csrf-token"]');
+        if (m && m.content) return m.content;
+        if (window.CONFIG && window.CONFIG.CSRF_TOKEN) return window.CONFIG.CSRF_TOKEN;
+        const hidden = document.querySelector('input[name="csrf_token"]');
+        return hidden ? hidden.value : '';
+      }
+
+      function openServiceModal(service = null) {
+        const modal = document.getElementById('serviceModal');
+        const form = document.getElementById('serviceForm');
+        const err = document.getElementById('serviceFormError');
+        err.classList.add('hidden'); err.textContent = '';
+        if (service) {
+          document.getElementById('service_id').value = service.id || '';
+          document.getElementById('auto_160').value = service.name || '';
+          document.getElementById('auto_161').value = service.description || '';
+          document.getElementById('auto_162').value = service.duration || '';
+          document.getElementById('auto_163').value = service.price || '';
+        } else {
+          form.reset();
+          document.getElementById('service_id').value = '';
+        }
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('auto_160').focus(), 100);
       }
 
       function closeServiceModal() {
-        document.getElementById('serviceModal').classList.add('hidden');
+        const modal = document.getElementById('serviceModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+        const form = document.getElementById('serviceForm');
+        form.reset();
+        document.getElementById('service_id').value = '';
+        const err = document.getElementById('serviceFormError');
+        err.classList.add('hidden'); err.textContent = '';
       }
+
+      // Helper: clear inline errors for the service form
+      function clearServiceFormErrors() {
+        document.querySelectorAll('.service-field-error').forEach(n => n.remove());
+        ['auto_160','auto_161','auto_162','auto_163'].forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.classList.remove('border','border-red-600','ring-1','ring-red-600');
+          el.removeAttribute('aria-invalid');
+        });
+        const topErr = document.getElementById('serviceFormError'); if (topErr) { topErr.classList.add('hidden'); topErr.textContent = ''; }
+      }
+
+      // Helper: show inline error for a specific field name returned by server
+      function showServiceFieldError(fieldName, message) {
+        const map = { name: 'auto_160', description: 'auto_161', duration: 'auto_162', price: 'auto_163' };
+        const id = map[fieldName] || map[String(fieldName).toLowerCase()];
+        if (!id) {
+          const topErr = document.getElementById('serviceFormError'); if (topErr) { topErr.classList.remove('hidden'); topErr.textContent = message || 'Hata'; }
+          return;
+        }
+        const el = document.getElementById(id);
+        if (!el) { const topErr = document.getElementById('serviceFormError'); if (topErr) { topErr.classList.remove('hidden'); topErr.textContent = message || 'Hata'; } return; }
+        el.classList.add('border','border-red-600','ring-1','ring-red-600');
+        el.setAttribute('aria-invalid','true');
+        if (!el.nextElementSibling || !el.nextElementSibling.classList || !el.nextElementSibling.classList.contains('service-field-error')) {
+          const msg = document.createElement('div');
+          msg.className = 'service-field-error text-sm text-red-600 mt-1';
+          msg.textContent = message || 'Geçersiz alan';
+          el.parentNode.insertBefore(msg, el.nextSibling);
+        }
+      }
+
+      async function loadServices() {
+        const list = document.getElementById('servicesList');
+        list.innerHTML = '<div class="text-sm text-gray-500">Yükleniyor...</div>';
+        console.log('[loadServices] Starting service fetch...');
+        try {
+          const resp = await fetch('/carwash_project/backend/api/services/get.php', { credentials: 'same-origin' });
+          console.log('[loadServices] Response status:', resp.status, resp.statusText);
+          const json = await resp.json().catch((parseErr) => { console.error('[loadServices] JSON parse error:', parseErr); return null; });
+          console.log('[loadServices] Parsed JSON:', json);
+          if (!resp.ok || !json || json.success !== true) {
+            const errMsg = json?.error || 'Unknown error';
+            console.error('[loadServices] Failed:', errMsg);
+            list.innerHTML = '<div class="text-sm text-red-600">Hizmetler yüklenemedi: ' + errMsg + '</div>';
+            return;
+          }
+          const services = Array.isArray(json.data) ? json.data : [];
+          console.log('[loadServices] Services array:', services, 'count:', services.length);
+          if (services.length === 0) {
+            list.innerHTML = '<div class="text-sm text-gray-600">Henüz hizmet eklenmemiş.</div>';
+            console.warn('[loadServices] No services found');
+            return;
+          }
+          list.innerHTML = '';
+          console.log('[loadServices] Rendering', services.length, 'services...');
+          services.forEach(s => {
+            const item = document.createElement('div');
+            item.className = 'flex items-center justify-between p-4 border rounded-lg';
+            item.dataset.id = s.id;
+            item.innerHTML = `
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-concierge-bell text-blue-600"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold">${escapeHtml(s.name || '')}</h4>
+                  <p class="text-sm text-gray-600">${escapeHtml((s.duration || 0) + ' dakika')} - ${escapeHtml(s.description || '')}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold text-lg">₺${Number(s.price || 0).toFixed(2)}</div>
+                <div class="flex space-x-2 mt-2">
+                  <button data-action="edit" data-id="${s.id}" class="text-blue-600 hover:text-blue-900" title="Düzenle" aria-label="Hizmeti düzenle">
+                    <i class="fas fa-edit" aria-hidden="true"></i>
+                    <span class="sr-only">Düzenle</span>
+                  </button>
+                  <button data-action="delete" data-id="${s.id}" class="text-red-600 hover:text-red-900" title="Sil" aria-label="Hizmeti sil">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <span class="sr-only">Sil</span>
+                  </button>
+                </div>
+              </div>`;
+            list.appendChild(item);
+          });
+        } catch (e) {
+          console.error('[loadServices] Exception caught:', e);
+          list.innerHTML = '<div class="text-sm text-red-600">Hizmetler yüklenirken hata oluştu: ' + e.message + '</div>';
+        }
+        console.log('[loadServices] Complete.');
+      }
+
+      async function submitServiceForm(e) {
+        e.preventDefault();
+        const err = document.getElementById('serviceFormError');
+        // clear previous inline field errors
+        clearServiceFormErrors();
+        err.classList.add('hidden'); err.textContent = '';
+
+        const id = document.getElementById('service_id').value || '';
+        const name = document.getElementById('auto_160').value.trim();
+        const description = document.getElementById('auto_161').value.trim();
+        const duration = document.getElementById('auto_162').value;
+        const price = document.getElementById('auto_163').value;
+
+        if (!name) {
+          err.textContent = 'Hizmet adı gereklidir.'; err.classList.remove('hidden'); return;
+        }
+        if (price !== '' && isNaN(Number(price))) { err.textContent = 'Fiyat geçerli bir sayı olmalıdır.'; err.classList.remove('hidden'); return; }
+        if (duration !== '' && isNaN(Number(duration))) { err.textContent = 'Süre geçerli bir sayı olmalıdır.'; err.classList.remove('hidden'); return; }
+
+        const fd = new FormData();
+        if (id) fd.append('id', id);
+        fd.append('name', name);
+        fd.append('description', description);
+        fd.append('duration', duration);
+        fd.append('price', price);
+        const csrf = getCsrfToken();
+        if (csrf) fd.append('csrf_token', csrf);
+
+        try {
+          const resp = await fetch('/carwash_project/backend/api/services/save_service.php', { method: 'POST', credentials: 'same-origin', body: fd });
+          const json = await resp.json().catch(() => null);
+          if (!resp.ok || !json) {
+            err.textContent = 'Sunucu hatası: hizmet kaydedilemedi.'; err.classList.remove('hidden');
+            return;
+          }
+          if (json.success !== true) {
+            // server returns error key for validation (e.g., 'name') and optional message
+            const fieldKey = json.error || null;
+            const msg = json.message || (typeof json.error === 'string' ? json.error : 'Hizmet kaydedilemedi');
+            if (fieldKey) {
+              showServiceFieldError(fieldKey, msg);
+            } else {
+              err.textContent = msg; err.classList.remove('hidden');
+            }
+            return;
+          }
+          // success: clear inline errors, close modal and refresh list
+          clearServiceFormErrors();
+          closeServiceModal();
+          await loadServices();
+          showNotification(json.message || 'İşlem başarılı', 'success');
+        } catch (e) {
+          console.error('submitServiceForm', e);
+          err.textContent = 'Ağ hatası: kaydedilemedi.'; err.classList.remove('hidden');
+        }
+      }
+
+      async function handleServiceAction(action, id) {
+        if (action === 'edit') {
+          // find item in DOM and extract values, or fetch single service if endpoint exists
+          const node = document.querySelector(`#servicesList [data-id="${id}"]`);
+          const svc = { id };
+          if (node) {
+            svc.name = node.querySelector('h4')?.textContent?.trim() || '';
+            svc.description = node.querySelector('p')?.textContent?.trim() || '';
+            const priceText = node.querySelector('.font-bold.text-lg')?.textContent || '';
+            svc.price = priceText.replace(/[₺,\s]/g, '').trim() || '';
+          }
+          openServiceModal(svc);
+        } else if (action === 'delete') {
+          if (!confirm('Bu hizmeti silmek istediğinize emin misiniz?')) return;
+          const fd = new FormData(); fd.append('id', id); const csrf = getCsrfToken(); if (csrf) fd.append('csrf_token', csrf);
+          try {
+            const resp = await fetch('/carwash_project/backend/api/services/delete.php', { method: 'POST', credentials: 'same-origin', body: fd });
+            const json = await resp.json().catch(() => null);
+            if (!resp.ok || !json || json.success !== true) {
+              alert('Hizmet silinemedi: ' + (json?.error || json?.message || resp.statusText));
+              return;
+            }
+            // remove from DOM
+            const node = document.querySelector(`#servicesList [data-id="${id}"]`);
+            if (node) node.remove();
+            showNotification('Hizmet silindi', 'success');
+          } catch (e) {
+            console.error('delete service', e); alert('Ağ hatası: silinemedi.');
+          }
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const sForm = document.getElementById('serviceForm');
+        if (sForm) sForm.addEventListener('submit', submitServiceForm);
+        const cancelBtn = document.getElementById('serviceCancelBtn'); if (cancelBtn) cancelBtn.addEventListener('click', closeServiceModal);
+        const servicesList = document.getElementById('servicesList');
+        if (servicesList) {
+          servicesList.addEventListener('click', function(e) {
+            const btn = e.target.closest('button'); if (!btn) return;
+            const action = btn.dataset.action; const id = btn.dataset.id; if (!action || !id) return;
+            handleServiceAction(action, id);
+          });
+        }
+        // load initial services
+        loadServices();
+      });
 
       // Farsça: توابع مودال پرسنل.
       // Türkçe: Personel Modalı fonksiyonları.
