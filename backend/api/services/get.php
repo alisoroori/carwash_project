@@ -50,7 +50,19 @@ try {
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     error_log('services/get.php: Found ' . count($rows) . ' services');
 
-    echo json_encode(['success' => true, 'data' => $rows], JSON_UNESCAPED_UNICODE);
+    // Sanitize output
+    $sanitized = [];
+    foreach ($rows as $row) {
+        $sanitized[] = [
+            'id' => (int)$row['id'],
+            'name' => htmlspecialchars($row['name'] ?? '', ENT_QUOTES, 'UTF-8'),
+            'description' => htmlspecialchars($row['description'] ?? '', ENT_QUOTES, 'UTF-8'),
+            'price' => number_format((float)($row['price'] ?? 0), 2, '.', ''),
+            'duration' => (int)($row['duration'] ?? 0)
+        ];
+    }
+
+    echo json_encode(['success' => true, 'data' => $sanitized], JSON_UNESCAPED_UNICODE);
     exit;
 } catch (Throwable $e) {
     error_log('services/get.php ERROR: ' . $e->getMessage());

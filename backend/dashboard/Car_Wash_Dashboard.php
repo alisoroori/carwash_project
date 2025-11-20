@@ -2557,55 +2557,64 @@ if (!empty($logo_filename)) {
     <!-- English: Manual Reservation Modal. -->
     <div id="manualReservationModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
       <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-        <h3 class="text-xl font-bold mb-4">Müşteri Bilgileri</h3>
-        <div class="space-y-4">
+        <h3 class="text-xl font-bold mb-4">Yeni Rezervasyon Oluştur</h3>
+        <form id="manualReservationForm" class="space-y-4">
+          <input type="hidden" name="carwash_id" id="manual_carwash_id" value="<?php echo htmlspecialchars($_SESSION['carwash_id'] ?? ''); ?>">
+          <input type="hidden" name="csrf_token" id="manual_csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+
           <div>
-            <label for="auto_146" class="sr-only">Müşteri adını girin</label>
-            <input type="text" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_146">
+            <label for="manualCustomerName" class="block text-sm font-bold text-gray-700 mb-2">Müşteri Adı</label>
+            <input type="text" id="manualCustomerName" name="customer_name" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <p id="manualCustomerNameError" class="text-sm text-red-500 mt-1 hidden"></p>
           </div>
+
           <div>
-            <label for="auto_147" class="sr-only">Müşteri telefonu</label>
-            <input type="text" placeholder="Müşteri telefonu" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_147">
+            <label for="manualCustomerPhone" class="block text-sm font-bold text-gray-700 mb-2">Müşteri Telefonu</label>
+            <input type="tel" id="manualCustomerPhone" name="customer_phone" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+            <p id="manualCustomerPhoneError" class="text-sm text-red-500 mt-1 hidden"></p>
           </div>
-          <div>
-            <label for="auto_148" class="sr-only">Alternatif telefon</label>
-            <input type="tel" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_148">
-          </div>
-        </div>
-      </div>
+
           <div>
             <label for="manualServiceSelect" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
-            <select id="manualServiceSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Hizmet seçin" aria-label="Hizmet seçin">
-              <option>Dış Yıkama + İç Temizlik</option>
-              <option>Tam Detaylandırma</option>
+            <select id="manualServiceSelect" name="service_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Hizmet seçin" aria-label="Hizmet seçin">
+              <option value="">Hizmet Seçiniz</option>
             </select>
-
-            <div class="mt-4">
-              <label class="block text-sm font-bold text-gray-700 mb-2">Araç Plakası</label>
-              <label for="auto_149" class="sr-only">Araç Plakası</label>
-              <input type="text" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_149">
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
-                <label for="auto_151" class="sr-only">Tarih</label>
-                <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_151">
-              </div>
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
-                <label for="auto_152" class="sr-only">Saat</label>
-                <input type="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_152">
-              </div>
-            </div>
+            <p id="manualServiceError" class="text-sm text-red-500 mt-1 hidden"></p>
           </div>
+
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">Notlar (İsteğe Bağlı)</label>
-            <label for="auto_153" class="sr-only">Input</label>
-            <textarea rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" id="auto_153"></textarea>
+            <label for="manualVehicleSelect" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
+            <select id="manualVehicleSelect" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <option value="">Araç Seçiniz</option>
+            </select>
+            <p id="manualVehicleError" class="text-sm text-red-500 mt-1 hidden"></p>
           </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="manualDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
+              <input type="date" id="manualDate" name="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <p id="manualDateError" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
+            <div>
+              <label for="manualTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
+              <input type="time" id="manualTime" name="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="08:30">
+              <p id="manualTimeError" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
+          </div>
+
+          <div>
+            <label for="manualLocation" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
+            <input type="text" id="manualLocation" name="location" value="<?php echo htmlspecialchars($_SESSION['address'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Konumu girin">
+          </div>
+
+          <div>
+            <label for="manualNotes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (İsteğe Bağlı)</label>
+            <textarea rows="2" id="manualNotes" name="notes" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Notlar..."></textarea>
+          </div>
+
           <div class="flex space-x-3">
-            <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Rezervasyon Oluştur</button>
+            <button type="submit" id="manualReservationSubmit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-bold">Rezervasyon Oluştur</button>
             <button type="button" onclick="closeManualReservationModal()" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-bold">İptal</button>
           </div>
         </form>
@@ -3106,6 +3115,13 @@ if (!empty($logo_filename)) {
       // English: Manual Reservation Modal functions.
       function openManualReservationModal() {
         document.getElementById('manualReservationModal').classList.remove('hidden');
+        // Load services and vehicles when modal opens
+        if (typeof window.loadManualServices === 'function') {
+          window.loadManualServices();
+        }
+        if (typeof window.loadManualVehicles === 'function') {
+          window.loadManualVehicles();
+        }
       }
 
       function closeManualReservationModal() {
@@ -3553,6 +3569,179 @@ if (!empty($logo_filename)) {
           customerModal.classList.add('hidden');
         }
       }
+    </script>
+    <script>
+      // Manual reservation: load services & vehicles, validate and submit
+      document.addEventListener('DOMContentLoaded', function() {
+        const serviceSel = document.getElementById('manualServiceSelect');
+        const vehicleSel = document.getElementById('manualVehicleSelect');
+        const form = document.getElementById('manualReservationForm');
+
+        async function loadManualServices() {
+          try {
+            console.log('[Manual Reservation] Loading services...');
+            const res = await fetch('/carwash_project/backend/api/services/get.php', { credentials: 'same-origin' });
+            const json = await res.json();
+            console.log('[Manual Reservation] Services API response:', json);
+            
+            const services = (json && json.data) ? json.data : [];
+            if (!serviceSel) {
+              console.error('[Manual Reservation] manualServiceSelect element not found');
+              return;
+            }
+            
+            // preserve placeholder
+            serviceSel.innerHTML = '<option value="">Hizmet Seçiniz</option>';
+            
+            if (services.length === 0) {
+              const opt = document.createElement('option');
+              opt.value = '';
+              opt.textContent = 'Henüz hizmet eklenmemiş';
+              opt.disabled = true;
+              serviceSel.appendChild(opt);
+              console.warn('[Manual Reservation] No services found for this carwash');
+            } else {
+              services.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = (s.name || '') + ' (' + (Number(s.price || 0).toFixed(2)) + '₺, ' + (s.duration || 0) + ' dk)';
+                serviceSel.appendChild(opt);
+              });
+              console.log('[Manual Reservation] Loaded ' + services.length + ' services');
+            }
+          } catch (e) {
+            console.error('[Manual Reservation] Failed to load services:', e);
+            if (serviceSel) {
+              serviceSel.innerHTML = '<option value="">Hizmetler yüklenemedi</option>';
+            }
+          }
+        }
+
+        async function loadManualVehicles() {
+          try {
+            const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', { credentials: 'same-origin' });
+            const json = await res.json();
+            const vehicles = (json && json.data && Array.isArray(json.data.vehicles)) ? json.data.vehicles : (json.vehicles || []);
+            if (!vehicleSel) return;
+            vehicleSel.innerHTML = '<option value="">Araç Seçiniz</option>';
+            vehicles.forEach(v => {
+              const opt = document.createElement('option');
+              opt.value = v.id;
+              const label = ((v.brand || '') + ' ' + (v.model || '')).trim();
+              opt.textContent = label + (v.license_plate ? (' (' + v.license_plate + ')') : '');
+              vehicleSel.appendChild(opt);
+            });
+          } catch (e) {
+            console.warn('Failed to load vehicles for manual reservation', e);
+          }
+        }
+
+        // Validate date not in past
+        function validateDateNotPast(value) {
+          if (!value) return false;
+          const selected = new Date(value + 'T00:00:00');
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          return selected >= today;
+        }
+
+        function validateTime24h(value) {
+          if (!value) return false;
+          const m = value.match(/^(\d{2}):(\d{2})$/);
+          if (!m) return false;
+          const hh = parseInt(m[1],10);
+          const mm = parseInt(m[2],10);
+          return hh >= 0 && hh < 24 && mm >= 0 && mm < 60;
+        }
+
+        // Expose load functions globally so openManualReservationModal can call them
+        window.loadManualServices = loadManualServices;
+        window.loadManualVehicles = loadManualVehicles;
+
+        if (form) {
+          // Load immediately on page load for faster UX
+          loadManualServices();
+          loadManualVehicles();
+          console.log('[Manual Reservation] Initial load triggered');
+
+          form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            // clear errors
+            ['manualServiceError','manualVehicleError','manualDateError','manualTimeError','manualCustomerNameError','manualCustomerPhoneError'].forEach(id => {
+              const el = document.getElementById(id); if (el) el.classList.add('hidden');
+            });
+
+            const serviceId = (form.querySelector('[name="service_id"]')?.value || '').trim();
+            const vehicleId = (form.querySelector('[name="vehicle_id"]')?.value || '').trim();
+            const date = (form.querySelector('[name="date"]')?.value || '').trim();
+            const time = (form.querySelector('[name="time"]')?.value || '').trim();
+            const customerName = (form.querySelector('[name="customer_name"]')?.value || '').trim();
+            const customerPhone = (form.querySelector('[name="customer_phone"]')?.value || '').trim();
+
+            let valid = true;
+            if (!serviceId) { document.getElementById('manualServiceError').textContent = 'Lütfen bir hizmet seçin'; document.getElementById('manualServiceError').classList.remove('hidden'); valid = false; }
+            if (!vehicleId) { document.getElementById('manualVehicleError').textContent = 'Lütfen bir araç seçin'; document.getElementById('manualVehicleError').classList.remove('hidden'); valid = false; }
+            if (!date || !validateDateNotPast(date)) { document.getElementById('manualDateError').textContent = 'Geçerli bir tarih seçin (bugün veya sonrası)'; document.getElementById('manualDateError').classList.remove('hidden'); valid = false; }
+            if (!time || !validateTime24h(time)) { document.getElementById('manualTimeError').textContent = 'Lütfen 24 saat formatında bir saat girin (ör. 08:30)'; document.getElementById('manualTimeError').classList.remove('hidden'); valid = false; }
+            if (!customerName) { document.getElementById('manualCustomerNameError').textContent = 'Müşteri adı gerekli'; document.getElementById('manualCustomerNameError').classList.remove('hidden'); valid = false; }
+
+            if (!valid) return;
+
+            const submitBtn = document.getElementById('manualReservationSubmit');
+            const origText = submitBtn.innerHTML;
+            submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kaydediliyor...';
+
+            const formData = new FormData(form);
+            // ensure CSRF token included
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]')?.content || (window.CONFIG && window.CONFIG.CSRF_TOKEN) || formData.get('csrf_token') || '';
+            if (csrfMeta) formData.set('csrf_token', csrfMeta);
+
+            try {
+              const resp = await fetch('/carwash_project/backend/api/bookings/create.php', { method: 'POST', credentials: 'same-origin', body: formData });
+              const json = await resp.json();
+              if (json && json.success === true) {
+                showNotification(json.message || 'Rezervasyon oluşturuldu', 'success');
+                // close modal
+                closeManualReservationModal();
+                // Attempt to refresh bookings list if function exists
+                try { if (typeof reloadCarwashReservations === 'function') reloadCarwashReservations(); } catch (e) {}
+              } else if (json && json.data && json.data.errors) {
+                // Server returned field-specific validation errors
+                const errors = json.data.errors;
+                const fieldMap = {
+                  'service_id': 'manualServiceError',
+                  'vehicle_id': 'manualVehicleError',
+                  'date': 'manualDateError',
+                  'time': 'manualTimeError',
+                  'customer_name': 'manualCustomerNameError',
+                  'customer_phone': 'manualCustomerPhoneError',
+                  'location': 'manualLocationError',
+                  'notes': 'manualNotesError'
+                };
+                for (const [field, message] of Object.entries(errors)) {
+                  const errorId = fieldMap[field];
+                  if (errorId) {
+                    const el = document.getElementById(errorId);
+                    if (el) {
+                      el.textContent = message;
+                      el.classList.remove('hidden');
+                    }
+                  }
+                }
+                showNotification(json.message || 'Doğrulama hatası', 'error');
+              } else {
+                const msg = (json && json.message) ? json.message : 'Rezervasyon oluşturulamadı';
+                showNotification('Error: ' + msg, 'error');
+              }
+            } catch (err) {
+              console.error('Reservation create error', err);
+              showNotification('Error: Sunucu hatası oluştu', 'error');
+            } finally {
+              submitBtn.disabled = false; submitBtn.innerHTML = origText;
+            }
+          });
+        }
+      });
     </script>
 </div> <!-- End Dashboard Layout -->
 
