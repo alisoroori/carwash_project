@@ -29,8 +29,11 @@ try {
     $pdo = $db->getPdo();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Determine carwash id: prefer explicit session value, otherwise resolve from user_id
-    if (!empty($_SESSION['carwash_id'])) {
+    // Determine carwash id: prefer explicit GET param if provided (frontend passes selected carwash_id), otherwise session value, otherwise resolve from user_id
+    $carwashId = null;
+    if (!empty($_GET['carwash_id']) && is_numeric($_GET['carwash_id'])) {
+        $carwashId = (int)$_GET['carwash_id'];
+    } elseif (!empty($_SESSION['carwash_id'])) {
         $carwashId = (int)$_SESSION['carwash_id'];
     } else {
         $stmt = $pdo->prepare('SELECT id FROM carwashes WHERE user_id = :uid LIMIT 1');
@@ -49,7 +52,8 @@ try {
     try { @file_put_contents($logFile, sprintf("[%s] services/get.php - Fetching services for carwash_id=%s - session=%s\n", date('Y-m-d H:i:s'), $carwashId, json_encode(['user_id'=>$_SESSION['user_id'] ?? null, 'carwash_id'=>$_SESSION['carwash_id'] ?? null])), FILE_APPEND | LOCK_EX); } catch (Throwable $e) {}
 
     error_log('services/get.php: Fetching services for carwash_id=' . $carwashId);
-    $stmt = $pdo->prepare('SELECT id, name, description, price, duration FROM services WHERE carwash_id = :cw ORDER BY id DESC');
+    // Ensure deterministic ordering by name
+    $stmt = $pdo->prepare('SELECT id, name, description, price, duration FROM services WHERE carwash_id = :cw ORDER BY name ASC');
     $stmt->execute(['cw' => $carwashId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     error_log('services/get.php: Found ' . count($rows) . ' services');

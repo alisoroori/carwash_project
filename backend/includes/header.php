@@ -229,6 +229,21 @@ $dir = in_array($primary, $rtl_languages, true) ? 'rtl' : 'ltr';
   <script defer src="<?php echo $base_url; ?>/frontend/js/api-utils.js"></script>
   <!-- Vehicle manager factory (load before Alpine so factories can register before Alpine initializes) -->
   <script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
+  <!-- Small global shims to avoid ReferenceError when Alpine evaluates expressions that rely on page-scoped data
+       These only set defaults when variables are not already defined (preserve real factories when present). -->
+  <script>
+    (function(){
+      try {
+        var metaCsrf = (document && document.querySelector && document.querySelector('meta[name="csrf-token"]')) ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
+      } catch(e){ var metaCsrf = ''; }
+      if (typeof window.csrfToken === 'undefined') {
+        window.csrfToken = (window.CONFIG && window.CONFIG.CSRF_TOKEN) || metaCsrf || '<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES); ?>' || '';
+      }
+      if (typeof window.editingVehicle === 'undefined') window.editingVehicle = null;
+      if (typeof window.imagePreview === 'undefined') window.imagePreview = '';
+      if (typeof window.formData === 'undefined') window.formData = { brand: '', model: '', license_plate: '', year: '', color: '' };
+    })();
+  </script>
   <!-- Alpine.js: prefer local vendor copy, fall back to CDN -->
   <?php if (file_exists(__DIR__ . '/../../frontend/vendor/alpinejs/cdn.min.js')): ?>
     <script defer src="<?php echo $base_url; ?>/frontend/vendor/alpinejs/cdn.min.js"></script>

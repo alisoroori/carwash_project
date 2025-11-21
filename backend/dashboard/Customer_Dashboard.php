@@ -2529,14 +2529,42 @@ if (!isset($base_url)) {
                             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
                             <form id="newReservationFormElement" class="space-y-6">
                                 <div>
-                                    <label for="service" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
-                                    <select id="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                    <label for="service_id" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
+                                    <?php
+                                    // Fetch services dynamically from database
+                                    // Initially show placeholder only; JavaScript will populate based on selected carwash
+                                    $selectedCarwashId = $_GET['carwash_id'] ?? $_POST['carwash_id'] ?? null;
+                                    $services = [];
+                                    
+                                    if ($selectedCarwashId) {
+                                        try {
+                                            $services = $db->fetchAll(
+                                                "SELECT id, name, price, duration FROM services WHERE carwash_id = :carwash_id AND status = 'active' ORDER BY name ASC",
+                                                ['carwash_id' => $selectedCarwashId]
+                                            );
+                                        } catch (Exception $e) {
+                                            // Log error but don't break the page
+                                            error_log("Error fetching services: " . $e->getMessage());
+                                        }
+                                    }
+                                    ?>
+                                    <select id="service_id" name="service_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
                                         <option value="">Hizmet Seçiniz</option>
-                                        <option value="Dış Yıkama">Dış Yıkama</option>
-                                        <option value="Dış Yıkama + İç Temizlik">Dış Yıkama + İç Temizlik</option>
-                                        <option value="Tam Detaylandırma">Tam Detaylandırma</option>
-                                        <option value="Motor Temizliği">Motor Temizliği</option>
+                                        <?php foreach ($services as $service): ?>
+                                            <option value="<?php echo htmlspecialchars($service['id'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                    data-price="<?php echo htmlspecialchars($service['price'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                    data-duration="<?php echo htmlspecialchars($service['duration'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?php echo htmlspecialchars($service['name'], ENT_QUOTES, 'UTF-8'); ?> - 
+                                                <?php echo htmlspecialchars($service['duration'], ENT_QUOTES, 'UTF-8'); ?> dakika - 
+                                                ₺<?php echo number_format($service['price'], 2); ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        <?php if (empty($services)): ?>
+                                            Hizmetleri görmek için önce bir konum seçiniz.
+                                        <?php endif; ?>
+                                    </p>
                                 </div>
 
                                 <div>
@@ -2713,7 +2741,7 @@ if (!isset($base_url)) {
                             return;
                         }
 
-                        const service = (form.querySelector('#service') || form.querySelector('[name="service"]'))?.value || '';
+                        const service = (form.querySelector('#service_id') || form.querySelector('[name="service_id"]') || form.querySelector('#service') || form.querySelector('[name="service"]'))?.value || '';
                         const vehicle = (form.querySelector('#vehicle') || form.querySelector('[name="vehicle"]'))?.value || '';
                         const date = (form.querySelector('#reservationDate') || form.querySelector('[name="reservationDate"]'))?.value || '';
                         let time = (form.querySelector('#reservationTime') || form.querySelector('[name="reservationTime"]'))?.value || '';
@@ -2729,7 +2757,7 @@ if (!isset($base_url)) {
 
                         // Build FormData for POST
                         const fd = new FormData();
-                        fd.append('service', service);
+                        fd.append('service_id', service);
                         fd.append('vehicle', vehicle);
                         fd.append('reservationDate', date);
                         fd.append('reservationTime', time);
@@ -2765,11 +2793,78 @@ if (!isset($base_url)) {
 
                     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
 
+                    // Dynamically fetch and populate services based on selected carwash
+                    async function fetchServicesForCarwash(carwashId) {
+                        const serviceSelect = document.getElementById('service_id');
+                        if (!serviceSelect) return;
+
+                        // Reset to placeholder
+                        serviceSelect.innerHTML = '<option value="">Hizmet Seçiniz</option>';
+                        
+                        if (!carwashId) {
+                            // Show helper text if no carwash selected
+                            return;
+                        }
+
+                        try {
+                            const resp = await fetch('/carwash_project/backend/api/services/get.php?carwash_id=' + encodeURIComponent(carwashId), {
+                                credentials: 'same-origin',
+                                cache: 'no-store',
+                                headers: { 'Accept': 'application/json' }
+                            });
+
+                            const text = await resp.text();
+                            if (!resp.ok) {
+                                console.error('Services API error', resp.status, text);
+                                return;
+                            }
+
+                            let json = null;
+                            try { 
+                                json = text ? JSON.parse(text) : null; 
+                            } catch(e) { 
+                                console.error('Failed to parse services JSON', e, text); 
+                                return; 
+                            }
+
+                            let rows = [];
+                            if (json && Array.isArray(json.data)) rows = json.data;
+                            else if (Array.isArray(json)) rows = json;
+
+                            // Populate options
+                            rows.forEach(s => {
+                                const opt = document.createElement('option');
+                                opt.value = s.id || s.ID || '';
+                                const name = s.name || s.service_name || '';
+                                const price = (s.price !== undefined && s.price !== null) ? (' - ₺' + parseFloat(s.price).toFixed(2)) : '';
+                                const duration = (s.duration ? (' - ' + s.duration + ' dakika') : '');
+                                opt.textContent = name + duration + price;
+                                
+                                // Store metadata as data attributes
+                                if (s.price !== undefined) opt.setAttribute('data-price', s.price);
+                                if (s.duration !== undefined) opt.setAttribute('data-duration', s.duration);
+                                serviceSelect.appendChild(opt);
+                            });
+
+                            console.log('Loaded services for carwash', carwashId, 'count', rows.length);
+                        } catch (err) {
+                            console.error('fetchServicesForCarwash error', err);
+                        }
+                    }
+
                     // Attach handlers
                     document.addEventListener('DOMContentLoaded', function(){
                         document.getElementById('newReservationBtn')?.addEventListener('click', showNewReservationForm);
                         document.getElementById('cancelNewReservation')?.addEventListener('click', hideNewReservationForm);
                         document.getElementById('newReservationFormElement')?.addEventListener('submit', submitNewReservation);
+                        
+                        // Listen to location changes to dynamically load services
+                        document.getElementById('location')?.addEventListener('change', function() {
+                            const carwashId = this.value;
+                            if (carwashId) {
+                                fetchServicesForCarwash(carwashId);
+                            }
+                        });
                         // support buttons if they exist elsewhere
                         window.showNewReservationForm = showNewReservationForm;
                         window.hideNewReservationForm = hideNewReservationForm;

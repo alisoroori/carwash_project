@@ -27,8 +27,13 @@ if (empty($csrf) || !hash_equals($_SESSION['csrf_token'] ?? '', $csrf)) {
 $user_id = $_SESSION['user_id'] ?? null;
 if (!$user_id) jsonError('User not authenticated', 401);
 
-// Required fields
+// Required fields - accept both 'service' (legacy) and 'service_id' (new)
+$service_id = trim($_POST['service_id'] ?? '');
 $service = trim($_POST['service'] ?? '');
+// If service_id is provided, use it; otherwise fallback to service field
+if (empty($service_id) && !empty($service)) {
+    $service_id = $service;
+}
 $vehicle = trim($_POST['vehicle'] ?? '');
 $date = trim($_POST['reservationDate'] ?? '');
 $time = trim($_POST['reservationTime'] ?? '');
@@ -36,7 +41,7 @@ $location = trim($_POST['location'] ?? '');
 $location_id = trim($_POST['location_id'] ?? '');
 $notes = trim($_POST['notes'] ?? '');
 
-if (!$service || !$vehicle || !$date || !$time || !$location) {
+if (!$service_id || !$vehicle || !$date || !$time || !$location) {
     jsonError('Missing required reservation fields', 422);
 }
 
@@ -71,9 +76,26 @@ if (!preg_match('/^\d{2}:\d{2}$/', $time)) {
 // Basic price calculation (placeholder) - in real app you'd derive from service
 $price = 50.00;
 
+// If service_id is numeric, try to fetch actual price from services table
+if (is_numeric($service_id)) {
+    try {
+        $serviceData = $db->fetchOne(
+            "SELECT price FROM services WHERE id = :service_id LIMIT 1",
+            ['service_id' => (int)$service_id]
+        );
+        if ($serviceData && isset($serviceData['price'])) {
+            $price = (float)$serviceData['price'];
+        }
+    } catch (\Throwable $e) {
+        // Use default price if query fails
+        error_log('Failed to fetch service price: ' . $e->getMessage());
+    }
+}
+
 $reservation = [
     'user_id' => $user_id,
-    'service' => $service,
+    'service_id' => $service_id,
+    'service' => $service_id, // Keep for backward compatibility
     'vehicle' => $vehicle,
     'date' => $date,
     'time' => $time,
@@ -92,7 +114,8 @@ try {
     $insert = [
         'user_id' => $user_id,
         'carwash_id' => is_numeric($location_id) ? (int)$location_id : null,
-        'service_type' => $service,
+        'service_id' => is_numeric($service_id) ? (int)$service_id : null,
+        'service_type' => $service_id,
         'booking_date' => $date,
         'booking_time' => $time,
         'status' => 'pending',
