@@ -147,34 +147,55 @@ $carwashes = $db->fetchAll("SELECT id, name, name AS business_name, address, pho
 
         // Load services for selected carwash
         function loadServices(carwashId) {
-            fetch(`get_services.php?carwash_id=${carwashId}`)
-                .then(response => response.json())
-                .then(services => {
-                    const container = document.getElementById('services-container');
-                    container.innerHTML = '';
-                    services.forEach(service => {
-                        container.innerHTML += `
-                            <div class="border rounded p-4 hover:border-blue-500 cursor-pointer service-option">
-                                <label for="auto_label_102" class="sr-only">Service id</label><label for="auto_label_102" class="sr-only">Service id</label><input type="radio" name="service_id" value="${service.id}" class="hidden" id="auto_label_102">
-                                <h3 class="font-semibold">${service.service_name}</h3>
-                                <p class="text-sm text-gray-600">${service.description}</p>
-                                <p class="text-sm font-semibold text-blue-600">${service.price} TL</p>
-                            </div>
-                        `;
-                    });
+            fetch(`get_services.php?carwash_id=${carwashId}`, { credentials: 'same-origin', cache: 'no-store' })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(payload => {
+                        const container = document.getElementById('services-container');
+                        container.innerHTML = '';
+                        // Support both {success,data} wrapper and raw array for backward compatibility
+                        const services = Array.isArray(payload) ? payload : (payload.data || []);
 
-                    // Add click handlers for service options
-                    document.querySelectorAll('.service-option').forEach(option => {
-                        option.addEventListener('click', function() {
-                            const radio = this.querySelector('input[type="radio"]');
-                            radio.checked = true;
-                            document.querySelectorAll('.service-option').forEach(opt => {
-                                opt.classList.remove('border-blue-500');
-                            });
-                            this.classList.add('border-blue-500');
+                        if (!services || services.length === 0) {
+                            container.innerHTML = '<div class="text-sm text-gray-500">Henüz hizmet eklenmemiş.</div>';
+                            return;
+                        }
+
+                        services.forEach((service, idx) => {
+                            const title = service.service_name || service.name || '';
+                            const description = service.description || '';
+                            const price = (service.price !== undefined && service.price !== null) ? service.price : '0.00';
+                            const radioId = 'service_radio_' + idx + '_' + (service.id || '');
+                            container.innerHTML += `
+                                <div class="border rounded p-4 hover:border-blue-500 cursor-pointer service-option">
+                                    <input type="radio" name="service_id" value="${service.id}" class="hidden" id="${radioId}">
+                                    <h3 class="font-semibold">${escapeHtml(title)}</h3>
+                                    <p class="text-sm text-gray-600">${escapeHtml(description)}</p>
+                                    <p class="text-sm font-semibold text-blue-600">${escapeHtml(price.toString())} TL</p>
+                                </div>
+                            `;
                         });
+
+                        // Add click handlers for service options
+                        document.querySelectorAll('.service-option').forEach(option => {
+                            option.addEventListener('click', function() {
+                                const radio = this.querySelector('input[type="radio"]');
+                                if (!radio) return;
+                                radio.checked = true;
+                                document.querySelectorAll('.service-option').forEach(opt => {
+                                    opt.classList.remove('border-blue-500');
+                                });
+                                this.classList.add('border-blue-500');
+                            });
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Failed to load services', err);
+                        const container = document.getElementById('services-container');
+                        container.innerHTML = '<div class="text-sm text-red-500">Hizmetler yüklenemedi. Lütfen tekrar deneyin.</div>';
                     });
-                });
         }
 
         // Navigation between steps

@@ -44,11 +44,16 @@ try {
     }
 
     // Fetch services for this carwash only
+    // Temporary debug logging to services_debug.log
+    $logFile = __DIR__ . '/../../../../logs/services_debug.log';
+    try { @file_put_contents($logFile, sprintf("[%s] services/get.php - Fetching services for carwash_id=%s - session=%s\n", date('Y-m-d H:i:s'), $carwashId, json_encode(['user_id'=>$_SESSION['user_id'] ?? null, 'carwash_id'=>$_SESSION['carwash_id'] ?? null])), FILE_APPEND | LOCK_EX); } catch (Throwable $e) {}
+
     error_log('services/get.php: Fetching services for carwash_id=' . $carwashId);
     $stmt = $pdo->prepare('SELECT id, name, description, price, duration FROM services WHERE carwash_id = :cw ORDER BY id DESC');
     $stmt->execute(['cw' => $carwashId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     error_log('services/get.php: Found ' . count($rows) . ' services');
+    try { @file_put_contents($logFile, sprintf("[%s] services/get.php - Found %d services for carwash_id=%s\n", date('Y-m-d H:i:s'), count($rows), $carwashId), FILE_APPEND | LOCK_EX); } catch (Throwable $e) {}
 
     // Sanitize output
     $sanitized = [];

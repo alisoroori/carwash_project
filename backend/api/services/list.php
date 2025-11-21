@@ -37,10 +37,20 @@ try {
     }
     $carwashId = (int)$cw['id'];
 
+    // Temporary debug logging (human-readable) - remove after debugging
+    $logFile = __DIR__ . '/../../../../logs/services_debug.log';
+    try {
+        @file_put_contents($logFile, sprintf("[%s] services/list.php - resolved carwash_id=%s (user_id=%s)\n", date('Y-m-d H:i:s'), $carwashId, $userId), FILE_APPEND | LOCK_EX);
+    } catch (Throwable $e) {}
+
     $query = "SELECT s.id, s.carwash_id, s.name, s.description, COALESCE(s.price,0) AS price, COALESCE(s.duration,0) AS duration, COALESCE(s.status,'active') AS status, COALESCE(s.is_available,1) AS is_available, s.category, s.image FROM services s WHERE s.carwash_id = :cw ORDER BY s.name ASC";
     $stmt = $pdo->prepare($query);
+    // Log the query for debugging
+    try { @file_put_contents($logFile, sprintf("[%s] services/list.php - SQL: %s | PARAMS: cw=%s\n", date('Y-m-d H:i:s'), $query, $carwashId), FILE_APPEND | LOCK_EX); } catch (Throwable $e) {}
     $stmt->execute(['cw' => $carwashId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Log returned count
+    try { @file_put_contents($logFile, sprintf("[%s] services/list.php - returned %d rows for carwash_id=%s\n", date('Y-m-d H:i:s'), count($rows), $carwashId), FILE_APPEND | LOCK_EX); } catch (Throwable $e) {}
 
     Response::success('OK', $rows);
 } catch (Throwable $e) {

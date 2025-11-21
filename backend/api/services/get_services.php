@@ -31,6 +31,12 @@ try {
         $stmt->bind_param($types, ...$params);
     }
 
+    // Temp debug logging
+    $logFile = __DIR__ . '/../../../logs/services_debug.log';
+    try {
+        @file_put_contents($logFile, sprintf("[%s] api/services/get_services.php - incoming GET carwash_id=%s | SQL=%s | PARAMS=%s\n", date('Y-m-d H:i:s'), var_export($carwash_id, true), $sql, json_encode($params)), FILE_APPEND | LOCK_EX);
+    } catch (Exception $e) {}
+
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -49,6 +55,9 @@ try {
             ]
         ];
     }
+
+    // Log returned count
+    try { @file_put_contents($logFile, sprintf("[%s] api/services/get_services.php - returned %d services for carwash_id=%s\n", date('Y-m-d H:i:s'), count($services), var_export($carwash_id, true)), FILE_APPEND | LOCK_EX); } catch (Exception $e) {}
 
     echo json_encode([
         'success' => true,
