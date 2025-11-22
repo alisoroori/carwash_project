@@ -2430,35 +2430,44 @@ if (!isset($base_url)) {
                                     fd.append('csrf_token', getCsrfToken());
                                     try {
                                         const resp = await fetch('/carwash_project/backend/api/bookings/update.php', { method: 'POST', body: fd, credentials: 'same-origin' });
-                                        const text = await resp.text();
+                                        const bodyText = await resp.text();
 
-                                        // If server returned non-JSON (HTML error page or warnings), show raw text in console
+                                        // Log full response for debugging
+                                        console.debug('update.php raw response:', bodyText);
+
+                                        // If server returned non-OK, show error toast and log
                                         if (!resp.ok) {
-                                            console.error('Edit booking HTTP error', resp.status, text);
-                                            // Show first part of server response to user for debugging (trim large HTML)
-                                            alert('Sunucu hatası: ' + resp.status + '\n' + (text ? (text.length > 500 ? text.slice(0, 500) + '...' : text) : ''));
+                                            console.error('Edit booking HTTP error', resp.status, bodyText);
+                                            showError('Sunucu hatası: ' + resp.status + '. Detaylar konsolda.');
                                             return;
                                         }
 
                                         let result = null;
                                         try {
-                                            result = text ? JSON.parse(text) : null;
+                                            result = bodyText ? JSON.parse(bodyText) : null;
                                         } catch (parseErr) {
-                                            console.error('Edit booking non-JSON response (raw):', text);
-                                            alert('Sunucudan beklenmeyen cevap alındı. Konsolu kontrol edin.');
+                                            console.error('Edit booking non-JSON response (raw):', bodyText, parseErr);
+                                            showError('Sunucudan beklenmeyen cevap alındı. Detaylar konsolda.');
                                             return;
                                         }
 
                                         if (result && result.success) {
                                             hideEditBookingModal();
                                             await loadBookings();
+                                            if (result.requires_approval) {
+                                                showWarning('Rezervasyonunuz kaydedildi. Tarih veya saat değişikliği nedeniyle onay bekleniyor.');
+                                            } else {
+                                                showSuccess('Rezervasyon başarıyla güncellendi.');
+                                            }
                                             return;
                                         }
 
-                                        alert((result && result.errors && result.errors.join) ? result.errors.join('\n') : (result && result.message) || 'Güncelleme başarısız');
+                                        const errMsg = (result && result.errors && result.errors.join) ? result.errors.join('\n') : (result && result.message) || 'Güncelleme başarısız';
+                                        console.warn('Edit booking failed:', errMsg, result);
+                                        showError(errMsg);
                                     } catch (err) {
                                         console.error('Edit booking error', err);
-                                        alert('Sunucu hatası oluştu.');
+                                        showError('Sunucu hatası oluştu. Detaylar konsolda.');
                                     }
                                 }
 
@@ -2475,7 +2484,7 @@ if (!isset($base_url)) {
                                             return;
                                         }
                                         alert(result && result.error ? result.error : 'İptal başarısız');
-                                    } catch (err) { console.error(err); alert('Sunucu hatası'); }
+                                      } catch (err) { console.error(err); showError('Sunucu hatası'); }
                                 }
                             function escapeAttr(s){ return (s||'').replace(/\"/g,'&quot;'); }
 
@@ -3137,6 +3146,43 @@ if (!isset($base_url)) {
         setTimeout(updateLayoutHeights, 100);
     });
 })();
+</script>
+
+<!-- Toast container and helpers -->
+<style>
+    /* Small toast system */
+    .cw-toast-container{position:fixed;right:20px;bottom:20px;z-index:99999;display:flex;flex-direction:column;gap:8px}
+    .cw-toast{min-width:220px;padding:10px 14px;border-radius:8px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,0.12);font-size:14px;opacity:0;transform:translateY(8px);transition:all .25s ease}
+    .cw-toast.show{opacity:1;transform:translateY(0)}
+    .cw-toast.success{background:#16a34a}
+    .cw-toast.error{background:#dc2626}
+    .cw-toast.warning{background:#f59e0b;color:#111}
+</style>
+<div id="cwToastContainer" class="cw-toast-container" aria-live="polite" aria-atomic="true"></div>
+<script>
+    (function(){
+        const container = document.getElementById('cwToastContainer');
+        function makeToast(message, type='success', timeout=3500){
+            if (!container) return;
+            const el = document.createElement('div');
+            el.className = 'cw-toast ' + type;
+            el.innerText = message;
+            container.appendChild(el);
+            // force reflow
+            void el.offsetWidth;
+            el.classList.add('show');
+            const tid = setTimeout(()=>{
+                el.classList.remove('show');
+                setTimeout(()=>{ try{ container.removeChild(el) }catch(e){} }, 260);
+            }, timeout);
+            // allow manual close on click
+            el.addEventListener('click', ()=>{ clearTimeout(tid); el.classList.remove('show'); setTimeout(()=>{ try{ container.removeChild(el) }catch(e){} }, 220); });
+            return el;
+        }
+        window.showSuccess = function(msg, timeout){ makeToast(msg,'success', timeout); }
+        window.showError = function(msg, timeout){ makeToast(msg,'error', timeout); }
+        window.showWarning = function(msg, timeout){ makeToast(msg,'warning', timeout); }
+    })();
 </script>
 
 <!-- Profile Form JavaScript -->

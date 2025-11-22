@@ -63,6 +63,13 @@ $notes = $_POST['notes'] ?? null;
 $errors = [];
 
 try {
+    // Log incoming payload for debugging
+    $payloadLog = json_encode(['post' => $_POST, 'remote' => $_SERVER['REMOTE_ADDR'] ?? null]);
+    if (class_exists('\App\\Classes\\Logger')) {
+        try { \App\Classes\Logger::info('bookings/update.php incoming payload: ' . $payloadLog); } catch (Throwable $__e) { error_log('Logger::info failed: ' . $__e->getMessage()); }
+    } else {
+        error_log('bookings/update.php incoming payload: ' . $payloadLog);
+    }
     $model = new Booking_Model();
     $existing = $model->findById($bookingId);
     if (!$existing || (int)$existing['user_id'] !== (int)$userId) {
@@ -96,11 +103,48 @@ try {
     if (isset($existing['notes'])) {
         $updateData['notes'] = $notes;
     }
+    // Determine if date or time changed compared to the existing booking
+    $originalDate = isset($existing['booking_date']) ? (string)$existing['booking_date'] : '';
+    $originalTime = isset($existing['booking_time']) ? (string)$existing['booking_time'] : '';
+
+    // Normalize date/time for comparison: DB may store time as H:i:s while client sends H:i
+    $normalizedNewDate = $date ? date('Y-m-d', strtotime($date)) : '';
+    $normalizedNewTime = $time ? date('H:i', strtotime($time)) : '';
+    $normalizedOrigDate = $originalDate ? date('Y-m-d', strtotime($originalDate)) : '';
+    $normalizedOrigTime = $originalTime ? date('H:i', strtotime($originalTime)) : '';
+
+    $requiresApproval = false;
+    if ($normalizedNewDate !== $normalizedOrigDate || $normalizedNewTime !== $normalizedOrigTime) {
+        // When date or time changed, mark status as pending so the carwash needs to re-approve
+        $updateData['status'] = 'pending';
+        $requiresApproval = true;
+    }
+
+    // Log computed requires_approval value
+    if (class_exists('\App\\Classes\\Logger')) {
+        try { \App\Classes\Logger::info('bookings/update.php requires_approval: ' . ($requiresApproval ? 'true' : 'false') . ' for booking_id=' . $bookingId); } catch (Throwable $__e) { error_log('Logger::info failed: ' . $__e->getMessage()); }
+    } else {
+        error_log('bookings/update.php requires_approval: ' . ($requiresApproval ? 'true' : 'false') . ' for booking_id=' . $bookingId);
+    }
 
     $ok = $model->update($bookingId, $updateData);
+    // Log DB update result
+    if ($ok) {
+        if (class_exists('\App\\Classes\\Logger')) {
+            try { \App\Classes\Logger::info('bookings/update.php: update OK for booking_id=' . $bookingId, ['update' => $updateData]); } catch (Throwable $__e) { error_log('Logger::info failed: ' . $__e->getMessage()); }
+        } else {
+            error_log('bookings/update.php: update OK for booking_id=' . $bookingId . ' data: ' . json_encode($updateData));
+        }
+    } else {
+        if (class_exists('\App\\Classes\\Logger')) {
+            try { \App\Classes\Logger::error('bookings/update.php: update FAILED for booking_id=' . $bookingId, ['update' => $updateData]); } catch (Throwable $__e) { error_log('Logger::error failed: ' . $__e->getMessage()); }
+        } else {
+            error_log('bookings/update.php: update FAILED for booking_id=' . $bookingId . ' data: ' . json_encode($updateData));
+        }
+    }
     if (!$ok) throw new Exception('Update failed');
 
-    echo json_encode(['success' => true, 'booking_id' => $bookingId]);
+    echo json_encode(['success' => true, 'booking_id' => $bookingId, 'requires_approval' => $requiresApproval]);
     exit;
 } catch (Throwable $e) {
     // Write full exception to application log (prefer Logger::exception)
@@ -114,6 +158,9 @@ try {
     } else {
         error_log('bookings/update.php error: ' . $e->getMessage());
     }
+
+    // Extra server-side context for the error (file + line)
+    error_log(sprintf('bookings/update.php caught exception: %s in %s:%d', $e->getMessage(), $e->getFile(), $e->getLine()));
 
     // If a structured responder exists, prefer it (it may include stack/trace in dev)
     if (function_exists('send_structured_error_response')) {
