@@ -10,7 +10,7 @@ ini_set('display_errors', '0');
 ini_set('display_startup_errors', '0');
 error_reporting(E_ALL);
 
-require_once __DIR__ . '/../../../includes/bootstrap.php';
+require_once __DIR__ . '/../../includes/bootstrap.php';
 
 use App\Classes\Database;
 use App\Classes\Response;
@@ -27,6 +27,11 @@ try {
     if ($bookingId <= 0) {
         Response::error('Invalid booking id', 400);
         exit;
+    }
+
+    // Temporary structured log entry for debugging
+    if (class_exists('\App\\Classes\\Logger')) {
+        \App\Classes\Logger::info(sprintf('cancel request received: booking_id=%d, session_carwash=%s, session_user=%s', $bookingId, json_encode($_SESSION['carwash_id'] ?? null), json_encode($_SESSION['user_id'] ?? null)));
     }
 
     $db = Database::getInstance();
