@@ -16,7 +16,7 @@ if (class_exists('App\\Classes\\Auth')) {
     }
 }
 
-session_start();
+// Session is started in bootstrap.php; avoid calling session_start() again
 $carwashId = $_SESSION['carwash_id'] ?? null;
 error_log("carwash/reservations/list.php - session carwash_id: " . var_export($carwashId, true));
 

@@ -23,7 +23,18 @@ if (strpos($id, 's_') === 0) {
     $reservation['id'] = $id;
 } else {
     // Try reservations table first (older flow)
-    $reservation = $db->fetchOne('SELECT * FROM reservations WHERE id = :id', ['id' => $id]);
+    try {
+        $reservation = $db->fetchOne('SELECT * FROM reservations WHERE id = :id', ['id' => $id]);
+    } catch (Exception $e) {
+        // If the legacy `reservations` table does not exist or query fails,
+        // log and continue to fall back to the canonical `bookings` table.
+        if (class_exists('App\\Classes\\Logger')) {
+            \App\Classes\Logger::error('invoice.php: reservations lookup failed, falling back to bookings', ['exception' => $e->getMessage()]);
+        } else {
+            error_log('invoice.php: reservations lookup failed: ' . $e->getMessage());
+        }
+        $reservation = null;
+    }
     if (!$reservation) {
         // Fall back to bookings table (new canonical bookings)
         // Prefer canonical `carwashes` for name; fall back to business_profiles if necessary

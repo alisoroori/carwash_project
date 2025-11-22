@@ -1285,8 +1285,25 @@ try {
                   return;
                 }
 
-                const data = await resp.json();
-                
+                // Read response as text first so we can safely handle empty/non-JSON responses
+                const respText = await resp.text();
+                let data = null;
+                if (respText) {
+                  try {
+                    data = JSON.parse(respText);
+                  } catch (err) {
+                    console.error('Invalid JSON from carwash list endpoint:', respText);
+                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-sm text-red-600 text-center">Liste alınamadı: Sunucudan geçersiz cevap alındı</td></tr>';
+                    return;
+                  }
+                }
+
+                if (!resp.ok) {
+                  const message = (data && data.message) ? data.message : ('HTTP ' + resp.status);
+                  tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-sm text-red-600 text-center">Liste alınamadı: ' + escapeHtml(message) + '</td></tr>';
+                  return;
+                }
+
                 if (!data || !data.success) {
                   tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-sm text-red-600 text-center">Liste alınamadı: ' + escapeHtml(data && data.message ? data.message : 'Bilinmeyen hata') + '</td></tr>';
                   return;
@@ -1386,7 +1403,18 @@ try {
                   credentials: 'same-origin' 
                 });
 
-                const result = await resp.json();
+                // Parse response safely
+                let result = null;
+                try {
+                  result = await resp.json();
+                } catch (e) {
+                  // fallback to text
+                  try {
+                    const txt = await resp.text();
+                    console.error('approveReservation: non-JSON response', txt);
+                  } catch (_) {}
+                  result = null;
+                }
 
                 if (result && result.success) {
                   if (typeof showNotification === 'function') {
@@ -1429,7 +1457,17 @@ try {
                   credentials: 'same-origin' 
                 });
 
-                const result = await resp.json();
+                // Parse response safely
+                let result = null;
+                try {
+                  result = await resp.json();
+                } catch (e) {
+                  try {
+                    const txt = await resp.text();
+                    console.error('rejectReservation: non-JSON response', txt);
+                  } catch (_) {}
+                  result = null;
+                }
 
                 if (result && result.success) {
                   if (typeof showNotification === 'function') {
