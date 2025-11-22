@@ -12,7 +12,19 @@ header('Content-Type: application/json; charset=utf-8');
 $db = Database::getInstance();
 
 // Diagnostic logging: record incoming reservation request (avoid logging sensitive tokens)
+// Log incoming request keys for diagnostics (avoid printing CSRF token)
 error_log('reservations/create.php: Request from ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . ' - POST keys: ' . json_encode(array_keys($_POST)));
+// Also write a lightweight debug file so local tailing can read payloads reliably
+$debugLogFile = __DIR__ . '/../../logs/reservations_debug.log';
+$safePostKeys = array_keys($_POST);
+@file_put_contents($debugLogFile, date('Y-m-d H:i:s') . " - Request from " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . " - POST keys: " . json_encode($safePostKeys) . "\n", FILE_APPEND | LOCK_EX);
+
+// Log full POST body excluding sensitive fields (csrf_token)
+$postForLog = $_POST;
+if (isset($postForLog['csrf_token'])) unset($postForLog['csrf_token']);
+error_log('reservations/create.php: POST body (sanitized): ' . json_encode($postForLog));
+// Also append sanitized POST to debug file (exclude CSRF)
+@file_put_contents($debugLogFile, date('Y-m-d H:i:s') . " - POST body (sanitized): " . json_encode($postForLog, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
 
 // Simple JSON response helper
 function jsonError($msg, $code = 400) {
@@ -118,7 +130,6 @@ try {
         'user_id' => $user_id,
         'carwash_id' => is_numeric($location_id) ? (int)$location_id : null,
         'service_id' => is_numeric($service_id) ? (int)$service_id : null,
-        'service_type' => $service_id,
         'booking_date' => $date,
         'booking_time' => $time,
         'status' => 'pending',
@@ -128,13 +139,23 @@ try {
     ];
     // If Database class supports insert into bookings, use it
     error_log('reservations/create.php: Attempting DB insert into bookings - data keys: ' . json_encode(array_keys($insert)));
+    // Log specific fields we care about for debugging
+    error_log('reservations/create.php: carwash_id value: ' . var_export($insert['carwash_id'], true));
+    error_log('reservations/create.php: service_id value: ' . var_export($insert['service_id'], true));
+    error_log('reservations/create.php: insert payload: ' . json_encode($insert));
     $reservation_id = $db->insert('bookings', $insert);
     error_log('reservations/create.php: DB insert returned id: ' . var_export($reservation_id, true));
+    // Also write DB insert result to the lightweight debug file for reliable local tailing
+    @file_put_contents($debugLogFile, date('Y-m-d H:i:s') . " - DB insert returned id: " . var_export($reservation_id, true) . "\n", FILE_APPEND | LOCK_EX);
 } catch (\Throwable $e) {
     // Log exception for diagnostics and fallback to session storage
     error_log('reservations/create.php INSERT ERROR: ' . $e->getMessage());
     error_log('reservations/create.php INSERT TRACE: ' . $e->getTraceAsString());
     error_log('reservations/create.php INSERT DATA: ' . json_encode($insert));
+    // Also append exception details to the lightweight debug file
+    @file_put_contents($debugLogFile, date('Y-m-d H:i:s') . " - INSERT ERROR: " . $e->getMessage() . "\n", FILE_APPEND | LOCK_EX);
+    @file_put_contents($debugLogFile, date('Y-m-d H:i:s') . " - INSERT TRACE: " . $e->getTraceAsString() . "\n", FILE_APPEND | LOCK_EX);
+    @file_put_contents($debugLogFile, date('Y-m-d H:i:s') . " - INSERT DATA: " . json_encode($insert) . "\n", FILE_APPEND | LOCK_EX);
 }
 
 if ($reservation_id) {

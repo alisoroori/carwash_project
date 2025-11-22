@@ -169,12 +169,39 @@ class Database
         
         $query = "INSERT INTO $table ($columnsStr) VALUES ($placeholdersStr)";
         
+        // Lightweight file for reliable insert diagnostics
+        $debugLogFile = __DIR__ . '/../../logs/db_insert_debug.log';
+        $attemptLine = date('Y-m-d H:i:s') . " - INSERT ATTEMPT table=$table data=" . json_encode($data, JSON_UNESCAPED_UNICODE) . " query=" . $query . "\n";
+        @file_put_contents($debugLogFile, $attemptLine, FILE_APPEND | LOCK_EX);
+        // Also emit to PHP error_log so CLI and Apache logs show the attempt
+        error_log($attemptLine);
+
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute($data);
-            return (int) $this->pdo->lastInsertId();
+            $lastId = (int) $this->pdo->lastInsertId();
+            // Log success
+            $successLine = date('Y-m-d H:i:s') . " - INSERT SUCCESS table=$table lastInsertId=" . var_export($lastId, true) . "\n";
+            @file_put_contents($debugLogFile, $successLine, FILE_APPEND | LOCK_EX);
+            error_log($successLine);
+            return $lastId;
         } catch (\PDOException $e) {
-            error_log('Insert failed: ' . $e->getMessage() . ' - Query: ' . $query);
+            // Capture PDO exception, error code and errorInfo if available
+            $msg = $e->getMessage();
+            $code = $e->getCode();
+            $errorInfo = null;
+            if (isset($stmt) && is_object($stmt)) {
+                try {
+                    $errorInfo = $stmt->errorInfo();
+                } catch (\Throwable $_) {
+                    $errorInfo = null;
+                }
+            }
+
+            $logLine = date('Y-m-d H:i:s') . " - INSERT FAILED table=$table code=" . var_export($code, true) . " message=" . json_encode($msg) . " errorInfo=" . json_encode($errorInfo) . " query=" . $query . " data=" . json_encode($data, JSON_UNESCAPED_UNICODE) . "\n";
+            // Write to the dedicated debug file and to PHP error_log
+            @file_put_contents($debugLogFile, $logLine, FILE_APPEND | LOCK_EX);
+            error_log($logLine);
             return false;
         }
     }
