@@ -100,7 +100,24 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
                     }
                 ?>
                 <div class="flex items-center gap-3">
-                    <img src="<?php echo htmlspecialchars($base); ?>/frontend/images/logo.png" alt="Logo" onerror="this.style.display='none'" class="w-20 h-20 object-contain">
+                    <?php
+                        // Choose a logo path robustly to avoid 404s in different installs.
+                        $candidate1 = __DIR__ . '/../../frontend/images/logo.png';
+                        $candidate2 = __DIR__ . '/../logo01.png';
+                        $candidate3 = __DIR__ . '/../../frontend/assets/img/default-user.png';
+
+                        if (file_exists($candidate1)) {
+                            $logo_url = $base . '/frontend/images/logo.png';
+                        } elseif (file_exists($candidate2)) {
+                            $logo_url = $base . '/backend/logo01.png';
+                        } elseif (file_exists($candidate3)) {
+                            $logo_url = $base . '/frontend/assets/img/default-user.png';
+                        } else {
+                            // Last resort: use a data URI 1x1 transparent GIF to avoid broken image icon
+                            $logo_url = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+                        }
+                    ?>
+                    <img src="<?php echo htmlspecialchars($logo_url); ?>" alt="Logo" class="w-20 h-20 object-contain">
                     <div>
                         <div class="text-lg font-bold text-gray-900"><?php echo $cw_name; ?></div>
                         <div class="text-sm text-gray-600"><?php echo $cw_address; ?></div>
