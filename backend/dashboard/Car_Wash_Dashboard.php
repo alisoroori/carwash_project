@@ -1276,7 +1276,8 @@ try {
 
               try {
                 const resp = await fetch('/carwash_project/backend/carwash/reservations/list.php', { 
-                  credentials: 'same-origin' 
+                  credentials: 'same-origin',
+                  headers: { 'Accept': 'application/json' }
                 });
 
                 if (!resp.ok) {

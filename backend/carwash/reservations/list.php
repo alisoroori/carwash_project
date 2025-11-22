@@ -5,6 +5,7 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 use App\Classes\Database;
 use App\Classes\Response;
+use App\Classes\Logger;
 
 // Ensure user is authenticated if Auth class exists
 if (class_exists('App\\Classes\\Auth')) {
@@ -18,7 +19,11 @@ if (class_exists('App\\Classes\\Auth')) {
 
 // Session is started in bootstrap.php; avoid calling session_start() again
 $carwashId = $_SESSION['carwash_id'] ?? null;
-error_log("carwash/reservations/list.php - session carwash_id: " . var_export($carwashId, true));
+if (class_exists('\App\\Classes\\Logger')) {
+    \App\Classes\Logger::info('carwash/reservations/list.php: session carwash_id', ['carwash_id' => $carwashId, 'remote' => $_SERVER['REMOTE_ADDR'] ?? '']);
+} else {
+    error_log("carwash/reservations/list.php - session carwash_id: " . var_export($carwashId, true));
+}
 
 if (empty($carwashId)) {
     Response::error('Carwash id missing from session', 401);
@@ -30,7 +35,7 @@ try {
     $pdo = $db->getPdo();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $sql = "SELECT b.*, u.fullname AS customer_name, s.name AS service_name
+    $sql = "SELECT b.*, u.name AS customer_name, s.name AS service_name
             FROM bookings b
             LEFT JOIN users u ON u.id = b.user_id
             LEFT JOIN services s ON s.id = b.service_id
@@ -42,7 +47,11 @@ try {
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $count = is_array($rows) ? count($rows) : 0;
-    error_log("carwash/reservations/list.php - rows returned: " . $count);
+    if (class_exists('\App\\Classes\\Logger')) {
+        \App\Classes\Logger::info('carwash/reservations/list.php: rows returned', ['carwash_id' => $carwashId, 'count' => $count]);
+    } else {
+        error_log("carwash/reservations/list.php - rows returned: " . $count);
+    }
 
     // Always return JSON array for data (empty array if none)
     Response::success('OK', $rows ?: []);

@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-ini_set('display_errors', '0');
-ini_set('display_startup_errors', '0');
-error_reporting(E_ALL);
-
-require_once __DIR__ . '/../../../includes/bootstrap.php';
+// bootstrap.php initializes autoload, logger and starts the session
+require_once __DIR__ . '/../../includes/bootstrap.php';
 
 use App\Classes\Database;
 use App\Classes\Response;
@@ -33,6 +28,11 @@ try {
     if ($bookingId <= 0) {
         Response::error('Invalid booking id', 400);
         exit;
+    }
+
+    // Log structured info for debugging (temporary)
+    if (class_exists('\App\\Classes\\Logger')) {
+        \App\Classes\Logger::info(sprintf('reject request received: booking_id=%d, carwash_id=%s', $bookingId, $carwashId));
     }
 
     $db = Database::getInstance();

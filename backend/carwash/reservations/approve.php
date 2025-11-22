@@ -36,6 +36,11 @@ try {
         exit;
     }
 
+    // Log structured info for debugging (temporary)
+    if (class_exists('\App\\Classes\\Logger')) {
+        \App\Classes\Logger::info(sprintf('approve request received: booking_id=%d, carwash_id=%s', $bookingId, $carwashId));
+    }
+
     $db = Database::getInstance();
     $pdo = $db->getPdo();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
