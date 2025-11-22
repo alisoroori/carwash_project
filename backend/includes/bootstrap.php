@@ -34,9 +34,15 @@ if (file_exists(__DIR__ . '/config.php')) {
     require_once __DIR__ . '/config.php';
 }
 
-// Initialize logger
-use App\Classes\Logger;
-Logger::init();
+// Initialize logger (do not allow logger init failures to break the app)
+try {
+    if (class_exists('App\\Classes\\Logger')) {
+        \App\Classes\Logger::init();
+    }
+} catch (Throwable $e) {
+    // Fallback: ensure errors at bootstrap are logged via PHP's error_log so endpoints can continue
+    error_log('Bootstrap: Logger::init() failed: ' . $e->getMessage());
+}
 
 // Determine environment: prefer constant APP_ENV, then env var, else development
 $env = defined('APP_ENV') ? APP_ENV : (getenv('APP_ENV') ?: 'development');

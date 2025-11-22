@@ -11,6 +11,9 @@ header('Content-Type: application/json; charset=utf-8');
 
 $db = Database::getInstance();
 
+// Diagnostic logging: record incoming reservation request (avoid logging sensitive tokens)
+error_log('reservations/create.php: Request from ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . ' - POST keys: ' . json_encode(array_keys($_POST)));
+
 // Simple JSON response helper
 function jsonError($msg, $code = 400) {
     http_response_code($code);
@@ -124,9 +127,14 @@ try {
         'created_at' => date('Y-m-d H:i:s')
     ];
     // If Database class supports insert into bookings, use it
+    error_log('reservations/create.php: Attempting DB insert into bookings - data keys: ' . json_encode(array_keys($insert)));
     $reservation_id = $db->insert('bookings', $insert);
+    error_log('reservations/create.php: DB insert returned id: ' . var_export($reservation_id, true));
 } catch (\Throwable $e) {
-    // fallback to session
+    // Log exception for diagnostics and fallback to session storage
+    error_log('reservations/create.php INSERT ERROR: ' . $e->getMessage());
+    error_log('reservations/create.php INSERT TRACE: ' . $e->getTraceAsString());
+    error_log('reservations/create.php INSERT DATA: ' . json_encode($insert));
 }
 
 if ($reservation_id) {

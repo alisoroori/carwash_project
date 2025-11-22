@@ -253,6 +253,82 @@ if (!empty($logo_filename)) {
   }
 }
 
+// ============================================
+// FETCH RESERVATIONS DATA FROM DATABASE
+// ============================================
+$reservations = [];
+$reservations_error = null;
+
+try {
+    if (!isset($db)) {
+        $db = App\Classes\Database::getInstance();
+    }
+    
+    $pdo = $db->getPdo();
+    
+    // Get carwash_id from session or database
+    $carwash_id = null;
+    
+    if (isset($_SESSION['carwash_id'])) {
+        $carwash_id = (int)$_SESSION['carwash_id'];
+    } elseif (isset($_SESSION['user_id'])) {
+        // Resolve carwash_id from user_id
+        try {
+            $carwashData = $db->fetchOne(
+                "SELECT id FROM carwashes WHERE user_id = :user_id LIMIT 1",
+                ['user_id' => (int)$_SESSION['user_id']]
+            );
+            if ($carwashData) {
+                $carwash_id = (int)$carwashData['id'];
+                $_SESSION['carwash_id'] = $carwash_id;
+            }
+        } catch (Exception $e) {
+            error_log('Error resolving carwash_id: ' . $e->getMessage());
+        }
+    }
+    
+    if ($carwash_id) {
+        // Build query - bookings table stores vehicle info directly (vehicle_plate, vehicle_model, vehicle_type)
+        // No vehicle_id column exists, so we don't join user_vehicles
+        $sql = "SELECT 
+            b.id AS booking_id,
+            b.booking_date,
+            b.booking_time,
+            b.status,
+            b.total_price AS price,
+            b.notes,
+            b.vehicle_plate AS plate_number,
+            b.vehicle_model AS vehicle_model,
+            b.vehicle_type AS vehicle_brand,
+            u.name AS customer_name,
+            u.phone AS user_phone,
+            u.email AS user_email,
+            COALESCE(s.name, '') AS service_name,
+            COALESCE(s.duration, 0) AS duration,
+            COALESCE(s.price, b.total_price, 0) AS service_price
+        FROM bookings b
+        LEFT JOIN users u ON b.user_id = u.id
+        LEFT JOIN services s ON b.service_id = s.id
+        WHERE b.carwash_id = :carwash_id
+        ORDER BY b.booking_date DESC, b.booking_time DESC
+        LIMIT 100";
+        
+        try {
+            $reservations = $db->fetchAll($sql, ['carwash_id' => $carwash_id]);
+        } catch (Exception $e) {
+            error_log('Reservations query error: ' . $e->getMessage());
+            error_log('SQL: ' . $sql);
+            throw new Exception('Veritabanı sorgusu başarısız: ' . $e->getMessage());
+        }
+    } else {
+        $reservations_error = 'İşletme ID bulunamadı. Lütfen profil bilgilerinizi kontrol edin.';
+    }
+} catch (Exception $e) {
+    error_log('Reservations fetch error: ' . $e->getMessage());
+    $reservations_error = 'Rezervasyonlar yüklenirken hata oluştu: ' . $e->getMessage();
+    $reservations = [];
+}
+
 ?>
 
 <!-- Dashboard Specific Styles -->
@@ -1058,11 +1134,98 @@ if (!empty($logo_filename)) {
                 </tr>
               </thead>
               <tbody id="carwashReservationsBody" class="divide-y divide-gray-200">
-                <tr id="carwashReservationsLoading">
-                  <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
-                    <i class="fas fa-spinner fa-spin mr-2"></i>Yükleniyor...
-                  </td>
-                </tr>
+                <?php if ($reservations_error): ?>
+                  <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-sm text-red-600">
+                      <i class="fas fa-exclamation-circle mr-2"></i><?php echo htmlspecialchars($reservations_error, ENT_QUOTES, 'UTF-8'); ?>
+                    </td>
+                  </tr>
+                <?php elseif (empty($reservations)): ?>
+                  <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                      Henüz rezervasyon bulunmuyor.
+                    </td>
+                  </tr>
+                <?php else: ?>
+                  <?php foreach ($reservations as $r): ?>
+                    <?php
+                      // Prepare display data
+                      $booking_id = htmlspecialchars($r['booking_id'] ?? '', ENT_QUOTES, 'UTF-8');
+                      $customer_name = htmlspecialchars($r['customer_name'] ?? 'Bilinmiyor', ENT_QUOTES, 'UTF-8');
+                      $user_phone = htmlspecialchars($r['user_phone'] ?? '', ENT_QUOTES, 'UTF-8');
+                      $service_name = htmlspecialchars($r['service_name'] ?? '-', ENT_QUOTES, 'UTF-8');
+                      $duration = htmlspecialchars($r['duration'] ?? '0', ENT_QUOTES, 'UTF-8');
+                      $plate_number = htmlspecialchars($r['plate_number'] ?? '-', ENT_QUOTES, 'UTF-8');
+                      $vehicle_brand = htmlspecialchars($r['vehicle_brand'] ?? '', ENT_QUOTES, 'UTF-8');
+                      $vehicle_model = htmlspecialchars($r['vehicle_model'] ?? '', ENT_QUOTES, 'UTF-8');
+                      $booking_date = htmlspecialchars($r['booking_date'] ?? '', ENT_QUOTES, 'UTF-8');
+                      $booking_time = htmlspecialchars($r['booking_time'] ?? '', ENT_QUOTES, 'UTF-8');
+                      $price = isset($r['price']) ? number_format((float)$r['price'], 2) : '0.00';
+                      $status = strtolower($r['status'] ?? 'pending');
+                      
+                      // Vehicle display
+                      $vehicle_display = $plate_number;
+                      if ($vehicle_brand || $vehicle_model) {
+                        $vehicle_display = trim($vehicle_brand . ' ' . $vehicle_model);
+                        if ($plate_number !== '-') {
+                          $vehicle_display .= '<br><span class="text-xs text-gray-500">' . $plate_number . '</span>';
+                        }
+                      }
+                      
+                      // Status badge
+                      $status_badge = '';
+                      switch($status) {
+                        case 'confirmed':
+                        case 'paid':
+                          $status_badge = '<span class="status-confirmed px-2 py-1 rounded-full text-xs">Onaylandı</span>';
+                          break;
+                        case 'in_progress':
+                        case 'in progress':
+                          $status_badge = '<span class="status-in-progress px-2 py-1 rounded-full text-xs">Devam Ediyor</span>';
+                          break;
+                        case 'completed':
+                          $status_badge = '<span class="status-completed px-2 py-1 rounded-full text-xs">Tamamlandı</span>';
+                          break;
+                        case 'cancelled':
+                        case 'cancel':
+                          $status_badge = '<span class="status-cancelled px-2 py-1 rounded-full text-xs">İptal</span>';
+                          break;
+                        default:
+                          $status_badge = '<span class="status-pending px-2 py-1 rounded-full text-xs">Bekliyor</span>';
+                      }
+                      
+                      // Action buttons based on status
+                      $is_pending = ($status === 'pending');
+                      $actions = $is_pending
+                        ? '<button data-id="' . $booking_id . '" class="approveBtn text-green-600 hover:text-green-900 mr-2" title="Rezervasyonu onayla">Onayla</button>
+                           <button data-id="' . $booking_id . '" class="rejectBtn text-red-600 hover:text-red-900" title="Rezervasyonu reddet">Reddet</button>'
+                        : '<button data-id="' . $booking_id . '" class="viewBtn text-blue-600 hover:text-blue-900" title="Rezervasyon detayı">Detay</button>';
+                    ?>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4">
+                        <div>
+                          <div class="font-medium"><?php echo $customer_name; ?></div>
+                          <?php if ($user_phone): ?>
+                            <div class="text-sm text-gray-500"><?php echo $user_phone; ?></div>
+                          <?php endif; ?>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 text-sm">
+                        <?php echo $service_name; ?>
+                        <?php if ($duration && $duration != '0'): ?>
+                          <br><span class="text-xs text-gray-500"><?php echo $duration; ?> dakika</span>
+                        <?php endif; ?>
+                      </td>
+                      <td class="px-6 py-4 text-sm"><?php echo $vehicle_display; ?></td>
+                      <td class="px-6 py-4 text-sm">
+                        <?php echo $booking_date; ?><br><?php echo $booking_time; ?>
+                      </td>
+                      <td class="px-6 py-4"><?php echo $status_badge; ?></td>
+                      <td class="px-6 py-4 font-medium">₺<?php echo $price; ?></td>
+                      <td class="px-6 py-4 text-sm"><?php echo $actions; ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                <?php endif; ?>
               </tbody>
             </table>
           </div>
@@ -1077,13 +1240,42 @@ if (!empty($logo_filename)) {
               return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
             }
 
-            // Load reservations from the API
+            // Attach event handlers to action buttons (for PHP-rendered rows)
+            function attachReservationHandlers() {
+              const tbody = document.getElementById('carwashReservationsBody');
+              if (!tbody) return;
+
+              tbody.querySelectorAll('.approveBtn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                  const id = e.currentTarget.getAttribute('data-id');
+                  if (!confirm('Bu rezervasyonu onaylamak istiyor musunuz?')) return;
+                  await approveReservation(id);
+                });
+              });
+
+              tbody.querySelectorAll('.rejectBtn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                  const id = e.currentTarget.getAttribute('data-id');
+                  if (!confirm('Bu rezervasyonu reddetmek istiyor musunuz?')) return;
+                  await rejectReservation(id);
+                });
+              });
+
+              tbody.querySelectorAll('.viewBtn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                  const id = e.currentTarget.getAttribute('data-id');
+                  alert('Detay görüntüleme yakında eklenecek. Rezervasyon ID: ' + id);
+                });
+              });
+            }
+
+            // Load reservations from the API (kept for dynamic refresh functionality)
             async function loadCarwashReservations() {
               const tbody = document.getElementById('carwashReservationsBody');
               if (!tbody) return;
 
               try {
-                const resp = await fetch('/carwash_project/backend/api/bookings/carwash_list.php', { 
+                const resp = await fetch('/carwash_project/backend/carwash/reservations/list.php', { 
                   credentials: 'same-origin' 
                 });
 
@@ -1188,7 +1380,7 @@ if (!empty($logo_filename)) {
                   fd.append('csrf_token', csrfMeta.getAttribute('content'));
                 }
 
-                const resp = await fetch('/carwash_project/backend/api/bookings/approve.php', { 
+                const resp = await fetch('/carwash_project/backend/carwash/reservations/approve.php', { 
                   method: 'POST', 
                   body: fd, 
                   credentials: 'same-origin' 
@@ -1224,7 +1416,6 @@ if (!empty($logo_filename)) {
               try {
                 const fd = new FormData();
                 fd.append('booking_id', id);
-                fd.append('action', 'reject');
 
                 // Include CSRF token if available
                 const csrfMeta = document.querySelector('meta[name="csrf-token"]');
@@ -1232,7 +1423,7 @@ if (!empty($logo_filename)) {
                   fd.append('csrf_token', csrfMeta.getAttribute('content'));
                 }
 
-                const resp = await fetch('/carwash_project/backend/api/bookings/approve.php', { 
+                const resp = await fetch('/carwash_project/backend/carwash/reservations/reject.php', { 
                   method: 'POST', 
                   body: fd, 
                   credentials: 'same-origin' 
@@ -1265,19 +1456,22 @@ if (!empty($logo_filename)) {
 
             // Initialize on DOM ready
             if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', loadCarwashReservations);
+              document.addEventListener('DOMContentLoaded', function() {
+                attachReservationHandlers(); // Attach handlers to PHP-rendered buttons
+              });
             } else {
-              loadCarwashReservations();
+              attachReservationHandlers(); // Attach handlers immediately if DOM already loaded
             }
 
-            // Reload when filter changes
+            // Reload when filter changes (uses API to dynamically refresh)
             const filterStatus = document.getElementById('filterStatus');
             if (filterStatus) {
               filterStatus.addEventListener('change', loadCarwashReservations);
             }
 
-            // Expose reload function globally for manual refresh
+            // Expose functions globally for manual refresh and external calls
             window.reloadCarwashReservations = loadCarwashReservations;
+            window.attachReservationHandlers = attachReservationHandlers;
           })();
         </script>
       </section>
@@ -2906,7 +3100,14 @@ if (!empty($logo_filename)) {
         list.innerHTML = '<div class="text-sm text-gray-500">Yükleniyor...</div>';
         console.log('[loadServices] Starting service fetch...');
         try {
-          const resp = await fetch('/carwash_project/backend/api/services/get.php', { credentials: 'same-origin' });
+          // Determine carwash id from hidden input if available
+          const carwashInput = document.getElementById('manual_carwash_id');
+          const carwashId = carwashInput ? carwashInput.value : '';
+          console.log('[loadServices] carwash_id sent:', carwashId);
+          const url = '/carwash_project/backend/carwash/services/get_by_carwash.php' + (carwashId ? ('?carwash_id=' + encodeURIComponent(carwashId)) : '');
+          console.log('[loadServices] Services API URL:', url);
+
+          const resp = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
           console.log('[loadServices] Response status:', resp.status, resp.statusText);
           const json = await resp.json().catch((parseErr) => { console.error('[loadServices] JSON parse error:', parseErr); return null; });
           console.log('[loadServices] Parsed JSON:', json);
@@ -3578,9 +3779,13 @@ if (!empty($logo_filename)) {
         const form = document.getElementById('manualReservationForm');
 
         async function loadManualServices() {
-          try {
+            try {
             console.log('[Manual Reservation] Loading services...');
-            const res = await fetch('/carwash_project/backend/api/services/get.php', { credentials: 'same-origin' });
+            const carwashId = (document.getElementById('manual_carwash_id') && document.getElementById('manual_carwash_id').value) || '';
+            console.log('[Manual Reservation] carwash_id sent:', carwashId);
+            const url = '/carwash_project/backend/carwash/services/get_by_carwash.php' + (carwashId ? ('?carwash_id=' + encodeURIComponent(carwashId)) : '');
+            console.log('[Manual Reservation] Services API URL:', url);
+            const res = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
             const json = await res.json();
             console.log('[Manual Reservation] Services API response:', json);
             

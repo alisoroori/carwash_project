@@ -2245,6 +2245,24 @@ if (!isset($base_url)) {
                                     }
                                     // select by id if available, otherwise by name
                                     loc.value = carWashId || carWashName;
+                                    // Trigger loading services for this carwash (ensure programmatic selection also loads services)
+                                    (function waitAndCallFetch(id, attempts){
+                                        attempts = attempts || 0;
+                                        try {
+                                            if (typeof fetchServicesForCarwash === 'function') {
+                                                fetchServicesForCarwash(id);
+                                                return;
+                                            }
+                                        } catch (e) {
+                                            // ignore and retry below
+                                        }
+                                        if (attempts < 5) {
+                                            // wait a short time for the function to become available
+                                            setTimeout(function(){ waitAndCallFetch(id, attempts + 1); }, 100 * (attempts + 1));
+                                        } else {
+                                            console.warn('Failed to trigger fetchServicesForCarwash after selecting carwash - function not available');
+                                        }
+                                    })(loc.value, 0);
                                 }
 
                                 // Set hidden id field if present
@@ -2431,7 +2449,7 @@ if (!isset($base_url)) {
                                     fd.append('booking_id', id);
                                     fd.append('csrf_token', getCsrfToken());
                                     try {
-                                        const resp = await fetch('/carwash_project/backend/api/bookings/cancel.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+                                        const resp = await fetch('/carwash_project/backend/carwash/reservations/cancel.php', { method: 'POST', body: fd, credentials: 'same-origin' });
                                         const result = await resp.json();
                                         if (result && result.success) {
                                             await loadBookings();
@@ -2501,23 +2519,117 @@ if (!isset($base_url)) {
                             </div>
 
                             <div class="overflow-x-auto">
+                                <?php
+                                // Load reservations server-side so the Reservation List View shows real data
+                                // use existing bootstrap (already included at top of this file) to get DB connection
+                                $reservations = [];
+                                try {
+                                    // Prefer existing $db if available (created earlier in page), otherwise try patterns from config
+                                    if (isset($db) && is_object($db) && method_exists($db, 'getPdo')) {
+                                        $pdoConn = $db->getPdo();
+                                    } elseif (isset($pdo) && $pdo instanceof PDO) {
+                                        $pdoConn = $pdo;
+                                    } else {
+                                        // Fallback to App\Classes\Database singleton if present
+                                        if (class_exists('App\\Classes\\Database')) {
+                                            $db = App\Classes\Database::getInstance();
+                                            $pdoConn = $db->getPdo();
+                                        } else {
+                                            // As a last resort try variable from config
+                                            $pdoConn = ${'pdo'} ?? null;
+                                        }
+                                    }
+
+                                    if (!isset($pdoConn) || !$pdoConn) {
+                                        throw new Exception('Database connection not available');
+                                    }
+                                    $pdoConn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                                    // Resolve carwash id from session (bind as requested)
+                                    $carwashId = $_SESSION['carwash_id'] ?? null;
+                                    if (!$carwashId && isset($_SESSION['user_id'])) {
+                                        $stmt = $pdoConn->prepare("SELECT id FROM carwashes WHERE user_id = :user_id LIMIT 1");
+                                        $stmt->execute(['user_id' => (int)$_SESSION['user_id']]);
+                                        $cw = $stmt->fetch(PDO::FETCH_ASSOC);
+                                        if ($cw) {
+                                            $carwashId = (int)$cw['id'];
+                                            $_SESSION['carwash_id'] = $carwashId;
+                                        }
+                                    }
+
+                                    if ($carwashId) {
+                                        // Detect schema differences so joins don't fail on non-existent columns/tables
+                                        $colCheck = $pdoConn->prepare("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'bookings' AND column_name = 'vehicle_id'");
+                                        $colCheck->execute();
+                                        $hasVehicleId = (bool)$colCheck->fetchColumn();
+
+                                        $tblCheck = $pdoConn->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'booking_services'");
+                                        $tblCheck->execute();
+                                        $hasBookingServices = (bool)$tblCheck->fetchColumn();
+
+                                        // Build query using the available columns/tables
+                                        if ($hasVehicleId) {
+                                            $vehicleJoin = "LEFT JOIN user_vehicles v ON b.vehicle_id = v.id";
+                                            $plateExpr = "COALESCE(v.license_plate, v.plate_number, '') AS plate_number";
+                                        } else {
+                                            $vehicleJoin = "";
+                                            $plateExpr = "COALESCE(b.vehicle_plate, '') AS plate_number";
+                                        }
+
+                                        if ($hasBookingServices) {
+                                            $serviceJoin = "LEFT JOIN booking_services bs ON bs.booking_id = b.id LEFT JOIN services s ON bs.service_id = s.id";
+                                        } else {
+                                            // fallback to services linked directly from bookings (if available) or empty
+                                            $serviceJoin = "LEFT JOIN services s ON b.service_id = s.id";
+                                        }
+
+                                        $sql = "SELECT \
+                                            b.id AS booking_id,\n+                                            b.booking_date,\n+                                            b.booking_time,\n+                                            b.status,\n+                                            u.name AS customer_name,\n+                                            {$plateExpr},\n+                                            COALESCE(s.name, b.service_type, '') AS service_name,\n+                                            COALESCE(s.duration, 0) AS duration,\n+                                            COALESCE(s.price, b.total_price, 0) AS price\n+                                        FROM bookings b\n+                                        LEFT JOIN users u ON b.user_id = u.id\n+                                        {$vehicleJoin}\n+                                        {$serviceJoin}\n+                                        WHERE b.carwash_id = :carwash_id\n+                                        ORDER BY b.booking_date DESC, b.booking_time DESC";
+
+                                        $stmt = $pdoConn->prepare($sql);
+                                        $stmt->execute(['carwash_id' => $carwashId]);
+                                        $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                    }
+                                } catch (Exception $e) {
+                                    error_log('Customer dashboard reservations fetch error: ' . $e->getMessage());
+                                    $reservations = [];
+                                }
+                                ?>
+
                                 <table class="w-full">
                                     <thead class="bg-gray-50">
                                         <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Müşteri</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plaka</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hizmet</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih/Saat</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Konum</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Süre</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fiyat</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Saat</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
                                         </tr>
                                     </thead>
                                     <tbody id="reservationsTableBody" class="divide-y divide-gray-200">
-                                        <tr id="reservationsLoadingRow">
-                                            <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Yükleniyor...</td>
-                                        </tr>
-                                        <!-- Reservation rows will be injected here -->
-                                        
+                                        <?php if (empty($reservations)): ?>
+                                            <tr>
+                                                <td colspan="9" class="px-6 py-8 text-center text-sm text-gray-500">Rezervasyon bulunamadı.</td>
+                                            </tr>
+                                        <?php else: ?>
+                                            <?php foreach ($reservations as $r): ?>
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['customer_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['plate_number'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['service_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['duration'] ?? 0, ENT_QUOTES, 'UTF-8'); ?> dakika</td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700">₺<?php echo number_format((float)($r['price'] ?? 0), 2); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_time'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['status'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -2798,58 +2910,110 @@ if (!isset($base_url)) {
                         const serviceSelect = document.getElementById('service_id');
                         if (!serviceSelect) return;
 
-                        // Reset to placeholder
+                        // Clear any previous error message
+                        const errElId = 'serviceLoadError';
+                        let errEl = document.getElementById(errElId);
+                        if (!errEl) {
+                            errEl = document.createElement('div');
+                            errEl.id = errElId;
+                            errEl.className = 'text-sm text-red-600 mt-2';
+                            serviceSelect.parentNode.appendChild(errEl);
+                        }
+                        errEl.textContent = '';
+
+                        // Reset to placeholder and clear old options
                         serviceSelect.innerHTML = '<option value="">Hizmet Seçiniz</option>';
                         
                         if (!carwashId) {
-                            // Show helper text if no carwash selected
+                            errEl.textContent = 'Lütfen bir konum seçin.';
+                            console.warn('fetchServicesForCarwash: no carwashId provided');
                             return;
                         }
 
-                        try {
-                            const resp = await fetch('/carwash_project/backend/api/services/get.php?carwash_id=' + encodeURIComponent(carwashId), {
-                                credentials: 'same-origin',
-                                cache: 'no-store',
-                                headers: { 'Accept': 'application/json' }
-                            });
+                        // Diagnostic log: which id is being requested
+                        console.log('carwash_id sent:', carwashId);
 
-                            const text = await resp.text();
-                            if (!resp.ok) {
-                                console.error('Services API error', resp.status, text);
+                        const url = '/carwash_project/backend/carwash/services/get_by_carwash.php?carwash_id=' + encodeURIComponent(carwashId);
+                        console.log('Services API URL:', url);
+
+                        // Retry logic: try up to 3 attempts with small delay
+                        const maxAttempts = 3;
+                        let attempt = 0;
+                        let lastErr = null;
+                        while (attempt < maxAttempts) {
+                            attempt++;
+                            try {
+                                console.log('fetchServicesForCarwash: attempt', attempt, 'url=', url);
+                                const resp = await fetch(url, {
+                                    credentials: 'same-origin',
+                                    cache: 'no-store',
+                                    headers: { 'Accept': 'application/json' }
+                                });
+
+                                const text = await resp.text();
+                                console.log('fetchServicesForCarwash: response status', resp.status, 'text length', text ? text.length : 0);
+
+                                if (!resp.ok) {
+                                    console.error('Services API error', resp.status, text);
+                                    lastErr = new Error('HTTP ' + resp.status);
+                                    // small backoff before retry
+                                    await new Promise(r => setTimeout(r, 250 * attempt));
+                                    continue;
+                                }
+
+                                let json = null;
+                                try { json = text ? JSON.parse(text) : null; } catch (e) { console.error('Failed to parse services JSON', e, text); errEl.textContent = 'Sunucudan geçersiz yanıt alındı.'; return; }
+
+                                console.log('API response:', json);
+
+                                // Normalize rows
+                                let rows = [];
+                                if (json && Array.isArray(json.data)) rows = json.data;
+                                else if (Array.isArray(json)) rows = json;
+                                else if (json && json.success && Array.isArray(json.data)) rows = json.data;
+
+                                if (!rows || rows.length === 0) {
+                                    console.warn('fetchServicesForCarwash: empty services array returned for carwash', carwashId);
+                                    errEl.textContent = 'Hizmet bulunamadı.';
+                                    return;
+                                }
+
+                                // Populate options (clear first)
+                                serviceSelect.innerHTML = '<option value="">Hizmet Seçiniz</option>';
+                                rows.forEach(s => {
+                                    const opt = document.createElement('option');
+                                    opt.value = s.id || s.ID || '';
+                                    const name = s.name || s.service_name || '';
+                                    const price = (s.price !== undefined && s.price !== null) ? (' - ₺' + parseFloat(s.price).toFixed(2)) : '';
+                                    const duration = (s.duration ? (' - ' + s.duration + ' dakika') : '');
+                                    opt.textContent = name + duration + price;
+                                    if (s.price !== undefined) opt.setAttribute('data-price', s.price);
+                                    if (s.duration !== undefined) opt.setAttribute('data-duration', s.duration);
+                                    serviceSelect.appendChild(opt);
+                                });
+
+                                console.log('Loaded services for carwash', carwashId, 'count', rows.length);
                                 return;
+
+                            } catch (err) {
+                                console.error('fetchServicesForCarwash attempt', attempt, 'error', err);
+                                lastErr = err;
+                                // wait before next retry
+                                await new Promise(r => setTimeout(r, 300 * attempt));
+                                continue;
                             }
-
-                            let json = null;
-                            try { 
-                                json = text ? JSON.parse(text) : null; 
-                            } catch(e) { 
-                                console.error('Failed to parse services JSON', e, text); 
-                                return; 
-                            }
-
-                            let rows = [];
-                            if (json && Array.isArray(json.data)) rows = json.data;
-                            else if (Array.isArray(json)) rows = json;
-
-                            // Populate options
-                            rows.forEach(s => {
-                                const opt = document.createElement('option');
-                                opt.value = s.id || s.ID || '';
-                                const name = s.name || s.service_name || '';
-                                const price = (s.price !== undefined && s.price !== null) ? (' - ₺' + parseFloat(s.price).toFixed(2)) : '';
-                                const duration = (s.duration ? (' - ' + s.duration + ' dakika') : '');
-                                opt.textContent = name + duration + price;
-                                
-                                // Store metadata as data attributes
-                                if (s.price !== undefined) opt.setAttribute('data-price', s.price);
-                                if (s.duration !== undefined) opt.setAttribute('data-duration', s.duration);
-                                serviceSelect.appendChild(opt);
-                            });
-
-                            console.log('Loaded services for carwash', carwashId, 'count', rows.length);
-                        } catch (err) {
-                            console.error('fetchServicesForCarwash error', err);
                         }
+
+                        // If we reach here, all attempts failed
+                        console.error('fetchServicesForCarwash failed after attempts', maxAttempts, lastErr);
+                        errEl.textContent = 'Hizmetler yüklenemedi. Lütfen tekrar deneyin.';
+                    }
+
+                    // Export to global scope so other inline handlers can call it safely
+                    try {
+                        if (typeof window !== 'undefined') window.fetchServicesForCarwash = fetchServicesForCarwash;
+                    } catch (e) {
+                        // non-browser environments may throw; ignore
                     }
 
                     // Attach handlers
