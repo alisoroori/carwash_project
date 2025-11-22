@@ -2430,12 +2430,31 @@ if (!isset($base_url)) {
                                     fd.append('csrf_token', getCsrfToken());
                                     try {
                                         const resp = await fetch('/carwash_project/backend/api/bookings/update.php', { method: 'POST', body: fd, credentials: 'same-origin' });
-                                        const result = await resp.json();
+                                        const text = await resp.text();
+
+                                        // If server returned non-JSON (HTML error page or warnings), show raw text in console
+                                        if (!resp.ok) {
+                                            console.error('Edit booking HTTP error', resp.status, text);
+                                            // Show first part of server response to user for debugging (trim large HTML)
+                                            alert('Sunucu hatası: ' + resp.status + '\n' + (text ? (text.length > 500 ? text.slice(0, 500) + '...' : text) : ''));
+                                            return;
+                                        }
+
+                                        let result = null;
+                                        try {
+                                            result = text ? JSON.parse(text) : null;
+                                        } catch (parseErr) {
+                                            console.error('Edit booking non-JSON response (raw):', text);
+                                            alert('Sunucudan beklenmeyen cevap alındı. Konsolu kontrol edin.');
+                                            return;
+                                        }
+
                                         if (result && result.success) {
                                             hideEditBookingModal();
                                             await loadBookings();
                                             return;
                                         }
+
                                         alert((result && result.errors && result.errors.join) ? result.errors.join('\n') : (result && result.message) || 'Güncelleme başarısız');
                                     } catch (err) {
                                         console.error('Edit booking error', err);

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once '../includes/api_bootstrap.php';
+require_once __DIR__ . '/../../includes/api_bootstrap.php';
 
 
 if (session_status() === PHP_SESSION_NONE) session_start();
@@ -103,11 +103,30 @@ try {
     echo json_encode(['success' => true, 'booking_id' => $bookingId]);
     exit;
 } catch (Throwable $e) {
-    error_log('bookings/update.php error: ' . $e->getMessage());
+    // Write full exception to application log (prefer Logger::exception)
+    if (class_exists('\App\\Classes\\Logger')) {
+        try {
+            \App\Classes\Logger::exception($e);
+        } catch (Throwable $logEx) {
+            error_log('Logger::exception failed: ' . $logEx->getMessage());
+            error_log('Original bookings/update.php error: ' . $e->getMessage());
+        }
+    } else {
+        error_log('bookings/update.php error: ' . $e->getMessage());
+    }
+
+    // If a structured responder exists, prefer it (it may include stack/trace in dev)
     if (function_exists('send_structured_error_response')) {
         send_structured_error_response($e, 500);
+        exit;
     }
-    http_response_code(500);
+
+    // Ensure client receives JSON
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+
     echo json_encode(['success' => false, 'errors' => ['Internal server error']]);
     exit;
 }

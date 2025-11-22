@@ -1,0 +1,14 @@
+HTTP/1.1 500 Internal Server Error
+Date: Sat, 22 Nov 2025 11:10:13 GMT
+Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+X-Powered-By: PHP/8.2.12
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Connection: close
+Transfer-Encoding: chunked
+Content-Type: application/json; charset=utf-8
+
+{"success":false,"message":"Server emitted unexpected output before JSON response","hint":"Enable dev logging to see raw output"}
