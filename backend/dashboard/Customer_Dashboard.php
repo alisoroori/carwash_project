@@ -2710,11 +2710,37 @@ if (!isset($base_url)) {
 
                                 <div>
                                     <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
-                                    <select id="vehicle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                    <select id="vehicle" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
                                         <option value="">Araç Seçiniz</option>
-                                        <option value="Toyota Corolla - 34 ABC 123">Toyota Corolla - 34 ABC 123</option>
-                                        <option value="Honda Civic - 34 XYZ 789">Honda Civic - 34 XYZ 789</option>
+                                        <?php
+                                        // Load user's vehicles from database
+                                        $userVehicles = [];
+                                        try {
+                                            if (isset($db) && is_object($db)) {
+                                                $userVehicles = $db->fetchAll(
+                                                    "SELECT id, brand, model, license_plate, year FROM user_vehicles WHERE user_id = :user_id ORDER BY brand, model",
+                                                    ['user_id' => $_SESSION['user_id']]
+                                                );
+                                            }
+                                        } catch (Exception $e) {
+                                            error_log('Error loading user vehicles: ' . $e->getMessage());
+                                        }
+                                        
+                                        foreach ($userVehicles as $vehicle): 
+                                            $displayName = trim($vehicle['brand'] . ' ' . $vehicle['model']);
+                                            if (!empty($vehicle['year'])) {
+                                                $displayName .= ' (' . $vehicle['year'] . ')';
+                                            }
+                                            $displayName .= ' - ' . $vehicle['license_plate'];
+                                        ?>
+                                            <option value="<?php echo htmlspecialchars($vehicle['id'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
+                                    <?php if (empty($userVehicles)): ?>
+                                        <p class="text-sm text-gray-500 mt-1">Kayıtlı aracınız bulunmuyor. Lütfen önce araç ekleyin.</p>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

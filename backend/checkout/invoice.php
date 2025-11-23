@@ -12,54 +12,235 @@ if (!$id) {
     echo "<p>Rezervasyon bulunamadı.</p>"; exit;
 }
 
-$reservation = null;
-// Support three sources: session-stored, reservations table (legacy), or bookings table (canonical)
+// Check if this is a session-based reservation (fallback when DB insert failed)
+$booking = null;
 if (strpos($id, 's_') === 0) {
-    // session-stored
-    if (!isset($_SESSION['reservations'][$id])) {
-        echo "<p>Rezervasyon bulunamadı (session).</p>"; exit;
+    // Load from session
+    if (isset($_SESSION['reservations'][$id])) {
+        $booking = $_SESSION['reservations'][$id];
+        // Add session flag for later processing
+        $booking['from_session'] = true;
     }
-    $reservation = $_SESSION['reservations'][$id];
-    $reservation['id'] = $id;
 } else {
-    // Try reservations table first (older flow)
+    // Load from database
+    // Single comprehensive JOIN query to get all booking details
+    $query = "
+        SELECT
+            b.*,
+            u.full_name as customer_name,
+            u.phone as customer_phone,
+            u.email as customer_email,
+            s.name as service_name,
+            s.price as service_price,
+            s.duration as service_duration,
+            s.category as service_category,
+            c.name as carwash_name,
+            c.address as carwash_address,
+            c.city as carwash_city,
+            c.district as carwash_district,
+            c.phone as carwash_phone,
+            c.email as carwash_email,
+            c.latitude as carwash_lat,
+            c.longitude as carwash_lng
+        FROM bookings b
+        LEFT JOIN users u ON b.user_id = u.id
+        LEFT JOIN services s ON b.service_id = s.id
+        LEFT JOIN carwashes c ON b.carwash_id = c.id
+        WHERE b.id = :id
+    ";
+
+    $booking = $db->fetchOne($query, ['id' => $id]);
+}
+
+if (!$booking) {
+    echo "<p>Rezervasyon bulunamadı.</p>"; exit;
+}
+
+// If this is a session-based booking, normalize the data structure and fetch related info
+if (isset($booking['from_session']) && $booking['from_session']) {
+    // Fetch user info
+    $user = null;
     try {
-        $reservation = $db->fetchOne('SELECT * FROM reservations WHERE id = :id', ['id' => $id]);
+        $user = $db->fetchOne("SELECT full_name, phone, email FROM users WHERE id = :user_id", ['user_id' => $booking['user_id']]);
     } catch (Exception $e) {
-        // If the legacy `reservations` table does not exist or query fails,
-        // log and continue to fall back to the canonical `bookings` table.
-        if (class_exists('App\\Classes\\Logger')) {
-            \App\Classes\Logger::error('invoice.php: reservations lookup failed, falling back to bookings', ['exception' => $e->getMessage()]);
-        } else {
-            error_log('invoice.php: reservations lookup failed: ' . $e->getMessage());
-        }
-        $reservation = null;
+        // Log error and continue with session data
+        error_log("Failed to fetch user data for session booking: " . $e->getMessage());
     }
-    if (!$reservation) {
-        // Fall back to bookings table (new canonical bookings)
-        // Prefer canonical `carwashes` for name; fall back to business_profiles if necessary
-        $b = $db->fetchOne('SELECT b.*, s.name as service_name, c.name as carwash_name FROM bookings b LEFT JOIN services s ON s.id = b.service_id LEFT JOIN carwashes c ON c.id = b.carwash_id WHERE b.id = :id', ['id' => $id]);
-        if ($b) {
-            // Normalize to expected reservation keys used in template
-            $reservation = [
-                'id' => $b['id'],
-                'location' => $b['carwash_name'] ?? ($b['location'] ?? ''),
-                'location_id' => $b['carwash_id'] ?? null,
-                'service' => $b['service_name'] ?? ($b['service_type'] ?? ''),
-                'vehicle' => $b['vehicle'] ?? '',
-                'date' => $b['booking_date'] ?? $b['date'] ?? '',
-                'time' => $b['booking_time'] ?? $b['time'] ?? '',
-                'notes' => $b['notes'] ?? '',
-                'price' => $b['total_price'] ?? $b['price'] ?? 0,
-                'status' => $b['status'] ?? ''
-            ];
-        } else {
-            echo "<p>Rezervasyon bulunamadı.</p>"; exit;
+    
+    // Fetch service info if service_id is numeric
+    $service = null;
+    if (is_numeric($booking['service_id'])) {
+        try {
+            $service = $db->fetchOne("SELECT name, price, duration, category FROM services WHERE id = :service_id", ['service_id' => $booking['service_id']]);
+        } catch (Exception $e) {
+            error_log("Failed to fetch service data for session booking: " . $e->getMessage());
         }
+    }
+    
+    // Fetch carwash info if location_id is numeric
+    $carwash = null;
+    if (is_numeric($booking['location_id'])) {
+        try {
+            $carwash = $db->fetchOne("SELECT name, address, city, district, phone, email, latitude, longitude FROM carwashes WHERE id = :carwash_id", ['carwash_id' => $booking['location_id']]);
+        } catch (Exception $e) {
+            error_log("Failed to fetch carwash data for session booking: " . $e->getMessage());
+        }
+    }
+    
+    // Fetch vehicle info from user_vehicles if vehicle is numeric (ID)
+    $vehicleData = null;
+    if (is_numeric($booking['vehicle'])) {
+        try {
+            $vehicleData = $db->fetchOne("SELECT brand, model, color, plate_number FROM user_vehicles WHERE id = :vehicle_id AND user_id = :user_id", [
+                'vehicle_id' => (int)$booking['vehicle'],
+                'user_id' => $booking['user_id']
+            ]);
+        } catch (Exception $e) {
+            error_log("Failed to fetch vehicle data for session booking: " . $e->getMessage());
+        }
+    }
+    
+    // Normalize to match database booking structure
+    $booking = [
+        'id' => $id, // Use session id as booking id
+        'user_id' => $booking['user_id'],
+        'service_id' => $booking['service_id'],
+        'booking_date' => $booking['date'],
+        'booking_time' => $booking['time'],
+        'vehicle_type' => $vehicleData ? ($vehicleData['brand'] ?? '') : $booking['vehicle'], // Use brand from user_vehicles or fallback to vehicle string
+        'vehicle_plate' => $vehicleData ? ($vehicleData['plate_number'] ?? '') : '', // Use plate from user_vehicles
+        'vehicle_model' => $vehicleData ? ($vehicleData['model'] ?? '') : '', // Use model from user_vehicles
+        'vehicle_color' => $vehicleData ? ($vehicleData['color'] ?? '') : '', // Use color from user_vehicles
+        'status' => $booking['status'],
+        'total_price' => $booking['price'],
+        'notes' => $booking['notes'],
+        'created_at' => $booking['created_at'],
+        'updated_at' => $booking['created_at'],
+        // Joined data
+        'customer_name' => $user ? ($user['full_name'] ?? '') : '',
+        'customer_phone' => $user ? ($user['phone'] ?? '') : '',
+        'customer_email' => $user ? ($user['email'] ?? '') : '',
+        'service_name' => $service ? ($service['name'] ?? '') : '',
+        'service_price' => $service ? ($service['price'] ?? $booking['price']) : $booking['price'],
+        'service_duration' => $service ? ($service['duration'] ?? 0) : 0,
+        'service_category' => $service ? ($service['category'] ?? '') : '',
+        'carwash_name' => $carwash ? ($carwash['name'] ?? $booking['location']) : $booking['location'],
+        'carwash_address' => $carwash ? ($carwash['address'] ?? '') : '',
+        'carwash_city' => $carwash ? ($carwash['city'] ?? '') : '',
+        'carwash_district' => $carwash ? ($carwash['district'] ?? '') : '',
+        'carwash_phone' => $carwash ? ($carwash['phone'] ?? '') : '',
+        'carwash_email' => $carwash ? ($carwash['email'] ?? '') : '',
+        'carwash_lat' => $carwash ? ($carwash['latitude'] ?? null) : null,
+        'carwash_lng' => $carwash ? ($carwash['longitude'] ?? null) : null,
+    ];
+}
+
+// Handle package bookings (multiple services)
+$packageServices = [];
+if (!empty($booking['service_id']) && is_numeric($booking['service_id'])) {
+    // Check if this is a package booking with multiple services
+    try {
+        $packageQuery = "
+            SELECT
+                bs.*,
+                s.name as service_name,
+                s.price as original_price,
+                s.duration as service_duration,
+                s.category as service_category
+            FROM booking_services bs
+            LEFT JOIN services s ON bs.service_id = s.id
+            WHERE bs.booking_id = :booking_id
+            ORDER BY s.category DESC, s.price DESC
+        ";
+        $packageServices = $db->fetchAll($packageQuery, ['booking_id' => $booking['id']]);
+    } catch (Exception $e) {
+        error_log("Failed to fetch package services for booking: " . $e->getMessage());
+        $packageServices = [];
     }
 }
 
-// Basic HTML view - keep styling consistent with dashboard
+// Format booking data for display
+$bookingData = [
+    'id' => $booking['id'],
+    'booking_number' => $booking['booking_number'] ?? 'BK-' . $booking['id'],
+    'status' => $booking['status'] ?? 'pending',
+    'created_at' => $booking['created_at'] ?? '',
+    'updated_at' => $booking['updated_at'] ?? '',
+
+    // Customer Info
+    'customer' => [
+        'name' => $booking['customer_name'] ?? '',
+        'phone' => $booking['customer_phone'] ?? '',
+        'email' => $booking['customer_email'] ?? ''
+    ],
+
+    // Vehicle Info (from bookings table directly)
+    'vehicle' => [
+        'brand' => (!empty($booking['vehicle_type']) && strtolower($booking['vehicle_type']) !== 'belirtilmemiş') ? $booking['vehicle_type'] : '-',
+        'model' => (!empty($booking['vehicle_model']) && strtolower($booking['vehicle_model']) !== 'belirtilmemiş') ? $booking['vehicle_model'] : '-',
+        'plate' => (!empty($booking['vehicle_plate']) && strtolower($booking['vehicle_plate']) !== 'belirtilmemiş') ? $booking['vehicle_plate'] : '-',
+        'color' => (!empty($booking['vehicle_color']) && strtolower($booking['vehicle_color']) !== 'belirtilmemiş') ? $booking['vehicle_color'] : '-',
+        'year' => '', // Not stored in bookings
+        'type' => $booking['vehicle_type'] ?? ''
+    ],
+
+    // Service/Package Info
+    'service' => [
+        'name' => $booking['service_name'] ?? '',
+        'price' => (float)($booking['service_price'] ?? 0),
+        'duration' => $booking['service_duration'] ?? 0,
+        'category' => $booking['service_category'] ?? '',
+        'is_package' => count($packageServices) > 1
+    ],
+
+    // Package Services (if applicable)
+    'package_services' => $packageServices,
+
+    // Booking Info
+    'booking' => [
+        'date' => $booking['booking_date'] ?? '',
+        'time' => $booking['booking_time'] ?? '',
+        'datetime_formatted' => (!empty($booking['booking_date']) && !empty($booking['booking_time']))
+            ? date('Y-m-d H:i', strtotime($booking['booking_date'] . ' ' . $booking['booking_time']))
+            : '',
+        'notes' => $booking['notes'] ?? '',
+        'cancellation_reason' => $booking['cancellation_reason'] ?? ''
+    ],
+
+    // Pricing
+    'pricing' => [
+        'service_price' => (float)($booking['service_price'] ?? 0),
+        'total_price' => (float)($booking['total_price'] ?? 0),
+        'discount_amount' => (float)($booking['discount_amount'] ?? 0),
+        'final_total' => (float)($booking['total_price'] ?? 0)
+    ],
+
+    // Carwash/Location Info
+    'carwash' => [
+        'name' => $booking['carwash_name'] ?? '',
+        'address' => $booking['carwash_address'] ?? '',
+        'city' => $booking['carwash_city'] ?? '',
+        'district' => $booking['carwash_district'] ?? '',
+        'phone' => $booking['carwash_phone'] ?? '',
+        'email' => $booking['carwash_email'] ?? '',
+        'full_address' => trim(($booking['carwash_address'] ?? '') . ', ' . ($booking['carwash_district'] ?? '') . ', ' . ($booking['carwash_city'] ?? ''), ', '),
+        'map_link' => (!empty($booking['carwash_lat']) && !empty($booking['carwash_lng']))
+            ? "https://www.google.com/maps?q={$booking['carwash_lat']},{$booking['carwash_lng']}"
+            : ''
+    ]
+];
+
+// Calculate package total if multiple services
+if (count($packageServices) > 1) {
+    $packageTotal = 0;
+    foreach ($packageServices as $service) {
+        $packageTotal += (float)($service['price'] ?? 0);
+    }
+    $bookingData['pricing']['service_price'] = $packageTotal;
+    $bookingData['pricing']['final_total'] = $packageTotal - $bookingData['pricing']['discount_amount'];
+}
+
+// Base URL for assets
 $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwash_project');
 ?>
 <!doctype html>
@@ -78,111 +259,331 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
             .no-print { display: none !important; }
         }
 
-        /* Small adjustments for PDF generation consistency */
-        .invoice-box { border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; background: #fff; }
-        .invoice-header { border-bottom: 1px solid #eef2f7; padding-bottom: 16px; margin-bottom: 18px; }
-        .company-meta { text-align: right; }
+        /* Updated styling for better UI */
+        body {
+            background-color: #f7f7f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .invoice-box {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            background: #fff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .section-header {
+            background-color: #e3e3eb;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid #4f46e5;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .section-content {
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .invoice-header {
+            border-bottom: 1px solid #eef2f7;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .company-meta {
+            text-align: right;
+        }
+
         @media (max-width: 640px) {
-            .company-meta { text-align: left; margin-top: 12px; }
+            .company-meta {
+                text-align: left;
+                margin-top: 16px;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50 p-4 sm:p-6">
+<body class="p-4 sm:p-6">
     <div class="max-w-4xl mx-auto">
-        <div class="flex items-center justify-between mb-4 no-print">
-            <div class="flex items-center gap-4">
-                <?php
-                    // Attempt to get carwash details if location_id exists
-                    $cw_name = htmlspecialchars($reservation['location'] ?? '');
-                    $cw_address = 'Adres bilgisi yok';
-                    $cw_phone = '';
-                    $cw_email = '';
-                    if (!empty($reservation['location_id'])) {
-                        $lid = $reservation['location_id'];
-                        if (is_numeric($lid)) {
-                            $cw = $db->fetchOne('SELECT * FROM carwashes WHERE id = :id', ['id' => $lid]);
-                            if ($cw) {
-                                $cw_name = htmlspecialchars($cw['name'] ?? $cw_name);
-                                $cw_address = htmlspecialchars($cw['address'] ?? $cw_address);
-                                $cw_phone = htmlspecialchars($cw['phone'] ?? '');
-                                $cw_email = htmlspecialchars($cw['email'] ?? '');
-                            }
-                        }
-                    }
-                ?>
-                <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between mb-4 no-print">
+                <div class="flex items-center gap-4">
                     <?php
-                        // Choose a logo path robustly to avoid 404s in different installs.
-                        $candidate1 = __DIR__ . '/../../frontend/images/logo.png';
-                        $candidate2 = __DIR__ . '/../logo01.png';
-                        $candidate3 = __DIR__ . '/../../frontend/assets/img/default-user.png';
-
-                        if (file_exists($candidate1)) {
-                            $logo_url = $base . '/frontend/images/logo.png';
-                        } elseif (file_exists($candidate2)) {
-                            $logo_url = $base . '/backend/logo01.png';
-                        } elseif (file_exists($candidate3)) {
-                            $logo_url = $base . '/frontend/assets/img/default-user.png';
-                        } else {
-                            // Last resort: use a data URI 1x1 transparent GIF to avoid broken image icon
-                            $logo_url = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
-                        }
+                        // Use carwash data from the booking
+                        $cw_name = htmlspecialchars($bookingData['carwash']['name']);
+                        $cw_address = htmlspecialchars($bookingData['carwash']['full_address']);
+                        $cw_phone = htmlspecialchars($bookingData['carwash']['phone']);
+                        $cw_email = htmlspecialchars($bookingData['carwash']['email']);
                     ?>
-                    <img src="<?php echo htmlspecialchars($logo_url); ?>" alt="Logo" class="w-20 h-20 object-contain">
-                    <div>
-                        <div class="text-lg font-bold text-gray-900"><?php echo $cw_name; ?></div>
-                        <div class="text-sm text-gray-600"><?php echo $cw_address; ?></div>
+                    <div class="flex items-center gap-3">
+                        <?php
+                            // Choose a logo path robustly to avoid 404s in different installs.
+                            $candidate1 = __DIR__ . '/../../frontend/images/logo.png';
+                            $candidate2 = __DIR__ . '/../logo01.png';
+                            $candidate3 = __DIR__ . '/../../frontend/assets/img/default-user.png';
+
+                            if (file_exists($candidate1)) {
+                                $logo_url = $base . '/frontend/images/logo.png';
+                            } elseif (file_exists($candidate2)) {
+                                $logo_url = $base . '/backend/logo01.png';
+                            } elseif (file_exists($candidate3)) {
+                                $logo_url = $base . '/frontend/assets/img/default-user.png';
+                            } else {
+                                // Last resort: use a data URI 1x1 transparent GIF to avoid broken image icon
+                                $logo_url = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+                            }
+                        ?>
+                        <img src="<?php echo htmlspecialchars($logo_url); ?>" alt="Logo" class="w-20 h-20 object-contain">
+                        <div>
+                            <div class="text-lg font-bold text-gray-900"><?php echo $cw_name; ?></div>
+                            <div class="text-sm text-gray-600"><?php echo $cw_address; ?></div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="company-meta text-sm text-gray-700">
-                <div><strong>Fatura No:</strong> <?php echo htmlspecialchars(is_string($reservation['id']) ? $reservation['id'] : ('INV-' . $reservation['id'] . '-' . date('YmdHis'))); ?></div>
-                <div><strong>Tarih:</strong> <?php echo htmlspecialchars(date('Y-m-d')); ?></div>
-                <?php if ($cw_phone): ?><div><strong>Tel:</strong> <?php echo $cw_phone; ?></div><?php endif; ?>
-                <?php if ($cw_email): ?><div><strong>Email:</strong> <?php echo $cw_email; ?></div><?php endif; ?>
-            </div>
-        </div>
-
-        <div id="invoiceContent" class="invoice-box p-6">
+                <div class="company-meta text-sm text-gray-700">
+                    <div><strong>Fatura No:</strong> <?php echo htmlspecialchars($bookingData['booking_number']); ?></div>
+                    <div><strong>Tarih:</strong> <?php echo htmlspecialchars(date('d.m.Y')); ?></div>
+                    <?php if ($cw_phone): ?><div><strong>Tel:</strong> <?php echo $cw_phone; ?></div><?php endif; ?>
+                    <?php if ($cw_email): ?><div><strong>Email:</strong> <?php echo $cw_email; ?></div><?php endif; ?>
+                </div>
+            </div>        <div id="invoiceContent" class="invoice-box p-6">
             <div class="invoice-header flex flex-col sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900 mb-1">Rezervasyon Faturası</h2>
                     <div class="text-sm text-gray-600">Lütfen bilgilerinizi kontrol edin ve ödemeye devam edin.</div>
                 </div>
                 <div class="mt-4 sm:mt-0 text-sm text-gray-700">
-                    <div><strong>Müşteri:</strong> <?php echo htmlspecialchars($_SESSION['name'] ?? $_SESSION['full_name'] ?? ''); ?></div>
-                    <div><strong>Email:</strong> <?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></div>
+                    <div><strong>Fatura No:</strong> <?php echo htmlspecialchars($bookingData['booking_number']); ?></div>
+                    <div><strong>Rezervasyon ID:</strong> <?php echo htmlspecialchars($bookingData['id']); ?></div>
+                    <div><strong>Oluşturulma:</strong> <?php echo htmlspecialchars(date('d.m.Y H:i', strtotime($bookingData['created_at']))); ?></div>
+                    <div><strong>Durum:</strong>
+                        <span class="px-2 py-1 text-xs rounded-full <?php
+                            echo match($bookingData['status']) {
+                                'confirmed' => 'bg-green-100 text-green-800',
+                                'pending' => 'bg-yellow-100 text-yellow-800',
+                                'completed' => 'bg-blue-100 text-blue-800',
+                                'cancelled' => 'bg-red-100 text-red-800',
+                                default => 'bg-gray-100 text-gray-800'
+                            };
+                        ?>">
+                            <?php echo htmlspecialchars(ucfirst($bookingData['status'])); ?>
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 text-sm text-gray-800">
-                <div class="space-y-2">
-                    <div class="font-semibold text-gray-700">Hizmet Bilgileri</div>
-                    <div><strong>Konum / Yıkama:</strong> <?php echo htmlspecialchars($reservation['location'] ?? ''); ?></div>
-                    <div><strong>Hizmet:</strong> <?php echo htmlspecialchars($reservation['service'] ?? ''); ?></div>
-                    <div><strong>Araç:</strong> <?php echo htmlspecialchars($reservation['vehicle'] ?? ''); ?></div>
-                </div>
-                <div class="space-y-2">
-                    <div class="font-semibold text-gray-700">Zamanlama</div>
-                    <div><strong>Tarih:</strong> <?php echo htmlspecialchars($reservation['date'] ?? ''); ?></div>
-                    <div><strong>Saat:</strong> <?php echo htmlspecialchars($reservation['time'] ?? ''); ?></div>
-                </div>
-            </div>
-
+            <!-- Customer Information -->
             <div class="mt-6">
-                <div class="font-semibold text-gray-700 mb-2">Notlar</div>
-                <div class="text-sm text-gray-700 whitespace-pre-wrap"><?php echo nl2br(htmlspecialchars($reservation['notes'] ?? '')); ?></div>
-            </div>
-
-            <div class="mt-6 flex justify-end">
-                <div class="w-full sm:w-1/3 bg-gray-50 p-4 rounded border">
-                    <div class="flex justify-between text-sm text-gray-700"><div>Ara Toplam</div><div><?php echo number_format((float)($reservation['price'] ?? 0), 2); ?> TL</div></div>
-                    <div class="flex justify-between text-sm text-gray-700 mt-2"><div>Toplam</div><div class="font-bold text-lg"><?php echo number_format((float)($reservation['price'] ?? 0), 2); ?> TL</div></div>
+                <div class="section-header">
+                    <h3>Müşteri Bilgileri</h3>
+                </div>
+                <div class="section-content">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Ad Soyad</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['customer']['name']); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Telefon</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['customer']['phone'] ?: '-'); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['customer']['email'] ?: '-'); ?></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-6 text-sm text-gray-600">Ödeme yapılırken lütfen güvenliğinizi sağlayın. Bu sayfa hassas ödeme bilgilerini saklamaz.</div>
+            <!-- Vehicle Information -->
+            <div class="mt-6">
+                <div class="section-header">
+                    <h3>Araç Bilgileri</h3>
+                </div>
+                <div class="section-content">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Marka</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['vehicle']['brand']); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Model</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['vehicle']['model']); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Renk</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['vehicle']['color']); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Plaka</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['vehicle']['plate']); ?></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Information -->
+            <div class="mt-6">
+                <div class="section-header">
+                    <h3>Hizmet Bilgileri</h3>
+                </div>
+                <div class="section-content">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Hizmet Adı</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['service']['name']); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Hizmet Türü</div>
+                            <div class="detail-value"><?php echo htmlspecialchars(ucfirst($bookingData['service']['category']) ?: '-'); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Fiyat</div>
+                            <div class="detail-value">₺<?php echo number_format($bookingData['pricing']['service_price'], 2); ?></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservation Information -->
+            <div class="mt-6">
+                <div class="section-header">
+                    <h3>Rezervasyon Bilgileri</h3>
+                </div>
+                <div class="section-content">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Tarih</div>
+                            <div class="detail-value"><?php echo htmlspecialchars(date('d.m.Y', strtotime($bookingData['booking']['date']))); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Saat</div>
+                            <div class="detail-value"><?php echo htmlspecialchars(date('H:i', strtotime($bookingData['booking']['time']))); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Oluşturulma Tarihi</div>
+                            <div class="detail-value"><?php echo htmlspecialchars(date('d.m.Y H:i', strtotime($bookingData['created_at']))); ?></div>
+                        </div>
+                    </div>
+                    <?php if (!empty($bookingData['booking']['notes'])): ?>
+                    <div class="mt-4">
+                        <div class="detail-label">Notlar</div>
+                        <div class="detail-value mt-1 p-3 bg-white rounded border"><?php echo nl2br(htmlspecialchars($bookingData['booking']['notes'])); ?></div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Location Information -->
+            <div class="mt-6">
+                <div class="section-header">
+                    <h3>Konum Bilgileri</h3>
+                </div>
+                <div class="section-content">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Adres</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['address'] ?: '-'); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">İlçe</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['district'] ?: '-'); ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Şehir</div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['city'] ?: '-'); ?></div>
+                        </div>
+                    </div>
+                    <?php if (!empty($bookingData['carwash']['phone'])): ?>
+                    <div class="detail-item mt-4">
+                        <div class="detail-label">Telefon</div>
+                        <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['phone']); ?></div>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($bookingData['carwash']['email'])): ?>
+                    <div class="detail-item">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['email']); ?></div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Pricing Table -->
+            <div class="mt-6">
+                <div class="section-header">
+                    <h3>Fiyatlandırma</h3>
+                </div>
+                <div class="section-content">
+                    <div class="space-y-3">
+                        <?php if ($bookingData['service']['is_package'] && !empty($bookingData['package_services'])): ?>
+                            <!-- Package pricing breakdown -->
+                            <?php foreach ($bookingData['package_services'] as $service): ?>
+                            <div class="flex justify-between items-center p-3 bg-white rounded border">
+                                <div class="font-medium"><?php echo htmlspecialchars($service['service_name']); ?></div>
+                                <div class="font-medium">₺<?php echo number_format($service['price'], 2); ?></div>
+                            </div>
+                            <?php endforeach; ?>
+                            <hr class="my-3">
+                        <?php else: ?>
+                            <!-- Single service pricing -->
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium"><?php echo htmlspecialchars($bookingData['service']['name']); ?> (<?php echo htmlspecialchars($bookingData['service']['duration']); ?> dk)</span>
+                                <span class="font-medium">₺<?php echo number_format($bookingData['pricing']['service_price'], 2); ?></span>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($bookingData['pricing']['discount_amount'] > 0): ?>
+                        <div class="flex justify-between items-center text-green-600">
+                            <span>İndirim</span>
+                            <span>-₺<?php echo number_format($bookingData['pricing']['discount_amount'], 2); ?></span>
+                        </div>
+                        <?php endif; ?>
+
+                        <hr class="my-3 border-t-2">
+                        <div class="flex justify-between items-center font-bold text-lg">
+                            <span>Toplam</span>
+                            <span>₺<?php echo number_format($bookingData['pricing']['final_total'], 2); ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="mt-4 flex items-center justify-between gap-3 flex-col sm:flex-row no-print">
@@ -195,7 +596,7 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
                 <button id="pdfBtn" class="px-4 py-2 bg-blue-600 text-white rounded">PDF İndir</button>
 
                 <form method="post" action="pay.php" class="inline">
-                    <input type="hidden" name="reservation_id" value="<?php echo htmlspecialchars($reservation['id']); ?>">
+                    <input type="hidden" name="reservation_id" value="<?php echo htmlspecialchars($bookingData['id']); ?>">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
                     <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Ödemeye Geç</button>
                 </form>
@@ -216,7 +617,7 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
             if (pdfBtn && invoice) pdfBtn.addEventListener('click', function(){
                 const opt = {
                     margin:       0.4,
-                    filename:     'invoice-<?php echo preg_replace('/[^A-Za-z0-9_-]/','',htmlspecialchars($reservation['id'])); ?>.pdf',
+                    filename:     'invoice-<?php echo preg_replace('/[^A-Za-z0-9_-]/','',htmlspecialchars($bookingData['id'])); ?>.pdf',
                     image:        { type: 'jpeg', quality: 0.98 },
                     html2canvas:  { scale: 2, useCORS: true },
                     jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
