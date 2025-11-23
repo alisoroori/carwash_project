@@ -58,26 +58,37 @@ if (strpos($id, 's_') === 0) {
         exit;
     }
 
-    // For database bookings, try to fetch complete vehicle data from user_vehicles
+    // For database bookings, initialize vehicle data from bookings table and enhance with user_vehicles if possible
     if ($booking) {
         Logger::info('Fetched booking data: ' . json_encode($booking));
-        $vehicleQuery = "SELECT brand, model, color, plate_number FROM user_vehicles WHERE user_id = :user_id AND brand = :brand AND plate_number = :plate LIMIT 1";
-        try {
-            $vehicleData = $db->fetchOne($vehicleQuery, [
-                'user_id' => $booking['user_id'],
-                'brand' => $booking['vehicle_type'],
-                'plate' => $booking['vehicle_plate']
-            ]);
-        } catch (Exception $e) {
-            Logger::info('Failed to fetch vehicle data: ' . $e->getMessage());
-            $vehicleData = null;
-        }
-        Logger::info('Vehicle query result: ' . json_encode($vehicleData));
-        if ($vehicleData) {
-            $booking['vehicle_brand'] = $vehicleData['brand'];
-            $booking['vehicle_model'] = $vehicleData['model'];
-            $booking['vehicle_color'] = $vehicleData['color'];
-            $booking['vehicle_plate'] = $vehicleData['plate_number'];
+
+        // Initialize vehicle data from bookings table using CORRECT column names
+        $booking['vehicle_brand'] = $booking['vehicle_type'] ?? ''; // vehicle_type is the brand/category
+        $booking['vehicle_model'] = $booking['vehicle_model'] ?? '';
+        $booking['vehicle_color'] = $booking['vehicle_color'] ?? '';
+        $booking['vehicle_plate'] = $booking['vehicle_plate'] ?? '';
+
+        // Try to enhance with complete vehicle data from user_vehicles if available
+        // This provides richer data (actual brand name instead of enum value)
+        if (!empty($booking['vehicle_type']) || !empty($booking['vehicle_plate'])) {
+            $vehicleQuery = "SELECT brand, model, color, license_plate FROM user_vehicles WHERE user_id = :user_id AND (brand = :brand OR license_plate = :plate) LIMIT 1";
+            try {
+                $vehicleData = $db->fetchOne($vehicleQuery, [
+                    'user_id' => $booking['user_id'],
+                    'brand' => $booking['vehicle_type'] ?? '',
+                    'plate' => $booking['vehicle_plate'] ?? ''
+                ]);
+                Logger::info('Vehicle query result: ' . json_encode($vehicleData));
+                if ($vehicleData) {
+                    // Override with complete data from user_vehicles if available
+                    $booking['vehicle_brand'] = $vehicleData['brand'] ?: $booking['vehicle_brand'];
+                    $booking['vehicle_model'] = $vehicleData['model'] ?: $booking['vehicle_model'];
+                    $booking['vehicle_color'] = $vehicleData['color'] ?: $booking['vehicle_color'];
+                    $booking['vehicle_plate'] = $vehicleData['license_plate'] ?: $booking['vehicle_plate'];
+                }
+            } catch (Exception $e) {
+                Logger::info('Failed to fetch vehicle data from user_vehicles: ' . $e->getMessage());
+            }
         }
     }
 }
@@ -126,7 +137,7 @@ try {
         $vehicleData = null;
         if (is_numeric($booking['vehicle'])) {
             try {
-                $vehicleData = $db->fetchOne("SELECT brand, model, color, plate_number FROM user_vehicles WHERE id = :vehicle_id AND user_id = :user_id", [
+                $vehicleData = $db->fetchOne("SELECT brand, model, color, license_plate FROM user_vehicles WHERE id = :vehicle_id AND user_id = :user_id", [
                     'vehicle_id' => (int)$booking['vehicle'],
                     'user_id' => $booking['user_id']
                 ]);
@@ -144,7 +155,7 @@ try {
             'booking_date' => $booking['date'],
             'booking_time' => $booking['time'],
             'vehicle_brand' => $vehicleData ? ($vehicleData['brand'] ?? '') : $booking['vehicle'], // Use brand from user_vehicles or fallback to vehicle string
-            'vehicle_plate' => $vehicleData ? ($vehicleData['plate_number'] ?? '') : '', // Use plate from user_vehicles
+            'vehicle_plate' => $vehicleData ? ($vehicleData['license_plate'] ?? '') : '', // Use license_plate from user_vehicles
             'vehicle_model' => $vehicleData ? ($vehicleData['model'] ?? '') : '', // Use model from user_vehicles
             'vehicle_color' => $vehicleData ? ($vehicleData['color'] ?? '') : '', // Use color from user_vehicles
             'status' => $booking['status'],

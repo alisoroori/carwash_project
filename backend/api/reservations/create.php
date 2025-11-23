@@ -125,6 +125,34 @@ $reservation = [
 // Try to insert into DB as a bookings row; if DB not available or insert fails, fallback to session
 $reservation_id = null;
 try {
+    // Fetch vehicle data from user_vehicles table if vehicle is numeric ID
+    $vehicleType = 'sedan'; // Default
+    $vehiclePlate = '';
+    $vehicleModel = '';
+    $vehicleColor = '';
+    
+    if (is_numeric($vehicle)) {
+        try {
+            $vehicleData = $db->fetchOne(
+                "SELECT brand, model, license_plate, color FROM user_vehicles WHERE id = :vehicle_id AND user_id = :user_id",
+                ['vehicle_id' => (int)$vehicle, 'user_id' => $user_id]
+            );
+            if ($vehicleData) {
+                // Map user_vehicles fields to bookings table format
+                // Note: bookings.vehicle_type is an enum, so we use brand as a text representation
+                $vehicleType = $vehicleData['brand'] ?: 'sedan';
+                $vehicleModel = $vehicleData['model'] ?: '';
+                $vehiclePlate = $vehicleData['license_plate'] ?: '';
+                $vehicleColor = $vehicleData['color'] ?: '';
+                error_log('reservations/create.php: Fetched vehicle data - brand: ' . $vehicleType . ', model: ' . $vehicleModel . ', plate: ' . $vehiclePlate . ', color: ' . $vehicleColor);
+            } else {
+                error_log('reservations/create.php: No vehicle found for ID ' . $vehicle);
+            }
+        } catch (\Throwable $e) {
+            error_log('reservations/create.php: Failed to fetch vehicle data: ' . $e->getMessage());
+        }
+    }
+    
     // Map to bookings table columns where possible
     $insert = [
         'user_id' => $user_id,
@@ -132,6 +160,10 @@ try {
         'service_id' => is_numeric($service_id) ? (int)$service_id : null,
         'booking_date' => $date,
         'booking_time' => $time,
+        'vehicle_type' => $vehicleType,
+        'vehicle_plate' => $vehiclePlate,
+        'vehicle_model' => $vehicleModel,
+        'vehicle_color' => $vehicleColor,
         'status' => 'pending',
         'total_price' => $price,
         'notes' => $notes,
