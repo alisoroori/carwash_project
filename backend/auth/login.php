@@ -313,7 +313,7 @@ include '../includes/universal_header.php';
               <i class="fas fa-envelope mr-2 text-blue-600"></i>E-posta Adresi
             </label>
             <label for="auto_label_70" class="sr-only">Email</label>
-            <input type="email" name="email" placeholder="ornek@email.com" required class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_70">
+            <input type="email" name="email" placeholder="ornek@email.com" required autocomplete="email" class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" id="auto_label_70">
           </div>
 
           <!-- Password Field -->
@@ -322,7 +322,7 @@ include '../includes/universal_header.php';
               <i class="fas fa-lock mr-2 text-blue-600"></i>Şifre
             </label>
             <div class="relative">
-              <label for="password" class="sr-only">Password</label><input type="password" name="password" id="password" placeholder="Şifrenizi girin" required class="input-field w-full px-4 py-3 pr-12 rounded-lg focus:outline-none">
+              <label for="password" class="sr-only">Password</label><input type="password" name="password" id="password" placeholder="Şifrenizi girin" required autocomplete="current-password" class="input-field w-full px-4 py-3 pr-12 rounded-lg focus:outline-none">
               <button type="button" onclick="togglePassword()" class="password-toggle">
                 <i class="fas fa-eye" id="passwordToggle"></i>
               </button>

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../includes/bootstrap.php';
 
 use App\Classes\Auth;
 use App\Classes\Database;
+use App\Classes\Logger;
 
 Auth::requireRole(['customer']);
 $db = Database::getInstance();
@@ -35,9 +36,9 @@ if (strpos($id, 's_') === 0) {
             s.duration as service_duration,
             s.category as service_category,
             c.name as carwash_name,
-            c.address as carwash_address,
-            c.city as carwash_city,
-            c.district as carwash_district,
+            c.address as cw_address,
+            c.city as cw_city,
+            c.district as cw_district,
             c.phone as carwash_phone,
             c.email as carwash_email,
             c.latitude as carwash_lat,
@@ -49,195 +50,238 @@ if (strpos($id, 's_') === 0) {
         WHERE b.id = :id
     ";
 
-    $booking = $db->fetchOne($query, ['id' => $id]);
+    try {
+        $booking = $db->fetchOne($query, ['id' => $id]);
+    } catch (Exception $e) {
+        Logger::info('Failed to fetch booking: ' . $e->getMessage());
+        echo "<p>Bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>";
+        exit;
+    }
+
+    // For database bookings, try to fetch complete vehicle data from user_vehicles
+    if ($booking) {
+        Logger::info('Fetched booking data: ' . json_encode($booking));
+        $vehicleQuery = "SELECT brand, model, color, plate_number FROM user_vehicles WHERE user_id = :user_id AND brand = :brand AND plate_number = :plate LIMIT 1";
+        try {
+            $vehicleData = $db->fetchOne($vehicleQuery, [
+                'user_id' => $booking['user_id'],
+                'brand' => $booking['vehicle_type'],
+                'plate' => $booking['vehicle_plate']
+            ]);
+        } catch (Exception $e) {
+            Logger::info('Failed to fetch vehicle data: ' . $e->getMessage());
+            $vehicleData = null;
+        }
+        Logger::info('Vehicle query result: ' . json_encode($vehicleData));
+        if ($vehicleData) {
+            $booking['vehicle_brand'] = $vehicleData['brand'];
+            $booking['vehicle_model'] = $vehicleData['model'];
+            $booking['vehicle_color'] = $vehicleData['color'];
+            $booking['vehicle_plate'] = $vehicleData['plate_number'];
+        }
+    }
 }
 
 if (!$booking) {
     echo "<p>Rezervasyon bulunamadı.</p>"; exit;
 }
 
-// If this is a session-based booking, normalize the data structure and fetch related info
-if (isset($booking['from_session']) && $booking['from_session']) {
-    // Fetch user info
-    $user = null;
-    try {
-        $user = $db->fetchOne("SELECT full_name, phone, email FROM users WHERE id = :user_id", ['user_id' => $booking['user_id']]);
-    } catch (Exception $e) {
-        // Log error and continue with session data
-        error_log("Failed to fetch user data for session booking: " . $e->getMessage());
-    }
-    
-    // Fetch service info if service_id is numeric
-    $service = null;
-    if (is_numeric($booking['service_id'])) {
+// Process booking data with error handling
+try {
+    // If this is a session-based booking, normalize the data structure and fetch related info
+    if (isset($booking['from_session']) && $booking['from_session']) {
+        // Fetch user info
+        $user = null;
         try {
-            $service = $db->fetchOne("SELECT name, price, duration, category FROM services WHERE id = :service_id", ['service_id' => $booking['service_id']]);
+            $user = $db->fetchOne("SELECT full_name, phone, email FROM users WHERE id = :user_id", ['user_id' => $booking['user_id']]);
         } catch (Exception $e) {
-            error_log("Failed to fetch service data for session booking: " . $e->getMessage());
+            // Log error and continue with session data
+            Logger::info("Failed to fetch user data for session booking: " . $e->getMessage());
+            $user = null;
+        }
+        
+        // Fetch service info if service_id is numeric
+        $service = null;
+        if (is_numeric($booking['service_id'])) {
+            try {
+                $service = $db->fetchOne("SELECT name, price, duration, category FROM services WHERE id = :service_id", ['service_id' => $booking['service_id']]);
+            } catch (Exception $e) {
+                Logger::info("Failed to fetch service data for session booking: " . $e->getMessage());
+                $service = null;
+            }
+        }
+        
+        // Fetch carwash info if location_id is numeric
+        $carwash = null;
+        if (is_numeric($booking['location_id'])) {
+            try {
+                $carwash = $db->fetchOne("SELECT name, address, city, district, phone, email, latitude, longitude FROM carwashes WHERE id = :carwash_id", ['carwash_id' => $booking['location_id']]);
+            } catch (Exception $e) {
+                Logger::info("Failed to fetch carwash data for session booking: " . $e->getMessage());
+                $carwash = null;
+            }
+        }
+        
+        // Fetch vehicle info from user_vehicles if vehicle is numeric (ID)
+        $vehicleData = null;
+        if (is_numeric($booking['vehicle'])) {
+            try {
+                $vehicleData = $db->fetchOne("SELECT brand, model, color, plate_number FROM user_vehicles WHERE id = :vehicle_id AND user_id = :user_id", [
+                    'vehicle_id' => (int)$booking['vehicle'],
+                    'user_id' => $booking['user_id']
+                ]);
+            } catch (Exception $e) {
+                Logger::info("Failed to fetch vehicle data for session booking: " . $e->getMessage());
+                $vehicleData = null;
+            }
+        }
+        
+        // Normalize to match database booking structure
+        $booking = [
+            'id' => $id, // Use session id as booking id
+            'user_id' => $booking['user_id'],
+            'service_id' => $booking['service_id'],
+            'booking_date' => $booking['date'],
+            'booking_time' => $booking['time'],
+            'vehicle_brand' => $vehicleData ? ($vehicleData['brand'] ?? '') : $booking['vehicle'], // Use brand from user_vehicles or fallback to vehicle string
+            'vehicle_plate' => $vehicleData ? ($vehicleData['plate_number'] ?? '') : '', // Use plate from user_vehicles
+            'vehicle_model' => $vehicleData ? ($vehicleData['model'] ?? '') : '', // Use model from user_vehicles
+            'vehicle_color' => $vehicleData ? ($vehicleData['color'] ?? '') : '', // Use color from user_vehicles
+            'status' => $booking['status'],
+            'total_price' => $booking['price'],
+            'notes' => $booking['notes'],
+            'created_at' => $booking['created_at'],
+            'updated_at' => $booking['created_at'],
+            // Joined data
+            'customer_name' => $user ? ($user['full_name'] ?? '') : '',
+            'customer_phone' => $user ? ($user['phone'] ?? '') : '',
+            'customer_email' => $user ? ($user['email'] ?? '') : '',
+            'service_name' => $service ? ($service['name'] ?? '') : '',
+            'service_price' => $service ? ($service['price'] ?? $booking['price']) : $booking['price'],
+            'service_duration' => $service ? ($service['duration'] ?? 0) : 0,
+            'service_category' => $service ? ($service['category'] ?? '') : '',
+            'carwash_name' => $carwash ? ($carwash['name'] ?? $booking['location']) : $booking['location'],
+            'cw_address' => $carwash ? ($carwash['address'] ?? '') : '',
+            'cw_city' => $carwash ? ($carwash['city'] ?? '') : '',
+            'cw_district' => $carwash ? ($carwash['district'] ?? '') : '',
+            'carwash_phone' => $carwash ? ($carwash['phone'] ?? '') : '',
+            'carwash_email' => $carwash ? ($carwash['email'] ?? '') : '',
+            'carwash_lat' => $carwash ? ($carwash['latitude'] ?? null) : null,
+            'carwash_lng' => $carwash ? ($carwash['longitude'] ?? null) : null,
+        ];
+    }
+
+    // Handle package bookings (multiple services)
+    $packageServices = [];
+    if (!empty($booking['service_id']) && is_numeric($booking['service_id'])) {
+        // Check if this is a package booking with multiple services
+        try {
+            $packageQuery = "
+                SELECT
+                    bs.*,
+                    s.name as service_name,
+                    s.price as original_price,
+                    s.duration as service_duration,
+                    s.category as service_category
+                FROM booking_services bs
+                LEFT JOIN services s ON bs.service_id = s.id
+                WHERE bs.booking_id = :booking_id
+                ORDER BY s.category DESC, s.price DESC
+            ";
+            $packageServices = $db->fetchAll($packageQuery, ['booking_id' => $booking['id']]);
+        } catch (Exception $e) {
+            Logger::info("Failed to fetch package services for booking: " . $e->getMessage());
+            $packageServices = [];
         }
     }
-    
-    // Fetch carwash info if location_id is numeric
-    $carwash = null;
-    if (is_numeric($booking['location_id'])) {
-        try {
-            $carwash = $db->fetchOne("SELECT name, address, city, district, phone, email, latitude, longitude FROM carwashes WHERE id = :carwash_id", ['carwash_id' => $booking['location_id']]);
-        } catch (Exception $e) {
-            error_log("Failed to fetch carwash data for session booking: " . $e->getMessage());
-        }
-    }
-    
-    // Fetch vehicle info from user_vehicles if vehicle is numeric (ID)
-    $vehicleData = null;
-    if (is_numeric($booking['vehicle'])) {
-        try {
-            $vehicleData = $db->fetchOne("SELECT brand, model, color, plate_number FROM user_vehicles WHERE id = :vehicle_id AND user_id = :user_id", [
-                'vehicle_id' => (int)$booking['vehicle'],
-                'user_id' => $booking['user_id']
-            ]);
-        } catch (Exception $e) {
-            error_log("Failed to fetch vehicle data for session booking: " . $e->getMessage());
-        }
-    }
-    
-    // Normalize to match database booking structure
-    $booking = [
-        'id' => $id, // Use session id as booking id
-        'user_id' => $booking['user_id'],
-        'service_id' => $booking['service_id'],
-        'booking_date' => $booking['date'],
-        'booking_time' => $booking['time'],
-        'vehicle_type' => $vehicleData ? ($vehicleData['brand'] ?? '') : $booking['vehicle'], // Use brand from user_vehicles or fallback to vehicle string
-        'vehicle_plate' => $vehicleData ? ($vehicleData['plate_number'] ?? '') : '', // Use plate from user_vehicles
-        'vehicle_model' => $vehicleData ? ($vehicleData['model'] ?? '') : '', // Use model from user_vehicles
-        'vehicle_color' => $vehicleData ? ($vehicleData['color'] ?? '') : '', // Use color from user_vehicles
-        'status' => $booking['status'],
-        'total_price' => $booking['price'],
-        'notes' => $booking['notes'],
-        'created_at' => $booking['created_at'],
-        'updated_at' => $booking['created_at'],
-        // Joined data
-        'customer_name' => $user ? ($user['full_name'] ?? '') : '',
-        'customer_phone' => $user ? ($user['phone'] ?? '') : '',
-        'customer_email' => $user ? ($user['email'] ?? '') : '',
-        'service_name' => $service ? ($service['name'] ?? '') : '',
-        'service_price' => $service ? ($service['price'] ?? $booking['price']) : $booking['price'],
-        'service_duration' => $service ? ($service['duration'] ?? 0) : 0,
-        'service_category' => $service ? ($service['category'] ?? '') : '',
-        'carwash_name' => $carwash ? ($carwash['name'] ?? $booking['location']) : $booking['location'],
-        'carwash_address' => $carwash ? ($carwash['address'] ?? '') : '',
-        'carwash_city' => $carwash ? ($carwash['city'] ?? '') : '',
-        'carwash_district' => $carwash ? ($carwash['district'] ?? '') : '',
-        'carwash_phone' => $carwash ? ($carwash['phone'] ?? '') : '',
-        'carwash_email' => $carwash ? ($carwash['email'] ?? '') : '',
-        'carwash_lat' => $carwash ? ($carwash['latitude'] ?? null) : null,
-        'carwash_lng' => $carwash ? ($carwash['longitude'] ?? null) : null,
+
+    // Format booking data for display
+    $bookingData = [
+        'id' => $booking['id'],
+        'booking_number' => $booking['booking_number'] ?? 'BK-' . $booking['id'],
+        'status' => $booking['status'] ?? 'pending',
+        'created_at' => $booking['created_at'] ?? '',
+        'updated_at' => $booking['updated_at'] ?? '',
+
+        // Customer Info
+        'customer' => [
+            'name' => $booking['customer_name'] ?? '',
+            'phone' => $booking['customer_phone'] ?? '',
+            'email' => $booking['customer_email'] ?? ''
+        ],
+
+        // Vehicle Info (from database JOIN)
+        'vehicle' => [
+            'brand' => $booking['vehicle_brand'] ?? '',
+            'model' => $booking['vehicle_model'] ?? '',
+            'plate' => $booking['vehicle_plate'] ?? '',
+            'color' => $booking['vehicle_color'] ?? '',
+            'year' => '', // Not stored in bookings
+            'type' => $booking['vehicle_brand'] ?? ''
+        ],
+
+        // Service/Package Info
+        'service' => [
+            'name' => $booking['service_name'] ?? '',
+            'price' => (float)($booking['service_price'] ?? 0),
+            'duration' => $booking['service_duration'] ?? 0,
+            'category' => $booking['service_category'] ?? '',
+            'is_package' => count($packageServices) > 1
+        ],
+
+        // Package Services (if applicable)
+        'package_services' => $packageServices,
+
+        // Booking Info
+        'booking' => [
+            'date' => $booking['booking_date'] ?? '',
+            'time' => $booking['booking_time'] ?? '',
+            'datetime_formatted' => (!empty($booking['booking_date']) && !empty($booking['booking_time']))
+                ? date('Y-m-d H:i', strtotime($booking['booking_date'] . ' ' . $booking['booking_time']))
+                : '',
+            'notes' => $booking['notes'] ?? '',
+            'cancellation_reason' => $booking['cancellation_reason'] ?? ''
+        ],
+
+        // Pricing
+        'pricing' => [
+            'service_price' => (float)($booking['service_price'] ?? 0),
+            'total_price' => (float)($booking['total_price'] ?? 0),
+            'discount_amount' => (float)($booking['discount_amount'] ?? 0),
+            'final_total' => (float)($booking['total_price'] ?? 0)
+        ],
+
+        // Carwash/Location Info
+        'carwash' => [
+            'name' => $booking['carwash_name'] ?? '',
+            'address' => $booking['cw_address'] ?? '',
+            'city' => $booking['cw_city'] ?? '',
+            'district' => $booking['cw_district'] ?? '',
+            'phone' => $booking['carwash_phone'] ?? '',
+            'email' => $booking['carwash_email'] ?? '',
+            'full_address' => trim(($booking['cw_address'] ?? '') . ', ' . ($booking['cw_district'] ?? '') . ', ' . ($booking['cw_city'] ?? ''), ', '),
+            'map_link' => (!empty($booking['carwash_lat']) && !empty($booking['carwash_lng']))
+                ? "https://www.google.com/maps?q={$booking['carwash_lat']},{$booking['carwash_lng']}"
+                : ''
+        ]
     ];
-}
 
-// Handle package bookings (multiple services)
-$packageServices = [];
-if (!empty($booking['service_id']) && is_numeric($booking['service_id'])) {
-    // Check if this is a package booking with multiple services
-    try {
-        $packageQuery = "
-            SELECT
-                bs.*,
-                s.name as service_name,
-                s.price as original_price,
-                s.duration as service_duration,
-                s.category as service_category
-            FROM booking_services bs
-            LEFT JOIN services s ON bs.service_id = s.id
-            WHERE bs.booking_id = :booking_id
-            ORDER BY s.category DESC, s.price DESC
-        ";
-        $packageServices = $db->fetchAll($packageQuery, ['booking_id' => $booking['id']]);
-    } catch (Exception $e) {
-        error_log("Failed to fetch package services for booking: " . $e->getMessage());
-        $packageServices = [];
+    Logger::info('BookingData vehicle section: ' . json_encode($bookingData['vehicle']));
+
+    // Calculate package total if multiple services
+    if (count($packageServices) > 1) {
+        $packageTotal = 0;
+        foreach ($packageServices as $service) {
+            $packageTotal += (float)($service['price'] ?? 0);
+        }
+        $bookingData['pricing']['service_price'] = $packageTotal;
+        $bookingData['pricing']['final_total'] = $packageTotal - $bookingData['pricing']['discount_amount'];
     }
-}
 
-// Format booking data for display
-$bookingData = [
-    'id' => $booking['id'],
-    'booking_number' => $booking['booking_number'] ?? 'BK-' . $booking['id'],
-    'status' => $booking['status'] ?? 'pending',
-    'created_at' => $booking['created_at'] ?? '',
-    'updated_at' => $booking['updated_at'] ?? '',
-
-    // Customer Info
-    'customer' => [
-        'name' => $booking['customer_name'] ?? '',
-        'phone' => $booking['customer_phone'] ?? '',
-        'email' => $booking['customer_email'] ?? ''
-    ],
-
-    // Vehicle Info (from bookings table directly)
-    'vehicle' => [
-        'brand' => (!empty($booking['vehicle_type']) && strtolower($booking['vehicle_type']) !== 'belirtilmemiş') ? $booking['vehicle_type'] : '-',
-        'model' => (!empty($booking['vehicle_model']) && strtolower($booking['vehicle_model']) !== 'belirtilmemiş') ? $booking['vehicle_model'] : '-',
-        'plate' => (!empty($booking['vehicle_plate']) && strtolower($booking['vehicle_plate']) !== 'belirtilmemiş') ? $booking['vehicle_plate'] : '-',
-        'color' => (!empty($booking['vehicle_color']) && strtolower($booking['vehicle_color']) !== 'belirtilmemiş') ? $booking['vehicle_color'] : '-',
-        'year' => '', // Not stored in bookings
-        'type' => $booking['vehicle_type'] ?? ''
-    ],
-
-    // Service/Package Info
-    'service' => [
-        'name' => $booking['service_name'] ?? '',
-        'price' => (float)($booking['service_price'] ?? 0),
-        'duration' => $booking['service_duration'] ?? 0,
-        'category' => $booking['service_category'] ?? '',
-        'is_package' => count($packageServices) > 1
-    ],
-
-    // Package Services (if applicable)
-    'package_services' => $packageServices,
-
-    // Booking Info
-    'booking' => [
-        'date' => $booking['booking_date'] ?? '',
-        'time' => $booking['booking_time'] ?? '',
-        'datetime_formatted' => (!empty($booking['booking_date']) && !empty($booking['booking_time']))
-            ? date('Y-m-d H:i', strtotime($booking['booking_date'] . ' ' . $booking['booking_time']))
-            : '',
-        'notes' => $booking['notes'] ?? '',
-        'cancellation_reason' => $booking['cancellation_reason'] ?? ''
-    ],
-
-    // Pricing
-    'pricing' => [
-        'service_price' => (float)($booking['service_price'] ?? 0),
-        'total_price' => (float)($booking['total_price'] ?? 0),
-        'discount_amount' => (float)($booking['discount_amount'] ?? 0),
-        'final_total' => (float)($booking['total_price'] ?? 0)
-    ],
-
-    // Carwash/Location Info
-    'carwash' => [
-        'name' => $booking['carwash_name'] ?? '',
-        'address' => $booking['carwash_address'] ?? '',
-        'city' => $booking['carwash_city'] ?? '',
-        'district' => $booking['carwash_district'] ?? '',
-        'phone' => $booking['carwash_phone'] ?? '',
-        'email' => $booking['carwash_email'] ?? '',
-        'full_address' => trim(($booking['carwash_address'] ?? '') . ', ' . ($booking['carwash_district'] ?? '') . ', ' . ($booking['carwash_city'] ?? ''), ', '),
-        'map_link' => (!empty($booking['carwash_lat']) && !empty($booking['carwash_lng']))
-            ? "https://www.google.com/maps?q={$booking['carwash_lat']},{$booking['carwash_lng']}"
-            : ''
-    ]
-];
-
-// Calculate package total if multiple services
-if (count($packageServices) > 1) {
-    $packageTotal = 0;
-    foreach ($packageServices as $service) {
-        $packageTotal += (float)($service['price'] ?? 0);
-    }
-    $bookingData['pricing']['service_price'] = $packageTotal;
-    $bookingData['pricing']['final_total'] = $packageTotal - $bookingData['pricing']['discount_amount'];
+} catch (Exception $e) {
+    Logger::info("Error processing booking data: " . $e->getMessage());
+    echo "<p>Bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>";
+    exit;
 }
 
 // Base URL for assets
@@ -519,15 +563,15 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
                     <div class="detail-grid">
                         <div class="detail-item">
                             <div class="detail-label">Adres</div>
-                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['address'] ?: '-'); ?></div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['address']); ?></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">İlçe</div>
-                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['district'] ?: '-'); ?></div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['district']); ?></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Şehir</div>
-                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['city'] ?: '-'); ?></div>
+                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['city']); ?></div>
                         </div>
                     </div>
                     <?php if (!empty($bookingData['carwash']['phone'])): ?>
@@ -615,18 +659,30 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
             if (printBtn) printBtn.addEventListener('click', function(){ window.print(); });
 
             if (pdfBtn && invoice) pdfBtn.addEventListener('click', function(){
+                // Show loading state
+                const originalText = pdfBtn.textContent;
+                pdfBtn.textContent = 'PDF Oluşturuluyor...';
+                pdfBtn.disabled = true;
+
                 const opt = {
                     margin:       0.4,
                     filename:     'invoice-<?php echo preg_replace('/[^A-Za-z0-9_-]/','',htmlspecialchars($bookingData['id'])); ?>.pdf',
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
+                    image:        { type: 'jpeg', quality: 0.85 }, // Reduced quality for faster processing
+                    html2canvas:  { scale: 1.5, useCORS: true }, // Reduced scale for better performance
                     jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                 };
-                // clone to avoid modifying live node
-                const element = invoice.cloneNode(true);
-                element.style.width = '100%';
-                document.body.appendChild(element);
-                html2pdf().set(opt).from(element).save().then(() => { document.body.removeChild(element); }).catch(err => { console.error(err); alert('PDF oluşturulamadı.'); });
+
+                // Use the original element instead of cloning for better performance
+                html2pdf().set(opt).from(invoice).save().then(() => {
+                    // Reset button state
+                    pdfBtn.textContent = originalText;
+                    pdfBtn.disabled = false;
+                }).catch(err => {
+                    console.error(err);
+                    alert('PDF oluşturulamadı.');
+                    pdfBtn.textContent = originalText;
+                    pdfBtn.disabled = false;
+                });
             });
         })();
     </script>
