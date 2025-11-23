@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Enhanced Customer Dashboard Header
  * Clean, Professional, Fully Responsive Design with TailwindCSS

@@ -20,6 +20,13 @@ if (file_exists(__DIR__ . '/dashboard_header.php')) {
     if (file_exists(__DIR__ . '/header.php')) include_once __DIR__ . '/header.php';
 }
 
+// Ensure Alpine loader present (local + CDN fallback) — keep same snippet in customer header
+?>
+<!-- Alpine.js -->
+<script src="/carwash_project/frontend/vendor/alpine/cdn.min.js" defer></script>
+<script defer>console.log('Alpine initialized');</script>
+<?php
+
 // Ensure we have a usable logo path for the MyCar brand
 $base_url = isset($base_url) ? $base_url : ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/carwash_project';
 $raw_logo = $_SESSION['logo_path'] ?? null;

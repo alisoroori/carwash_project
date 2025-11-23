@@ -181,8 +181,8 @@ if (!empty($raw_logo)) {
     <!-- Tailwind CSS - Local Production Build -->
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome (local) -->
+    <link rel="stylesheet" href="/carwash_project/frontend/vendor/fontawesome/css/all.min.css">
     
     <?php 
     // Include Universal CSS Styles for entire website

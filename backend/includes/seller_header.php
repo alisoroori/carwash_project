@@ -132,7 +132,7 @@ if (empty($workplace_status)) $workplace_status = 'open';
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title><?php echo htmlspecialchars($page_title); ?></title>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="/carwash_project/frontend/vendor/fontawesome/css/all.min.css">
     <style>
         :root{ --header-height:64px; }
         body{ margin:0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
@@ -176,15 +176,11 @@ if (empty($workplace_status)) $workplace_status = 'open';
         .status-closed { background: rgba(239,68,68,0.10); color:#ef4444; border:1px solid rgba(239,68,68,0.15); }
         @media (max-width:900px) { .toggle-label{ display:none; } }
     </style>
-    <!-- Load Alpine.js if not already present (needed for header animations) -->
-    <script>
-        if (typeof Alpine === 'undefined') {
-            var s = document.createElement('script');
-            s.src = 'https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js';
-            s.defer = true;
-            document.head.appendChild(s);
-        }
-    </script>
+        <!-- Vehicle manager factory (same-origin) - required by vehicle sections -->
+        <script src="/carwash_project/frontend/js/vehicleManager.js" defer></script>
+        <!-- Alpine.js -->
+        <script src="/carwash_project/frontend/vendor/alpine/cdn.min.js" defer></script>
+        <script defer>console.log('Alpine initialized');</script>
         <?php
         // Ensure a CSRF token is available for JS-driven forms and APIs
         $csrf_file = __DIR__ . '/csrf_protect.php';

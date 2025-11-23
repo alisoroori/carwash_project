@@ -221,7 +221,7 @@ $dir = in_array($primary, $rtl_languages, true) ? 'rtl' : 'ltr';
   ?>
     <link rel="stylesheet" href="<?php echo $base_url; ?>/frontend/vendor/fontawesome/css/all.min.css">
   <?php else: ?>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/carwash_project/frontend/vendor/fontawesome/css/all.min.css">
   <?php endif; ?>
 
   <!-- Vehicle manager factory (load before Alpine so factories can register before Alpine initializes) -->
@@ -244,12 +244,9 @@ $dir = in_array($primary, $rtl_languages, true) ? 'rtl' : 'ltr';
       if (typeof window.formData === 'undefined') window.formData = { brand: '', model: '', license_plate: '', year: '', color: '' };
     })();
   </script>
-  <!-- Alpine.js: prefer local vendor copy, fall back to CDN -->
-  <?php if (file_exists(__DIR__ . '/../../frontend/vendor/alpinejs/cdn.min.js')): ?>
-    <script defer src="<?php echo $base_url; ?>/frontend/vendor/alpinejs/cdn.min.js"></script>
-  <?php else: ?>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <?php endif; ?>
+  <!-- Alpine.js -->
+  <script src="/carwash_project/frontend/vendor/alpine/cdn.min.js" defer></script>
+  <script defer>console.log('Alpine initialized');</script>
   <!-- Local Alpine components (registers customerDashboard, etc.) -->
   <script defer src="<?php echo $base_url; ?>/frontend/js/alpine-components.js"></script>
   <!-- CSRF helper: reads meta token and appends to fetch/XHR and forms -->

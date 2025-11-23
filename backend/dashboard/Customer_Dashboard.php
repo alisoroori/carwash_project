@@ -66,7 +66,7 @@ if (!isset($base_url)) {
     <link rel="stylesheet" href="<?php echo $base_url; ?>/dist/output.css">
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/carwash_project/frontend/vendor/fontawesome/css/all.min.css">
     
     <!-- Initialize Global CONFIG object with CSRF token -->
     <script>
@@ -139,8 +139,9 @@ if (!isset($base_url)) {
             window.profileSection = profileSection;
         })();
     </script>
-    <!-- Alpine.js for interactive components -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Alpine.js -->
+        <script src="/carwash_project/frontend/vendor/alpine/cdn.min.js" defer></script>
+        <script defer>console.log('Alpine initialized');</script>
     
     <style>
         /* ================================
