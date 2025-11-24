@@ -42,6 +42,6 @@
   },
   "homepage": "https://github.com/alisoroori/carwash_project#readme",
   "dependencies": {
-    "puppeteer": "^21.3.0"
+    "puppeteer": "^24.31.0"
   }
 }
