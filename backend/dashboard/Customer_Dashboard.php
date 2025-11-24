@@ -2026,9 +2026,9 @@ if (!isset($base_url)) {
                                                 // Add favorite status for this user
                                                 $cw['isFavorite'] = false;
                                                 try {
-                                                    $profile = $db->fetchOne("SELECT profile_data FROM user_profiles WHERE user_id = ?", [$user_id]);
-                                                    if ($profile && !empty($profile['profile_data'])) {
-                                                        $data = json_decode($profile['profile_data'], true);
+                                                    $profile = $db->fetchOne("SELECT preferences FROM user_profiles WHERE user_id = ?", [$user_id]);
+                                                    if ($profile && !empty($profile['preferences'])) {
+                                                        $data = json_decode($profile['preferences'], true);
                                                         $favorites = $data['favorites'] ?? [];
                                                         $cw['isFavorite'] = in_array($cw['id'], $favorites);
                                                     }
@@ -2106,9 +2106,9 @@ if (!isset($base_url)) {
                                             // Check if this carwash is favorited by the user
                                             $is_favorite = false;
                                             try {
-                                                $profile = $db->fetchOne("SELECT profile_data FROM user_profiles WHERE user_id = ?", [$user_id]);
-                                                if ($profile && !empty($profile['profile_data'])) {
-                                                    $data = json_decode($profile['profile_data'], true);
+                                                $profile = $db->fetchOne("SELECT preferences FROM user_profiles WHERE user_id = ?", [$user_id]);
+                                                if ($profile && !empty($profile['preferences'])) {
+                                                    $data = json_decode($profile['preferences'], true);
                                                     $favorites = $data['favorites'] ?? [];
                                                     $is_favorite = in_array($cw['id'], $favorites);
                                                 }
@@ -2135,12 +2135,11 @@ if (!isset($base_url)) {
                                                     <img src="<?php echo htmlspecialchars($logo_url); ?>" alt="<?php echo $cw_name; ?> Logo" class="w-12 h-12 rounded-lg object-cover">
                                                     <div>
                                                         <h4 class="font-bold text-lg"><?php echo $cw_name; ?></h4>
-                                                        <p class="text-sm text-gray-500"><?php echo ($cw_city || $cw_district) ? ($cw_city . ' • ' . $cw_district) : $cw_address; ?></p>
                                                     </div>
                                                 </div>
                                                 <div class="flex items-center gap-2">
-                                                    <button class="favorite-toggle text-gray-400 hover:text-yellow-500 transition-colors" data-carwash-id="<?php echo $cw_id; ?>" title="Favorilere ekle">
-                                                        <i class="fas fa-star <?php echo $is_favorite ? 'text-yellow-500' : 'text-gray-400'; ?> text-xl"></i>
+                                                    <button class="favorite-toggle text-gray-400 hover:text-red-500 transition-colors" data-carwash-id="<?php echo $cw_id; ?>" title="Favorilere ekle">
+                                                        <i class="<?php echo $is_favorite ? 'fas fa-heart text-red-500' : 'far fa-heart text-gray-400'; ?> text-xl"></i>
                                                     </button>
                                                     <div class="text-right">
                                                         <p class="text-sm text-gray-500"><?php echo $cw_status; ?></p>
@@ -2238,12 +2237,11 @@ if (!isset($base_url)) {
                                                 <img src="${logoUrl}" alt="${escapeHtml(carWash.name)} Logo" class="w-12 h-12 rounded-lg object-cover">
                                                 <div>
                                                     <h4 class="font-bold text-lg">${escapeHtml(carWash.name)}</h4>
-                                                    <p class="text-sm text-gray-500">${escapeHtml(carWash.city)} • ${escapeHtml(carWash.district)}</p>
                                                 </div>
                                             </div>
                                             <div class="flex items-center gap-2">
-                                                <button class="favorite-toggle text-gray-400 hover:text-yellow-500 transition-colors" data-carwash-id="${carWash.id || ''}" title="Favorilere ekle">
-                                                    <i class="fas fa-star ${carWash.isFavorite ? 'text-yellow-500' : 'text-gray-400'} text-xl"></i>
+                                                <button class="favorite-toggle text-gray-400 hover:text-red-500 transition-colors" data-carwash-id="${carWash.id || ''}" title="Favorilere ekle">
+                                                    <i class="${carWash.isFavorite ? 'fas fa-heart text-red-500' : 'far fa-heart text-gray-400'} text-xl"></i>
                                                 </button>
                                                 <div class="text-right">
                                                     <p class="text-yellow-400 font-semibold">${carWash.rating}</p>
@@ -2630,10 +2628,10 @@ if (!isset($base_url)) {
                                     if (result.success) {
                                         const icon = button.querySelector('i');
                                         if (result.is_favorite) {
-                                            icon.className = 'fas fa-star text-yellow-500 text-xl';
+                                            icon.className = 'fas fa-heart text-red-500 text-xl';
                                             button.title = 'Favorilerden çıkar';
                                         } else {
-                                            icon.className = 'fas fa-star text-gray-400 text-xl';
+                                            icon.className = 'far fa-heart text-gray-400 text-xl';
                                             button.title = 'Favorilere ekle';
                                         }
                                         // Update the carwash data for filtering
@@ -2658,10 +2656,10 @@ if (!isset($base_url)) {
                                         const isFavorite = await loadFavoriteStatus(carwashId);
                                         const icon = button.querySelector('i');
                                         if (isFavorite) {
-                                            icon.className = 'fas fa-star text-yellow-500 text-xl';
+                                            icon.className = 'fas fa-heart text-red-500 text-xl';
                                             button.title = 'Favorilerden çıkar';
                                         } else {
-                                            icon.className = 'fas fa-star text-gray-400 text-xl';
+                                            icon.className = 'far fa-heart text-gray-400 text-xl';
                                             button.title = 'Favorilere ekle';
                                         }
                                         // Update carwash data
