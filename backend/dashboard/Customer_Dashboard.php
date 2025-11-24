@@ -2365,7 +2365,7 @@ if (!isset($base_url)) {
                                     const tbody = document.getElementById('reservationsTableBody');
                                     if (!tbody) return;
                                     // show loading
-                                    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Yükleniyor...</td></tr>';
+                                    tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-8 text-center text-sm text-gray-500">Yükleniyor...</td></tr>';
                                     try {
                                         const resp = await fetch('/carwash_project/backend/api/bookings/list.php', {
                                             credentials: 'same-origin',
@@ -2377,13 +2377,13 @@ if (!isset($base_url)) {
 
                                         if (!resp.ok) {
                                             console.error('Bookings API responded with status', resp.status, text);
-                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyonlar yüklenemedi.</td></tr>';
+                                            tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyonlar yüklenemedi.</td></tr>';
                                             return;
                                         }
 
                                         if (!text || text.trim() === '') {
                                             // No content — treat as empty bookings list
-                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Aktif rezervasyonunuz yok.</td></tr>';
+                                            tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-8 text-center text-sm text-gray-500">Aktif rezervasyonunuz yok.</td></tr>';
                                             return;
                                         }
 
@@ -2392,12 +2392,12 @@ if (!isset($base_url)) {
                                             result = JSON.parse(text);
                                         } catch (parseErr) {
                                             console.error('Failed to parse bookings JSON:', parseErr, text);
-                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyon verisi alınamadı.</td></tr>';
+                                            tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyon verisi alınamadı.</td></tr>';
                                             return;
                                         }
 
                                         if (!result || !result.success) {
-                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyonlar yüklenemedi.</td></tr>';
+                                            tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-8 text-center text-sm text-red-500">Rezervasyonlar yüklenemedi.</td></tr>';
                                             return;
                                         }
                                         // Normalize rows: bookings/list.php may merge rows into top-level response
@@ -2412,31 +2412,33 @@ if (!isset($base_url)) {
                                         }
 
                                         if (!rows || rows.length === 0) {
-                                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">Aktif rezervasyonunuz yok.</td></tr>';
+                                            tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-8 text-center text-sm text-gray-500">Aktif rezervasyonunuz yok.</td></tr>';
                                             return;
                                         }
 
                                         // Build rows HTML
                                         const html = rows.map(r => {
-                                            const id = r.id || '';
+                                            const id = r.id || r.booking_id || '';
+                                            const carwash = r.carwash_name || r.location || r.customer_name || '';
+                                            const plate = r.plate_number || r.vehicle_plate || '';
                                             const service = r.service_name || r.service_type || r.service || '';
+                                            const duration = r.duration || 0;
+                                            const price = r.price || r.total_price || 0;
                                             const date = r.booking_date || r.date || '';
                                             const time = r.booking_time || r.time || '';
-                                            const location = r.carwash_name || r.location || '';
-                                            const price = r.total_price || r.price || 0;
                                             const status = r.status || '';
                                             // Store useful attributes for edit
                                             const dataAttrs = 'data-booking="'+encodeURIComponent(JSON.stringify({id:id,carwash_id:r.carwash_id||r.location_id,service_id:r.service_id||null,date:date,time:time,notes:r.notes||''}))+'"';
                                             return '<tr '+dataAttrs+' class="hover:bg-gray-50">'
-                                                +'<td class="px-6 py-4"><div><div class="font-medium">'+escapeHtml(service)+'</div><div class="text-sm text-gray-500">'+escapeHtml(r.user_name || r.vehicle || '')+'</div></div></td>'
-                                                +'<td class="px-6 py-4 text-sm">'+escapeHtml(date)+'<br>'+escapeHtml(time)+'</td>'
-                                                +'<td class="px-6 py-4 text-sm">'+escapeHtml(location)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm font-medium text-gray-900">'+escapeHtml(id)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(carwash)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(plate)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(service)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+(duration ? duration + ' dk' : '')+'</td>'
+                                                +'<td class="px-6 py-4 text-sm font-medium text-gray-900">'+(price ? ('₺'+parseFloat(price).toFixed(2)) : '')+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(date)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(time)+'</td>'
                                                 +'<td class="px-6 py-4">'+statusLabel(status)+'</td>'
-                                                +'<td class="px-6 py-4 font-medium">'+(price ? ('₺'+parseFloat(price).toFixed(2)) : '')+'</td>'
-                                                +'<td class="px-6 py-4 text-sm">'
-                                                    +'<button class="edit-booking-btn text-blue-600 hover:text-blue-900 mr-3" data-id="'+escapeHtml(id)+'">Düzenle</button>'
-                                                    +'<button class="cancel-booking-btn text-red-600 hover:text-red-900" data-id="'+escapeHtml(id)+'">İptal</button>'
-                                                +'</td>'
                                             +'</tr>';
                                         }).join('');
 
@@ -2444,7 +2446,7 @@ if (!isset($base_url)) {
 
                                     } catch (err) {
                                         console.error('Load bookings error', err);
-                                        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-red-500">Sunucu hatası.</td></tr>';
+                                        tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-8 text-center text-sm text-red-500">Sunucu hatası.</td></tr>';
                                     }
                                 }
 
@@ -2771,7 +2773,7 @@ if (!isset($base_url)) {
                                         }
 
                                         $sql = "SELECT \
-                                            b.id AS booking_id,\n+                                            b.booking_date,\n+                                            b.booking_time,\n+                                            b.status,\n+                                            cw.business_name AS customer_name,\n+                                            {$plateExpr},\n+                                            COALESCE(s.name, b.service_type, '') AS service_name,\n+                                            COALESCE(s.duration, 0) AS duration,\n+                                            COALESCE(s.price, b.total_price, 0) AS price\n+                                        FROM bookings b\n+                                        LEFT JOIN carwashes cw ON b.carwash_id = cw.id\n+                                        {$vehicleJoin}\n+                                        {$serviceJoin}\n+                                        WHERE b.user_id = :user_id\n+                                        ORDER BY b.booking_date DESC, b.booking_time DESC";
+                                            b.id AS booking_id,\n+                                            b.booking_date,\n+                                            b.booking_time,\n+                                            b.status,\n+                                            COALESCE(cw.name, cw.business_name, '') AS carwash_name,\n+                                            {$plateExpr},\n+                                            COALESCE(s.name, b.service_type, '') AS service_name,\n+                                            COALESCE(s.duration, 0) AS duration,\n+                                            COALESCE(s.price, b.total_price, 0) AS price\n+                                        FROM bookings b\n+                                        LEFT JOIN carwashes cw ON b.carwash_id = cw.id\n+                                        {$vehicleJoin}\n+                                        {$serviceJoin}\n+                                        WHERE b.user_id = :user_id\n+                                        ORDER BY b.booking_date DESC, b.booking_time DESC";
 
                                         $stmt = $pdoConn->prepare($sql);
                                         $stmt->execute(['user_id' => (int)$_SESSION['user_id']]);
@@ -2806,14 +2808,25 @@ if (!isset($base_url)) {
                                             <?php foreach ($reservations as $r): ?>
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['customer_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['carwash_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['plate_number'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['service_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['duration'] ?? 0, ENT_QUOTES, 'UTF-8'); ?> dakika</td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['duration'] ?? 0, ENT_QUOTES, 'UTF-8'); ?> dk</td>
                                                     <td class="px-6 py-4 text-sm text-gray-700">₺<?php echo number_format((float)($r['price'] ?? 0), 2); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_time'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['status'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4"><?php 
+                                                        $status = $r['status'] ?? '';
+                                                        if ($status === 'confirmed' || $status === 'paid') {
+                                                            echo '<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Onaylandı</span>';
+                                                        } elseif ($status === 'pending' || $status === 'processing') {
+                                                            echo '<span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">Beklemede</span>';
+                                                        } elseif ($status === 'cancelled' || $status === 'cancel') {
+                                                            echo '<span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">İptal Edildi</span>';
+                                                        } else {
+                                                            echo '<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">' . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . '</span>';
+                                                        }
+                                                    ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
