@@ -42,7 +42,9 @@ if (strpos($id, 's_') === 0) {
             c.phone as carwash_phone,
             c.email as carwash_email,
             c.latitude as carwash_lat,
-            c.longitude as carwash_lng
+            c.longitude as carwash_lng,
+            c.logo_path as carwash_logo_path,
+            b.carwash_id
         FROM bookings b
         LEFT JOIN users u ON b.user_id = u.id
         LEFT JOIN services s ON b.service_id = s.id
@@ -126,7 +128,7 @@ try {
         $carwash = null;
         if (is_numeric($booking['location_id'])) {
             try {
-                $carwash = $db->fetchOne("SELECT name, address, city, district, phone, email, latitude, longitude FROM carwashes WHERE id = :carwash_id", ['carwash_id' => $booking['location_id']]);
+                $carwash = $db->fetchOne("SELECT id, name, address, city, district, phone, email, latitude, longitude, logo_path FROM carwashes WHERE id = :carwash_id", ['carwash_id' => $booking['location_id']]);
             } catch (Exception $e) {
                 Logger::info("Failed to fetch carwash data for session booking: " . $e->getMessage());
                 $carwash = null;
@@ -179,6 +181,8 @@ try {
             'carwash_email' => $carwash ? ($carwash['email'] ?? '') : '',
             'carwash_lat' => $carwash ? ($carwash['latitude'] ?? null) : null,
             'carwash_lng' => $carwash ? ($carwash['longitude'] ?? null) : null,
+            'carwash_id' => $carwash ? ($carwash['id'] ?? null) : null,
+            'carwash_logo_path' => $carwash ? ($carwash['logo_path'] ?? '') : '',
         ];
     }
 
@@ -264,12 +268,14 @@ try {
 
         // Carwash/Location Info
         'carwash' => [
+            'id' => $booking['carwash_id'] ?? null,
             'name' => $booking['carwash_name'] ?? '',
             'address' => $booking['cw_address'] ?? '',
             'city' => $booking['cw_city'] ?? '',
             'district' => $booking['cw_district'] ?? '',
             'phone' => $booking['carwash_phone'] ?? '',
             'email' => $booking['carwash_email'] ?? '',
+            'logo_path' => $booking['carwash_logo_path'] ?? '',
             'full_address' => trim(($booking['cw_address'] ?? '') . ', ' . ($booking['cw_district'] ?? '') . ', ' . ($booking['cw_city'] ?? ''), ', '),
             'map_link' => (!empty($booking['carwash_lat']) && !empty($booking['carwash_lng']))
                 ? "https://www.google.com/maps?q={$booking['carwash_lat']},{$booking['carwash_lng']}"
@@ -407,23 +413,35 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
                     ?>
                     <div class="flex items-center gap-3">
                         <?php
-                            // Choose a logo path robustly to avoid 404s in different installs.
-                            $candidate1 = __DIR__ . '/../../frontend/images/logo.png';
-                            $candidate2 = __DIR__ . '/../logo01.png';
-                            $candidate3 = __DIR__ . '/../../frontend/assets/img/default-user.png';
-
-                            if (file_exists($candidate1)) {
-                                $logo_url = $base . '/frontend/images/logo.png';
-                            } elseif (file_exists($candidate2)) {
-                                $logo_url = $base . '/backend/logo01.png';
-                            } elseif (file_exists($candidate3)) {
-                                $logo_url = $base . '/frontend/assets/img/default-user.png';
-                            } else {
-                                // Last resort: use a data URI 1x1 transparent GIF to avoid broken image icon
-                                $logo_url = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+                            // Load carwash-specific logo for the invoice
+                            $logo_url = '';
+                            $carwash_logo_path = $bookingData['carwash']['logo_path'] ?? '';
+                            
+                            if (!empty($carwash_logo_path)) {
+                                // Build full path to check if file exists
+                                $logo_file_path = __DIR__ . '/../../backend/uploads/business_logo/' . basename($carwash_logo_path);
+                                
+                                if (file_exists($logo_file_path)) {
+                                    $logo_url = $base . '/backend/uploads/business_logo/' . basename($carwash_logo_path);
+                                }
+                            }
+                            
+                            // Fallback to system default logo if carwash logo not found
+                            if (empty($logo_url)) {
+                                $candidate1 = __DIR__ . '/../../frontend/images/logo.png';
+                                $candidate2 = __DIR__ . '/../logo01.png';
+                                
+                                if (file_exists($candidate1)) {
+                                    $logo_url = $base . '/frontend/images/logo.png';
+                                } elseif (file_exists($candidate2)) {
+                                    $logo_url = $base . '/backend/logo01.png';
+                                } else {
+                                    // Last resort: use a data URI 1x1 transparent GIF to avoid broken image icon
+                                    $logo_url = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+                                }
                             }
                         ?>
-                        <img src="<?php echo htmlspecialchars($logo_url); ?>" alt="Logo" class="w-20 h-20 object-contain">
+                        <img src="<?php echo htmlspecialchars($logo_url); ?>" alt="Carwash Logo" class="w-20 h-20 object-contain">
                         <div>
                             <div class="text-lg font-bold text-gray-900"><?php echo $cw_name; ?></div>
                             <div class="text-sm text-gray-600"><?php echo $cw_address; ?></div>

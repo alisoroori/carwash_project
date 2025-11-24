@@ -83,6 +83,13 @@ if (!isset($base_url)) {
     <script defer src="<?php echo $base_url; ?>/frontend/js/api-utils.js"></script>
     <script defer src="<?php echo $base_url; ?>/frontend/js/vehicleManager.js"></script>
     <script defer src="<?php echo $base_url; ?>/frontend/js/alpine-components.js"></script>
+    <!-- Global filterCarWashes function for carwash selection -->
+    <script>
+        window.filterCarWashes = function(){
+            // Placeholder - will be overridden when carwash section loads
+            console.log('filterCarWashes called but not yet initialized');
+        };
+    </script>
     <!-- Lightweight Alpine data factory for profile section (defines profileSection) -->
     <script>
         (function(){
@@ -2015,6 +2022,19 @@ if (!isset($base_url)) {
                                                 $cw['status'] = $cw['status'] ?? '';
                                                 $cw['rating'] = isset($cw['rating']) ? (float)$cw['rating'] : 4.6;
                                                 $cw['services'] = isset($cw['services']) ? (is_string($cw['services']) ? (json_decode($cw['services'], true) ?: []) : ($cw['services'] ?: [])) : [];
+                                                
+                                                // Add favorite status for this user
+                                                $cw['isFavorite'] = false;
+                                                try {
+                                                    $profile = $db->fetchOne("SELECT profile_data FROM user_profiles WHERE user_id = ?", [$user_id]);
+                                                    if ($profile && !empty($profile['profile_data'])) {
+                                                        $data = json_decode($profile['profile_data'], true);
+                                                        $favorites = $data['favorites'] ?? [];
+                                                        $cw['isFavorite'] = in_array($cw['id'], $favorites);
+                                                    }
+                                                } catch (Exception $e) {
+                                                    // Ignore errors, default to not favorite
+                                                }
                                             }
                                             unset($cw);
                                         } catch (Exception $e) {
@@ -2082,15 +2102,49 @@ if (!isset($base_url)) {
                                             $cw_city = htmlspecialchars($cw['city'] ?? '', ENT_QUOTES, 'UTF-8');
                                             $cw_district = htmlspecialchars($cw['district'] ?? '', ENT_QUOTES, 'UTF-8');
                                             $cw_status = htmlspecialchars($cw['status'] ?? '', ENT_QUOTES, 'UTF-8');
+                                            
+                                            // Check if this carwash is favorited by the user
+                                            $is_favorite = false;
+                                            try {
+                                                $profile = $db->fetchOne("SELECT profile_data FROM user_profiles WHERE user_id = ?", [$user_id]);
+                                                if ($profile && !empty($profile['profile_data'])) {
+                                                    $data = json_decode($profile['profile_data'], true);
+                                                    $favorites = $data['favorites'] ?? [];
+                                                    $is_favorite = in_array($cw['id'], $favorites);
+                                                }
+                                            } catch (Exception $e) {
+                                                // Ignore errors, default to not favorite
+                                            }
                                         ?>
                                         <div data-id="<?php echo $cw_id; ?>" data-name="<?php echo $cw_name; ?>" class="bg-white rounded-2xl p-6 card-hover shadow-lg flex flex-col">
                                             <div class="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <h4 class="font-bold text-lg"><?php echo $cw_name; ?></h4>
-                                                    <p class="text-sm text-gray-500"><?php echo ($cw_city || $cw_district) ? ($cw_city . ' • ' . $cw_district) : $cw_address; ?></p>
+                                                <div class="flex items-center gap-3">
+                                                    <?php
+                                                        $logo_path = $cw['logo_path'] ?? '';
+                                                        $logo_url = '';
+                                                        if (!empty($logo_path)) {
+                                                            $logo_file_path = __DIR__ . '/../../backend/uploads/business_logo/' . basename($logo_path);
+                                                            if (file_exists($logo_file_path)) {
+                                                                $logo_url = $base_url . '/backend/uploads/business_logo/' . basename($logo_path);
+                                                            }
+                                                        }
+                                                        if (empty($logo_url)) {
+                                                            $logo_url = $base_url . '/frontend/assets/img/default-user.png';
+                                                        }
+                                                    ?>
+                                                    <img src="<?php echo htmlspecialchars($logo_url); ?>" alt="<?php echo $cw_name; ?> Logo" class="w-12 h-12 rounded-lg object-cover">
+                                                    <div>
+                                                        <h4 class="font-bold text-lg"><?php echo $cw_name; ?></h4>
+                                                        <p class="text-sm text-gray-500"><?php echo ($cw_city || $cw_district) ? ($cw_city . ' • ' . $cw_district) : $cw_address; ?></p>
+                                                    </div>
                                                 </div>
-                                                <div class="text-right">
-                                                    <p class="text-sm text-gray-500"><?php echo $cw_status; ?></p>
+                                                <div class="flex items-center gap-2">
+                                                    <button class="favorite-toggle text-gray-400 hover:text-yellow-500 transition-colors" data-carwash-id="<?php echo $cw_id; ?>" title="Favorilere ekle">
+                                                        <i class="fas fa-star <?php echo $is_favorite ? 'text-yellow-500' : 'text-gray-400'; ?> text-xl"></i>
+                                                    </button>
+                                                    <div class="text-right">
+                                                        <p class="text-sm text-gray-500"><?php echo $cw_status; ?></p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <?php if (!empty($cw_address)): ?><p class="text-sm text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-2"></i><?php echo $cw_address; ?></p><?php endif; ?>
@@ -2169,14 +2223,31 @@ if (!isset($base_url)) {
                                     // store id/name attributes to allow the whole card to be clickable
                                     div.setAttribute('data-id', carWash.id || '');
                                     div.setAttribute('data-name', carWash.name || '');
+                                    
+                                    // Build logo URL
+                                    let logoUrl = '/carwash_project/frontend/assets/img/default-user.png';
+                                    if (carWash.logo_path) {
+                                        const testPath = '/carwash_project/backend/uploads/business_logo/' + carWash.logo_path.split('/').pop();
+                                        // For client-side, we'll assume the logo exists if path is provided
+                                        logoUrl = testPath;
+                                    }
+                                    
                                     div.innerHTML = `
                                         <div class="flex justify-between items-start mb-4">
-                                            <div>
-                                                <h4 class="font-bold text-lg">${escapeHtml(carWash.name)}</h4>
-                                                <p class="text-sm text-gray-500">${escapeHtml(carWash.city)} • ${escapeHtml(carWash.district)}</p>
+                                            <div class="flex items-center gap-3">
+                                                <img src="${logoUrl}" alt="${escapeHtml(carWash.name)} Logo" class="w-12 h-12 rounded-lg object-cover">
+                                                <div>
+                                                    <h4 class="font-bold text-lg">${escapeHtml(carWash.name)}</h4>
+                                                    <p class="text-sm text-gray-500">${escapeHtml(carWash.city)} • ${escapeHtml(carWash.district)}</p>
+                                                </div>
                                             </div>
-                                            <div class="text-right">
-                                                <p class="text-yellow-400 font-semibold">${carWash.rating}</p>
+                                            <div class="flex items-center gap-2">
+                                                <button class="favorite-toggle text-gray-400 hover:text-yellow-500 transition-colors" data-carwash-id="${carWash.id || ''}" title="Favorilere ekle">
+                                                    <i class="fas fa-star ${carWash.isFavorite ? 'text-yellow-500' : 'text-gray-400'} text-xl"></i>
+                                                </button>
+                                                <div class="text-right">
+                                                    <p class="text-yellow-400 font-semibold">${carWash.rating}</p>
+                                                </div>
                                             </div>
                                         </div>
                                         <p class="text-sm text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${escapeHtml(carWash.district)}, ${escapeHtml(carWash.city)}</p>
@@ -2197,6 +2268,9 @@ if (!isset($base_url)) {
                                         if (id) selectCarWashForReservation(name, id);
                                     });
                                 });
+
+                                // Make filterCarWashes globally available
+                                window.filterCarWashes = filterCarWashes;
 
                                 // Attach reservation handlers
                                 document.querySelectorAll('.select-for-reservation').forEach(btn => {
@@ -2524,6 +2598,101 @@ if (!isset($base_url)) {
                                 } catch (e) { console.warn('Attach initial carwash handlers failed', e); }
                             });
 
+                            // Favorites functionality
+                            async function loadFavoriteStatus(carwashId) {
+                                try {
+                                    const resp = await fetch(`/carwash_project/backend/api/favorites.php?carwash_id=${carwashId}`, {
+                                        credentials: 'same-origin',
+                                        headers: { 'Accept': 'application/json' }
+                                    });
+                                    const result = await resp.json();
+                                    return result.success ? result.is_favorite : false;
+                                } catch (e) {
+                                    console.error('Failed to load favorite status:', e);
+                                    return false;
+                                }
+                            }
+
+                            async function toggleFavorite(carwashId, button) {
+                                try {
+                                    const formData = new FormData();
+                                    formData.append('carwash_id', carwashId);
+                                    formData.append('action', 'toggle');
+                                    formData.append('csrf_token', getCsrfToken());
+
+                                    const resp = await fetch('/carwash_project/backend/api/favorites.php', {
+                                        method: 'POST',
+                                        body: formData,
+                                        credentials: 'same-origin'
+                                    });
+                                    const result = await resp.json();
+
+                                    if (result.success) {
+                                        const icon = button.querySelector('i');
+                                        if (result.is_favorite) {
+                                            icon.className = 'fas fa-star text-yellow-500 text-xl';
+                                            button.title = 'Favorilerden çıkar';
+                                        } else {
+                                            icon.className = 'fas fa-star text-gray-400 text-xl';
+                                            button.title = 'Favorilere ekle';
+                                        }
+                                        // Update the carwash data for filtering
+                                        const carwash = allCarWashes.find(cw => cw.id == carwashId);
+                                        if (carwash) {
+                                            carwash.isFavorite = result.is_favorite;
+                                        }
+                                        return result.is_favorite;
+                                    }
+                                } catch (e) {
+                                    console.error('Failed to toggle favorite:', e);
+                                }
+                                return false;
+                            }
+
+                            // Load favorite status for all visible carwashes
+                            async function loadAllFavoriteStatuses() {
+                                const favoriteButtons = document.querySelectorAll('.favorite-toggle');
+                                for (const button of favoriteButtons) {
+                                    const carwashId = button.getAttribute('data-carwash-id');
+                                    if (carwashId) {
+                                        const isFavorite = await loadFavoriteStatus(carwashId);
+                                        const icon = button.querySelector('i');
+                                        if (isFavorite) {
+                                            icon.className = 'fas fa-star text-yellow-500 text-xl';
+                                            button.title = 'Favorilerden çıkar';
+                                        } else {
+                                            icon.className = 'fas fa-star text-gray-400 text-xl';
+                                            button.title = 'Favorilere ekle';
+                                        }
+                                        // Update carwash data
+                                        const carwash = allCarWashes.find(cw => cw.id == carwashId);
+                                        if (carwash) {
+                                            carwash.isFavorite = isFavorite;
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Attach favorite button handlers
+                            document.addEventListener('click', function(e) {
+                                if (e.target.closest('.favorite-toggle')) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    const button = e.target.closest('.favorite-toggle');
+                                    const carwashId = button.getAttribute('data-carwash-id');
+                                    if (carwashId) {
+                                        toggleFavorite(carwashId, button);
+                                    }
+                                }
+                            });
+
+                            // Load favorites when section becomes visible
+                            document.addEventListener('sectionChanged', function(e) {
+                                if (e.detail && e.detail.section === 'carWashSelection') {
+                                    setTimeout(loadAllFavoriteStatuses, 100);
+                                }
+                            });
+
                         })();
                         </script>
                                 </section>
@@ -2574,19 +2743,10 @@ if (!isset($base_url)) {
                                     }
                                     $pdoConn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                                    // Resolve carwash id from session (bind as requested)
-                                    $carwashId = $_SESSION['carwash_id'] ?? null;
-                                    if (!$carwashId && isset($_SESSION['user_id'])) {
-                                        $stmt = $pdoConn->prepare("SELECT id FROM carwashes WHERE user_id = :user_id LIMIT 1");
-                                        $stmt->execute(['user_id' => (int)$_SESSION['user_id']]);
-                                        $cw = $stmt->fetch(PDO::FETCH_ASSOC);
-                                        if ($cw) {
-                                            $carwashId = (int)$cw['id'];
-                                            $_SESSION['carwash_id'] = $carwashId;
-                                        }
-                                    }
-
-                                    if ($carwashId) {
+                                    // For customer dashboard, show their own bookings
+                                    $userId = (int)$_SESSION['user_id'];
+                                    
+                                    if ($userId) {
                                         // Detect schema differences so joins don't fail on non-existent columns/tables
                                         $colCheck = $pdoConn->prepare("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'bookings' AND column_name = 'vehicle_id'");
                                         $colCheck->execute();
@@ -2613,10 +2773,10 @@ if (!isset($base_url)) {
                                         }
 
                                         $sql = "SELECT \
-                                            b.id AS booking_id,\n+                                            b.booking_date,\n+                                            b.booking_time,\n+                                            b.status,\n+                                            u.name AS customer_name,\n+                                            {$plateExpr},\n+                                            COALESCE(s.name, b.service_type, '') AS service_name,\n+                                            COALESCE(s.duration, 0) AS duration,\n+                                            COALESCE(s.price, b.total_price, 0) AS price\n+                                        FROM bookings b\n+                                        LEFT JOIN users u ON b.user_id = u.id\n+                                        {$vehicleJoin}\n+                                        {$serviceJoin}\n+                                        WHERE b.carwash_id = :carwash_id\n+                                        ORDER BY b.booking_date DESC, b.booking_time DESC";
+                                            b.id AS booking_id,\n+                                            b.booking_date,\n+                                            b.booking_time,\n+                                            b.status,\n+                                            cw.business_name AS customer_name,\n+                                            {$plateExpr},\n+                                            COALESCE(s.name, b.service_type, '') AS service_name,\n+                                            COALESCE(s.duration, 0) AS duration,\n+                                            COALESCE(s.price, b.total_price, 0) AS price\n+                                        FROM bookings b\n+                                        LEFT JOIN carwashes cw ON b.carwash_id = cw.id\n+                                        {$vehicleJoin}\n+                                        {$serviceJoin}\n+                                        WHERE b.user_id = :user_id\n+                                        ORDER BY b.booking_date DESC, b.booking_time DESC";
 
                                         $stmt = $pdoConn->prepare($sql);
-                                        $stmt->execute(['carwash_id' => $carwashId]);
+                                        $stmt->execute(['user_id' => (int)$_SESSION['user_id']]);
                                         $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     }
                                 } catch (Exception $e) {
@@ -2629,7 +2789,7 @@ if (!isset($base_url)) {
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Müşteri</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşletme</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plaka</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hizmet</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Süre</th>
