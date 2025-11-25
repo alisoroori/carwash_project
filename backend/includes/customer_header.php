@@ -6,6 +6,12 @@
  */
 
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+// Debug: log session and resolved profile sources for troubleshooting
+if (function_exists('error_log')) {
+    $sh = $_SESSION['user']['profile_image'] ?? 'NULL';
+    $sp = $_SESSION['profile_image'] ?? 'NULL';
+    error_log("[customer_header] init: user_id=" . ($user_id ?? 'NULL') . " session.user.profile_image={$sh}; session.profile_image={$sp}");
+}
 
 if (!isset($dashboard_type)) $dashboard_type = 'customer';
 if (!isset($page_title)) $page_title = 'Müşteri Paneli - CarWash';
@@ -66,7 +72,111 @@ if (!empty($raw)) {
         }
     }
 }
-$profile_src = $_SESSION['profile_image'] ?? ($base_url . '/frontend/images/default-avatar.svg');
+$profile_src = null;
+
+// Prefer common session locations for profile image (robust across auth flows)
+if (!empty($_SESSION['user']) && !empty($_SESSION['user']['profile_image'])) {
+    $profile_src = $_SESSION['user']['profile_image'];
+} elseif (!empty($_SESSION['user_profile_image'])) {
+    $profile_src = $_SESSION['user_profile_image'];
+} elseif (!empty($_SESSION['profile_image'])) {
+    $profile_src = $_SESSION['profile_image'];
+} elseif (!empty($user_profile_image)) {
+    // Some dashboards provide $user_profile_image variable prior to including header
+    $profile_src = $user_profile_image;
+}
+
+// Normalize and validate profile image path; prefer absolute URL if provided,
+// otherwise try canonical upload directory. If missing or unreadable, fall back.
+$default_avatar = $base_url . '/frontend/images/default-avatar.svg';
+if (empty($profile_src)) {
+    $profile_src = $default_avatar;
+} else {
+    // If it's an absolute URL or starts with a slash, accept it and verify readability when possible
+    if (preg_match('#^(https?://)#i', $profile_src) || strpos($profile_src, '/') === 0) {
+        // For local absolute paths, convert to full URL if needed
+        if (strpos($profile_src, 'http') !== 0 && strpos($profile_src, '/') === 0) {
+            $profile_src_candidate = rtrim($base_url, '\/') . $profile_src;
+        } else {
+            $profile_src_candidate = $profile_src;
+        }
+        $profile_src = $profile_src_candidate;
+        // If file exists locally, prefer that. Build filesystem path when possible.
+        $parsed = parse_url($profile_src);
+        if (!empty($parsed['path'])) {
+            $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/');
+            $filePath = $docRoot . $parsed['path'];
+            if (file_exists($filePath) && is_readable($filePath)) {
+                // ok
+            } else {
+                // Fallback to default avatar if file not readable
+                error_log('[customer_header] Profile image not readable or missing: ' . $filePath);
+                $profile_src = $default_avatar;
+                unset($_SESSION['profile_image']);
+                unset($_SESSION['user']['profile_image']);
+            }
+        }
+    } else {
+        // Relative filename stored in session - assume uploads directory
+        $filename = basename($profile_src);
+        $uploadsWeb = $base_url . '/backend/auth/uploads/profiles/' . $filename;
+        $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/');
+        $filePath = $docRoot . '/carwash_project/backend/auth/uploads/profiles/' . $filename;
+        if (file_exists($filePath) && is_readable($filePath)) {
+            $profile_src = $uploadsWeb;
+        } else {
+            // Try legacy locations
+            $alts = [
+                $docRoot . '/carwash_project/backend/auth/uploads/profiles/' . $filename,
+                $docRoot . '/carwash_project/backend/uploads/' . $filename,
+                $docRoot . '/carwash_project/backend/auth/uploads/' . $filename,
+            ];
+            $found = false;
+            foreach ($alts as $a) {
+                if (file_exists($a) && is_readable($a)) {
+                    $web = str_replace($docRoot, '', $a);
+                    if ($web === '' || $web[0] !== '/') $web = '/' . ltrim($web, '/');
+                    $profile_src = (isset($base_url) ? rtrim($base_url, '\\/') : '') . $web;
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                error_log('[customer_header] Profile image file not found in expected locations: ' . $filename);
+                $profile_src = $default_avatar;
+                unset($_SESSION['profile_image']);
+                unset($_SESSION['user']['profile_image']);
+            }
+        }
+    }
+}
+
+// Force a per-session timestamp used to bust cache after login. If the application
+// sets this value on login, it will be preserved; otherwise initialize on first page load.
+if (empty($_SESSION['profile_image_ts'])) {
+    $_SESSION['profile_image_ts'] = time();
+}
+
+// Append timestamp param to force cache reload when newer image is uploaded or after login
+$profile_src_with_ts = $profile_src . (strpos($profile_src, '?') === false ? '?ts=' . intval($_SESSION['profile_image_ts'] ?? time()) : '&ts=' . intval($_SESSION['profile_image_ts'] ?? time()));
+
+// Header profile src using session variable directly (single source-of-truth)
+// Prefer `$_SESSION['user']['profile_image']` when available; fall back to default avatar.
+$header_profile_src = $default_avatar;
+if (!empty($_SESSION['user']['profile_image'])) {
+    // Use raw session value and append a timestamp to bust caches after upload/login
+    $ts = intval($_SESSION['profile_image_ts'] ?? time());
+    $header_profile_src = rtrim($_SESSION['user']['profile_image'], '\\/') . '?ts=' . $ts;
+
+    // Log missing/unreadable files for debugging when profile image appears to be a local path
+    if (!preg_match('#^https?://#i', $_SESSION['user']['profile_image'])) {
+        $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/' );
+        $candidatePath = $docRoot . '/' . ltrim($_SESSION['user']['profile_image'], '\\/');
+        if (!file_exists($candidatePath) || !is_readable($candidatePath)) {
+            error_log("[customer_header] Profile image missing/unreadable for user_id={$user_id}: {$candidatePath}");
+        }
+    }
+}
 
 // Current logged-in user's display name and email (used in header)
 $user_name = $_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Kullanıcı';
@@ -153,8 +263,8 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
                         class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
                         :aria-expanded="open.toString()" aria-haspopup="true">
 
-                        <div id="headerProfileContainer" class="rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600" style="width:40px;height:40px;">
-                            <img id="userAvatarTop" src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" style="border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div id="headerProfileContainer" class="sidebar-profile-container rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                            <img id="headerProfileImage" src="<?php echo htmlspecialchars($header_profile_src, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" onerror="this.onerror=null;this.src='<?php echo $default_avatar; ?>';">
                             <div id="userAvatarFallback" class="text-white font-semibold text-sm" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
                                 <?php echo strtoupper(substr($user_name,0,1)); ?>
                             </div>
@@ -225,7 +335,7 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
 <div id="mobileMenu" style="display:none; position:fixed; top:var(--header-height); left:0; right:0; bottom:0; background:rgba(255,255,255,0.97); z-index:1190; overflow:auto;">
     <div style="padding:1rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-            <img id="mobileMenuAvatar" src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+            <img id="mobileMenuAvatar" src="<?php echo htmlspecialchars($header_profile_src, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" onerror="this.onerror=null;this.src='<?php echo $default_avatar; ?>';">
             <div>
                 <div id="mobileMenuUserName" style="font-weight:700"><?php echo htmlspecialchars($user_name); ?></div>
                 <div id="mobileMenuUserEmail" style="font-size:0.85rem;opacity:0.8"><?php echo htmlspecialchars($user_email); ?></div>
@@ -275,20 +385,19 @@ window.addEventListener('load', updateHeaderHeight);
 window.addEventListener('resize', updateHeaderHeight);
 </script>
 
-<!-- Sync profile image to localStorage so index header can read the sidebar's image as source-of-truth -->
+<!-- DOM-ready safety: update header image after upload if the img is empty or using placeholder -->
 <script>
-    (function(){
-        try {
-            var profileSrc = <?php echo json_encode($profile_src); ?>;
-            if (profileSrc) {
-                var ts = Date.now();
-                var url = profileSrc + (profileSrc.indexOf('?') === -1 ? ('?ts=' + ts) : ('&ts=' + ts));
-                try { localStorage.setItem('carwash_profile_image', url); localStorage.setItem('carwash_profile_image_ts', ts.toString()); } catch(e) { /* ignore storage errors */ }
-            }
-        } catch (e) {
-            // ignore
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const headerImg = document.getElementById('headerProfileImage');
+        if (!headerImg) return;
+        const current = headerImg.getAttribute('src') || '';
+        const isPlaceholder = current.indexOf('default-avatar') !== -1 || current.indexOf('default-user.png') !== -1 || current.indexOf('placeholder') !== -1;
+        if (!current || isPlaceholder) {
+            headerImg.src = '<?php echo htmlspecialchars($header_profile_src); ?>';
         }
-    })();
+    } catch (e) { /* ignore errors */ }
+});
 </script>
 
 

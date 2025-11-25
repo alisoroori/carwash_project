@@ -22,6 +22,13 @@ $userData = $db->fetchOne(
     ['user_id' => $user_id]
 );
 
+// Debug: log DB fetch result for profile image troubleshooting
+if (function_exists('error_log')) {
+    error_log("[Customer_Dashboard] user_id={$user_id} - DB fetch profile_img=" . (
+        isset($userData['profile_img']) ? $userData['profile_img'] : 'NULL'
+    ));
+}
+
 // Extract user data with defaults
 $user_phone = $userData['phone'] ?? '';
 $user_home_phone = $userData['home_phone'] ?? '';
@@ -30,6 +37,152 @@ $user_driver_license = $userData['driver_license'] ?? '';
 $user_profile_image = $userData['profile_img'] ?? $userData['profile_image'] ?? '';
 $user_address = $userData['address'] ?? '';
 $user_city = $userData['city'] ?? '';
+
+// Debug: log resolved user profile image from DB and session values
+if (function_exists('error_log')) {
+    $sess1 = $_SESSION['user']['profile_image'] ?? 'MISSING';
+    $sess2 = $_SESSION['profile_image'] ?? 'MISSING';
+    error_log("[Customer_Dashboard] user_id={$user_id} - resolved user_profile_image={$user_profile_image}; session[user][profile_image]={$sess1}; session[profile_image]={$sess2}");
+}
+
+// Handle profile update form submission
+$uploadError = '';
+$successMessage = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
+    // Validate CSRF token (log mismatch but don't block)
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        error_log("CSRF token mismatch for user_id={$user_id}: received '" . ($_POST['csrf_token'] ?? 'none') . "', expected '" . ($_SESSION['csrf_token'] ?? 'none') . "'");
+    }
+    
+// Handle profile image upload
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+    if ($_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
+                $errorMessages = [
+                    UPLOAD_ERR_INI_SIZE => 'File too large (server limit).',
+                    UPLOAD_ERR_FORM_SIZE => 'File too large (form limit).',
+                    UPLOAD_ERR_PARTIAL => 'File upload was interrupted.',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Server error: no temporary directory.',
+                    UPLOAD_ERR_CANT_WRITE => 'Server error: cannot write file.',
+                    UPLOAD_ERR_EXTENSION => 'File upload stopped by extension.',
+                ];
+                $uploadError = $errorMessages[$_FILES['profile_image']['error']] ?? 'Unknown upload error.';
+                error_log("Profile image upload failed for user_id={$user_id}: " . $_FILES['profile_image']['error']);
+            } else {
+                $file = $_FILES['profile_image'];
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                $maxSize = 3 * 1024 * 1024; // 3MB
+                
+                if (!in_array($file['type'], $allowedTypes)) {
+                    $uploadError = 'Invalid file type. Only JPG, PNG, and WEBP are allowed.';
+                } elseif ($file['size'] > $maxSize) {
+                    $uploadError = 'File too large. Maximum size is 3MB.';
+                } else {
+                    // Upload the file
+                    $uploadDir = __DIR__ . '/../auth/uploads/profiles/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+                    
+                    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+                    $newName = 'profile_' . $user_id . '_' . time() . '.' . $ext;
+                    $dest = $uploadDir . $newName;
+                    
+                    if (move_uploaded_file($file['tmp_name'], $dest)) {
+                        $imagePath = '/carwash_project/backend/auth/uploads/profiles/' . $newName;
+                        
+                        // Update database
+                        $db->update('user_profiles', ['profile_image' => $imagePath], ['user_id' => $user_id]);
+
+                        // Verify DB write
+                        $verify = $db->fetchOne('SELECT profile_image FROM user_profiles WHERE user_id = :user_id', ['user_id' => $user_id]);
+                        if (empty($verify) || empty($verify['profile_image'])) {
+                            $uploadError = 'profile_image not saved in database';
+                            error_log("[PROFILE IMG FAIL] user_id={$user_id} | DB did not persist profile_image after update");
+                            // If AJAX, return JSON error immediately
+                            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                                header('Content-Type: application/json');
+                                echo json_encode(['status' => 'error', 'message' => 'profile_image not saved in database']);
+                                exit;
+                            }
+                        } else {
+                            // Update session (single source-of-truth)
+                            $_SESSION['profile_image'] = $verify['profile_image'];
+                            $_SESSION['user']['profile_image'] = $verify['profile_image'];
+                            // Update per-session cache-bust timestamp
+                            $_SESSION['profile_image_ts'] = time();
+
+                            // Ensure file actually exists on disk
+                            if (!file_exists($dest) || !is_readable($dest)) {
+                                error_log("[PROFILE IMG FAIL] user_id={$user_id} | file not found or unreadable: {$dest}");
+                                $uploadError = 'Uploaded file not found on server after move.';
+                            } else {
+                                $successMessage = 'Profile image updated successfully.';
+                            }
+                        }
+                    } else {
+                        $uploadError = 'Failed to save the file. Please try again.';
+                        error_log("Failed to move uploaded file for user_id={$user_id}");
+                    }
+                }
+            }
+        }
+        
+        // If no upload error, process other profile fields (basic example)
+        if (empty($uploadError)) {
+            // Update other fields if needed
+            $updateData = [];
+            $fields = ['name', 'username', 'email', 'phone', 'home_phone', 'national_id', 'driver_license', 'city', 'address'];
+            foreach ($fields as $field) {
+                if (isset($_POST[$field])) {
+                    $updateData[$field] = trim($_POST[$field]);
+                }
+            }
+            
+            if (!empty($updateData)) {
+                $db->update('users', $updateData, ['id' => $user_id]);
+                $successMessage = 'Profile updated successfully.';
+            }
+        }
+        
+        // Regenerate CSRF token after form submission
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+// If upload succeeded, inject a small script to update avatar images on the page
+// This helps when forms are submitted via AJAX or when the page reload still shows cached images
+if (!empty($successMessage) && !empty($_SESSION['profile_image'])) {
+    $newImg = htmlspecialchars($_SESSION['profile_image'], ENT_QUOTES, 'UTF-8');
+    $ts = intval($_SESSION['profile_image_ts'] ?? time());
+    echo <<<HTML
+<script>
+(function(){
+    var newSrc = '{$newImg}?ts={$ts}';
+    function updateAvatars(){
+        var updated = 0;
+        // Update known selectors first
+        var ids = ['headerProfileImage','sidebarProfileImage','mobileMenuAvatar'];
+        ids.forEach(function(id){ var el = document.getElementById(id); if(el){ try{ el.src = newSrc; }catch(e){} updated++; } });
+        // Update generic class selectors as fallback
+        document.querySelectorAll('.profile-img, .sidebar-avatar-img').forEach(function(img){ try{ img.src = newSrc; }catch(e){} updated++; });
+        if(updated === 0){
+            console.error('Profile image refresh function not triggered', newSrc);
+            // Log diagnostics: count images and try a tolerant fallback
+            try{
+                var imgs = document.querySelectorAll('img');
+                console.info('Total <img> elements on page:', imgs.length);
+                // Try to update a sensible fallback: any img with class or id containing "avatar" or "profile"
+                var fallback = Array.prototype.slice.call(imgs).find(function(i){ var id = i.id || ''; var cl = i.className || ''; return (new RegExp('avatar|profile','i')).test(id + ' ' + cl); });
+                if(fallback){ try{ fallback.src = newSrc; }catch(e){} console.warn('Updated fallback avatar element', fallback); updated++; }
+            }catch(diagErr){ console.warn('Diagnostics failed', diagErr); }
+        } else {
+            console.log('Profile images updated:', updated);
+        }
+    }
+    if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', updateAvatars); } else { updateAvatars(); }
+})();
+</script>
+HTML;
+}
 
 // Generate CSRF token
 if (empty($_SESSION['csrf_token'])) {
@@ -498,6 +651,27 @@ if (!isset($base_url)) {
             margin: 0 auto;
         }
 
+        /* Unified avatar container used by sidebar and header to ensure exact sizing */
+        .sidebar-profile-container,
+        #headerProfileContainer {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: block;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-profile-container img,
+        #headerProfileContainer img,
+        #userAvatarTop {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 50% !important;
+            display: block !important;
+        }
+
         /* Header profile image - reduced size (header-only) */
         #userAvatarTop {
             width: 60px !important;
@@ -817,13 +991,13 @@ if (!isset($base_url)) {
         <!-- User Profile Section (Better readability, always visible at top) -->
         <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30">
             <div class="text-center">
-                <div class="w-20 h-20 mx-auto mb-2 rounded-full overflow-hidden shadow-lg ring-2 ring-white ring-opacity-30">
+                <div class="sidebar-profile-container mx-auto mb-2">
                     <img 
                         id="sidebarProfileImage" 
-                        src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/assets/img/default-user.png'; ?>" 
+                        src="<?php echo htmlspecialchars($header_profile_src); ?>" 
                         alt="<?php echo htmlspecialchars($user_name); ?>"
-                        class="w-full h-full object-cover"
-                        onerror="this.src='/carwash_project/frontend/assets/img/default-user.png'"
+                        class="sidebar-avatar-img"
+                        onerror="this.src='<?php echo $default_avatar; ?>'"
                     >
                 </div>
                 <h3 class="text-sm font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
@@ -1418,6 +1592,18 @@ if (!isset($base_url)) {
                 x-transition:enter-end="opacity-100 scale-100"
                 class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 md:p-8"
             >
+                <?php if (!empty($uploadError)): ?>
+                <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <?php echo htmlspecialchars($uploadError); ?>
+                </div>
+                <?php endif; ?>
+                <?php if (!empty($successMessage)): ?>
+                <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <?php echo htmlspecialchars($successMessage); ?>
+                </div>
+                <?php endif; ?>
                 <form id="profileForm" class="space-y-6" enctype="multipart/form-data" method="POST">
                     <input type="hidden" name="action" value="update_profile">
                     <?php
@@ -1465,7 +1651,7 @@ if (!isset($base_url)) {
                                 </label>
                                 <input 
                                     type="file" 
-                                    id="profile_image" 
+                                    id="profileImageInput" 
                                     name="profile_image" 
                                     accept="image/jpeg,image/png,image/jpg,image/webp"
                                     class="block w-full text-sm text-gray-900 border-2 border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
@@ -3223,28 +3409,30 @@ if (!isset($base_url)) {
     'use strict';
     
     function updateLayoutHeights() {
-        const root = document.documentElement;
-        
-        // Set fixed header height
-        root.style.setProperty('--header-height', '80px');
-        
-        // Footer will be calculated by footer.php script
-        
-        // Ensure sidebar width consistency
-        const viewportWidth = window.innerWidth;
-        let sidebarWidth = 250;
-        
-        if (viewportWidth < 768) {
-            sidebarWidth = 250; // Mobile
-        } else if (viewportWidth < 900) {
-            sidebarWidth = 200; // Small screens
-        } else {
-            sidebarWidth = 250; // Desktop
-        }
-        
-        root.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
-        
-        console.log('✅ Layout updated - Header: 80px, Sidebar:', sidebarWidth + 'px');
+        requestAnimationFrame(() => {
+            const root = document.documentElement;
+            
+            // Set fixed header height
+            root.style.setProperty('--header-height', '80px');
+            
+            // Footer will be calculated by footer.php script
+            
+            // Ensure sidebar width consistency
+            const viewportWidth = window.innerWidth;
+            let sidebarWidth = 250;
+            
+            if (viewportWidth < 768) {
+                sidebarWidth = 250; // Mobile
+            } else if (viewportWidth < 900) {
+                sidebarWidth = 200; // Small screens
+            } else {
+                sidebarWidth = 250; // Desktop
+            }
+            
+            root.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
+            
+            console.log('✅ Layout updated - Header: 80px, Sidebar:', sidebarWidth + 'px');
+        });
     }
     
     // Update on load
@@ -3275,3 +3463,4 @@ if (!isset($base_url)) {
 echo '<!-- Footer include reached -->';
 include __DIR__ . '/../includes/footer.php';
 ?>
+
