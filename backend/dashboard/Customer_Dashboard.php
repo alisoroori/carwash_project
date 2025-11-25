@@ -780,72 +780,9 @@ if (!isset($base_url)) {
 >
 
 <!-- ================================
-     HEADER - Fixed at Top (80px height)
+     CUSTOMER HEADER - Loaded from customer_header.php
      ================================ -->
-<header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm flex-none" style="height: 80px;">
-    <div class="flex items-center justify-between h-full px-4 lg:px-6">
-        
-        <!-- Mobile Menu Button -->
-        <button 
-            id="mobileMenuToggleBtn"
-            @click="mobileMenuOpen = !mobileMenuOpen"
-            class="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 hamburger-toggle-dashboard"
-            aria-label="Toggle menu"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!mobileMenuOpen">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="mobileMenuOpen" style="display: none;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
-        
-        <!-- Logo -->
-            <div class="flex items-center space-x-3">
-            <!-- Main header logo placed before the site title -->
-            <div>
-                <?php
-                // Normalize session-stored logo (filename or path) to public URL
-                $site_logo = $base_url . '/backend/logo01.png';
-                $raw = $_SESSION['logo_path'] ?? null;
-                if (!empty($raw)) {
-                    if (preg_match('#^(?:https?://|/)#i', $raw)) {
-                        $candidate = $raw;
-                    } else {
-                        $candidate = $base_url . '/backend/uploads/business_logo/' . ltrim($raw, '/');
-                    }
-                    $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\/');
-                    if (!preg_match('#^(?:https?://|/)#i', $raw)) {
-                        $filePath = $docRoot . '/carwash_project/backend/uploads/business_logo/' . ltrim($raw, '/');
-                    } else {
-                        $filePath = $docRoot . parse_url($candidate, PHP_URL_PATH);
-                    }
-                    if (file_exists($filePath)) {
-                        $site_logo = $candidate;
-                    } else {
-                        @file_put_contents(__DIR__ . '/../../logs/logo_missing.log', date('Y-m-d H:i:s') . " - customer dashboard logo missing: {$filePath}\n", FILE_APPEND | LOCK_EX);
-                        unset($_SESSION['logo_path']);
-                    }
-                }
-                ?>
-                <img id="siteLogo" src="<?php echo htmlspecialchars($site_logo, ENT_QUOTES, 'UTF-8'); ?>" alt="MyCar logo" class="logo-image object-contain rounded-xl shadow-md header-logo sidebar-logo" />
-            </div>
-            <div class="hidden sm:block">
-                <h1 class="text-lg font-bold text-gray-900 leading-tight">MyCar</h1>
-                <p class="text-xs text-gray-500 -mt-1">Customer Panel</p>
-            </div>
-        </div>
-        
-        <!-- User Menu (shared fragment) -->
-        <?php
-            // Prepare variables expected by the fragment
-            $profile_src = !empty($user_profile_image) ? $user_profile_image : ($base_url . '/frontend/assets/img/default-user.png');
-            $home_url = $base_url . '/backend/index.php';
-            $logout_url = $base_url . '/backend/includes/logout.php';
-            include __DIR__ . '/../includes/profile_header_fragment.php';
-        ?>
-    </div>
-</header>
+<?php include __DIR__ . '/../includes/customer_header.php'; ?>
 
 <!-- ================================
     LAYOUT WRAPPER - Proper Flex Layout Structure
