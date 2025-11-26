@@ -45,12 +45,12 @@ try {
             Response::error('Error: Dosya çok büyük. Maksimum 5MB.', 400);
         }
 
-        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/carwash_project/backend/uploads/profile_images/';
+        $uploadDir = PROFILE_UPLOAD_PATH;
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
         $ext = pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION);
         $filename = 'profile_' . $userId . '_' . time() . '.' . $ext;
-        $target = $uploadDir . $filename;
+        $target = $uploadDir . '/' . $filename;
 
         if (!move_uploaded_file($_FILES['profile_image']['tmp_name'], $target)) {
             $err = error_get_last();
@@ -58,19 +58,16 @@ try {
             Response::error('Error: Profil resmi yüklenemedi. ' . $detail, 500);
         }
 
-        $profilePath = '/carwash_project/backend/uploads/profile_images/' . $filename;
+        $profilePath = PROFILE_UPLOAD_URL . '/' . $filename . '?ts=' . time();
 
         // Remove old profile image if set and not default
         $old = $_SESSION['profile_image'] ?? null;
         if ($old && strpos($old, '/frontend/images/default-avatar.svg') === false) {
-            $oldFull = $_SERVER['DOCUMENT_ROOT'] . $old;
+            $oldFull = str_replace(BASE_URL, $_SERVER['DOCUMENT_ROOT'], $old);
+            $oldFull = preg_replace('/\?ts=\d+$/', '', $oldFull); // Remove timestamp
             if (file_exists($oldFull)) @unlink($oldFull);
         }
     }
-
-    // Force role to 'carwash' (İşletme) and update session
-    $role = 'carwash';
-    $_SESSION['role'] = $role;
 
     // Update session
     $_SESSION['name'] = $name;
@@ -79,16 +76,14 @@ try {
     if (!empty($username)) $_SESSION['username'] = $username;
     if ($profilePath) $_SESSION['profile_image'] = $profilePath;
 
-    // Persist to users table if available (include role)
+    // Persist to user_profiles table
     try {
         $update = ['name' => $name];
         if (!empty($email)) $update['email'] = $email;
         if (!empty($phone)) $update['phone'] = $phone;
         if (!empty($username)) $update['username'] = $username;
         if ($profilePath) $update['profile_image'] = $profilePath;
-        // ensure role persisted
-        $update['role'] = $role;
-        $db->update('users', $update, ['id' => $userId]);
+        $db->update('user_profiles', $update, ['user_id' => $userId]);
     } catch (Exception $e) {
         // Log but continue - we still updated session
         error_log('Profile update DB warning: ' . $e->getMessage());
@@ -96,7 +91,7 @@ try {
         Response::success('Profile updated successfully (but DB update warning).', ['name' => $name, 'email' => $email ?? ($_SESSION['email'] ?? null), 'phone' => $phone ?? ($_SESSION['phone'] ?? null), 'username' => $username ?? ($_SESSION['username'] ?? null), 'profile_image' => $profilePath ?? ($_SESSION['profile_image'] ?? null), 'db_warning' => $e->getMessage()]);
     }
 
-    Response::success('Profile updated successfully', ['name' => $name, 'email' => $email ?? ($_SESSION['email'] ?? null), 'phone' => $phone ?? ($_SESSION['phone'] ?? null), 'username' => $username ?? ($_SESSION['username'] ?? null), 'profile_image' => $profilePath ?? ($_SESSION['profile_image'] ?? null), 'role' => $role]);
+    Response::success('Profile updated successfully', ['name' => $name, 'email' => $email ?? ($_SESSION['email'] ?? null), 'phone' => $phone ?? ($_SESSION['phone'] ?? null), 'username' => $username ?? ($_SESSION['username'] ?? null), 'profile_image' => $profilePath ?? ($_SESSION['profile_image'] ?? null)]);
 
 } catch (Exception $e) {
     error_log('Profile update error: ' . $e->getMessage());

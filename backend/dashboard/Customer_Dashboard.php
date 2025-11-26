@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../includes/bootstrap.php';
+// Auto-fix helper for profile images
+require_once __DIR__ . '/../includes/profile_auto_fix.php';
 
 use App\Classes\Auth;
 use App\Classes\Database;
@@ -22,12 +24,20 @@ $userData = $db->fetchOne(
     ['user_id' => $user_id]
 );
 
-// Debug: log DB fetch result for profile image troubleshooting
-if (function_exists('error_log')) {
-    error_log("[Customer_Dashboard] user_id={$user_id} - DB fetch profile_img=" . (
-        isset($userData['profile_img']) ? $userData['profile_img'] : 'NULL'
-    ));
+// Lightweight logging helper that prefers App\\Classes\\Logger when available
+if (!function_exists('cw_log_debug')) {
+    function cw_log_debug($msg) {
+        if (class_exists('\\App\\Classes\\Logger') && method_exists('\\App\\Classes\\Logger', 'debug')) {
+            try { \App\Classes\Logger::debug($msg); } catch (Throwable $__e) { error_log($msg); }
+        } else {
+            error_log($msg);
+        }
+    }
 }
+
+cw_log_debug("[Customer_Dashboard] user_id={$user_id} - DB fetch profile_img=" . (
+    isset($userData['profile_img']) ? $userData['profile_img'] : 'NULL'
+));
 
 // Extract user data with defaults
 $user_phone = $userData['phone'] ?? '';
@@ -39,19 +49,28 @@ $user_address = $userData['address'] ?? '';
 $user_city = $userData['city'] ?? '';
 
 // Debug: log resolved user profile image from DB and session values
-if (function_exists('error_log')) {
-    $sess1 = $_SESSION['user']['profile_image'] ?? 'MISSING';
-    $sess2 = $_SESSION['profile_image'] ?? 'MISSING';
-    error_log("[Customer_Dashboard] user_id={$user_id} - resolved user_profile_image={$user_profile_image}; session[user][profile_image]={$sess1}; session[profile_image]={$sess2}");
+$sess1 = $_SESSION['user']['profile_image'] ?? 'MISSING';
+$sess2 = $_SESSION['profile_image'] ?? 'MISSING';
+cw_log_debug("[Customer_Dashboard] user_id={$user_id} - resolved user_profile_image={$user_profile_image}; session[user][profile_image]={$sess1}; session[profile_image]={$sess2}");
+
+// Attempt automatic fixes on dashboard load to ensure session/DB/file consistency
+if (function_exists('autoFixProfileImage')) {
+    try {
+        $autoResult = autoFixProfileImage($user_id);
+        cw_log_debug('[profile_auto_fix] ' . $autoResult);
+    } catch (Exception $e) {
+        cw_log_debug('[profile_auto_fix] Exception: ' . $e->getMessage());
+    }
 }
 
 // Handle profile update form submission
 $uploadError = '';
 $successMessage = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
+    cw_log_debug("Profile update POST detected, user_id={$user_id}, REQUEST_METHOD={$_SERVER['REQUEST_METHOD']}, action={$_POST['action']}, X_REQUESTED_WITH=" . ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? 'not set'));
     // Validate CSRF token (log mismatch but don't block)
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        error_log("CSRF token mismatch for user_id={$user_id}: received '" . ($_POST['csrf_token'] ?? 'none') . "', expected '" . ($_SESSION['csrf_token'] ?? 'none') . "'");
+        cw_log_debug("CSRF token mismatch for user_id={$user_id}: received '" . ($_POST['csrf_token'] ?? 'none') . "', expected '" . ($_SESSION['csrf_token'] ?? 'none') . "'");
     }
     
 // Handle profile image upload
@@ -66,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     UPLOAD_ERR_EXTENSION => 'File upload stopped by extension.',
                 ];
                 $uploadError = $errorMessages[$_FILES['profile_image']['error']] ?? 'Unknown upload error.';
-                error_log("Profile image upload failed for user_id={$user_id}: " . $_FILES['profile_image']['error']);
+                cw_log_debug("Profile image upload failed for user_id={$user_id}: " . $_FILES['profile_image']['error']);
             } else {
                 $file = $_FILES['profile_image'];
                 $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -90,14 +109,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     if (move_uploaded_file($file['tmp_name'], $dest)) {
                         $imagePath = '/carwash_project/backend/auth/uploads/profiles/' . $newName;
                         
-                        // Update database
-                        $db->update('user_profiles', ['profile_image' => $imagePath], ['user_id' => $user_id]);
+                        // Update database: ensure a user_profiles row exists, insert if missing
+                        try {
+                            $existing = $db->fetchOne('SELECT user_id FROM user_profiles WHERE user_id = :user_id', ['user_id' => $user_id]);
+                            if (!empty($existing)) {
+                                $db->update('user_profiles', ['profile_image' => $imagePath], ['user_id' => $user_id]);
+                            } else {
+                                $db->insert('user_profiles', ['user_id' => $user_id, 'profile_image' => $imagePath]);
+                            }
+                        } catch (Exception $e) {
+                            cw_log_debug('[PROFILE IMG DB] Exception updating/inserting profile image for user_id=' . $user_id . ' - ' . $e->getMessage());
+                        }
 
                         // Verify DB write
                         $verify = $db->fetchOne('SELECT profile_image FROM user_profiles WHERE user_id = :user_id', ['user_id' => $user_id]);
                         if (empty($verify) || empty($verify['profile_image'])) {
                             $uploadError = 'profile_image not saved in database';
-                            error_log("[PROFILE IMG FAIL] user_id={$user_id} | DB did not persist profile_image after update");
+                            cw_log_debug("[PROFILE IMG FAIL] user_id={$user_id} | DB did not persist profile_image after update");
                             // If AJAX, return JSON error immediately
                             if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
                                 header('Content-Type: application/json');
@@ -106,14 +134,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             }
                         } else {
                             // Update session (single source-of-truth)
-                            $_SESSION['profile_image'] = $verify['profile_image'];
-                            $_SESSION['user']['profile_image'] = $verify['profile_image'];
-                            // Update per-session cache-bust timestamp
-                            $_SESSION['profile_image_ts'] = time();
+                                $_SESSION['profile_image'] = $verify['profile_image'];
+                                $_SESSION['user']['profile_image'] = $verify['profile_image'];
+                                // Update per-session cache-bust timestamp
+                                $_SESSION['profile_image_ts'] = time();
+
+                                // Run auto-fix to ensure DB/session/file consistency after upload
+                                if (function_exists('autoFixProfileImage')) {
+                                    try {
+                                        $autoResultAfterUpload = autoFixProfileImage($user_id);
+                                        if (is_string($autoResultAfterUpload) && strpos($autoResultAfterUpload, 'ERROR') === 0) {
+                                            // treat as upload error
+                                            $uploadError = $autoResultAfterUpload;
+                                            cw_log_debug('[profile_auto_fix] after upload: ' . $autoResultAfterUpload);
+                                        } else {
+                                            cw_log_debug('[profile_auto_fix] after upload: ' . $autoResultAfterUpload);
+                                        }
+                                    } catch (Exception $e) {
+                                        cw_log_debug('[profile_auto_fix] after upload exception: ' . $e->getMessage());
+                                    }
+                                }
 
                             // Ensure file actually exists on disk
                             if (!file_exists($dest) || !is_readable($dest)) {
-                                error_log("[PROFILE IMG FAIL] user_id={$user_id} | file not found or unreadable: {$dest}");
+                                cw_log_debug("[PROFILE IMG FAIL] user_id={$user_id} | file not found or unreadable: {$dest}");
                                 $uploadError = 'Uploaded file not found on server after move.';
                             } else {
                                 $successMessage = 'Profile image updated successfully.';
@@ -121,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         }
                     } else {
                         $uploadError = 'Failed to save the file. Please try again.';
-                        error_log("Failed to move uploaded file for user_id={$user_id}");
+                        cw_log_debug("Failed to move uploaded file for user_id={$user_id}");
                     }
                 }
             }
@@ -146,6 +190,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         
         // Regenerate CSRF token after form submission
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        
+        // Store any upload error in flash session for display after redirect
+        if (!empty($uploadError)) {
+            $_SESSION['flash_error'] = $uploadError;
+        }
+        
+        // For AJAX requests, return JSON response
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            cw_log_debug("AJAX request detected for profile update, user_id={$user_id}, uploadError=" . ($uploadError ?: 'none'));
+            // Clean output buffer to ensure pure JSON response
+            if (ob_get_level()) {
+                ob_clean();
+            }
+            header('Content-Type: application/json');
+            if (!empty($uploadError)) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'profile_image_not_saved',
+                    'message' => $uploadError
+                ]);
+            } else {
+                $ts = $_SESSION['profile_image_ts'] ?? time();
+                echo json_encode([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'profile_image' => ($_SESSION['user']['profile_image'] ?? '') . '?ts=' . $ts
+                ]);
+            }
+            exit;
+        }
+        
+        // Store active tab so page reloads to profile section
+        $_SESSION['active_tab'] = 'profile';
     }
 
 // If upload succeeded, inject a small script to update avatar images on the page
@@ -259,7 +336,7 @@ if (!isset($base_url)) {
                     'driver_license' => $user_driver_license,
                     'city' => $user_city,
                     'address' => $user_address,
-                    'profile_image' => !empty($user_profile_image) ? $user_profile_image : ($base_url . '/frontend/images/default-avatar.svg')
+                    'profile_image' => !empty($header_profile_src) && $header_profile_src !== $default_avatar ? $header_profile_src : ($base_url . '/frontend/images/default-avatar.svg')
                 ]
             ], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?>;
 
@@ -1125,10 +1202,46 @@ if (!isset($base_url)) {
          ================================ -->
     <main class="flex-1 bg-gray-50" id="main-content">
         <div class="p-6 lg:p-8 max-w-7xl mx-auto">
-            <?php if (isset($_SESSION['success'])): ?>
-                <div class="mb-6">
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-                        <?php echo htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?>
+            <!-- Global Toast/Error Area - visible even when modals are open -->
+            <div id="globalToast" class="fixed top-24 right-6 z-[9999] max-w-md transition-all duration-300 transform translate-x-full opacity-0 pointer-events-none" role="alert" aria-live="assertive">
+                <div id="globalToastContent" class="rounded-xl shadow-2xl border px-5 py-4 flex items-start gap-3">
+                    <i id="globalToastIcon" class="fas fa-exclamation-circle text-xl mt-0.5"></i>
+                    <div class="flex-1">
+                        <p id="globalToastMessage" class="font-medium"></p>
+                    </div>
+                    <button onclick="hideGlobalToast()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <?php
+            // Render flash error from session (e.g., after profile upload failure)
+            $flashError = $_SESSION['flash_error'] ?? null;
+            $flashSuccess = $_SESSION['flash_success'] ?? $_SESSION['success'] ?? null;
+            if ($flashError) { unset($_SESSION['flash_error']); }
+            if (isset($_SESSION['flash_success'])) { unset($_SESSION['flash_success']); }
+            if (isset($_SESSION['success'])) { unset($_SESSION['success']); }
+            ?>
+            <?php if ($flashError): ?>
+                <div class="mb-6" id="serverFlashError">
+                    <div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-xl relative flex items-center gap-3">
+                        <i class="fas fa-exclamation-triangle text-red-500"></i>
+                        <span><?php echo htmlspecialchars($flashError); ?></span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-red-400 hover:text-red-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <?php if ($flashSuccess): ?>
+                <div class="mb-6" id="serverFlashSuccess">
+                    <div class="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-xl relative flex items-center gap-3">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span><?php echo htmlspecialchars($flashSuccess); ?></span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-green-400 hover:text-green-600">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                 </div>
             <?php endif; ?>
@@ -1604,7 +1717,7 @@ if (!isset($base_url)) {
                     <?php echo htmlspecialchars($successMessage); ?>
                 </div>
                 <?php endif; ?>
-                <form id="profileForm" class="space-y-6" enctype="multipart/form-data" method="POST">
+                <form id="profileForm" action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" class="space-y-6" enctype="multipart/form-data" method="POST">
                     <input type="hidden" name="action" value="update_profile">
                     <?php
                     // Idempotent ensure session and CSRF token for profile & password change forms
@@ -1634,10 +1747,10 @@ if (!isset($base_url)) {
                             <!-- Current Profile Image -->
                             <div class="flex-shrink-0">
                                 <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
-                                    <img 
-                                        id="profileImagePreview" 
-                                        src="<?php echo !empty($user_profile_image) ? htmlspecialchars($user_profile_image) : '/carwash_project/frontend/images/default-avatar.svg'; ?>" 
-                                        alt="Profile" 
+                                    <img
+                                        id="profileImagePreview"
+                                        src="<?php echo !empty($header_profile_src) && $header_profile_src !== $default_avatar ? htmlspecialchars($header_profile_src) : '/carwash_project/frontend/images/default-avatar.svg'; ?>"
+                                        alt="Profile"
                                         class="w-full h-full object-cover"
                                         onerror="this.src='/carwash_project/frontend/images/default-avatar.svg'"
                                     >
@@ -3409,18 +3522,14 @@ if (!isset($base_url)) {
     'use strict';
     
     function updateLayoutHeights() {
+        // Use requestAnimationFrame to batch DOM reads/writes
         requestAnimationFrame(() => {
             const root = document.documentElement;
-            
-            // Set fixed header height
-            root.style.setProperty('--header-height', '80px');
-            
-            // Footer will be calculated by footer.php script
-            
-            // Ensure sidebar width consistency
+
+            // Cache viewport width to avoid multiple reflows
             const viewportWidth = window.innerWidth;
             let sidebarWidth = 250;
-            
+
             if (viewportWidth < 768) {
                 sidebarWidth = 250; // Mobile
             } else if (viewportWidth < 900) {
@@ -3428,10 +3537,13 @@ if (!isset($base_url)) {
             } else {
                 sidebarWidth = 250; // Desktop
             }
-            
+
+            // Batch style property updates
+            root.style.setProperty('--header-height', '80px');
             root.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
-            
-            console.log('✅ Layout updated - Header: 80px, Sidebar:', sidebarWidth + 'px');
+
+            // Remove console.log for performance
+            // console.log('✅ Layout updated - Header: 80px, Sidebar:', sidebarWidth + 'px');
         });
     }
     
@@ -3455,6 +3567,310 @@ if (!isset($base_url)) {
     });
 })();
 
+// ================================
+// Global Toast / Error Display System
+// ================================
+(function() {
+    'use strict';
+    
+    let toastTimeout = null;
+    
+    window.showGlobalToast = function(message, type = 'error', duration = 6000) {
+        const toast = document.getElementById('globalToast');
+        const content = document.getElementById('globalToastContent');
+        const icon = document.getElementById('globalToastIcon');
+        const msgEl = document.getElementById('globalToastMessage');
+
+        if (!toast || !content || !msgEl) return;
+
+        // Clear any existing timeout
+        if (toastTimeout) {
+            clearTimeout(toastTimeout);
+            toastTimeout = null;
+        }
+
+        // Set message
+        msgEl.textContent = message;
+
+        // Set styling based on type - use classList for better performance
+        content.className = 'rounded-xl shadow-2xl border px-5 py-4 flex items-start gap-3';
+        if (type === 'error') {
+            content.classList.add('bg-red-50', 'border-red-300', 'text-red-700');
+            if (icon) icon.className = 'fas fa-exclamation-circle text-xl mt-0.5 text-red-500';
+        } else if (type === 'success') {
+            content.classList.add('bg-green-50', 'border-green-300', 'text-green-700');
+            if (icon) icon.className = 'fas fa-check-circle text-xl mt-0.5 text-green-500';
+        } else {
+            content.classList.add('bg-blue-50', 'border-blue-300', 'text-blue-700');
+            if (icon) icon.className = 'fas fa-info-circle text-xl mt-0.5 text-blue-500';
+        }
+
+        // Show toast using classList for better performance
+        toast.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
+        toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+
+        // Auto-hide after duration
+        if (duration > 0) {
+            toastTimeout = setTimeout(function() {
+                window.hideGlobalToast();
+            }, duration);
+        }
+    };
+    
+    window.hideGlobalToast = function() {
+        const toast = document.getElementById('globalToast');
+        if (!toast) return;
+
+        // Clear timeout if it exists
+        if (toastTimeout) {
+            clearTimeout(toastTimeout);
+            toastTimeout = null;
+        }
+
+        // Hide toast using classList
+        toast.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-x-0', 'opacity-100', 'pointer-events-auto');
+    };
+    
+    // Shorthand helpers
+    window.showError = function(msg) { window.showGlobalToast(msg, 'error'); };
+    window.showSuccess = function(msg) { window.showGlobalToast(msg, 'success'); };
+})();
+
+// ================================
+// Profile Image Refresh Helper
+// ================================
+window.refreshProfileImages = function(newUrl) {
+    // If caller didn't provide a URL, try to obtain canonical URL exposed by header include
+    if (!newUrl) {
+        if (typeof window.getCanonicalProfileImage === 'function') {
+            newUrl = window.getCanonicalProfileImage();
+        } else if (window.CARWASH && window.CARWASH.profile && window.CARWASH.profile.canonical) {
+            newUrl = window.CARWASH.profile.canonical;
+        } else {
+            var headerEl = document.getElementById('headerProfileImage');
+            if (headerEl) newUrl = headerEl.getAttribute('src') || headerEl.src;
+        }
+    }
+
+    if (!newUrl) return;
+
+    // Use requestAnimationFrame to batch DOM updates
+    requestAnimationFrame(function() {
+        const selectors = '#headerProfileImage, #sidebarProfileImage, #mobileMenuAvatar, #profileImagePreview, .profile-img, .sidebar-avatar-img';
+        const images = document.querySelectorAll(selectors);
+
+        // Update images in a single batch
+        images.forEach(function(img) {
+            try {
+                img.src = newUrl;
+            } catch(e) {
+                // Silent fail for performance
+            }
+        });
+    });
+};
+
+// ================================
+// Tab Persistence for Profile Section
+// ================================
+(function() {
+    'use strict';
+    
+    // Check for server-side active tab or localStorage
+    var serverActiveTab = <?php echo json_encode($_SESSION['active_tab'] ?? null); ?>;
+    <?php unset($_SESSION['active_tab']); ?>
+    var storedTab = localStorage.getItem('customer-dashboard-active-tab');
+    var targetTab = serverActiveTab || storedTab;
+    
+    if (targetTab) {
+        // Wait for Alpine to initialize - use shorter timeout and avoid direct data manipulation
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                // Use a more efficient approach - dispatch custom event
+                const event = new CustomEvent('restoreTab', { detail: { tab: targetTab } });
+                document.dispatchEvent(event);
+
+                // Clear stored tab after dispatching event
+                localStorage.removeItem('customer-dashboard-active-tab');
+            }, 50); // Reduced from 150ms
+        });
+    }
+    
+    // Store active tab before form submit
+    window.storeActiveTab = function(tabName) {
+        localStorage.setItem('customer-dashboard-active-tab', tabName || 'profile');
+    };
+
+    // Listen for tab restoration events
+    document.addEventListener('restoreTab', function(e) {
+        const targetTab = e.detail.tab;
+        // Try to set currentSection via Alpine
+        const body = document.body;
+        if (body && body.__x && body.__x.$data && body.__x.$data.currentSection !== undefined) {
+            body.__x.$data.currentSection = targetTab;
+        } else if (typeof Alpine !== 'undefined') {
+            // Fallback for when Alpine is available but not yet initialized on body
+            Alpine.nextTick(function() {
+                const el = document.querySelector('[x-data]');
+                if (el && el._x_dataStack && el._x_dataStack[0]) {
+                    el._x_dataStack[0].currentSection = targetTab;
+                }
+            });
+        }
+    });
+})();
+
+// ================================
+// Profile Form Submit Handler Enhancement
+// ================================
+(function() {
+    'use strict';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var profileForm = document.getElementById('profileForm');
+        if (!profileForm) return;
+
+        // FileReader-based preview for immediate feedback when selecting an image
+        try {
+            var fileInput = document.getElementById('profileImageInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(evt) {
+                    var f = this.files && this.files[0];
+                    if (!f) return;
+                    var allowed = ['image/jpeg','image/png','image/webp'];
+                    var maxSize = 3 * 1024 * 1024; // 3MB
+                    if (allowed.indexOf(f.type) === -1) {
+                        window.showError && window.showError('Geçersiz dosya türü. JPG, PNG veya WEBP gerekli.');
+                        return;
+                    }
+                    if (f.size > maxSize) {
+                        window.showError && window.showError('Dosya çok büyük. Maksimum 3MB.');
+                        return;
+                    }
+                    var reader = new FileReader();
+                    reader.onload = function(eu) {
+                        var preview = document.getElementById('profileImagePreview');
+                        if (preview) preview.src = eu.target.result;
+                    };
+                    reader.readAsDataURL(f);
+                });
+            }
+        } catch (err) {
+            console.warn('Profile preview handler init failed', err);
+        }
+
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Always prevent default for AJAX handling
+            
+            // Store current tab before submit for persistence
+            window.storeActiveTab && window.storeActiveTab('profile');
+            
+            // Create FormData and submit via AJAX
+            var formData = new FormData(profileForm);
+            
+            // Add loading state
+            var submitBtn = profileForm.querySelector('button[type="submit"]');
+            var originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Kaydediliyor...';
+            
+            // AJAX submission - use form action attribute explicitly
+            fetch(profileForm.getAttribute('action'), {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result.success) {
+                    // Success: Show in global toast and update images
+                    if (window.showSuccess) {
+                        window.showSuccess(result.message || 'Profile updated successfully');
+                    }
+                    
+                    // Update profile images: prefer returned URL, otherwise use canonical fallback
+                    if (window.refreshProfileImages) {
+                        if (result.profile_image) {
+                            window.refreshProfileImages(result.profile_image);
+                        } else {
+                            // No explicit URL returned; refresh using canonical header value
+                            window.refreshProfileImages();
+                        }
+                    }
+                    
+                    // Keep form in edit mode or close based on response
+                    if (result.keep_tab_active) {
+                        // Stay in profile tab, close edit mode
+                        var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                        if (alpineEl && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
+                            alpineEl._x_dataStack[0].editMode = false;
+                        }
+                    }
+                } else {
+                    // Error: Show in global toast if requested, otherwise in form
+                    if (result.show_global_error && window.showError) {
+                        window.showError(result.message || 'Error updating profile');
+                        // Close edit mode so global error is visible
+                        var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                        if (alpineEl && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
+                            alpineEl._x_dataStack[0].editMode = false;
+                        }
+                    } else {
+                        // Show error in form
+                        showFormErrors([result.message || 'Error updating profile']);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Profile update error:', error);
+                // Try to get response text for debugging
+                if (error.message.includes('HTTP')) {
+                    console.error('HTTP error details:', error.message);
+                }
+                if (window.showError) {
+                    window.showError('Network error occurred: ' + error.message);
+                } else {
+                    showFormErrors(['Network error occurred: ' + error.message]);
+                }
+            })
+            .finally(() => {
+                // Restore button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+        });
+        
+        // Helper function to show form errors (build HTML once to avoid layout thrashing)
+        function showFormErrors(errors) {
+            var container = document.getElementById('form-errors-container');
+            var list = document.getElementById('form-errors-list');
+            if (!container || !list) return;
+            if (!errors || !errors.length) {
+                // Hide container if no errors
+                list.innerHTML = '';
+                container.style.display = 'none';
+                return;
+            }
+
+            // Build markup in a string and write once to minimize reflows
+            var html = '';
+            for (var i = 0; i < errors.length; i++) {
+                var esc = String(errors[i]).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                html += '<li>' + esc + '</li>';
+            }
+            list.innerHTML = html;
+            container.style.display = 'block';
+        }
+    });
+})();
 
 </script>
 

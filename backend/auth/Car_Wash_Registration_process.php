@@ -157,14 +157,28 @@ try {
     
     // Handle profile image upload
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-        $file_extension = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
-        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
-        
-        if (in_array($file_extension, $allowed_extensions)) {
-            $profile_image = 'profile_' . uniqid() . '.' . $file_extension;
-            // store profile images under uploads/business_logo parent (legacy profile images may differ)
-            move_uploaded_file($_FILES['profile_image']['tmp_name'], $upload_dir . $profile_image);
+        $allowedMime = ['image/jpeg','image/png','image/webp','image/gif'];
+        $fileType = mime_content_type($_FILES['profile_image']['tmp_name']);
+        $maxSize = 5 * 1024 * 1024;
+        if (!in_array($fileType, $allowedMime)) {
+            die('Error: Invalid file type for profile image. Only JPG, PNG, WEBP or GIF allowed.');
         }
+        if ($_FILES['profile_image']['size'] > $maxSize) {
+            die('Error: Profile image too large. Maximum 5MB.');
+        }
+
+        $uploadDir = __DIR__ . '/uploads/profiles/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+        $file_extension = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+        $profile_image = 'profile_' . uniqid() . '_' . time() . '.' . $file_extension;
+        $target = $uploadDir . $profile_image;
+
+        if (!move_uploaded_file($_FILES['profile_image']['tmp_name'], $target)) {
+            die('Error: Failed to upload profile image.');
+        }
+
+        $profile_image = '/carwash_project/backend/auth/uploads/profiles/' . $profile_image . '?ts=' . time();
     }
     
     // Handle logo image upload
@@ -212,6 +226,11 @@ try {
         $stmt = $conn->prepare($user_sql);
         $stmt->execute([$username, $business_name, $email, $hashed_password, $phone]);
         $user_id = $conn->lastInsertId();
+        
+        // Insert user profile record
+        $profile_sql = "INSERT INTO user_profiles (user_id, name, email, phone, profile_image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+        $stmt = $conn->prepare($profile_sql);
+        $stmt->execute([$user_id, $business_name, $email, $phone, $profile_image]);
         
         // Insert or MERGE carwash business record into canonical `carwashes` table
         // If an authoritative carwash already exists (by user_id or name), merge form fields
@@ -387,6 +406,9 @@ try {
         $_SESSION['user_email'] = $email;
         $_SESSION['role'] = 'carwash';
         $_SESSION['carwash_id'] = $carwash_id;
+        if (!empty($profile_image)) {
+            $_SESSION['profile_image'] = $profile_image;
+        }
         // If a logo was uploaded, expose its web path in the session so headers/sidebars can use it
         if (!empty($logo_image)) {
             // Store filename only in session; header includes will build public URL

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard Profile UX Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
+        .test-section { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .pass { color: green; } .fail { color: red; } .pending { color: orange; }
+        .checklist { margin: 10px 0; }
+        .checklist li { margin: 5px 0; }
+        code { background: #eee; padding: 2px 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Customer Dashboard Profile UX Bug Fixes - Test Checklist</h1>
+    
+    <div class="test-section">
+        <h2>🎯 Three Main UX Issues Fixed</h2>
+        <ol>
+            <li><strong>Tab Persistence:</strong> After editing profile, page must remain on Profile tab</li>
+            <li><strong>Global Error Display:</strong> Upload/validation errors shown in main dashboard, not buried in modal</li>
+            <li><strong>Consistent Images:</strong> Profile image displays consistently across sidebar, header, dashboard</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ Implementation Status</h2>
+        
+        <h3>A) Server/Upload Handler Fixes</h3>
+        <ul class="checklist">
+            <li class="pass">✅ Profile upload endpoints return JSON responses</li>
+            <li class="pass">✅ Success responses include profile_image URL with cache-busting timestamp</li>
+            <li class="pass">✅ Error responses include show_global_error flag for toast display</li>
+            <li class="pass">✅ Session variables updated immediately: $_SESSION['user']['profile_image']</li>
+            <li class="pass">✅ Error logging implemented via error_log()</li>
+        </ul>
+
+        <h3>B) Session & Canonical Source</h3>
+        <ul class="checklist">
+            <li class="pass">✅ Session-based canonical source: $_SESSION['user']['profile_image']</li>
+            <li class="pass">✅ Cache-busting timestamps: ?ts={timestamp}</li>
+            <li class="pass">✅ Auto-fix helper implemented: autoFixProfileImage() function</li>
+            <li class="pass">✅ Server-side profile image fallback to default avatar</li>
+        </ul>
+
+        <h3>C) Frontend: Tab Persistence</h3>
+        <ul class="checklist">
+            <li class="pass">✅ Tab state stored in localStorage before form submit</li>
+            <li class="pass">✅ Tab restored after successful response using storeActiveTab()</li>
+            <li class="pass">✅ Server-side active tab support via $_SESSION['active_tab']</li>
+            <li class="pass">✅ Alpine.js integration with currentSection persistence</li>
+        </ul>
+
+        <h3>D) Frontend: Global Error Area</h3>
+        <ul class="checklist">
+            <li class="pass">✅ Global toast area implemented: #globalToast</li>
+            <li class="pass">✅ showError() and showSuccess() helper functions</li>
+            <li class="pass">✅ Modal closes when global error shown (show_global_error flag)</li>
+            <li class="pass">✅ Flash error support via $_SESSION['flash_error']</li>
+            <li class="pass">✅ Toast visible above modals: z-index 9999</li>
+        </ul>
+
+        <h3>E) Frontend: Consistent Image Display</h3>
+        <ul class="checklist">
+            <li class="pass">✅ Header profile image: #headerProfileImage</li>
+            <li class="pass">✅ Sidebar profile image: #sidebarProfileImage</li>
+            <li class="pass">✅ Profile form preview: #profileImagePreview</li>
+            <li class="pass">✅ Mobile menu avatar: #mobileMenuAvatar</li>
+            <li class="pass">✅ refreshProfileImages() function covers all selectors</li>
+            <li class="pass">✅ Server-side session values used for initial render</li>
+            <li class="pass">✅ Fallback to default avatar on error</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Manual Test Steps</h2>
+        
+        <h3>Test 1: Tab Persistence After Profile Edit</h3>
+        <ol>
+            <li>Go to Customer Dashboard</li>
+            <li>Click on "Profile" tab in sidebar</li>
+            <li>Click "Edit Profile" button</li>
+            <li>Make a change (e.g., update name)</li>
+            <li>Click "Save" button</li>
+            <li><strong>Expected:</strong> Page should stay on Profile tab, not jump to first tab</li>
+        </ol>
+
+        <h3>Test 2: Global Error Display for Upload Failures</h3>
+        <ol>
+            <li>Go to Customer Dashboard → Profile tab</li>
+            <li>Click "Edit Profile"</li>
+            <li>Try to upload an invalid file (e.g., .txt file or huge image > 3MB)</li>
+            <li>Click "Save"</li>
+            <li><strong>Expected:</strong> Error message should appear in top-right global toast area, NOT inside modal</li>
+            <li><strong>Expected:</strong> Modal should close automatically to show global error clearly</li>
+        </ol>
+
+        <h3>Test 3: Consistent Profile Image Display</h3>
+        <ol>
+            <li>Go to Customer Dashboard → Profile tab</li>
+            <li>Click "Edit Profile"</li>
+            <li>Upload a valid profile image</li>
+            <li>Click "Save"</li>
+            <li><strong>Expected:</strong> New image should appear immediately in:</li>
+            <ul>
+                <li>Header (top-right corner)</li>
+                <li>Sidebar (top profile section)</li>
+                <li>Profile form preview (edit mode)</li>
+                <li>Any mobile menu avatars</li>
+            </ul>
+            <li>Navigate to different pages/sections</li>
+            <li><strong>Expected:</strong> Same profile image should be consistent everywhere</li>
+        </ol>
+
+        <h3>Test 4: Error Recovery and Fallbacks</h3>
+        <ol>
+            <li>Test with various error conditions:</li>
+            <ul>
+                <li>Network timeout during upload</li>
+                <li>Server error (500)</li>
+                <li>Missing/corrupted image file</li>
+            </ul>
+            <li><strong>Expected:</strong> All errors should show in global toast with clear messages</li>
+            <li><strong>Expected:</strong> Images should fallback to default avatar if missing</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Developer Notes</h2>
+        <ul>
+            <li><strong>Key Files Modified:</strong></li>
+            <ul>
+                <li><code>Customer_Dashboard.php</code> - Enhanced AJAX form handling, global toast, tab persistence</li>
+                <li><code>update_profile.php</code> - Improved JSON responses and error handling</li>
+                <li><code>profile_upload.php</code> - Standardized upload paths and session updates</li>
+                <li><code>Car_Wash_Registration_process.php</code> - Fixed profile image handling</li>
+            </ul>
+            <li><strong>JavaScript Functions:</strong></li>
+            <ul>
+                <li><code>showGlobalToast(message, type, duration)</code> - Global error/success display</li>
+                <li><code>refreshProfileImages(newUrl)</code> - Update all profile images on page</li>
+                <li><code>storeActiveTab(tabName)</code> - Persist tab state across page loads</li>
+            </ul>
+            <li><strong>Session Management:</strong></li>
+            <ul>
+                <li><code>$_SESSION['user']['profile_image']</code> - Canonical image source</li>
+                <li><code>$_SESSION['active_tab']</code> - Tab persistence</li>
+                <li><code>$_SESSION['flash_error']</code> - Error messages across page loads</li>
+            </ul>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🚨 Potential Issues to Watch For</h2>
+        <ul>
+            <li><strong>CSRF Tokens:</strong> Ensure forms include proper CSRF tokens for security</li>
+            <li><strong>File Permissions:</strong> Upload directory must be writable (755 or 777)</li>
+            <li><strong>Session Persistence:</strong> Profile image session may be lost if session expires</li>
+            <li><strong>Cache Issues:</strong> Timestamp query parameters should prevent browser caching</li>
+            <li><strong>Mobile Responsiveness:</strong> Test on mobile devices for proper modal/toast display</li>
+        </ul>
+    </div>
+
+</body>
+</html>

@@ -24,8 +24,8 @@ if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
     Response::error('توکن امنیتی نامعتبر است', 403);
 }
 
-// Use a storage directory under backend/uploads (outside auth folder)
-$storageBase = realpath(__DIR__ . '/..') . '/uploads/profiles';
+// Use a storage directory under backend/auth/uploads/profiles
+$storageBase = realpath(__DIR__) . '/uploads/profiles';
 if (!is_dir($storageBase)) {
     @mkdir($storageBase, 0755, true);
 }
@@ -89,12 +89,19 @@ if (!move_uploaded_file($file['tmp_name'], $storagePath)) {
 @chmod($storagePath, 0644);
 
 // Build relative/public paths for DB and session
-$relativePath = '/carwash_project/backend/uploads/profiles/user_' . intval($userId) . '/' . $newFilename;
-$publicUrl = (isset($base_url) ? $base_url : (isset($_SERVER['HTTP_HOST']) ? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/carwash_project' : '')) . '/backend/uploads/profiles/user_' . intval($userId) . '/' . $newFilename;
+$publicUrl = '/carwash_project/backend/auth/uploads/profiles/user_' . intval($userId) . '/' . $newFilename . '?ts=' . time();
+
+// Remove old profile image if set and not default
+$old = Session::get('profile_image');
+if ($old && strpos($old, '/frontend/images/default-avatar.svg') === false) {
+    $oldFull = str_replace(BASE_URL, $_SERVER['DOCUMENT_ROOT'] . '/carwash_project', $old);
+    $oldFull = preg_replace('/\?ts=\d+$/', '', $oldFull); // Remove timestamp
+    if (file_exists($oldFull)) @unlink($oldFull);
+}
 
 // Save to database
 $db = \App\Classes\Database::getInstance();
-$updated = $db->update('users', ['profile_image' => $relativePath], ['id' => $userId]);
+$updated = $db->update('user_profiles', ['profile_image' => $publicUrl], ['user_id' => $userId]);
 if ($updated) {
     Session::set('profile_image', $publicUrl);
     Response::success('تصویر پروفایل با موفقیت به‌روز شد', ['image_url' => $publicUrl]);

@@ -384,12 +384,12 @@ try {
                 }
 
                 // Passed image validation - move file into uploads and update DB
-                $uploadDir = __DIR__ . '/../uploads/profile_images/';
+                $uploadDir = PROFILE_UPLOAD_PATH;
                 if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
                 $safeExt = preg_replace('/[^a-z0-9]/', '', strtolower(pathinfo($uploadedFile['name'] ?? '', PATHINFO_EXTENSION)));
                 if ($safeExt === '') $safeExt = 'jpg';
                 $filename = 'profile_' . $user_id . '_' . time() . '.' . $safeExt;
-                $dest = $uploadDir . $filename;
+                $dest = $uploadDir . '/' . $filename;
 
                 if (!@move_uploaded_file($uploadedFile['tmp_name'], $dest)) {
                     ob_end_clean();
@@ -406,14 +406,15 @@ try {
                 // Remove old image file if exists
                 try {
                     if (!empty($existingImage)) {
-                        $oldPath = __DIR__ . '/..' . parse_url($existingImage, PHP_URL_PATH);
-                        if (file_exists($oldPath) && is_file($oldPath)) @unlink($oldPath);
+                        $oldFull = str_replace(BASE_URL, $_SERVER['DOCUMENT_ROOT'] . '/carwash_project', $existingImage);
+                        $oldFull = preg_replace('/\?ts=\d+$/', '', $oldFull); // Remove timestamp
+                        if (file_exists($oldFull)) @unlink($oldFull);
                     }
                 } catch (Throwable $e) {
                     // non-fatal
                 }
 
-                $webPath = '/carwash_project/backend/uploads/profile_images/' . $filename;
+                $webPath = PROFILE_UPLOAD_URL . '/' . $filename . '?ts=' . time();
 
                 // Persist to DB (user_profiles preferred, fallback to users table)
                 try {

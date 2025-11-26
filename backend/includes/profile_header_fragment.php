@@ -72,3 +72,16 @@
     })();
     </script>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    try {
+        var img = document.getElementById('userAvatarTop');
+        if (!img) return;
+        var src = img.getAttribute('src') || img.src || '';
+        var isPlaceholder = src.indexOf('default-avatar') !== -1 || src.indexOf('placeholder') !== -1 || src.trim() === '';
+        if (isPlaceholder && typeof window.getCanonicalProfileImage === 'function') {
+            img.src = window.getCanonicalProfileImage();
+        }
+    } catch(e) { /* ignore */ }
+});
+</script>

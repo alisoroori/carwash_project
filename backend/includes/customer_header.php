@@ -6,12 +6,19 @@
  */
 
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-// Debug: log session and resolved profile sources for troubleshooting
-if (function_exists('error_log')) {
-    $sh = $_SESSION['user']['profile_image'] ?? 'NULL';
-    $sp = $_SESSION['profile_image'] ?? 'NULL';
-    error_log("[customer_header] init: user_id=" . ($user_id ?? 'NULL') . " session.user.profile_image={$sh}; session.profile_image={$sp}");
+// Lightweight logging helper for header; prefer App\Classes\Logger::debug if available
+if (!function_exists('cw_log_debug')) {
+    function cw_log_debug($m) {
+        if (class_exists('\\App\\Classes\\Logger') && method_exists('\\App\\Classes\\Logger', 'debug')) {
+            try { \App\Classes\Logger::debug($m); } catch (Throwable $__e) { error_log($m); }
+        } else {
+            error_log($m);
+        }
+    }
 }
+$sh = $_SESSION['user']['profile_image'] ?? 'NULL';
+$sp = $_SESSION['profile_image'] ?? 'NULL';
+cw_log_debug("[customer_header] init: user_id=" . ($user_id ?? 'NULL') . " session.user.profile_image={$sh}; session.profile_image={$sp}");
 
 if (!isset($dashboard_type)) $dashboard_type = 'customer';
 if (!isset($page_title)) $page_title = 'Müşteri Paneli - CarWash';
@@ -24,6 +31,20 @@ $user_id = $_SESSION['user_id'] ?? null;
 $user_name = $_SESSION['name'] ?? $_SESSION['full_name'] ?? 'Kullanıcı';
 $user_email = $_SESSION['email'] ?? '';
 $user_role = $_SESSION['role'] ?? 'customer';
+
+// Attempt auto-fix when rendering header to ensure session consistency across pages
+$profileFixHelper = __DIR__ . '/profile_auto_fix.php';
+if (file_exists($profileFixHelper) && !empty($user_id)) {
+    try {
+        require_once $profileFixHelper;
+        if (function_exists('autoFixProfileImage')) {
+            $hf = autoFixProfileImage($user_id);
+            cw_log_debug('[profile_auto_fix] header: ' . $hf);
+        }
+    } catch (Exception $e) {
+        cw_log_debug('[profile_auto_fix] header include failed: ' . $e->getMessage());
+    }
+}
 
 // Header logo is always MyCar logo (fixed branding)
 $logo_src = $base_url . '/backend/logo01.png';
@@ -103,14 +124,14 @@ if (empty($profile_src)) {
         $profile_src = $profile_src_candidate;
         // If file exists locally, prefer that. Build filesystem path when possible.
         $parsed = parse_url($profile_src);
-        if (!empty($parsed['path'])) {
+            if (!empty($parsed['path'])) {
             $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/');
             $filePath = $docRoot . $parsed['path'];
             if (file_exists($filePath) && is_readable($filePath)) {
                 // ok
             } else {
                 // Fallback to default avatar if file not readable
-                error_log('[customer_header] Profile image not readable or missing: ' . $filePath);
+                    cw_log_debug('[customer_header] Profile image not readable or missing: ' . $filePath);
                 $profile_src = $default_avatar;
                 unset($_SESSION['profile_image']);
                 unset($_SESSION['user']['profile_image']);
@@ -142,7 +163,7 @@ if (empty($profile_src)) {
                 }
             }
             if (!$found) {
-                error_log('[customer_header] Profile image file not found in expected locations: ' . $filename);
+                cw_log_debug('[customer_header] Profile image file not found in expected locations: ' . $filename);
                 $profile_src = $default_avatar;
                 unset($_SESSION['profile_image']);
                 unset($_SESSION['user']['profile_image']);
@@ -166,15 +187,33 @@ $header_profile_src = $default_avatar;
 if (!empty($_SESSION['user']['profile_image'])) {
     // Use raw session value and append a timestamp to bust caches after upload/login
     $ts = intval($_SESSION['profile_image_ts'] ?? time());
-    $header_profile_src = rtrim($_SESSION['user']['profile_image'], '\\/') . '?ts=' . $ts;
+    $rawPath = $_SESSION['user']['profile_image'];
 
-    // Log missing/unreadable files for debugging when profile image appears to be a local path
-    if (!preg_match('#^https?://#i', $_SESSION['user']['profile_image'])) {
-        $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/' );
-        $candidatePath = $docRoot . '/' . ltrim($_SESSION['user']['profile_image'], '\\/');
-        if (!file_exists($candidatePath) || !is_readable($candidatePath)) {
-            error_log("[customer_header] Profile image missing/unreadable for user_id={$user_id}: {$candidatePath}");
-        }
+    // Handle different path formats
+    if (preg_match('#^https?://#i', $rawPath)) {
+        // Already a full URL
+        $header_profile_src = $rawPath . (strpos($rawPath, '?') === false ? '?ts=' . $ts : '&ts=' . $ts);
+    } elseif (strpos($rawPath, '/carwash_project') === 0) {
+        // Path starts with /carwash_project - build full URL
+        $header_profile_src = $base_url . $rawPath . '?ts=' . $ts;
+    } else {
+        // Relative path - assume it's in uploads
+        $header_profile_src = $base_url . '/backend/auth/uploads/profiles/' . ltrim($rawPath, '/') . '?ts=' . $ts;
+    }
+
+    // Log missing/unreadable files for debugging
+    $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/');
+    if (strpos($rawPath, '/carwash_project') === 0) {
+        $candidatePath = $docRoot . $rawPath;
+    } elseif (!preg_match('#^https?://#i', $rawPath)) {
+        $candidatePath = $docRoot . '/carwash_project/backend/auth/uploads/profiles/' . ltrim($rawPath, '/');
+    } else {
+        $candidatePath = null; // Can't check remote URLs
+    }
+
+    if ($candidatePath && (!file_exists($candidatePath) || !is_readable($candidatePath))) {
+        cw_log_debug("[customer_header] Profile image missing/unreadable for user_id={$user_id}: {$candidatePath}");
+        $header_profile_src = $default_avatar;
     }
 }
 
@@ -398,6 +437,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     } catch (e) { /* ignore errors */ }
 });
+</script>
+
+<!-- Expose canonical profile image URL for other scripts to consume -->
+<script>
+    (function(){
+        window.CARWASH = window.CARWASH || {};
+        window.CARWASH.profile = window.CARWASH.profile || {};
+        // Use json_encode to safely escape the PHP string for JS usage
+        window.CARWASH.profile.canonical = <?php echo json_encode($header_profile_src); ?>;
+        window.getCanonicalProfileImage = function(){ return window.CARWASH.profile.canonical; };
+    })();
 </script>
 
 

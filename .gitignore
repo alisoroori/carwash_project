@@ -44,3 +44,7 @@ build/
 # Backups created by scripts (do not commit)
 /backend/backups/
 /backend/backups/raw_bak_archive/
+
+# Profile uploads - do not commit user uploads
+/backend/auth/uploads/profiles/
+/backend/auth/uploads/*.tmp
