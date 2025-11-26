@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../includes/bootstrap.php';
 // Auto-fix helper for profile images
 require_once __DIR__ . '/../includes/profile_auto_fix.php';
+// Reusable profile upload helper (consolidated upload logic)
+require_once __DIR__ . '/../includes/profile_upload_helper.php';
 
 use App\Classes\Auth;
 use App\Classes\Database;
@@ -73,103 +75,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         cw_log_debug("CSRF token mismatch for user_id={$user_id}: received '" . ($_POST['csrf_token'] ?? 'none') . "', expected '" . ($_SESSION['csrf_token'] ?? 'none') . "'");
     }
     
-// Handle profile image upload
+// Handle profile image upload (delegated to consolidated helper)
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] !== UPLOAD_ERR_NO_FILE) {
-    if ($_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
-                $errorMessages = [
-                    UPLOAD_ERR_INI_SIZE => 'File too large (server limit).',
-                    UPLOAD_ERR_FORM_SIZE => 'File too large (form limit).',
-                    UPLOAD_ERR_PARTIAL => 'File upload was interrupted.',
-                    UPLOAD_ERR_NO_TMP_DIR => 'Server error: no temporary directory.',
-                    UPLOAD_ERR_CANT_WRITE => 'Server error: cannot write file.',
-                    UPLOAD_ERR_EXTENSION => 'File upload stopped by extension.',
-                ];
-                $uploadError = $errorMessages[$_FILES['profile_image']['error']] ?? 'Unknown upload error.';
-                cw_log_debug("Profile image upload failed for user_id={$user_id}: " . $_FILES['profile_image']['error']);
-            } else {
-                $file = $_FILES['profile_image'];
-                $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-                $maxSize = 3 * 1024 * 1024; // 3MB
-                
-                if (!in_array($file['type'], $allowedTypes)) {
-                    $uploadError = 'Invalid file type. Only JPG, PNG, and WEBP are allowed.';
-                } elseif ($file['size'] > $maxSize) {
-                    $uploadError = 'File too large. Maximum size is 3MB.';
-                } else {
-                    // Upload the file
-                    $uploadDir = __DIR__ . '/../auth/uploads/profiles/';
-                    if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0755, true);
-                    }
-                    
-                    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-                    $newName = 'profile_' . $user_id . '_' . time() . '.' . $ext;
-                    $dest = $uploadDir . $newName;
-                    
-                    if (move_uploaded_file($file['tmp_name'], $dest)) {
-                        $imagePath = '/carwash_project/backend/auth/uploads/profiles/' . $newName;
-                        
-                        // Update database: ensure a user_profiles row exists, insert if missing
-                        try {
-                            $existing = $db->fetchOne('SELECT user_id FROM user_profiles WHERE user_id = :user_id', ['user_id' => $user_id]);
-                            if (!empty($existing)) {
-                                $db->update('user_profiles', ['profile_image' => $imagePath], ['user_id' => $user_id]);
-                            } else {
-                                $db->insert('user_profiles', ['user_id' => $user_id, 'profile_image' => $imagePath]);
-                            }
-                        } catch (Exception $e) {
-                            cw_log_debug('[PROFILE IMG DB] Exception updating/inserting profile image for user_id=' . $user_id . ' - ' . $e->getMessage());
-                        }
+        if ($_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
+            $errorMessages = [
+                UPLOAD_ERR_INI_SIZE => 'File too large (server limit).',
+                UPLOAD_ERR_FORM_SIZE => 'File too large (form limit).',
+                UPLOAD_ERR_PARTIAL => 'File upload was interrupted.',
+                UPLOAD_ERR_NO_TMP_DIR => 'Server error: no temporary directory.',
+                UPLOAD_ERR_CANT_WRITE => 'Server error: cannot write file.',
+                UPLOAD_ERR_EXTENSION => 'File upload stopped by extension.',
+            ];
+            $uploadError = $errorMessages[$_FILES['profile_image']['error']] ?? 'Unknown upload error.';
+            cw_log_debug("Profile image upload failed for user_id={$user_id}: " . $_FILES['profile_image']['error']);
+        } else {
+            // Use unified helper for uploads and DB/session updates
+            try {
+                $uploadResult = handleProfileUpload($user_id, $_FILES['profile_image']);
+            } catch (Throwable $e) {
+                $uploadResult = ['success' => false, 'error' => 'Upload handler exception: ' . $e->getMessage()];
+            }
 
-                        // Verify DB write
-                        $verify = $db->fetchOne('SELECT profile_image FROM user_profiles WHERE user_id = :user_id', ['user_id' => $user_id]);
-                        if (empty($verify) || empty($verify['profile_image'])) {
-                            $uploadError = 'profile_image not saved in database';
-                            cw_log_debug("[PROFILE IMG FAIL] user_id={$user_id} | DB did not persist profile_image after update");
-                            // If AJAX, return JSON error immediately
-                            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-                                header('Content-Type: application/json');
-                                echo json_encode(['status' => 'error', 'message' => 'profile_image not saved in database']);
-                                exit;
-                            }
-                        } else {
-                            // Update session (single source-of-truth)
-                                $_SESSION['profile_image'] = $verify['profile_image'];
-                                $_SESSION['user']['profile_image'] = $verify['profile_image'];
-                                // Update per-session cache-bust timestamp
-                                $_SESSION['profile_image_ts'] = time();
-
-                                // Run auto-fix to ensure DB/session/file consistency after upload
-                                if (function_exists('autoFixProfileImage')) {
-                                    try {
-                                        $autoResultAfterUpload = autoFixProfileImage($user_id);
-                                        if (is_string($autoResultAfterUpload) && strpos($autoResultAfterUpload, 'ERROR') === 0) {
-                                            // treat as upload error
-                                            $uploadError = $autoResultAfterUpload;
-                                            cw_log_debug('[profile_auto_fix] after upload: ' . $autoResultAfterUpload);
-                                        } else {
-                                            cw_log_debug('[profile_auto_fix] after upload: ' . $autoResultAfterUpload);
-                                        }
-                                    } catch (Exception $e) {
-                                        cw_log_debug('[profile_auto_fix] after upload exception: ' . $e->getMessage());
-                                    }
-                                }
-
-                            // Ensure file actually exists on disk
-                            if (!file_exists($dest) || !is_readable($dest)) {
-                                cw_log_debug("[PROFILE IMG FAIL] user_id={$user_id} | file not found or unreadable: {$dest}");
-                                $uploadError = 'Uploaded file not found on server after move.';
-                            } else {
-                                $successMessage = 'Profile image updated successfully.';
-                            }
-                        }
-                    } else {
-                        $uploadError = 'Failed to save the file. Please try again.';
-                        cw_log_debug("Failed to move uploaded file for user_id={$user_id}");
-                    }
+            if (empty($uploadResult) || empty($uploadResult['success'])) {
+                $uploadError = $uploadResult['error'] ?? $uploadResult['message'] ?? 'Upload failed';
+                cw_log_debug("handleProfileUpload failed for user_id={$user_id}: " . ($uploadError));
+                // For AJAX, return JSON immediately
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                    if (ob_get_level()) { ob_clean(); }
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => false, 'error' => 'profile_image_not_saved', 'message' => $uploadError]);
+                    exit;
                 }
+            } else {
+                // Success: helper already updated DB and session, set a friendly message
+                $successMessage = $uploadResult['message'] ?? 'Profile image updated successfully.';
             }
         }
+    }
         
         // If no upload error, process other profile fields (basic example)
         if (empty($uploadError)) {
@@ -233,29 +175,48 @@ if (!empty($successMessage) && !empty($_SESSION['profile_image'])) {
     echo <<<HTML
 <script>
 (function(){
+    // Batch DOM writes inside rAF to avoid forced reflow/layout thrash
     var newSrc = '{$newImg}?ts={$ts}';
+
     function updateAvatars(){
-        var updated = 0;
-        // Update known selectors first
+        // Collect elements to update (reads only)
         var ids = ['headerProfileImage','sidebarProfileImage','mobileMenuAvatar'];
-        ids.forEach(function(id){ var el = document.getElementById(id); if(el){ try{ el.src = newSrc; }catch(e){} updated++; } });
-        // Update generic class selectors as fallback
-        document.querySelectorAll('.profile-img, .sidebar-avatar-img').forEach(function(img){ try{ img.src = newSrc; }catch(e){} updated++; });
-        if(updated === 0){
-            console.error('Profile image refresh function not triggered', newSrc);
-            // Log diagnostics: count images and try a tolerant fallback
-            try{
-                var imgs = document.querySelectorAll('img');
-                console.info('Total <img> elements on page:', imgs.length);
-                // Try to update a sensible fallback: any img with class or id containing "avatar" or "profile"
-                var fallback = Array.prototype.slice.call(imgs).find(function(i){ var id = i.id || ''; var cl = i.className || ''; return (new RegExp('avatar|profile','i')).test(id + ' ' + cl); });
-                if(fallback){ try{ fallback.src = newSrc; }catch(e){} console.warn('Updated fallback avatar element', fallback); updated++; }
-            }catch(diagErr){ console.warn('Diagnostics failed', diagErr); }
-        } else {
-            console.log('Profile images updated:', updated);
+        var els = [];
+        ids.forEach(function(id){ var el = document.getElementById(id); if(el) els.push(el); });
+        document.querySelectorAll('.profile-img, .sidebar-avatar-img').forEach(function(img){ els.push(img); });
+
+        if (els.length === 0) {
+            // Defer a lightweight search for a fallback element to avoid blocking critical path
+            setTimeout(function(){
+                try {
+                    var imgs = document.querySelectorAll('img');
+                    for (var i = 0; i < imgs.length; i++) {
+                        var el = imgs[i];
+                        var idc = el.id || '';
+                        var cls = el.className || '';
+                        if (/avatar|profile/i.test(idc + ' ' + cls)) {
+                            requestAnimationFrame(function(){ try{ el.src = newSrc; }catch(e){} });
+                            break;
+                        }
+                    }
+                } catch (e) { /* ignore */ }
+            }, 50);
+            return;
         }
+
+        // Perform writes in one rAF callback
+        requestAnimationFrame(function(){
+            for (var i = 0; i < els.length; i++) {
+                try { els[i].src = newSrc; } catch (e) { /* ignore update errors */ }
+            }
+        });
     }
-    if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', updateAvatars); } else { updateAvatars(); }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateAvatars);
+    } else {
+        updateAvatars();
+    }
 })();
 </script>
 HTML;
@@ -679,37 +640,30 @@ if (!isset($base_url)) {
         }
         
         /* ================================
-           COMPLETE FIXED SIDEBAR LAYOUT
+           UNIFIED SCROLL LAYOUT (No Fixed Positioning)
            ================================ */
         
-        /* === 1. Fixed Header (80px height) === */
+        /* === 1. Header (Static - scrolls with page) === */
         header {
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 80px !important;        /* Fixed header height */
+            position: relative !important;
+            width: 100%;
+            height: 80px !important;
             z-index: 50 !important;
             background: white;
             border-bottom: 1px solid #e5e7eb;
         }
         
-            /* === 2. Fixed Sidebar (Left Side) === */
+        /* === 2. Sidebar (Static - scrolls with page) === */
         #customer-sidebar {
-            position: fixed !important;
-            top: var(--header-height);      /* Start below header */
-            bottom: 0;
-            left: 0;
-            width: 250px;                   /* Fixed width on desktop */
-            overflow: hidden !important;     /* NO internal scrolling */
-            z-index: 30 !important;
+            position: static !important;
+            width: 250px;
+            min-height: 500px;              /* Minimum height to ensure visibility */
             display: flex;
             flex-direction: column;
             background: linear-gradient(to bottom, #2563eb, #7c3aed);
             transition: transform 0.3s ease;
             box-shadow: 4px 0 15px rgba(0,0,0,0.12);
             padding: 0;
-            height: calc(100vh - var(--header-height));
         }
         
         /* Sidebar Profile Section */
@@ -776,28 +730,16 @@ if (!isset($base_url)) {
         }
 
           /* Compact sidebar adjustments to avoid vertical overflow
-              - Sidebar is fixed below the header using CSS vars
+              - Sidebar uses sticky positioning to stay with content flow
            - Reduce font-size and line-height slightly
            - Reduce paddings for profile and nav items
-           - Ensure no vertical scrollbar appears on desktop (mobile overrides allow scrolling)
+           - Allow internal scrolling when content exceeds viewport
            These changes are intentionally minimal and limited to the sidebar only.
         */
         #customer-sidebar {
             /* Keep visual sizing compact */
             font-size: 13px; /* slightly smaller text to fit more content */
             line-height: 1.15;
-
-            /* Layout: fixed below the header, anchored to viewport bottom */
-            position: fixed !important;
-            top: var(--header-height);
-            left: 0;
-            bottom: 0;
-            width: var(--sidebar-width);
-            box-sizing: border-box;
-
-            /* Desktop: hide internal scrollbar; mobile rules below re-enable scrolling */
-            overflow-y: hidden !important; /* prevent vertical scrollbar on desktop */
-            z-index: 49; /* sit below header (z-50) but above main content */
         }
 
         #customer-sidebar .flex-shrink-0:first-of-type {
@@ -822,24 +764,19 @@ if (!isset($base_url)) {
 
         #customer-sidebar .flex-shrink-0.p-3 { padding: .5rem; }
         
-        /* === 3. Main Content Area === */
+        /* === 3. Main Content Area (Flows naturally beside sidebar) === */
         #main-content {
-            /* Main content flows below header with margin for sidebar */
-            position: relative !important;
-            margin-top: var(--header-height);
-            margin-left: var(--sidebar-width);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            flex: 1;
+            padding: 1.5rem;
+            min-height: 500px;              /* Minimum height to ensure content visibility */
             box-sizing: border-box;
-            /* Remove fixed positioning to allow footer below */
-            /* scroll-padding-top: var(--header-height); */
-            /* height: calc(100vh - var(--header-height)); */
         }
         
-        /* Footer styles */
+        /* Footer styles - flows naturally at bottom */
         footer {
             margin-top: 0 !important;
             position: relative;
+            width: 100%;
         }
         
         /* ================================
@@ -849,7 +786,7 @@ if (!isset($base_url)) {
         /* === Small Screens (<900px): Reduce sidebar to 200px === */
         @media (max-width: 899px) and (min-width: 768px) {
             :root {
-                --sidebar-width: 200px;     /* Narrower sidebar */
+                --sidebar-width: 200px;
             }
             
             #customer-sidebar {
@@ -857,7 +794,7 @@ if (!isset($base_url)) {
             }
             
             #customer-sidebar img#sidebarProfileImage {
-                width: 48px !important;     /* Match header avatar on small screens */
+                width: 48px !important;
                 height: 48px !important;
             }
 
@@ -870,44 +807,38 @@ if (!isset($base_url)) {
                 width: 48px;
                 height: 48px;
             }
-
-            /* Logo sizing is handled globally; local overrides removed. */
             
             #main-content {
-                /* Match the relative layout using the sidebar variable */
-                margin-left: var(--sidebar-width);
-                margin-top: var(--header-height);
-                position: relative !important;
-                overflow-y: auto;
-                box-sizing: border-box;
+                padding: 1.25rem;
             }
         }
         
         /* === Desktop Layout (≥900px) === */
         @media (min-width: 900px) {
             #customer-sidebar {
-                transform: translateX(0) !important;  /* Always visible */
+                transform: translateX(0) !important;
             }
         }
         
         /* === Mobile Layout (<768px) === */
         @media (max-width: 767px) {
             #customer-sidebar {
+                position: fixed !important;
                 width: 250px;
-                transform: translateX(-100%);    /* Hidden by default */
-                overflow-y: auto !important;     /* Allow scroll on mobile */
-                top: var(--header-height);
+                transform: translateX(-100%);
+                top: 0;
+                left: 0;
                 bottom: 0;
-                height: calc(100vh - var(--header-height));
-                z-index: 48;                    /* Above main content but below header (header z-50) */
+                height: 100vh !important;
+                z-index: 48;
+                overflow-y: auto;
             }
             
             #customer-sidebar img#sidebarProfileImage {
-                width: 48px !important;         /* Smaller on mobile */
+                width: 48px !important;
                 height: 48px !important;
             }
 
-            /* Header avatar smaller on mobile */
             #userAvatarTop {
                 width: 48px !important;
                 height: 48px !important;
@@ -917,50 +848,43 @@ if (!isset($base_url)) {
                 width: 48px;
                 height: 48px;
             }
-
-            /* Logo sizing is handled globally; local overrides removed. */
             
             #main-content {
-                /* Mobile: full width relative area below header */
-                position: relative !important;
-                margin-top: var(--header-height);
-                margin-left: 0;
-                overflow-y: auto;
-                box-sizing: border-box;
+                padding: 1rem;
             }
-        }
         }
 
         /* Mobile (<=900px) explicit rules to ensure hamburger menu visibility and layering */
         @media (max-width: 900px) {
-            /* Ensure header stays on top */
             header {
                 z-index: 50 !important;
             }
 
-            /* Sidebar becomes a slide-in mobile panel beneath header */
             #customer-sidebar {
                 position: fixed !important;
-                top: var(--header-height);
+                top: 0;
                 left: 0;
-                height: calc(100vh - var(--header-height));
-                width: 80%; /* take most of the screen on small devices */
+                height: 100vh !important;
+                width: 80%;
                 max-width: 320px;
                 transform: translateX(-100%);
                 transition: transform 300ms ease-in-out;
                 box-shadow: 4px 0 20px rgba(0,0,0,0.25);
-                z-index: 48; /* below header but above main content */
+                z-index: 48;
+                overflow-y: auto;
             }
 
-            /* When mobile menu is open (class applied), show it */
             #customer-sidebar.mobile-open {
                 transform: translateX(0) !important;
             }
+            
+            #main-content {
+                padding: 1rem;
+            }
 
-            /* Overlay backdrop sits below the sidebar but above main content */
             .mobile-menu-backdrop-dashboard {
                 position: fixed;
-                top: var(--header-height);
+                top: 0;
                 left: 0;
                 right: 0;
                 bottom: 0;
@@ -973,7 +897,6 @@ if (!isset($base_url)) {
                 display: block;
             }
 
-            /* Ensure the hamburger button is visible */
             .hamburger-toggle-dashboard {
                 display: inline-flex !important;
             }
@@ -1021,8 +944,8 @@ if (!isset($base_url)) {
 <?php include __DIR__ . '/../includes/customer_header.php'; ?>
 
 <!-- ================================
-    LAYOUT WRAPPER - Proper Flex Layout Structure
-    Sidebar: Fixed below Header (no internal scroll)
+    LAYOUT WRAPPER - Unified Scroll Layout
+    All elements scroll together as a single page
      ================================ -->
 
 <!-- Mobile Overlay (backdrop when sidebar is open on mobile, closes sidebar on click)
@@ -1041,19 +964,19 @@ if (!isset($base_url)) {
     style="display: none;"
 ></div>
 
-<!-- Main Content Wrapper: Takes flex-1 to fill remaining viewport space -->
-<div class="flex flex-1">
+<!-- Main Content Wrapper: Flex layout with sidebar and content side by side -->
+<div class="flex flex-row min-h-screen">
     
     <!-- ================================
-         SIDEBAR - Fixed below header
-         Desktop: No internal scroll, uses CSS variables for positioning
-         Mobile: Overlay with internal scroll
+         SIDEBAR - Static positioned, scrolls with page
+         Desktop: Always visible, flows with content
+         Mobile: Fixed overlay with internal scroll
          ================================ -->
     <aside 
         id="customer-sidebar"
         class="bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
                transform transition-transform duration-300 ease-in-out
-               flex flex-col"
+               hidden lg:flex flex-col"
         :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
         x-transition:enter="transition-transform ease-out duration-300"
         x-transition:enter-start="transform -translate-x-full"
@@ -1196,12 +1119,12 @@ if (!isset($base_url)) {
     </aside>
 
     <!-- ================================
-         MAIN CONTENT AREA - Uses CSS variables for offset
-         Desktop: margin-left and margin-top from CSS
-         Mobile: Full width with mt-20 for fixed header
+         MAIN CONTENT AREA - Flows naturally beside sidebar
+         Desktop: Fills remaining width beside sidebar
+         Mobile: Full width (sidebar is overlay)
          ================================ -->
     <main class="flex-1 bg-gray-50" id="main-content">
-        <div class="p-6 lg:p-8 max-w-7xl mx-auto">
+        <div class="pt-0 px-6 pb-6 lg:px-8 lg:pb-8 max-w-7xl mx-auto">
             <!-- Global Toast/Error Area - visible even when modals are open -->
             <div id="globalToast" class="fixed top-24 right-6 z-[9999] max-w-md transition-all duration-300 transform translate-x-full opacity-0 pointer-events-none" role="alert" aria-live="assertive">
                 <div id="globalToastContent" class="rounded-xl shadow-2xl border px-5 py-4 flex items-start gap-3">
@@ -1247,7 +1170,7 @@ if (!isset($base_url)) {
             <?php endif; ?>
         
         <!-- ========== DASHBOARD SECTION ========== -->
-        <section x-show="currentSection === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6">
+        <section x-show="currentSection === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6 pt-6 lg:pt-8">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
                 <p class="text-gray-600">Hoş geldiniz, <?php echo htmlspecialchars($user_name); ?>!</p>
@@ -1343,7 +1266,7 @@ if (!isset($base_url)) {
         </section>
         
         <!-- ========== VEHICLES SECTION ========== -->
-    <section x-show="currentSection === 'vehicles'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing � using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" style="display: none;">
+    <section x-show="currentSection === 'vehicles'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6 pt-6 lg:pt-8" x-data="(typeof vehicleManager !== 'undefined') ? vehicleManager() : (window.vehicleManager ? (console.info('Using window.vehicleManager fallback'), window.vehicleManager()) : (console.warn('vehicleManager factory missing � using minimal fallback'), { vehicles: [], showVehicleForm: false, editingVehicle: null, loading: false, message:'', messageType:'', csrfToken: '', imagePreview: '', formData: { brand: '', model: '', license_plate: '', year: '', color: '' } }))" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Araçlarım</h2>
                 <p class="text-gray-600">Araçlarınızı yönetin</p>
@@ -1619,7 +1542,7 @@ if (!isset($base_url)) {
             x-transition:enter="transition ease-out duration-300" 
             x-transition:enter-start="opacity-0 transform translate-y-4" 
             x-transition:enter-end="opacity-100 transform translate-y-0" 
-            class="space-y-6" 
+            class="space-y-6 pt-6 lg:pt-8" 
             style="display: none;"
             x-data="profileSection()"
         >
@@ -1740,6 +1663,10 @@ if (!isset($base_url)) {
                     ?>
                     <label for="auto_label_105" class="sr-only">Csrf token</label>
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>" id="auto_label_105">
+                    <!-- Form-level errors (populated by JS) -->
+                    <div id="form-errors-container" class="form-error" style="display:none;margin-bottom:0.75rem;">
+                        <ul id="form-errors-list" class="list-disc pl-5 text-sm text-red-600"></ul>
+                    </div>
                     <!-- Profile Image Upload Section -->
                     <div class="mb-6 pb-6 border-b border-gray-200">
                         <h4 class="text-lg font-bold text-gray-900 mb-4">Profil Fotoğrafı</h4>
@@ -2019,7 +1946,7 @@ if (!isset($base_url)) {
         </section>
         
         <!-- ========== SUPPORT SECTION ========== -->
-        <section x-show="currentSection === 'support'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
+        <section x-show="currentSection === 'support'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6 pt-6 lg:pt-8" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Destek</h2>
                 <p class="text-gray-600">Yardıma mı ihtiyacınız var? Bize ulaşın</p>
@@ -2108,7 +2035,7 @@ if (!isset($base_url)) {
         </section>
         
         <!-- ========== SETTINGS SECTION ========== -->
-        <section x-show="currentSection === 'settings'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
+        <section x-show="currentSection === 'settings'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6 pt-6 lg:pt-8" style="display: none;">
             <div class="mb-8">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Ayarlar</h2>
                 <p class="text-gray-600">Hesap ayarlarınızı yönetin</p>
@@ -2160,7 +2087,7 @@ if (!isset($base_url)) {
         </section>
         
                 <!-- ========== CARWASH SELECTION SECTION (Extracted from customer_profile.html) ========== -->
-                <section x-show="currentSection === 'carWashSelection'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6" style="display: none;">
+                <section x-show="currentSection === 'carWashSelection'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6 pt-6 lg:pt-8" style="display: none;">
                         <div class="mb-8">
                                 <h2 class="text-3xl font-bold text-gray-800 mb-2">Oto Yıkama Seçimi</h2>
                                 <p class="text-gray-600">Size en uygun oto yıkama merkezini bulun ve rezervasyon yapın.</p>
@@ -2919,7 +2846,7 @@ if (!isset($base_url)) {
                                 </section>
 
                 <!-- ========== RESERVATIONS SECTION (Inserted from customer_profile.html) ========== -->
-                <section id="reservations" x-show="currentSection === 'reservations'" class="space-y-6" style="display: none;">
+                <section id="reservations" x-show="currentSection === 'reservations'" class="space-y-6 pt-6 lg:pt-8" style="display: none;">
                     <div class="mb-8">
                         <h2 class="text-3xl font-bold text-gray-800 mb-2">Rezervasyonlarım</h2>
                         <p class="text-gray-600">Tüm rezervasyonlarınızı görüntüleyin ve yönetin</p>
@@ -3511,6 +3438,8 @@ if (!isset($base_url)) {
 
 </div> <!-- END: Flex Container (Sidebar + Content) -->
 
+<!-- Footer follows naturally at the bottom after content -->
+
 <!-- Dynamic Layout Height Calculator -->
 <script>
 // ================================
@@ -3797,6 +3726,14 @@ window.refreshProfileImages = function(newUrl) {
                     }
                     
                     // Update profile images: prefer returned URL, otherwise use canonical fallback
+                    if (result.profile_image) {
+                        // Keep the canonical value in sync for future fallback calls
+                        try {
+                            window.CARWASH = window.CARWASH || {};
+                            window.CARWASH.profile = window.CARWASH.profile || {};
+                            window.CARWASH.profile.canonical = result.profile_image;
+                        } catch (e) { /* ignore */ }
+                    }
                     if (window.refreshProfileImages) {
                         if (result.profile_image) {
                             window.refreshProfileImages(result.profile_image);

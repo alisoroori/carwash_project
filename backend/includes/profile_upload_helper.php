@@ -26,16 +26,41 @@ function handleProfileUploadFromPath(int $userId, string $sourceFilePath) {
         return $result;
     }
 
-    $newName = 'profile_' . $userId . '_' . time() . '.' . $ext;
-    $dest = $uploadDir . $newName;
+    // Resolve real paths for decision making
+    $sourceReal = realpath($sourceFilePath);
+    $uploadReal = realpath($uploadDir);
 
-    if (!copy($sourceFilePath, $dest)) {
-        $result['error'] = 'Failed to copy file to uploads';
-        return $result;
+    // If the source is already inside the uploads directory, prefer to use its basename
+    if ($sourceReal !== false && $uploadReal !== false && strpos($sourceReal, $uploadReal) === 0) {
+        $finalName = basename($sourceReal);
+        $dest = $uploadDir . $finalName;
+        // If dest differs from source path, attempt to rename to canonical location
+        if ($sourceReal !== realpath($dest)) {
+            if (!@rename($sourceReal, $dest)) {
+                // fallback to copy
+                if (!@copy($sourceReal, $dest)) {
+                    $result['error'] = 'Failed to copy/rename file to uploads';
+                    return $result;
+                }
+            }
+        }
+    } else {
+        // Create a canonical name and copy/rename the source into uploads
+        $finalName = 'profile_' . $userId . '_' . time() . '.' . $ext;
+        $dest = $uploadDir . $finalName;
+        if (!@copy($sourceFilePath, $dest)) {
+            if (!@rename($sourceFilePath, $dest)) {
+                $result['error'] = 'Failed to copy file to uploads';
+                return $result;
+            }
+        }
     }
 
+    // Ensure reasonable permissions on the stored file
+    @chmod($dest, 0644);
+
     // Build web-accessible path (consistent with header logic)
-    $imagePath = '/carwash_project/backend/auth/uploads/profiles/' . $newName;
+    $imagePath = '/carwash_project/backend/auth/uploads/profiles/' . $finalName;
 
     try {
         $existing = $db->fetchOne('SELECT user_id FROM user_profiles WHERE user_id = :user_id', ['user_id' => $userId]);
@@ -65,4 +90,55 @@ function handleProfileUploadFromPath(int $userId, string $sourceFilePath) {
         $result['error'] = 'DB error: ' . $e->getMessage();
         return $result;
     }
+}
+
+/**
+ * Handle an uploaded file array (from $_FILES) and persist it as profile image.
+ * Accepts the $_FILES['profile_image'] entry or similar.
+ * Returns same result shape as handleProfileUploadFromPath().
+ */
+function handleProfileUpload(int $userId, array $fileArray) {
+    $db = Database::getInstance();
+    $result = ['success' => false, 'message' => '', 'profile_image' => null, 'error' => null];
+
+    if (empty($fileArray) || empty($fileArray['tmp_name']) || !is_uploaded_file($fileArray['tmp_name'])) {
+        $result['error'] = 'No uploaded file provided';
+        return $result;
+    }
+
+    $allowedTypes = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $fileArray['tmp_name']);
+    finfo_close($finfo);
+
+    if (!isset($allowedTypes[$mime])) {
+        $result['error'] = 'Invalid file type. Only JPG, PNG and WEBP allowed.';
+        return $result;
+    }
+
+    $maxSize = 3 * 1024 * 1024; // 3MB
+    if ($fileArray['size'] > $maxSize) {
+        $result['error'] = 'File too large. Maximum size is 3MB.';
+        return $result;
+    }
+
+    $uploadDir = __DIR__ . '/../auth/uploads/profiles/';
+    if (!is_dir($uploadDir)) {
+        if (!mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
+            $result['error'] = 'Failed to create upload directory';
+            return $result;
+        }
+    }
+
+    $ext = $allowedTypes[$mime];
+    $newName = 'profile_' . $userId . '_' . time() . '.' . $ext;
+    $dest = $uploadDir . $newName;
+
+    if (!move_uploaded_file($fileArray['tmp_name'], $dest)) {
+        $result['error'] = 'Failed to move uploaded file';
+        return $result;
+    }
+
+    // Delegate DB persistence to the existing path-based function for consistency
+    return handleProfileUploadFromPath($userId, $dest);
 }
