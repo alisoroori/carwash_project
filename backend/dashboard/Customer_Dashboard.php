@@ -1411,7 +1411,7 @@ if (!isset($base_url)) {
             <!-- Dashboard -->
             <a 
                 href="#dashboard" 
-                @click="currentSection = 'dashboard'; mobileMenuOpen = false"
+                @click.prevent="currentSection = 'dashboard'; mobileMenuOpen = false"
                 :class="currentSection === 'dashboard' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
                 class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
@@ -1424,7 +1424,7 @@ if (!isset($base_url)) {
             <!-- Car Wash Selection -->
             <a 
                 href="#carWashSelection" 
-                @click="currentSection = 'carWashSelection'; mobileMenuOpen = false"
+                @click.prevent="currentSection = 'carWashSelection'; mobileMenuOpen = false"
                 :class="currentSection === 'carWashSelection' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
                 class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
@@ -1437,7 +1437,7 @@ if (!isset($base_url)) {
             <!-- Reservations -->
             <a 
                 href="#reservations" 
-                @click="currentSection = 'reservations'; mobileMenuOpen = false"
+                @click.prevent="currentSection = 'reservations'; mobileMenuOpen = false"
                 :class="currentSection === 'reservations' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
                 class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
@@ -1450,7 +1450,7 @@ if (!isset($base_url)) {
             <!-- Vehicles -->
             <a 
                 href="#vehicles" 
-                @click="currentSection = 'vehicles'; mobileMenuOpen = false"
+                @click.prevent="currentSection = 'vehicles'; mobileMenuOpen = false"
                 :class="currentSection === 'vehicles' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
                 class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
@@ -1463,7 +1463,7 @@ if (!isset($base_url)) {
             <!-- History -->
             <a 
                 href="#history" 
-                @click="currentSection = 'history'; mobileMenuOpen = false"
+                @click.prevent="currentSection = 'history'; mobileMenuOpen = false"
                 :class="currentSection === 'history' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
                 class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
@@ -1476,7 +1476,7 @@ if (!isset($base_url)) {
             <!-- Profile -->
             <a 
                 href="#profile" 
-                @click="currentSection = 'profile'; mobileMenuOpen = false"
+                @click.prevent="currentSection = 'profile'; mobileMenuOpen = false"
                 :class="currentSection === 'profile' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
                 class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
@@ -1489,7 +1489,7 @@ if (!isset($base_url)) {
             <!-- Support -->
             <a 
                 href="#support" 
-                @click="currentSection = 'support'; mobileMenuOpen = false"
+                @click.prevent="currentSection = 'support'; mobileMenuOpen = false"
                 :class="currentSection === 'support' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
                 class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
@@ -1504,7 +1504,7 @@ if (!isset($base_url)) {
         <div class="flex-shrink-0 p-3 border-t border-white border-opacity-20 bg-blue-800 bg-opacity-20">
             <a 
                 href="#settings" 
-                @click="currentSection = 'settings'; mobileMenuOpen = false"
+                @click.prevent="currentSection = 'settings'; mobileMenuOpen = false"
                 :class="currentSection === 'settings' ? 'bg-white bg-opacity-20 shadow-lg font-semibold' : 'hover:bg-white hover:bg-opacity-10'"
                 class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 role="menuitem"
@@ -3999,42 +3999,56 @@ window.refreshProfileImages = function(newUrl) {
         localStorage.setItem('carwash_profile_image', newUrl);
         localStorage.setItem('carwash_profile_image_ts', Date.now().toString());
     } catch (e) { /* ignore storage errors */ }
+    // Preload the new image first to avoid swapping broken images and to reduce
+    // layout thrash; only update DOM once on successful load.
+    var pre = new Image();
+    var handled = false;
+    pre.onload = function() {
+        if (handled) return; handled = true;
+        // Batch the DOM writes in a single rAF callback.
+        requestAnimationFrame(function() {
+            // Query selectors once. Avoid reading layout properties here.
+            var selectors = '#headerProfileImage, #sidebarProfileImage, #mobileMenuAvatar, #profileImagePreview, .profile-img, .sidebar-avatar-img';
+            var imgs = document.querySelectorAll(selectors);
+            if (!imgs || imgs.length === 0) return;
 
-    // Use requestAnimationFrame to batch DOM updates and avoid layout thrash
-    requestAnimationFrame(function() {
-        const selectors = '#headerProfileImage, #sidebarProfileImage, #mobileMenuAvatar, #profileImagePreview, .profile-img, .sidebar-avatar-img';
-        const images = document.querySelectorAll(selectors);
+            // Compute base of the new URL (without cb) so we can compare
+            var newBase = newUrlWithCb.split('cb=')[0];
 
-        // Update images in a single batch
-        images.forEach(function(img) {
-            try {
-                // For <img> elements, set src with cache-buster
-                if (img.tagName && img.tagName.toLowerCase() === 'img') {
-                    // Avoid a flicker by attempting to set directly to the cache-busted URL
-                    img.src = newUrlWithCb;
-                    // If the image has srcset, touching it can help some browsers
-                    if (img.srcset) img.srcset = img.srcset;
-                } else {
-                    // For non-img elements, update background-image if present
-                    var bg = window.getComputedStyle(img).backgroundImage || '';
-                    if (bg && bg !== 'none') {
-                        try { img.style.backgroundImage = 'url("' + newUrlWithCb + '")'; } catch(e) {}
+            // Update src/background in-place with minimal per-element work
+            for (var i = 0; i < imgs.length; i++) {
+                try {
+                    var el = imgs[i];
+                    if (!el) continue;
+                    if (el.tagName && el.tagName.toLowerCase() === 'img') {
+                        var current = el.getAttribute('src') || '';
+                        var curBase = current.split('cb=')[0];
+                        if (curBase !== newBase) {
+                            el.setAttribute('src', newUrlWithCb);
+                        } else if (current.indexOf('cb=') === -1) {
+                            // ensure cache-buster present
+                            el.setAttribute('src', newUrlWithCb);
+                        }
+                        // touch srcset lightly if present (no heavy layout read)
+                        if (el.srcset) el.srcset = el.srcset;
+                    } else {
+                        // For non-img elements, set inline background-image only if different
+                        try {
+                            var bg = el.style && el.style.backgroundImage ? el.style.backgroundImage : '';
+                            if (bg.indexOf(newBase) === -1) {
+                                el.style.backgroundImage = 'url("' + newUrlWithCb + '")';
+                            }
+                        } catch (e) { /* ignore */ }
                     }
-                }
-
-                // Probe the image to detect loading errors (use the same cache-busted URL)
-                var probe = new Image();
-                probe.onload = function() { /* success - nothing further */ };
-                probe.onerror = function() {
-                    try { window.showError && window.showError('Profil resmi yüklenemedi — lütfen tekrar yükleyin veya daha sonra deneyin.'); } catch(e) {}
-                };
-                probe.src = newUrlWithCb;
-            } catch (err) {
-                // Best-effort: log in dev only
-                if (window && window.console && console.warn) console.warn('refreshProfileImages update failed for element', img, err);
+                } catch (e) { /* ignore per-element errors */ }
             }
         });
-    });
+    };
+    pre.onerror = function() {
+        try { window.showError && window.showError('Profil resmi yüklenemedi. Lütfen tekrar deneyin.'); } catch (e) {}
+    };
+    // Start preload (assign src last to trigger load)
+    pre.src = newUrlWithCb;
 };
 
 // ================================
@@ -4265,18 +4279,14 @@ window.refreshProfileImages = function(newUrl) {
         if (scheduled) return;
         scheduled = true;
         requestAnimationFrame(function(){
-            var sc = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-            if (sc > SCROLL_THRESHOLD) {
-                btn.classList.add('show');
-                btn.classList.remove('hide');
-                btn.style.display = 'inline-flex';
-            } else {
-                btn.classList.add('hide');
-                btn.classList.remove('show');
-                setTimeout(function(){
-                    if (!btn.classList.contains('show')) btn.style.display = 'none';
-                }, 200);
-            }
+                var sc = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                if (sc > SCROLL_THRESHOLD) {
+                    btn.classList.add('show');
+                    btn.classList.remove('hide');
+                } else {
+                    btn.classList.add('hide');
+                    btn.classList.remove('show');
+                }
             scheduled = false;
         });
     }
@@ -4316,4 +4326,3 @@ window.refreshProfileImages = function(newUrl) {
 echo '<!-- Footer include reached -->';
 include __DIR__ . '/../includes/footer.php';
 ?>
-

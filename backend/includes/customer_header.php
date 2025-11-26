@@ -307,7 +307,7 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
                         </div>
 
                         <div class="py-2">
-                            <a href="#profile" @click="open = false; if(typeof window !== 'undefined' && window.document){ try{ document.body.__x && (document.body.__x.$data.currentSection = 'profile'); }catch(e){} }" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                            <a href="#profile" @click.prevent="open = false; if(typeof Alpine !== 'undefined' && document.body._x_dataStack){ try{ Alpine.$data(document.body).currentSection = 'profile'; }catch(e){ console.warn('Profile switch error:', e); } }" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
                                 <i class="fas fa-user-circle w-5 text-blue-600 mr-3"></i>
                                 <span>Profil</span>
                             </a>
