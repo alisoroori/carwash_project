@@ -3913,7 +3913,19 @@ window.refreshProfileImages = function(newUrl) {
 
     if (!newUrl) return;
 
-    // Use requestAnimationFrame to batch DOM updates
+    // Always append a lightweight client-side cache-buster so browsers reload
+    // (use `cb` to avoid interfering with server-managed `?ts=` param)
+    var cb = 'cb=' + Date.now();
+    var separator = newUrl.indexOf('?') === -1 ? '?' : '&';
+    var newUrlWithCb = newUrl + separator + cb;
+
+    // Persist canonical image and timestamp to localStorage for cross-tab updates
+    try {
+        localStorage.setItem('carwash_profile_image', newUrl);
+        localStorage.setItem('carwash_profile_image_ts', Date.now().toString());
+    } catch (e) { /* ignore storage errors */ }
+
+    // Use requestAnimationFrame to batch DOM updates and avoid layout thrash
     requestAnimationFrame(function() {
         const selectors = '#headerProfileImage, #sidebarProfileImage, #mobileMenuAvatar, #profileImagePreview, .profile-img, .sidebar-avatar-img';
         const images = document.querySelectorAll(selectors);
@@ -3921,7 +3933,9 @@ window.refreshProfileImages = function(newUrl) {
         // Update images in a single batch
         images.forEach(function(img) {
             try {
-                img.src = newUrl;
+                // force reload: set to blank then assign new src
+                try { img.src = ''; } catch (ignore) {}
+                img.src = newUrlWithCb;
             } catch(e) {
                 // Silent fail for performance
             }

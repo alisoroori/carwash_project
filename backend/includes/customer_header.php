@@ -183,38 +183,13 @@ $profile_src_with_ts = $profile_src . (strpos($profile_src, '?') === false ? '?t
 
 // Header profile src using session variable directly (single source-of-truth)
 // Prefer `$_SESSION['user']['profile_image']` when available; fall back to default avatar.
-$header_profile_src = $default_avatar;
-if (!empty($_SESSION['user']['profile_image'])) {
-    // Use raw session value and append a timestamp to bust caches after upload/login
-    $ts = intval($_SESSION['profile_image_ts'] ?? time());
-    $rawPath = $_SESSION['user']['profile_image'];
-
-    // Handle different path formats
-    if (preg_match('#^https?://#i', $rawPath)) {
-        // Already a full URL
-        $header_profile_src = $rawPath . (strpos($rawPath, '?') === false ? '?ts=' . $ts : '&ts=' . $ts);
-    } elseif (strpos($rawPath, '/carwash_project') === 0) {
-        // Path starts with /carwash_project - build full URL
-        $header_profile_src = $base_url . $rawPath . '?ts=' . $ts;
-    } else {
-        // Relative path - assume it's in uploads
-        $header_profile_src = $base_url . '/backend/auth/uploads/profiles/' . ltrim($rawPath, '/') . '?ts=' . $ts;
-    }
-
-    // Log missing/unreadable files for debugging
-    $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/');
-    if (strpos($rawPath, '/carwash_project') === 0) {
-        $candidatePath = $docRoot . $rawPath;
-    } elseif (!preg_match('#^https?://#i', $rawPath)) {
-        $candidatePath = $docRoot . '/carwash_project/backend/auth/uploads/profiles/' . ltrim($rawPath, '/');
-    } else {
-        $candidatePath = null; // Can't check remote URLs
-    }
-
-    if ($candidatePath && (!file_exists($candidatePath) || !is_readable($candidatePath))) {
-        cw_log_debug("[customer_header] Profile image missing/unreadable for user_id={$user_id}: {$candidatePath}");
-        $header_profile_src = $default_avatar;
-    }
+// Use a centralized handler to serve profile images. This ensures a single
+// retrieval point and consistent cache-busting via `?ts=` parameter.
+$ts = intval($_SESSION['profile_image_ts'] ?? time());
+if (!empty($user_id)) {
+    $header_profile_src = rtrim($base_url, '\/') . '/backend/profile_image_handler.php?user_id=' . intval($user_id) . '&ts=' . $ts;
+} else {
+    $header_profile_src = $default_avatar;
 }
 
 // Current logged-in user's display name and email (used in header)
