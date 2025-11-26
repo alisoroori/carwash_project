@@ -428,6 +428,7 @@ if (!isset($base_url)) {
         /* Ensure html/body occupy full height for fixed layout calculations */
         html, body {
             height: 100%;
+            padding-top: 0 !important; /* Override customer_header.php JS padding-top for unified scroll */
         }
         
         /* ================================
