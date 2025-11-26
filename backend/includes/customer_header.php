@@ -236,7 +236,7 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
 <!-- Customer Header Fragment - Outputs only the header HTML with inline styles -->
 <style>
     :root{ --header-height:80px; }
-    .customer-header{ position:fixed; top:0; left:0; right:0; z-index:1200; background:#1f2937; color:#fff; backdrop-filter: blur(8px); border-bottom:1px solid rgba(255,255,255,0.06); height:var(--header-height); }
+    .customer-header{ position:fixed; top:0; left:0; right:0; z-index:1000; background:#1f2937; color:#fff; backdrop-filter: blur(8px); border-bottom:1px solid rgba(255,255,255,0.06); height:var(--header-height); }
     .customer-container{ max-width:1400px; margin:0 auto; padding:0 1rem; }
     .customer-row{ display:flex; align-items:center; justify-content:space-between; gap:1rem; height:var(--header-height); }
     .dashboard-logo { display:flex; align-items:center; gap:0.75rem; color:#fff; text-decoration:none; }
@@ -258,8 +258,9 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
     .dropdown .item{ padding:0.75rem 1rem; display:flex; gap:0.75rem; align-items:center; text-decoration:none; color:inherit; }
     .dropdown .item:hover{ background:#f3f4f6; }
     /* Mobile */
+    /* Removed header mobile hamburger styles - hamburger now lives inside main content on mobile */
     .mobile-toggle{ display:none; }
-    @media (max-width:900px){ .nav-items{ display:none; } .mobile-toggle{ display:inline-flex; } .user-info{ display:none; } }
+    @media (max-width:900px){ .nav-items{ display:none; } .user-info{ display:none; } }
 </style>
 
 <header class="customer-header" role="banner">
@@ -280,9 +281,7 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
             </nav>
 
             <div style="display:flex;align-items:center;gap:0.5rem;">
-                <button class="mobile-toggle" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu(this)">
-                    <i class="fas fa-bars" style="color:#fff;font-size:20px"></i>
-                </button>
+                <!-- Mobile hamburger removed from header for unified mobile UX -->
 
                 <!-- Workplace Status Toggle removed for customer header -->
 
@@ -405,14 +404,7 @@ function toggleDropdown(btn){
     }
 }
 
-function toggleMobileMenu(close){
-    var mm = document.getElementById('mobileMenu');
-    if(!mm) return;
-    if(close === true){ mm.style.display = 'none'; document.querySelector('.mobile-toggle') && document.querySelector('.mobile-toggle').setAttribute('aria-expanded','false'); return; }
-    var showing = getComputedStyle(mm).display !== 'none';
-    mm.style.display = showing ? 'none' : 'block';
-    document.querySelector('.mobile-toggle') && document.querySelector('.mobile-toggle').setAttribute('aria-expanded', (!showing).toString());
-}
+// Header mobile toggle removed; mobile hamburger lives in main content.
 
 // compute header height dynamically
 function updateHeaderHeight(){

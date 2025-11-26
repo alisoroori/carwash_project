@@ -420,6 +420,10 @@ if (!isset($base_url)) {
             --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
             --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
             --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Sidebar Spacing */
+            --sidebar-item-gap: 15px;
+            
             /* Ensure root-level layout sizing is robust for fixed children */
             /* (Non-functional layout assist: does not change visuals) */
             --layout-root-height: 100vh;
@@ -557,14 +561,43 @@ if (!isset($base_url)) {
         /* ================================
            SIDEBAR STYLING
            ================================ */
+        /* Sidebar: vertical gradient and layout behavior (desktop sticky/fixed) */
         #customer-sidebar {
-            background: var(--bg-sidebar);
+            background: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);
+            /* Make sidebar behave as a viewport-pane anchored below header
+               Use sticky by default to stay in view while preserving document flow */
+            position: sticky;
+            top: var(--header-height);
+            align-self: flex-start;
+            height: calc(100vh - var(--header-height));
+            width: var(--sidebar-width);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
-        /* Ensure sidebar is hidden off-screen on mobile by default */
+        /* Sidebar Menu Item Spacing */
+        #customer-sidebar nav > a {
+            margin-bottom: var(--sidebar-item-gap);
+        }
+        
+        #customer-sidebar nav > a:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Ensure sidebar is hidden off-screen on tablet/mobile by default and becomes an overlay */
         @media (max-width: 1023px) {
             #customer-sidebar {
-                transition: transform var(--transition-slow);
+                position: fixed !important;
+                top: var(--header-height);
+                left: 0;
+                height: calc(100vh - var(--header-height));
+                width: var(--sidebar-width);
+                transform: translateX(-100%);
+                transition: transform 300ms ease-in-out;
+                z-index: 1060;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
         }
         
@@ -654,14 +687,14 @@ if (!isset($base_url)) {
             border-bottom: 1px solid #e5e7eb;
         }
         
-        /* === 2. Sidebar (Static - scrolls with page) === */
+        /* === 2. Sidebar (Desktop baseline) === */
+        /* Keep sidebar in the flow but use sticky positioning (defined earlier) to remain visible.
+           Width and visual styling are controlled here. */
         #customer-sidebar {
-            position: static !important;
-            width: 250px;
+            width: var(--sidebar-width);
             min-height: 500px;              /* Minimum height to ensure visibility */
             display: flex;
             flex-direction: column;
-            background: linear-gradient(to bottom, #2563eb, #7c3aed);
             transition: transform 0.3s ease;
             box-shadow: 4px 0 15px rgba(0,0,0,0.12);
             padding: 0;
@@ -728,6 +761,7 @@ if (!isset($base_url)) {
             flex: 1;
             padding: 0.75rem;
             overflow: visible;
+            margin-top: 0px; /* Override any unwanted margin-top */
         }
 
           /* Compact sidebar adjustments to avoid vertical overflow
@@ -757,11 +791,12 @@ if (!isset($base_url)) {
         }
 
         #customer-sidebar nav a {
-            padding-top: .45rem;
-            padding-bottom: .45rem;
+            display: block;
+            padding: 0.8rem 0.9rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.95);
         }
-
-        #customer-sidebar .flex-1 > * { margin-bottom: .25rem; }
 
         #customer-sidebar .flex-shrink-0.p-3 { padding: .5rem; }
         
@@ -769,6 +804,8 @@ if (!isset($base_url)) {
         #main-content {
             flex: 1;
             padding: 1.5rem;
+            padding-top: 0 !important; /* ensure no gap between header and main content */
+            margin-top: 0 !important;
             min-height: 500px;              /* Minimum height to ensure content visibility */
             box-sizing: border-box;
         }
@@ -818,6 +855,12 @@ if (!isset($base_url)) {
         @media (min-width: 900px) {
             #customer-sidebar {
                 transform: translateX(0) !important;
+                display: flex !important;
+            }
+
+            /* Reserve space for the sidebar so the page has a single scrollbar */
+            #main-content {
+                margin-left: var(--sidebar-width);
             }
         }
         
@@ -825,13 +868,14 @@ if (!isset($base_url)) {
         @media (max-width: 767px) {
             #customer-sidebar {
                 position: fixed !important;
-                width: 250px;
+                width: 280px;
+                max-width: 85vw;
                 transform: translateX(-100%);
                 top: 0;
                 left: 0;
                 bottom: 0;
                 height: 100vh !important;
-                z-index: 48;
+                z-index: 1100;
                 overflow-y: auto;
             }
             
@@ -858,21 +902,22 @@ if (!isset($base_url)) {
         /* Mobile (<=900px) explicit rules to ensure hamburger menu visibility and layering */
         @media (max-width: 900px) {
             header {
-                z-index: 50 !important;
+                z-index: 1000 !important;
             }
 
             #customer-sidebar {
                 position: fixed !important;
-                top: 0;
+                top: var(--header-height);
                 left: 0;
-                height: 100vh !important;
+                height: calc(100vh - var(--header-height));
                 width: 80%;
                 max-width: 320px;
                 transform: translateX(-100%);
                 transition: transform 300ms ease-in-out;
                 box-shadow: 4px 0 20px rgba(0,0,0,0.25);
-                z-index: 48;
+                z-index: 1100;
                 overflow-y: auto;
+                display: flex !important;
             }
 
             #customer-sidebar.mobile-open {
@@ -881,6 +926,7 @@ if (!isset($base_url)) {
             
             #main-content {
                 padding: 1rem;
+                width: 100%;
             }
 
             .mobile-menu-backdrop-dashboard {
@@ -890,7 +936,7 @@ if (!isset($base_url)) {
                 right: 0;
                 bottom: 0;
                 background: rgba(0,0,0,0.45);
-                z-index: 47;
+                z-index: 1050;
                 display: none;
             }
 
@@ -930,13 +976,103 @@ if (!isset($base_url)) {
         #main-content::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 0, 0, 0.3);
         }
+        
+        /* ================================
+           SCROLL-TO-TOP BUTTON
+           ================================ */
+        #scrollTopBtn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 9999;
+            display: none;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: #fff;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: transform 180ms ease, opacity 180ms ease, box-shadow 200ms ease;
+            opacity: 0;
+        }
+
+        #scrollTopBtn.show {
+            display: inline-flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #scrollTopBtn.hide {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        
+        #scrollTopBtn:hover {
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        #scrollTopBtn:focus {
+            outline: 3px solid var(--color-primary-100);
+            outline-offset: 2px;
+        }
+        
+        /* Ensure scroll button doesn't interfere on mobile */
+        @media (max-width: 768px) {
+            #scrollTopBtn {
+                right: 15px;
+                bottom: 15px;
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            /* Mobile hamburger button inside main-content (top-left below header) */
+            .mobile-hamburger {
+                display: inline-flex;
+                position: fixed;
+                top: 75px;
+                left: 1rem;
+                z-index: 50;
+                background: #667eea;
+                color: #ffffff;
+                border-radius: 8px;
+                padding: 12px 16px;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+                transition: all 0.3s ease;
+                align-items: center;
+                justify-content: center;
+                border: none;
+                cursor: pointer;
+            }
+
+            .mobile-hamburger i { font-size: 18px; }
+
+            .mobile-hamburger.show { display: inline-flex; }
+
+            /* When sidebar is open, prevent body scroll and show overlay/backdrop */
+            body.sidebar-open {
+                overflow: hidden !important;
+                position: fixed !important;
+                width: 100% !important;
+            }
+
+            body.sidebar-open #customer-sidebar { transform: translateX(0) !important; }
+            body.sidebar-open .mobile-menu-backdrop-dashboard { display: block !important; }
+        }
     </style>
 </head>
 
 <body 
     class="bg-gray-50 overflow-x-hidden flex flex-col min-h-screen" 
     x-data="(typeof customerDashboard !== 'undefined') ? customerDashboard() : { mobileMenuOpen: false, currentSection: 'dashboard', init(){} }"
-    x-effect="mobileMenuOpen ? document.body.classList.add('menu-open') : document.body.classList.remove('menu-open')"
+    x-effect="(() => { if (mobileMenuOpen) { document.body.classList.add('menu-open'); document.body.classList.add('sidebar-open'); } else { document.body.classList.remove('menu-open'); document.body.classList.remove('sidebar-open'); } })()"
+    @toggle-mobile-sidebar.document="mobileMenuOpen = $event.detail.forceClose ? false : !mobileMenuOpen"
 >
 
 <!-- ================================
@@ -961,7 +1097,7 @@ if (!isset($base_url)) {
     x-transition:leave="transition-opacity ease-in duration-200"
     x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0"
-    class="fixed inset-0 bg-black bg-opacity-60 z-[45] lg:hidden"
+    class="fixed inset-0 bg-black bg-opacity-60 z-[1050] lg:hidden mobile-menu-backdrop-dashboard"
     style="display: none;"
 ></div>
 
@@ -977,7 +1113,7 @@ if (!isset($base_url)) {
         id="customer-sidebar"
         class="bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
                transform transition-transform duration-300 ease-in-out
-               hidden lg:flex flex-col"
+               flex flex-col"
         :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
         x-transition:enter="transition-transform ease-out duration-300"
         x-transition:enter-start="transform -translate-x-full"
@@ -1007,7 +1143,7 @@ if (!isset($base_url)) {
         </div>
         
         <!-- Navigation Menu (Better spacing and readability) -->
-        <nav class="flex-1 px-3 py-3 space-y-1 flex flex-col" 
+        <nav class="flex-1 px-3 py-3 flex flex-col" 
              aria-label="Primary navigation"
         >
             
@@ -1126,6 +1262,10 @@ if (!isset($base_url)) {
          ================================ -->
     <main class="flex-1 bg-gray-50" id="main-content">
         <div class="pt-0 px-6 pb-6 lg:px-8 lg:pb-8 max-w-7xl mx-auto">
+            <!-- Mobile hamburger inside main-content (only visible on mobile) -->
+            <button id="mobileHamburger" class="mobile-hamburger" aria-label="Open menu" title="Menü">
+                <i class="fas fa-bars"></i>
+            </button>
             <!-- Global Toast/Error Area - visible even when modals are open -->
             <div id="globalToast" class="fixed top-24 right-6 z-[9999] max-w-md transition-all duration-300 transform translate-x-full opacity-0 pointer-events-none" role="alert" aria-live="assertive">
                 <div id="globalToastContent" class="rounded-xl shadow-2xl border px-5 py-4 flex items-start gap-3">
@@ -3441,6 +3581,11 @@ if (!isset($base_url)) {
 
 <!-- Footer follows naturally at the bottom after content -->
 
+<!-- Scroll-to-Top Button (appears after scrolling) -->
+<button id="scrollTopBtn" aria-label="Scroll to top" title="Yukarı çık">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
 <!-- Dynamic Layout Height Calculator -->
 <script>
 // ================================
@@ -3494,6 +3639,48 @@ if (!isset($base_url)) {
     // Update after images load (layout might change)
     window.addEventListener('load', function() {
         setTimeout(updateLayoutHeights, 100);
+    });
+})();
+
+// ================================
+// Mobile Sidebar Toggle Handler
+// Listens for clicks on `#mobileHamburger` and dispatches Alpine event to toggle mobile menu
+(function(){
+    'use strict';
+    function toggleSidebarFromButton(forceClose) {
+        // Dispatch event that Alpine body listener will handle
+        var ev = new CustomEvent('toggle-mobile-sidebar', { detail: { forceClose: !!forceClose }, bubbles: true });
+        document.dispatchEvent(ev);
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+        var btn = document.getElementById('mobileHamburger');
+        var backdrop = document.querySelector('.mobile-menu-backdrop-dashboard');
+        if (!btn) return;
+
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+            toggleSidebarFromButton(false);
+            // toggle aria-expanded
+            var expanded = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', (!expanded).toString());
+        });
+
+        // Close on backdrop click (if backdrop exists and Alpine's overlay not present)
+        if (backdrop) {
+            backdrop.addEventListener('click', function(){
+                toggleSidebarFromButton(true);
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e){
+            if (e.key === 'Escape') {
+                toggleSidebarFromButton(true);
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            }
+        });
     });
 })();
 
@@ -3810,6 +3997,68 @@ window.refreshProfileImages = function(newUrl) {
     });
 })();
 
+</script>
+
+<script>
+/* ================================
+   Scroll-to-Top Button Handler
+   Shows button after 200px scroll, smooth scrolls to top on click
+   ================================ */
+(function(){
+    'use strict';
+    var SCROLL_THRESHOLD = 200;
+    var btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+
+    var scheduled = false;
+    function updateButtonVisibility() {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(function(){
+            var sc = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+            if (sc > SCROLL_THRESHOLD) {
+                btn.classList.add('show');
+                btn.classList.remove('hide');
+                btn.style.display = 'inline-flex';
+            } else {
+                btn.classList.add('hide');
+                btn.classList.remove('show');
+                setTimeout(function(){
+                    if (!btn.classList.contains('show')) btn.style.display = 'none';
+                }, 200);
+            }
+            scheduled = false;
+        });
+    }
+
+    // Event listeners
+    document.addEventListener('scroll', updateButtonVisibility, { passive: true });
+    window.addEventListener('resize', updateButtonVisibility);
+
+    // Click handler - smooth scroll
+    btn.addEventListener('click', function(){
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch(err) {
+            window.scrollTo(0, 0);
+        }
+    });
+
+    // Keyboard activation
+    btn.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            btn.click();
+        }
+    });
+
+    // Initial check
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function(){ setTimeout(updateButtonVisibility, 50); });
+    } else {
+        setTimeout(updateButtonVisibility, 50);
+    }
+})();
 </script>
 
 <?php 
