@@ -224,6 +224,9 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
     .user-menu{ display:flex; align-items:center; gap:0.75rem; position:relative; }
     .user-avatar{ width:44px; height:44px; border-radius:8px; overflow:hidden; background:#111827; display:flex; align-items:center; justify-content:center; }
     .user-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+    /* Small language indicator shown adjacent to the profile image (non-interactive) */
+    .lang-indicator{ width:28px; height:28px; min-width:28px; min-height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); color:#ffffff; font-weight:700; font-size:12px; box-shadow:0 1px 2px rgba(0,0,0,0.12); margin-right:6px; pointer-events:none; }
+    @media (max-width:480px){ .lang-indicator{ width:24px; height:24px; min-width:24px; min-height:24px; font-size:11px; border-radius:5px; } }
     .user-info{ display:flex; flex-direction:column; align-items:flex-start; color:#fff; font-size:0.85rem; }
     .user-name{ font-weight:700; }
     .user-role{ font-size:0.75rem; opacity:0.85; }
@@ -271,8 +274,10 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
                 ?>
 
                 <!-- Profile Header Fragment -->
+                <!-- Place language indicator outside the profile button so it remains independent of hover/click interactions -->
+                <div class="lang-indicator" title="Türkçe" aria-hidden="true">TR</div>
                 <div x-data="{ open: false }" class="relative" x-cloak>
-                    <button @click="open = !open" @keydown.escape="open = false" @click.away="open = false"
+                    <button id="profileToggleButton" @click="open = !open" @keydown.escape="open = false" @click.away="open = false"
                         class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
                         :aria-expanded="open.toString()" aria-haspopup="true">
 
@@ -283,7 +288,7 @@ $dashboard_url = $base_url . '/backend/dashboard/Customer_Dashboard.php';
                             </div>
                         </div>
 
-                        <span id="headerUserNameDisplay" class="hidden md:block text-sm font-medium text-gray-700 max-w-[150px] truncate"><?php echo htmlspecialchars($user_name); ?></span>
+                        <span id="headerUserNameDisplay" class="hidden md:block text-sm font-medium text-blue-400 max-w-[150px] truncate"><?php echo htmlspecialchars($user_name); ?></span>
                         <i class="fas fa-chevron-down text-xs text-gray-400 hidden md:block"></i>
                     </button>
 

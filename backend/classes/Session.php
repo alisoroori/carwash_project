@@ -19,7 +19,14 @@ class Session
         if (session_status() === PHP_SESSION_ACTIVE) {
             return true;
         }
-        
+
+        // If headers were already sent, we cannot (safely) call session_start().
+        // Return false to avoid a fatal/exception and let callers handle the lack of an active session.
+        if (headers_sent()) {
+            error_log('[Session::start] Headers already sent; skipping session_start() to avoid fatal.');
+            return false;
+        }
+
         // Secure session settings
         $defaultOptions = [
             'cookie_httponly' => true,     // Prevent JavaScript access to session cookie

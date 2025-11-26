@@ -28,7 +28,8 @@ ob_clean();
 header('Content-Type: application/json; charset=utf-8');
 
 // Helper: unified JSON responder - normalizes response shape and handles any unexpected pre-output
-function send_json_response(array $payload, int $httpCode = 200): void {
+if (!function_exists('send_json_response')) {
+    function send_json_response(array $payload, int $httpCode = 200): void {
     // Normalize shape
     $normalized = [];
     if (!empty($payload['success']) || isset($payload['status']) && $payload['status'] === 'success') {
@@ -71,8 +72,9 @@ function send_json_response(array $payload, int $httpCode = 200): void {
         http_response_code($httpCode);
         header('Content-Type: application/json; charset=utf-8');
     }
-    echo json_encode($normalized, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
+        echo json_encode($normalized, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
 }
 
 // Require authenticated user (simplified to avoid HTML output from Auth class)

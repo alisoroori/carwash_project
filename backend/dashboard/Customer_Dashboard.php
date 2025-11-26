@@ -265,6 +265,19 @@ if (!isset($base_url)) {
         window.CONFIG.CSRF_TOKEN = '<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>';
         window.CONFIG.BASE_URL = '<?php echo htmlspecialchars($base_url, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>';
     </script>
+    <script>
+        // Expose a canonical profile image URL and helper for client-side code
+        window.CARWASH = window.CARWASH || {};
+        window.CARWASH.profile = window.CARWASH.profile || {};
+        window.CARWASH.profile.canonical = '<?php echo htmlspecialchars($user_profile_image ?: ($base_url . "/frontend/images/default-avatar.svg"), ENT_QUOTES, "UTF-8"); ?>';
+        window.CARWASH.profile.ts = '<?php echo intval($_SESSION['profile_image_ts'] ?? time()); ?>';
+        window.getCanonicalProfileImage = function() {
+            var url = window.CARWASH.profile.canonical || '<?php echo $base_url . "/frontend/images/default-avatar.svg"; ?>';
+            var ts = window.CARWASH.profile.ts || '<?php echo intval($_SESSION['profile_image_ts'] ?? time()); ?>';
+            var sep = url.indexOf('?') === -1 ? '?' : '&';
+            return url + sep + 'ts=' + ts;
+        };
+    </script>
     
     <!-- CSRF Helper - Auto-inject CSRF tokens in all POST requests -->
     <script defer src="<?php echo $base_url; ?>/frontend/js/csrf-helper.js"></script>
@@ -330,6 +343,68 @@ if (!isset($base_url)) {
                         });
                     }
                 };
+
+                // One-time setup: listen for profile update events and react
+                if (!window.__profileSectionInitialized) {
+                    window.__profileSectionInitialized = true;
+                    document.addEventListener('profile:update:success', function(e) {
+                        try {
+                            var imgUrl = (e && e.detail && e.detail.profile_image) ? e.detail.profile_image : (typeof window.getCanonicalProfileImage === 'function' ? window.getCanonicalProfileImage() : null);
+
+                            // Update any Alpine profileSection instance if present
+                            var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                            var updated = false;
+                            if (alpineEl) {
+                                // Alpine v3+ exposes __x and $data
+                                try {
+                                    if (alpineEl.__x && alpineEl.__x.$data) {
+                                        alpineEl.__x.$data.updateProfile({ profile_image: imgUrl });
+                                        alpineEl.__x.$data.editMode = false;
+                                        updated = true;
+                                    }
+                                } catch (ex) { /* continue to other attempts */ }
+
+                                // Alpine v2 or other builds may attach _x_dataStack
+                                try {
+                                    if (!updated && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
+                                        var d = alpineEl._x_dataStack[0];
+                                        if (typeof d.updateProfile === 'function') {
+                                            d.updateProfile({ profile_image: imgUrl });
+                                            d.editMode = false;
+                                            updated = true;
+                                        }
+                                    }
+                                } catch (ex) { /* ignore */ }
+                            }
+
+                            if (!updated) {
+                                // Fallback: update the factory state captured here
+                                try { state.updateProfile({ profile_image: imgUrl }); } catch(e) {}
+                                state.editMode = false;
+                            }
+
+                            // Ensure profile tab remains active
+                            document.dispatchEvent(new CustomEvent('restoreTab', { detail: { tab: 'profile' } }));
+
+                            // Refresh header/sidebar/profile avatars
+                            if (window.refreshProfileImages) {
+                                window.refreshProfileImages(imgUrl);
+                            }
+                        } catch (err) {
+                            console.warn('profile:update:success handler failed', err);
+                        }
+                    });
+                }
+
+                // When the profileSection initializes, proactively refresh avatars
+                try {
+                    if (typeof window.getCanonicalProfileImage === 'function') {
+                        window.refreshProfileImages && window.refreshProfileImages(window.getCanonicalProfileImage());
+                    } else {
+                        window.refreshProfileImages && window.refreshProfileImages();
+                    }
+                } catch (e) { /* ignore */ }
+
                 return state;
             }
 
@@ -3933,11 +4008,30 @@ window.refreshProfileImages = function(newUrl) {
         // Update images in a single batch
         images.forEach(function(img) {
             try {
-                // force reload: set to blank then assign new src
-                try { img.src = ''; } catch (ignore) {}
-                img.src = newUrlWithCb;
-            } catch(e) {
-                // Silent fail for performance
+                // For <img> elements, set src with cache-buster
+                if (img.tagName && img.tagName.toLowerCase() === 'img') {
+                    // Avoid a flicker by attempting to set directly to the cache-busted URL
+                    img.src = newUrlWithCb;
+                    // If the image has srcset, touching it can help some browsers
+                    if (img.srcset) img.srcset = img.srcset;
+                } else {
+                    // For non-img elements, update background-image if present
+                    var bg = window.getComputedStyle(img).backgroundImage || '';
+                    if (bg && bg !== 'none') {
+                        try { img.style.backgroundImage = 'url("' + newUrlWithCb + '")'; } catch(e) {}
+                    }
+                }
+
+                // Probe the image to detect loading errors (use the same cache-busted URL)
+                var probe = new Image();
+                probe.onload = function() { /* success - nothing further */ };
+                probe.onerror = function() {
+                    try { window.showError && window.showError('Profil resmi yüklenemedi — lütfen tekrar yükleyin veya daha sonra deneyin.'); } catch(e) {}
+                };
+                probe.src = newUrlWithCb;
+            } catch (err) {
+                // Best-effort: log in dev only
+                if (window && window.console && console.warn) console.warn('refreshProfileImages update failed for element', img, err);
             }
         });
     });
@@ -4075,6 +4169,7 @@ window.refreshProfileImages = function(newUrl) {
                             window.CARWASH = window.CARWASH || {};
                             window.CARWASH.profile = window.CARWASH.profile || {};
                             window.CARWASH.profile.canonical = result.profile_image;
+                            window.CARWASH.profile.ts = Date.now();
                         } catch (e) { /* ignore */ }
                     }
                     if (window.refreshProfileImages) {
@@ -4085,15 +4180,15 @@ window.refreshProfileImages = function(newUrl) {
                             window.refreshProfileImages();
                         }
                     }
-                    
-                    // Keep form in edit mode or close based on response
-                    if (result.keep_tab_active) {
-                        // Stay in profile tab, close edit mode
-                        var alpineEl = document.querySelector('[x-data*="profileSection"]');
-                        if (alpineEl && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
-                            alpineEl._x_dataStack[0].editMode = false;
-                        }
-                    }
+                    // Emit an event so profileSection and other listeners can react (close modal, refresh UI)
+                    try {
+                        document.dispatchEvent(new CustomEvent('profile:update:success', { detail: { profile_image: result.profile_image || null } }));
+                    } catch (e) { /* ignore */ }
+
+                    // Also restore the profile tab explicitly (keeps the user on Profile view)
+                    try {
+                        document.dispatchEvent(new CustomEvent('restoreTab', { detail: { tab: 'profile' } }));
+                    } catch (e) { /* ignore */ }
                 } else {
                     // Error: Show in global toast if requested, otherwise in form
                     if (result.show_global_error && window.showError) {
