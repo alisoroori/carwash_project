@@ -432,7 +432,13 @@ if (!isset($base_url)) {
         /* Ensure html/body occupy full height for fixed layout calculations */
         html, body {
             height: 100%;
-            padding-top: 0 !important; /* Override customer_header.php JS padding-top for unified scroll */
+            margin: 0;
+            padding: 0 !important;
+        }
+        
+        /* Body needs padding-top to account for fixed header */
+        body {
+            padding-top: var(--header-height) !important;
         }
         
         /* ================================
@@ -561,18 +567,13 @@ if (!isset($base_url)) {
         /* ================================
            SIDEBAR STYLING
            ================================ */
-        /* Sidebar: vertical gradient and layout behavior (desktop sticky/fixed) */
+        /* Reusable class for the vertical sidebar gradient */
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        }
+
         #customer-sidebar {
-            background: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);
-            /* Make sidebar behave as a viewport-pane anchored below header
-               Use sticky by default to stay in view while preserving document flow */
-            position: sticky;
-            top: var(--header-height);
-            align-self: flex-start;
-            height: calc(100vh - var(--header-height));
-            width: var(--sidebar-width);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            /* background is provided via the .sidebar-gradient class on the element */
         }
         
         /* Sidebar Menu Item Spacing */
@@ -584,20 +585,10 @@ if (!isset($base_url)) {
             margin-bottom: 0;
         }
         
-        /* Ensure sidebar is hidden off-screen on tablet/mobile by default and becomes an overlay */
+        /* Ensure sidebar is hidden off-screen on mobile by default */
         @media (max-width: 1023px) {
             #customer-sidebar {
-                position: fixed !important;
-                top: var(--header-height);
-                left: 0;
-                height: calc(100vh - var(--header-height));
-                width: var(--sidebar-width);
-                transform: translateX(-100%);
-                transition: transform 300ms ease-in-out;
-                z-index: 1060;
-                box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
+                transition: transform var(--transition-slow);
             }
         }
         
@@ -674,41 +665,85 @@ if (!isset($base_url)) {
         }
         
         /* ================================
-           UNIFIED SCROLL LAYOUT (No Fixed Positioning)
+           UNIFIED PAGE-SCROLL LAYOUT
+           - Header fixed at top
+           - Sidebar and Main Content start immediately below header
+           - Sidebar height matches Main Content
+           - Footer at bottom, nothing overlaps
+           - Single page-level scroll only (no internal scrolling)
            ================================ */
         
-        /* === 1. Header (Static - scrolls with page) === */
+        /* === 1. Header (Fixed at top) === */
         header {
-            position: relative !important;
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
             width: 100%;
-            height: 80px !important;
-            z-index: 50 !important;
+            height: var(--header-height);
+            min-height: var(--header-height);
+            z-index: 1000;
             background: white;
             border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
         }
         
-        /* === 2. Sidebar (Desktop baseline) === */
-        /* Keep sidebar in the flow but use sticky positioning (defined earlier) to remain visible.
-           Width and visual styling are controlled here. */
+        /* === 2. Layout Container (Sidebar + Main Content) === */
+        /* Starts immediately below the fixed header */
+        .dashboard-layout {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            min-height: calc(100vh - var(--header-height));
+            /* Ensure children stretch to same height so sidebar matches main content */
+            align-items: stretch;
+            /* No margin-top needed since body has padding-top */
+        }
+        
+        /* === 3. Sidebar (Desktop: spans full height of content area) === */
         #customer-sidebar {
             width: var(--sidebar-width);
-            min-height: 500px;              /* Minimum height to ensure visibility */
+            min-width: var(--sidebar-width);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
+            background: linear-gradient(to bottom, #2563eb, #7c3aed);
             box-shadow: 4px 0 15px rgba(0,0,0,0.12);
-            padding: 0;
+            flex-shrink: 0;
+            /* Sidebar height matches main content - both scroll together */
+            /* Keep box-sizing so padding doesn't cause overflow */
+            box-sizing: border-box;
+            /* Add 20px visual increase while keeping layout in sync */
+            padding-bottom: 20px;
+            overflow: visible;
+            align-self: stretch;
+        }
+        
+        /* === 4. Main Content Area === */
+        #main-content {
+            flex: 1;
+            min-width: 0; /* Prevent flex item overflow */
+            padding: 1.5rem;
+            background-color: var(--bg-body);
+            box-sizing: border-box;
+            /* No internal scroll - content flows naturally */
+            overflow: visible;
+            /* Ensure no CSS transform scales are applied to #main-content which
+               would visually shrink it without changing layout space and cause
+               overflow/footers to misalign. Reset any accidental transforms. */
+            transform: scale(0.98) !important;
+            
         }
         
         /* Sidebar Profile Section */
         #customer-sidebar .flex-shrink-0:first-of-type {
-            padding: 1rem;
+            padding: 0.75rem;
+            flex-shrink: 0;
         }
         
-        /* Sidebar Profile Image - match header profile (60x60 on desktop) */
+        /* Sidebar Profile Image */
         #customer-sidebar img#sidebarProfileImage {
-            width: 60px !important;
-            height: 60px !important;
+            width: 56px !important;
+            height: 56px !important;
             border-radius: 50%;
             object-fit: cover;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -716,15 +751,16 @@ if (!isset($base_url)) {
             margin: 0 auto;
         }
 
-        /* Unified avatar container used by sidebar and header to ensure exact sizing */
+        /* Unified avatar container */
         .sidebar-profile-container,
         #headerProfileContainer {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             overflow: hidden;
             display: block;
             box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            margin: 0 auto;
         }
 
         .sidebar-profile-container img,
@@ -737,218 +773,232 @@ if (!isset($base_url)) {
             display: block !important;
         }
 
-        /* Header profile image - reduced size (header-only) */
+        /* Header profile image */
         #userAvatarTop {
-            width: 60px !important;
-            height: 60px !important;
+            width: 56px !important;
+            height: 56px !important;
             border-radius: 50%;
             object-fit: cover;
             display: block;
         }
 
-        /* Header profile container sizing (matches image sizes) */
         #headerProfileContainer {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
         }
-
-        /* Site logo sizing is controlled globally in universal styles to enforce
-           a single source-of-truth (80px). Removed local #siteLogo rules so the
-           global CSS in backend/includes/universal_styles.php can apply. */
         
         /* Sidebar Navigation Menu */
         #customer-sidebar nav {
             flex: 1;
-            padding: 0.75rem;
-            overflow: visible;
-            margin-top: 0px; /* Override any unwanted margin-top */
+            display: flex;
+            flex-direction: column;
+            padding: 0.5rem;
+            overflow: visible; /* No scroll */
         }
 
-          /* Compact sidebar adjustments to avoid vertical overflow
-              - Sidebar uses sticky positioning to stay with content flow
-           - Reduce font-size and line-height slightly
-           - Reduce paddings for profile and nav items
-           - Allow internal scrolling when content exceeds viewport
-           These changes are intentionally minimal and limited to the sidebar only.
-        */
+        /* Compact sidebar text */
         #customer-sidebar {
-            /* Keep visual sizing compact */
-            font-size: 13px; /* slightly smaller text to fit more content */
-            line-height: 1.15;
-        }
-
-        #customer-sidebar .flex-shrink-0:first-of-type {
-            padding: 0.6rem; /* slightly reduce profile padding */
-        }
-
-        #customer-sidebar img#sidebarProfileImage {
-            width: 60px !important;
-            height: 60px !important;
-        }
-
-        #customer-sidebar nav {
-            padding: 0.5rem; /* tighten nav padding */
+            font-size: 13px;
+            line-height: 1.2;
         }
 
         #customer-sidebar nav a {
-            display: block;
-            padding: 0.8rem 0.9rem;
-            margin-bottom: 0.5rem;
-            border-radius: 8px;
-            color: rgba(255,255,255,0.95);
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 0.75rem;
+            margin-bottom: 0.25rem;
+            border-radius: 0.5rem;
+            transition: background-color 150ms ease;
         }
 
-        #customer-sidebar .flex-shrink-0.p-3 { padding: .5rem; }
-        
-        /* === 3. Main Content Area (Flows naturally beside sidebar) === */
-        #main-content {
-            flex: 1;
-            padding: 1.5rem;
-            padding-top: 0 !important; /* ensure no gap between header and main content */
-            margin-top: 0 !important;
-            min-height: 500px;              /* Minimum height to ensure content visibility */
-            box-sizing: border-box;
+        #customer-sidebar nav a:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Sidebar bottom section (Settings) */
+        #customer-sidebar .flex-shrink-0.p-3 { 
+            padding: 0.5rem;
+            flex-shrink: 0;
         }
         
-        /* Footer styles - flows naturally at bottom */
+        /* === 4. Main Content Area === */
+        #main-content {
+            flex: 1;
+            min-width: 0; /* Prevent flex item overflow */
+            padding: 1.5rem;
+            background-color: var(--bg-body);
+            box-sizing: border-box;
+            /* No internal scroll - content flows naturally */
+            overflow: visible;
+        }
+        
+        /* === 5. Footer === */
         footer {
-            margin-top: 0 !important;
             position: relative;
             width: 100%;
+            flex-shrink: 0;
+            z-index: 10;
+            margin-top: auto;
         }
         
         /* ================================
-           RESPONSIVE BREAKPOINTS
+           DESKTOP LAYOUT (≥901px)
+           Sidebar visible, no hamburger
            ================================ */
-        
-        /* === Small Screens (<900px): Reduce sidebar to 200px === */
-        @media (max-width: 899px) and (min-width: 768px) {
-            :root {
-                --sidebar-width: 200px;
-            }
-            
+        @media (min-width: 901px) {
             #customer-sidebar {
-                width: 200px;
-            }
-            
-            #customer-sidebar img#sidebarProfileImage {
-                width: 48px !important;
-                height: 48px !important;
-            }
-
-            #userAvatarTop {
-                width: 48px !important;
-                height: 48px !important;
-            }
-
-            #headerProfileContainer {
-                width: 48px;
-                height: 48px;
-            }
-            
-            #main-content {
-                padding: 1.25rem;
-            }
-        }
-        
-        /* === Desktop Layout (≥900px) === */
-        @media (min-width: 900px) {
-            #customer-sidebar {
-                transform: translateX(0) !important;
+                position: relative;
+                transform: none !important;
                 display: flex !important;
+                z-index: 40;
             }
-
-            /* Reserve space for the sidebar so the page has a single scrollbar */
-            #main-content {
-                margin-left: var(--sidebar-width);
+            
+            .mobile-hamburger-btn {
+                display: none !important;
+            }
+            
+            .sidebar-backdrop {
+                display: none !important;
             }
         }
         
-        /* === Mobile Layout (<768px) === */
-        @media (max-width: 767px) {
-            #customer-sidebar {
-                position: fixed !important;
-                width: 280px;
-                max-width: 85vw;
-                transform: translateX(-100%);
-                top: 0;
-                left: 0;
-                bottom: 0;
-                height: 100vh !important;
-                z-index: 1100;
-                overflow-y: auto;
+        /* ================================
+           TABLET LAYOUT (768px - 900px)
+           Sidebar fixed overlay with hamburger
+           ================================ */
+        @media (min-width: 768px) and (max-width: 900px) {
+            :root {
+                --sidebar-width: 260px;
             }
             
-            #customer-sidebar img#sidebarProfileImage {
-                width: 48px !important;
-                height: 48px !important;
-            }
-
-            #userAvatarTop {
-                width: 48px !important;
-                height: 48px !important;
-            }
-
-            #headerProfileContainer {
-                width: 48px;
-                height: 48px;
-            }
-            
-            #main-content {
-                padding: 1rem;
-            }
-        }
-
-        /* Mobile (<=900px) explicit rules to ensure hamburger menu visibility and layering */
-        @media (max-width: 900px) {
-            header {
-                z-index: 1000 !important;
-            }
-
             #customer-sidebar {
-                position: fixed !important;
-                top: var(--header-height);
+                position: fixed;
+                top: var(--header-height); /* Start below fixed header */
                 left: 0;
                 height: calc(100vh - var(--header-height));
-                width: 80%;
-                max-width: 320px;
+                width: var(--sidebar-width);
+                max-width: 80vw;
                 transform: translateX(-100%);
                 transition: transform 300ms ease-in-out;
-                box-shadow: 4px 0 20px rgba(0,0,0,0.25);
                 z-index: 1100;
                 overflow-y: auto;
-                display: flex !important;
+                -webkit-overflow-scrolling: touch;
             }
-
-            #customer-sidebar.mobile-open {
+            
+            #customer-sidebar.sidebar-open,
+            #customer-sidebar.translate-x-0 {
                 transform: translateX(0) !important;
             }
             
-            #main-content {
-                padding: 1rem;
-                width: 100%;
-            }
-
-            .mobile-menu-backdrop-dashboard {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.45);
-                z-index: 1050;
-                display: none;
-            }
-
-            .mobile-menu-backdrop-dashboard.active {
-                display: block;
-            }
-
-            .hamburger-toggle-dashboard {
+            .mobile-hamburger-btn {
                 display: inline-flex !important;
             }
+            
+            #main-content {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            #customer-sidebar img#sidebarProfileImage,
+            .sidebar-profile-container {
+                width: 48px !important;
+                height: 48px !important;
+            }
         }
-        /* Hide scrollbar but keep scroll functionality if needed */
+        
+        /* ================================
+           MOBILE LAYOUT (<768px)
+           Sidebar fixed overlay with hamburger
+           ================================ */
+        @media (max-width: 767px) {
+            :root {
+                --sidebar-width: 280px;
+            }
+            
+            #customer-sidebar {
+                position: fixed;
+                top: var(--header-height); /* Start below fixed header */
+                left: 0;
+                height: calc(100vh - var(--header-height));
+                width: var(--sidebar-width);
+                max-width: 85vw;
+                transform: translateX(-100%);
+                transition: transform 300ms ease-in-out;
+                z-index: 1100;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            #customer-sidebar.sidebar-open,
+            #customer-sidebar.translate-x-0 {
+                transform: translateX(0) !important;
+            }
+            
+            .mobile-hamburger-btn {
+                display: inline-flex !important;
+                top: calc(var(--header-height) + 10px);
+                left: 10px;
+                width: 42px;
+                height: 42px;
+            }
+            
+            #main-content {
+                width: 100%;
+                padding: 0.75rem;
+                padding-top: 60px; /* Space for hamburger button */
+            }
+            
+            #main-content .max-w-7xl {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            /* Reduce card padding on mobile */
+            #main-content .p-6,
+            #main-content .md\:p-8 {
+                padding: 1rem;
+            }
+
+            #customer-sidebar img#sidebarProfileImage,
+            .sidebar-profile-container {
+                width: 48px !important;
+                height: 48px !important;
+            }
+
+            #userAvatarTop,
+            #headerProfileContainer {
+                width: 44px !important;
+                height: 44px !important;
+            }
+        }
+
+        /* ================================
+           VERY SMALL SCREENS (<480px)
+           Full-width sidebar overlay
+           ================================ */
+        @media (max-width: 479px) {
+            #customer-sidebar {
+                width: 100vw;
+                max-width: 100vw;
+            }
+            
+            #main-content {
+                padding: 0.5rem;
+                padding-top: 56px;
+            }
+            
+            .mobile-hamburger-btn {
+                top: calc(var(--header-height) + 8px);
+                left: 8px;
+                width: 38px;
+                height: 38px;
+                font-size: 14px;
+            }
+        }
+
+        /* ================================
+           SIDEBAR SCROLLBAR (hidden but functional on mobile)
+           ================================ */
         #customer-sidebar::-webkit-scrollbar {
             width: 0;
             display: none;
@@ -957,24 +1007,6 @@ if (!isset($base_url)) {
         #customer-sidebar {
             scrollbar-width: none;
             -ms-overflow-style: none;
-        }
-        
-        /* Smooth scrollbar for main content only */
-        #main-content::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        #main-content::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-        }
-        
-        #main-content::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-        }
-        
-        #main-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
         }
         
         /* ================================
@@ -1031,39 +1063,170 @@ if (!isset($base_url)) {
                 height: 44px;
                 font-size: 18px;
             }
+        }
 
-            /* Mobile hamburger button inside main-content (top-left below header) */
-            .mobile-hamburger {
-                display: inline-flex;
-                position: fixed;
-                top: 75px;
-                left: 1rem;
-                z-index: 50;
-                background: #667eea;
-                color: #ffffff;
-                border-radius: 8px;
-                padding: 12px 16px;
-                box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-                transition: all 0.3s ease;
-                align-items: center;
-                justify-content: center;
-                border: none;
-                cursor: pointer;
+        /* ================================
+           GLOBAL CONTAINMENT & OVERFLOW PREVENTION
+           ================================ */
+        html {
+            overflow-x: hidden;
+        }
+        
+        body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+        
+        /* Prevent cards from overflowing */
+        #main-content .bg-white.rounded-2xl,
+        #main-content .bg-white.rounded-xl,
+        #main-content [class*="rounded-2xl"][class*="shadow"],
+        #main-content [class*="rounded-xl"][class*="shadow"] {
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        
+        #main-content .grid {
+            max-width: 100%;
+        }
+
+        /* ================================
+           MOBILE HAMBURGER BUTTON
+           ================================ */
+        .mobile-hamburger-btn {
+            display: none;
+            position: fixed;
+            top: calc(var(--header-height) + 12px);
+            left: 12px;
+            z-index: 1200;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+        
+        .mobile-hamburger-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+        }
+        
+        .mobile-hamburger-btn:focus {
+            outline: 3px solid var(--color-primary-100);
+            outline-offset: 2px;
+        }
+        
+        .mobile-hamburger-btn .hamburger-icon,
+        .mobile-hamburger-btn .close-icon {
+            transition: transform 200ms ease, opacity 200ms ease;
+        }
+        
+        .mobile-hamburger-btn.is-open .hamburger-icon {
+            display: none;
+        }
+        
+        .mobile-hamburger-btn.is-open .close-icon {
+            display: inline;
+        }
+        
+        .mobile-hamburger-btn:not(.is-open) .close-icon {
+            display: none;
+        }
+
+        /* Show hamburger on tablet/mobile */
+        @media (max-width: 900px) {
+            .mobile-hamburger-btn {
+                display: inline-flex !important;
+            }
+        }
+
+        /* ================================
+           SIDEBAR BACKDROP
+           ================================ */
+        .sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 300ms ease, visibility 300ms ease;
+        }
+        
+        .sidebar-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ================================
+           BODY LOCK WHEN MOBILE SIDEBAR OPEN
+           ================================ */
+        body.menu-open {
+            overflow: hidden !important;
+        }
+
+        @media (min-width: 901px) {
+            body.menu-open {
+                overflow: visible !important;
+            }
+        }
+
+        /* ================================
+           FORM & INPUT RESPONSIVENESS
+           ================================ */
+        @media (max-width: 767px) {
+            #main-content form {
+                max-width: 100%;
+            }
+            
+            #main-content input,
+            #main-content select,
+            #main-content textarea {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            
+            #main-content .grid-cols-2 {
+                grid-template-columns: 1fr;
             }
 
-            .mobile-hamburger i { font-size: 18px; }
-
-            .mobile-hamburger.show { display: inline-flex; }
-
-            /* When sidebar is open, prevent body scroll and show overlay/backdrop */
-            body.sidebar-open {
-                overflow: hidden !important;
-                position: fixed !important;
-                width: 100% !important;
+            /* Smaller cards on mobile */
+            #main-content .p-6 {
+                padding: 1rem;
             }
-
-            body.sidebar-open #customer-sidebar { transform: translateX(0) !important; }
-            body.sidebar-open .mobile-menu-backdrop-dashboard { display: block !important; }
+            
+            #main-content .p-8,
+            #main-content .md\:p-8 {
+                padding: 1rem;
+            }
+        }
+        
+        /* ================================
+           MODAL RESPONSIVENESS
+           ================================ */
+        @media (max-width: 767px) {
+            .fixed.inset-0.z-50 > div {
+                max-width: 95vw;
+                max-height: 90vh;
+                margin: 1rem;
+            }
+        }
+        
+        /* Alpine cloak */
+        #customer-sidebar[x-cloak] {
+            display: none !important;
         }
     </style>
 </head>
@@ -1071,7 +1234,7 @@ if (!isset($base_url)) {
 <body 
     class="bg-gray-50 overflow-x-hidden flex flex-col min-h-screen" 
     x-data="(typeof customerDashboard !== 'undefined') ? customerDashboard() : { mobileMenuOpen: false, currentSection: 'dashboard', init(){} }"
-    x-effect="(() => { if (mobileMenuOpen) { document.body.classList.add('menu-open'); document.body.classList.add('sidebar-open'); } else { document.body.classList.remove('menu-open'); document.body.classList.remove('sidebar-open'); } })()"
+    x-effect="mobileMenuOpen ? document.body.classList.add('menu-open') : document.body.classList.remove('menu-open')"
     @toggle-mobile-sidebar.document="mobileMenuOpen = $event.detail.forceClose ? false : !mobileMenuOpen"
 >
 
@@ -1097,24 +1260,47 @@ if (!isset($base_url)) {
     x-transition:leave="transition-opacity ease-in duration-200"
     x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0"
-    class="fixed inset-0 bg-black bg-opacity-60 z-[1050] lg:hidden mobile-menu-backdrop-dashboard"
+    class="fixed bg-black bg-opacity-60 z-[1050] lg:hidden"
+    style="display: none; top: 80px; left: 0; right: 0; bottom: 0;"
+></div>
+
+<!-- Mobile Hamburger Button - Toggles sidebar on tablet/mobile -->
+<button 
+    id="mobileHamburgerBtn"
+    class="mobile-hamburger-btn"
+    @click="mobileMenuOpen = !mobileMenuOpen; $el.classList.toggle('is-open', mobileMenuOpen)"
+    :class="{'is-open': mobileMenuOpen}"
+    :aria-expanded="mobileMenuOpen.toString()"
+    aria-label="Toggle navigation menu"
+    aria-controls="customer-sidebar"
+>
+    <i class="fas fa-bars hamburger-icon"></i>
+    <i class="fas fa-times close-icon"></i>
+</button>
+
+<!-- Sidebar Backdrop (closes sidebar when clicked) -->
+<div 
+    class="sidebar-backdrop"
+    :class="{'active': mobileMenuOpen}"
+    @click="mobileMenuOpen = false"
+    x-show="mobileMenuOpen"
     style="display: none;"
 ></div>
 
 <!-- Main Content Wrapper: Flex layout with sidebar and content side by side -->
-<div class="flex flex-row min-h-screen">
+<div class="dashboard-layout flex flex-row">
     
     <!-- ================================
-         SIDEBAR - Static positioned, scrolls with page
-         Desktop: Always visible, flows with content
+         SIDEBAR - Spans full height from header to footer
+         Desktop: Always visible, grows with main content
          Mobile: Fixed overlay with internal scroll
          ================================ -->
     <aside 
         id="customer-sidebar"
         class="bg-gradient-to-b from-blue-600 via-blue-700 to-purple-700 text-white shadow-2xl
-               transform transition-transform duration-300 ease-in-out
+               transition-transform duration-300 ease-in-out
                flex flex-col"
-        :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+        :class="mobileMenuOpen ? 'translate-x-0 sidebar-open' : '-translate-x-full lg:translate-x-0'"
         x-transition:enter="transition-transform ease-out duration-300"
         x-transition:enter-start="transform -translate-x-full"
         x-transition:enter-end="transform translate-x-0"
@@ -1261,11 +1447,8 @@ if (!isset($base_url)) {
          Mobile: Full width (sidebar is overlay)
          ================================ -->
     <main class="flex-1 bg-gray-50" id="main-content">
-        <div class="pt-0 px-6 pb-6 lg:px-8 lg:pb-8 max-w-7xl mx-auto">
-            <!-- Mobile hamburger inside main-content (only visible on mobile) -->
-            <button id="mobileHamburger" class="mobile-hamburger" aria-label="Open menu" title="Menü">
-                <i class="fas fa-bars"></i>
-            </button>
+        <!-- Use full-width container to ensure main-content expands to contain children -->
+        <div class="pt-0 px-6 pb-6 lg:px-8 lg:pb-8 w-full">
             <!-- Global Toast/Error Area - visible even when modals are open -->
             <div id="globalToast" class="fixed top-24 right-6 z-[9999] max-w-md transition-all duration-300 transform translate-x-full opacity-0 pointer-events-none" role="alert" aria-live="assertive">
                 <div id="globalToastContent" class="rounded-xl shadow-2xl border px-5 py-4 flex items-start gap-3">
@@ -3639,48 +3822,6 @@ if (!isset($base_url)) {
     // Update after images load (layout might change)
     window.addEventListener('load', function() {
         setTimeout(updateLayoutHeights, 100);
-    });
-})();
-
-// ================================
-// Mobile Sidebar Toggle Handler
-// Listens for clicks on `#mobileHamburger` and dispatches Alpine event to toggle mobile menu
-(function(){
-    'use strict';
-    function toggleSidebarFromButton(forceClose) {
-        // Dispatch event that Alpine body listener will handle
-        var ev = new CustomEvent('toggle-mobile-sidebar', { detail: { forceClose: !!forceClose }, bubbles: true });
-        document.dispatchEvent(ev);
-    }
-
-    document.addEventListener('DOMContentLoaded', function(){
-        var btn = document.getElementById('mobileHamburger');
-        var backdrop = document.querySelector('.mobile-menu-backdrop-dashboard');
-        if (!btn) return;
-
-        btn.addEventListener('click', function(e){
-            e.preventDefault();
-            toggleSidebarFromButton(false);
-            // toggle aria-expanded
-            var expanded = btn.getAttribute('aria-expanded') === 'true';
-            btn.setAttribute('aria-expanded', (!expanded).toString());
-        });
-
-        // Close on backdrop click (if backdrop exists and Alpine's overlay not present)
-        if (backdrop) {
-            backdrop.addEventListener('click', function(){
-                toggleSidebarFromButton(true);
-                btn.setAttribute('aria-expanded', 'false');
-            });
-        }
-
-        // Close on Escape key
-        document.addEventListener('keydown', function(e){
-            if (e.key === 'Escape') {
-                toggleSidebarFromButton(true);
-                if (btn) btn.setAttribute('aria-expanded', 'false');
-            }
-        });
     });
 })();
 
