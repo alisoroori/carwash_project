@@ -31,9 +31,9 @@ if (!is_dir($storageBase)) {
 }
 
 // Configuration
-$maxSize = 2 * 1024 * 1024; // 2MB
-$allowedExt = ['jpg','jpeg','png'];
-$allowedMime = ['image/jpeg','image/png'];
+$maxSize = 3 * 1024 * 1024; // 3MB
+$allowedExt = ['jpg','jpeg','png','webp'];
+$allowedMime = ['image/jpeg','image/png','image/webp'];
 
 $userId = Session::get('user_id');
 
@@ -89,7 +89,8 @@ if (!move_uploaded_file($file['tmp_name'], $storagePath)) {
 @chmod($storagePath, 0644);
 
 // Build relative/public paths for DB and session
-$publicUrl = '/carwash_project/backend/auth/uploads/profiles/user_' . intval($userId) . '/' . $newFilename . '?ts=' . time();
+// Store canonical path in DB (no timestamp)
+$publicUrl = '/carwash_project/backend/auth/uploads/profiles/user_' . intval($userId) . '/' . $newFilename;
 
 // Remove old profile image if set and not default
 $old = Session::get('profile_image');
@@ -99,12 +100,13 @@ if ($old && strpos($old, '/frontend/images/default-avatar.svg') === false) {
     if (file_exists($oldFull)) @unlink($oldFull);
 }
 
-// Save to database
+// Save to database (canonical users table)
 $db = \App\Classes\Database::getInstance();
-$updated = $db->update('user_profiles', ['profile_image' => $publicUrl], ['user_id' => $userId]);
+$updated = $db->update('users', ['profile_image' => $publicUrl], ['id' => $userId]);
 if ($updated) {
     Session::set('profile_image', $publicUrl);
-    Response::success('تصویر پروفایل با موفقیت به‌روز شد', ['image_url' => $publicUrl]);
+    Session::set('profile_image_ts', time());
+    Response::success('تصویر پروفایل با موفقیت به‌روز شد', ['image_url' => $publicUrl . '?cb=' . $_SESSION['profile_image_ts']]);
 } else {
     // Cleanup the uploaded file on DB failure
     @unlink($storagePath);

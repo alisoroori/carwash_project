@@ -414,23 +414,17 @@ try {
                     // non-fatal
                 }
 
-                $webPath = PROFILE_UPLOAD_URL . '/' . $filename . '?ts=' . time();
+                // Store canonical path in users table (no timestamp)
+                $webPath = PROFILE_UPLOAD_URL . '/' . $filename;
 
-                // Persist to DB (user_profiles preferred, fallback to users table)
                 try {
                     if ($dbConn instanceof PDO) {
-                        $u = $dbConn->prepare('UPDATE user_profiles SET profile_image = :img WHERE user_id = :id');
-                        $u->execute([':img' => $webPath, ':id' => $user_id]);
-                        if ($u->rowCount() === 0) {
-                            $i = $dbConn->prepare('INSERT INTO user_profiles (user_id, profile_image) VALUES (:id, :img)');
-                            $i->execute([':id' => $user_id, ':img' => $webPath]);
-                        }
-                        // Also update users table for backward compatibility
-                        $dbConn->prepare('UPDATE users SET profile_image = :img WHERE id = :id')->execute([':img' => $webPath, ':id' => $user_id]);
+                        $stmt = $dbConn->prepare('UPDATE users SET profile_image = :img WHERE id = :id');
+                        $stmt->execute([':img' => $webPath, ':id' => $user_id]);
                     }
                 } catch (Throwable $e) {
                     // non-fatal DB error: continue but log
-                    error_log('Could not persist avatar path: ' . $e->getMessage());
+                    error_log('Could not persist avatar path to users table: ' . $e->getMessage());
                 }
 
                 // Update session
@@ -558,7 +552,7 @@ try {
             // If no uploaded file, check if user already has a profile image
             try {
                 $existingImage = null;
-                $imgStmt = $dbConn->prepare('SELECT COALESCE(up.profile_image, u.profile_image, NULL) AS img FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :id LIMIT 1');
+                $imgStmt = $dbConn->prepare('SELECT u.profile_image AS img FROM users u WHERE u.id = :id LIMIT 1');
                 $imgStmt->execute([':id' => $user_id]);
                 $row = $imgStmt->fetch(PDO::FETCH_ASSOC);
                 if ($row && !empty($row['img'])) $existingImage = $row['img'];
@@ -705,7 +699,7 @@ try {
                 // Delete old profile image if exists
                 try {
                     if ($dbConn instanceof PDO) {
-                        $oldStmt = $dbConn->prepare('SELECT COALESCE(up.profile_image, u.profile_image, NULL) AS img FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :id LIMIT 1');
+                        $oldStmt = $dbConn->prepare('SELECT u.profile_image AS img FROM users u WHERE u.id = :id LIMIT 1');
                         $oldStmt->execute([':id' => $user_id]);
                         $oldRow = $oldStmt->fetch(PDO::FETCH_ASSOC);
                         $oldImage = $oldRow['img'] ?? null;
@@ -829,64 +823,21 @@ try {
                     $stmt = $dbConn->prepare($sql);
                     $stmt->execute($params);
 
-                    // Ensure user_profiles table exists with proper schema
-                    $dbConn->exec("CREATE TABLE IF NOT EXISTS user_profiles (
-                        id INT PRIMARY KEY AUTO_INCREMENT,
-                        user_id INT NOT NULL UNIQUE,
-                        profile_image VARCHAR(255),
-                        address TEXT,
-                        city VARCHAR(100),
-                        preferences JSON,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-                    
-                    // Add updated_at column if it doesn't exist (for backward compatibility)
+                    // NOTE: Deprecated `user_profiles` usage removed. All profile fields are canonical in `users` table.
+                    // Update session variables from the authoritative users table values (ensure session is fresh)
                     try {
-                        $checkCol = $dbConn->query("SHOW COLUMNS FROM user_profiles LIKE 'updated_at'");
-                        if ($checkCol->rowCount() === 0) {
-                            $dbConn->exec("ALTER TABLE user_profiles ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+                        $fresh = $dbConn->prepare('SELECT * FROM users WHERE id = :id LIMIT 1');
+                        $fresh->execute([':id' => $user_id]);
+                        $f = $fresh->fetch(PDO::FETCH_ASSOC);
+                        if ($f) {
+                            $_SESSION['name'] = $f['name'] ?? $_SESSION['name'];
+                            $_SESSION['email'] = $f['email'] ?? $_SESSION['email'];
+                            if (!empty($username)) $_SESSION['username'] = $username;
+                            if (!empty($webPath)) $_SESSION['profile_image'] = $webPath;
                         }
-                    } catch (Exception $e) {
-                        error_log('Could not add updated_at column: ' . $e->getMessage());
+                    } catch (Throwable $_e) {
+                        // If session refresh fails, keep existing session values
                     }
-                    
-                    // Remove old last_updated column if it exists
-                    try {
-                        $checkOldCol = $dbConn->query("SHOW COLUMNS FROM user_profiles LIKE 'last_updated'");
-                        if ($checkOldCol->rowCount() > 0) {
-                            $dbConn->exec("ALTER TABLE user_profiles DROP COLUMN last_updated");
-                        }
-                    } catch (Exception $e) {
-                        error_log('Could not drop last_updated column: ' . $e->getMessage());
-                    }
-                    
-                    $prefs = json_encode([]);
-                    $stmt = $dbConn->prepare('INSERT INTO user_profiles (user_id, profile_image, address, city, preferences) 
-                        VALUES (:uid, :img, :addr, :city, :prefs) 
-                        ON DUPLICATE KEY UPDATE 
-                            profile_image = COALESCE(:img2, profile_image),
-                            address = :addr2, 
-                            city = :city2,
-                            preferences = :prefs2');
-                    $stmt->execute([
-                        ':uid' => $user_id, 
-                        ':img' => $webPath, 
-                        ':addr' => $address, 
-                        ':city' => $city,
-                        ':prefs' => $prefs,
-                        ':img2' => $webPath,
-                        ':addr2' => $address,
-                        ':city2' => $city,
-                        ':prefs2' => $prefs
-                    ]);
-                    
-                    // Update session variables
-                    $_SESSION['name'] = $name;
-                    $_SESSION['email'] = $email;
-                    if (!empty($username)) $_SESSION['username'] = $username;
-                    if (!empty($webPath)) $_SESSION['profile_image'] = $webPath;
                     
                 } else {
                     // assume mysqli-like
@@ -914,12 +865,15 @@ try {
                         $stmt->bind_param('sssssssi', $name, $phone, $home_phone, $national_id, $driver_license, $email, $webPath, $user_id);
                         $stmt->execute();
                         
-                        // Update user_profiles (no last_updated column, use updated_at instead)
-                        $u = $mmConn->prepare('INSERT INTO user_profiles (user_id, profile_image, address, city, preferences) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE profile_image = COALESCE(VALUES(profile_image), profile_image), address = VALUES(address), city = VALUES(city), preferences = VALUES(preferences)');
-                        $prefs = json_encode([]);
-                        $u->bind_param('issss', $user_id, $webPath, $address, $city, $prefs);
-                        $u->execute();
-                        
+                        // Persist additional profile fields into `users` table only (canonical source)
+                        try {
+                            $stmt = $mmConn->prepare('UPDATE users SET address = ?, city = ?, profile_image = ? WHERE id = ?');
+                            $stmt->bind_param('sssi', $address, $city, $webPath, $user_id);
+                            $stmt->execute();
+                        } catch (Exception $_e) {
+                            error_log('Could not persist extended profile fields to users table: ' . $_e->getMessage());
+                        }
+
                         // Update session
                         $_SESSION['name'] = $name;
                         $_SESSION['email'] = $email;
@@ -930,12 +884,81 @@ try {
                     }
                 }
 
+                // Re-fetch updated user row and refresh full session values so UI reflects DB immediately
+                try {
+                    if ($dbConn instanceof PDO) {
+                        $refreshStmt = $dbConn->prepare('SELECT u.*, up.profile_image AS profile_image_up, up.address AS profile_address, up.city AS profile_city FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :id LIMIT 1');
+                        $refreshStmt->execute([':id' => $user_id]);
+                        $fresh = $refreshStmt->fetch(PDO::FETCH_ASSOC);
+                        if ($fresh) {
+                            // Top-level session keys
+                            $_SESSION['user_id'] = $fresh['id'] ?? $user_id;
+                            $_SESSION['name'] = $fresh['name'] ?? $_SESSION['name'];
+                            $_SESSION['email'] = $fresh['email'] ?? $_SESSION['email'];
+                            $_SESSION['username'] = $fresh['username'] ?? ($_SESSION['username'] ?? null);
+                            $_SESSION['phone'] = $fresh['phone'] ?? ($_SESSION['phone'] ?? null);
+                            $_SESSION['home_phone'] = $fresh['home_phone'] ?? ($_SESSION['home_phone'] ?? null);
+                            $_SESSION['national_id'] = $fresh['national_id'] ?? ($_SESSION['national_id'] ?? null);
+                            $_SESSION['driver_license'] = $fresh['driver_license'] ?? ($_SESSION['driver_license'] ?? null);
+                            // Use user_profiles.profile_image when present, otherwise users.profile_image
+                            $sessImg = $fresh['profile_image_up'] ?? $fresh['profile_image'] ?? ($_SESSION['profile_image'] ?? null);
+                            if ($sessImg) $_SESSION['profile_image'] = $sessImg;
+                            // profile-specific keys
+                            $_SESSION['profile_address'] = $fresh['profile_address'] ?? ($_SESSION['profile_address'] ?? null);
+                            $_SESSION['profile_city'] = $fresh['profile_city'] ?? ($_SESSION['profile_city'] ?? null);
+                            // Also keep a nested user array for legacy code
+                            $_SESSION['user'] = array_merge($_SESSION['user'] ?? [], [
+                                'id' => $_SESSION['user_id'],
+                                'name' => $_SESSION['name'],
+                                'email' => $_SESSION['email'],
+                                'username' => $_SESSION['username'] ?? '',
+                                'profile_image' => $_SESSION['profile_image'] ?? ''
+                            ]);
+                        }
+                    } elseif (isset($mmConn) && $mmConn instanceof mysqli) {
+                        $q = $mmConn->real_escape_string((string)$user_id);
+                        $res = $mmConn->query("SELECT u.*, up.profile_image AS profile_image_up, up.address AS profile_address, up.city AS profile_city FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = " . $q . " LIMIT 1");
+                        if ($res && $row = $res->fetch_assoc()) {
+                            $_SESSION['user_id'] = $row['id'] ?? $user_id;
+                            $_SESSION['name'] = $row['name'] ?? $_SESSION['name'];
+                            $_SESSION['email'] = $row['email'] ?? $_SESSION['email'];
+                            $_SESSION['username'] = $row['username'] ?? ($_SESSION['username'] ?? null);
+                            $_SESSION['phone'] = $row['phone'] ?? ($_SESSION['phone'] ?? null);
+                            $_SESSION['home_phone'] = $row['home_phone'] ?? ($_SESSION['home_phone'] ?? null);
+                            $_SESSION['national_id'] = $row['national_id'] ?? ($_SESSION['national_id'] ?? null);
+                            $_SESSION['driver_license'] = $row['driver_license'] ?? ($_SESSION['driver_license'] ?? null);
+                            $sessImg = $row['profile_image_up'] ?? $row['profile_image'] ?? ($_SESSION['profile_image'] ?? null);
+                            if ($sessImg) $_SESSION['profile_image'] = $sessImg;
+                            $_SESSION['profile_address'] = $row['profile_address'] ?? ($_SESSION['profile_address'] ?? null);
+                            $_SESSION['profile_city'] = $row['profile_city'] ?? ($_SESSION['profile_city'] ?? null);
+                            $_SESSION['user'] = array_merge($_SESSION['user'] ?? [], [
+                                'id' => $_SESSION['user_id'],
+                                'name' => $_SESSION['name'],
+                                'email' => $_SESSION['email'],
+                                'username' => $_SESSION['username'] ?? '',
+                                'profile_image' => $_SESSION['profile_image'] ?? ''
+                            ]);
+                        }
+                    }
+                } catch (Throwable $e) {
+                    // Non-fatal: log and continue; session may still contain partial values updated earlier
+                    error_log('Could not refresh session after profile update: ' . $e->getMessage());
+                }
+
+                // Prepare fresh user data for response (if available)
+                $freshData = null;
+                try {
+                    if (!empty($fresh) && is_array($fresh)) $freshData = $fresh;
+                    elseif (!empty($row) && is_array($row)) $freshData = $row;
+                } catch (Throwable $_e) { /* ignore */ }
+
                 // Success response - clean buffer first
                 ob_end_clean();
                 echo json_encode([
-                    'success' => true, 
-                    'message' => 'Profil başarıyla güncellendi', 
-                    'data' => ['image' => $webPath ?? null]
+                    'success' => true,
+                    'message' => 'Profil başarıyla güncellendi',
+                    'data' => ['image' => $webPath ?? null],
+                    'user' => $freshData
                 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                 exit;
                 

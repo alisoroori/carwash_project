@@ -30,8 +30,8 @@ try {
         // Toggle favorite
         $action = $_POST['action'] ?? 'toggle';
 
-        // Get current user profile
-        $profile = $db->fetchOne("SELECT id, preferences FROM user_profiles WHERE user_id = ?", [$user_id]);
+        // Get current user preferences stored on users table
+        $profile = $db->fetchOne("SELECT id, preferences FROM users WHERE id = ?", [$user_id]);
 
         $favorites = [];
         if ($profile && !empty($profile['preferences'])) {
@@ -56,15 +56,15 @@ try {
         // Update profile data
         $profile_data = ['favorites' => array_values($favorites)];
 
-        if ($profile) {
-            $db->update('user_profiles', [
-                'preferences' => json_encode($profile_data)
-            ], ['user_id' => $user_id]);
+        // Persist preferences into users table
+        $existing = $db->fetchOne('SELECT id FROM users WHERE id = ?', [$user_id]);
+        if ($existing) {
+            $db->update('users', ['preferences' => json_encode($profile_data)], ['id' => $user_id]);
         } else {
-            $db->insert('user_profiles', [
-                'user_id' => $user_id,
-                'preferences' => json_encode($profile_data)
-            ]);
+            // Unexpected: no users row
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            exit;
         }
 
         echo json_encode([
@@ -75,7 +75,7 @@ try {
 
     } elseif ($method === 'GET') {
         // Get favorite status
-        $profile = $db->fetchOne("SELECT preferences FROM user_profiles WHERE user_id = ?", [$user_id]);
+        $profile = $db->fetchOne("SELECT preferences FROM users WHERE id = ?", [$user_id]);
 
         $favorites = [];
         if ($profile && !empty($profile['preferences'])) {

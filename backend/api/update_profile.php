@@ -35,15 +35,15 @@ try {
 
     $profilePath = null;
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-        $allowedMime = ['image/jpeg','image/png','image/webp','image/gif'];
-        $fileType = mime_content_type($_FILES['profile_image']['tmp_name']);
-        $maxSize = 5 * 1024 * 1024;
-        if (!in_array($fileType, $allowedMime)) {
-            Response::error('Error: Geçersiz dosya türü. Sadece JPG, PNG, WEBP veya GIF yükleyin.', 400);
-        }
-        if ($_FILES['profile_image']['size'] > $maxSize) {
-            Response::error('Error: Dosya çok büyük. Maksimum 5MB.', 400);
-        }
+        $allowedMime = ['image/jpeg','image/png','image/webp'];
+            $fileType = mime_content_type($_FILES['profile_image']['tmp_name']);
+            $maxSize = 3 * 1024 * 1024; // 3MB limit
+            if (!in_array($fileType, $allowedMime)) {
+                Response::error('Error: Geçersiz dosya türü. Sadece JPG, PNG veya WEBP yükleyin.', 400);
+            }
+            if ($_FILES['profile_image']['size'] > $maxSize) {
+                Response::error('Error: Dosya çok büyük. Maksimum 3MB.', 400);
+            }
 
         $uploadDir = PROFILE_UPLOAD_PATH;
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
@@ -58,7 +58,8 @@ try {
             Response::error('Error: Profil resmi yüklenemedi. ' . $detail, 500);
         }
 
-        $profilePath = PROFILE_UPLOAD_URL . '/' . $filename . '?ts=' . time();
+        // Store canonical path in DB (no cache-buster)
+        $profilePath = PROFILE_UPLOAD_URL . '/' . $filename;
 
         // Remove old profile image if set and not default
         $old = $_SESSION['profile_image'] ?? null;
@@ -69,29 +70,47 @@ try {
         }
     }
 
-    // Update session
-    $_SESSION['name'] = $name;
-    if (!empty($email)) $_SESSION['email'] = $email;
-    if (!empty($phone)) $_SESSION['phone'] = $phone;
-    if (!empty($username)) $_SESSION['username'] = $username;
-    if ($profilePath) $_SESSION['profile_image'] = $profilePath;
+    // Validate national id (if provided)
+    $nationalId = trim($_POST['national_id'] ?? '');
+    if ($nationalId !== '' && !preg_match('/^[0-9]{11}$/', $nationalId)) {
+        Response::error('Error: Geçersiz T.C. Kimlik No. 11 rakam olmalıdır.', 400);
+    }
 
-    // Persist to user_profiles table
+    // Update session values (we'll refresh from DB after persisting)
+    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+
+    // Persist all fields into users table (canonical)
     try {
         $update = ['name' => $name];
         if (!empty($email)) $update['email'] = $email;
         if (!empty($phone)) $update['phone'] = $phone;
         if (!empty($username)) $update['username'] = $username;
+        if (!empty($nationalId)) $update['national_id'] = $nationalId;
+        if (!empty($_POST['driver_license'])) $update['driver_license'] = trim($_POST['driver_license']);
+        if (!empty($_POST['home_phone'])) $update['home_phone'] = trim($_POST['home_phone']);
+        if (!empty($_POST['city'])) $update['city'] = trim($_POST['city']);
+        if (!empty($_POST['address'])) $update['address'] = trim($_POST['address']);
         if ($profilePath) $update['profile_image'] = $profilePath;
-        $db->update('user_profiles', $update, ['user_id' => $userId]);
-    } catch (Exception $e) {
-        // Log but continue - we still updated session
-        error_log('Profile update DB warning: ' . $e->getMessage());
-        // Return a partial-success but include DB warning in response
-        Response::success('Profile updated successfully (but DB update warning).', ['name' => $name, 'email' => $email ?? ($_SESSION['email'] ?? null), 'phone' => $phone ?? ($_SESSION['phone'] ?? null), 'username' => $username ?? ($_SESSION['username'] ?? null), 'profile_image' => $profilePath ?? ($_SESSION['profile_image'] ?? null), 'db_warning' => $e->getMessage()]);
-    }
 
-    Response::success('Profile updated successfully', ['name' => $name, 'email' => $email ?? ($_SESSION['email'] ?? null), 'phone' => $phone ?? ($_SESSION['phone'] ?? null), 'username' => $username ?? ($_SESSION['username'] ?? null), 'profile_image' => $profilePath ?? ($_SESSION['profile_image'] ?? null)]);
+        $db->update('users', $update, ['id' => $userId]);
+
+        // Fetch authoritative users row and refresh session
+        $fresh = $db->fetchOne('SELECT * FROM users WHERE id = :id', ['id' => $userId]);
+        if ($fresh) {
+            $_SESSION['user'] = $fresh;
+            $_SESSION['profile_image'] = $fresh['profile_image'] ?? '';
+            $_SESSION['profile_image_ts'] = time();
+            $_SESSION['name'] = $fresh['name'] ?? '';
+            $_SESSION['email'] = $fresh['email'] ?? '';
+            $_SESSION['username'] = $fresh['username'] ?? '';
+        }
+
+        // Return authoritative user in response
+        Response::success('Profile updated successfully', ['user' => $fresh, 'profile_image' => ($_SESSION['profile_image'] ? ($_SESSION['profile_image'] . '?cb=' . $_SESSION['profile_image_ts']) : '')]);
+    } catch (Exception $e) {
+        error_log('Profile update DB error: ' . $e->getMessage());
+        Response::error('Profil güncellenirken bir hata oluştu: ' . $e->getMessage(), 500);
+    }
 
 } catch (Exception $e) {
     error_log('Profile update error: ' . $e->getMessage());

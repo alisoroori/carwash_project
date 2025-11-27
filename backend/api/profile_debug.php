@@ -19,7 +19,7 @@ $issues = [];
 $fixes = [];
 
 // Check DB
-$row = $db->fetchOne('SELECT profile_image FROM user_profiles WHERE user_id = :user_id', ['user_id' => $userId]);
+$row = $db->fetchOne('SELECT profile_image FROM users WHERE id = :user_id', ['user_id' => $userId]);
 $dbImage = $row['profile_image'] ?? null;
 
 // Check session

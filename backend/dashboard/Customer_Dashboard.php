@@ -16,13 +16,10 @@ $user_id = $_SESSION['user_id'];
 $user_name = $_SESSION['name'] ?? $_SESSION['full_name'] ?? 'User';
 $user_email = $_SESSION['email'] ?? '';
 
-// Fetch complete user profile data from database
+// Fetch complete user profile data from database (canonical: users + user_profiles)
 $db = Database::getInstance();
 $userData = $db->fetchOne(
-    "SELECT u.*, up.profile_image as profile_img, up.address, up.city 
-     FROM users u 
-     LEFT JOIN user_profiles up ON u.id = up.user_id 
-     WHERE u.id = :user_id",
+    "SELECT u.*, up.profile_image AS profile_img, up.address AS profile_address, up.city AS profile_city, up.phone AS profile_phone, up.home_phone AS profile_home_phone, up.national_id AS profile_national_id, up.driver_license AS profile_driver_license FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :user_id",
     ['user_id' => $user_id]
 );
 
@@ -41,14 +38,14 @@ cw_log_debug("[Customer_Dashboard] user_id={$user_id} - DB fetch profile_img=" .
     isset($userData['profile_img']) ? $userData['profile_img'] : 'NULL'
 ));
 
-// Extract user data with defaults
-$user_phone = $userData['phone'] ?? '';
-$user_home_phone = $userData['home_phone'] ?? '';
-$user_national_id = $userData['national_id'] ?? '';
-$user_driver_license = $userData['driver_license'] ?? '';
+// Extract user data with defaults (prefer user_profiles columns)
+$user_phone = $userData['profile_phone'] ?? $userData['phone'] ?? '';
+$user_home_phone = $userData['profile_home_phone'] ?? $userData['home_phone'] ?? '';
+$user_national_id = $userData['profile_national_id'] ?? $userData['national_id'] ?? '';
+$user_driver_license = $userData['profile_driver_license'] ?? $userData['driver_license'] ?? '';
 $user_profile_image = $userData['profile_img'] ?? $userData['profile_image'] ?? '';
-$user_address = $userData['address'] ?? '';
-$user_city = $userData['city'] ?? '';
+$user_address = $userData['profile_address'] ?? $userData['address'] ?? '';
+$user_city = $userData['profile_city'] ?? $userData['city'] ?? '';
 
 // Debug: log resolved user profile image from DB and session values
 $sess1 = $_SESSION['user']['profile_image'] ?? 'MISSING';
@@ -113,20 +110,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
     }
         
-        // If no upload error, process other profile fields (basic example)
+        // If no upload error, process other profile fields
         if (empty($uploadError)) {
-            // Update other fields if needed
-            $updateData = [];
-            $fields = ['name', 'username', 'email', 'phone', 'home_phone', 'national_id', 'driver_license', 'city', 'address'];
-            foreach ($fields as $field) {
-                if (isset($_POST[$field])) {
-                    $updateData[$field] = trim($_POST[$field]);
+            // Split fields between `users` (identity) and `user_profiles` (extended)
+            $userFields = ['name', 'username', 'email'];
+            $profileFields = ['phone', 'home_phone', 'national_id', 'driver_license', 'city', 'address'];
+
+            $userUpdate = [];
+            $profileUpdate = [];
+
+            foreach ($userFields as $f) {
+                if (isset($_POST[$f])) {
+                    $userUpdate[$f] = trim($_POST[$f]);
                 }
             }
-            
-            if (!empty($updateData)) {
-                $db->update('users', $updateData, ['id' => $user_id]);
-                $successMessage = 'Profile updated successfully.';
+            foreach ($profileFields as $f) {
+                if (isset($_POST[$f])) {
+                    $profileUpdate[$f] = trim($_POST[$f]);
+                }
+            }
+
+            if (!empty($userUpdate)) {
+                $db->update('users', $userUpdate, ['id' => $user_id]);
+            }
+
+            if (!empty($profileUpdate)) {
+                $existing = $db->fetchOne('SELECT user_id FROM user_profiles WHERE user_id = :user_id', ['user_id' => $user_id]);
+                if ($existing) {
+                    $db->update('user_profiles', $profileUpdate, ['user_id' => $user_id]);
+                } else {
+                    $insert = array_merge(['user_id' => $user_id], $profileUpdate);
+                    $db->insert('user_profiles', $insert);
+                }
+            }
+
+            $successMessage = 'Profile updated successfully.';
+
+            // Re-select authoritative fresh user (users + user_profiles) and update session
+            try {
+                $fresh = $db->fetchOne(
+                    "SELECT u.*, up.profile_image AS profile_img, up.address AS profile_address, up.city AS profile_city, up.phone AS profile_phone, up.home_phone, up.national_id, up.driver_license FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :user_id",
+                    ['user_id' => $user_id]
+                );
+
+                if ($fresh) {
+                    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+                    $_SESSION['user'] = array_merge($_SESSION['user'] ?? [], [
+                        'id' => $fresh['id'] ?? $user_id,
+                        'name' => $fresh['name'] ?? '',
+                        'email' => $fresh['email'] ?? '',
+                        'username' => $fresh['username'] ?? ''
+                    ]);
+
+                    $canonical = $fresh['profile_img'] ?? $fresh['profile_image'] ?? '';
+                    if ($canonical) {
+                        $_SESSION['profile_image'] = $canonical;
+                        $_SESSION['user']['profile_image'] = $canonical;
+                    }
+                    $_SESSION['profile_image_ts'] = time();
+
+                    // Also refresh top-level session shortcuts
+                    $_SESSION['name'] = $_SESSION['user']['name'];
+                    $_SESSION['email'] = $_SESSION['user']['email'];
+                    $_SESSION['username'] = $_SESSION['user']['username'];
+                }
+            } catch (Throwable $e) {
+                cw_log_debug('Failed to refresh session after profile update: ' . $e->getMessage());
             }
         }
         
@@ -153,11 +202,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     'message' => $uploadError
                 ]);
             } else {
+                // Ensure we have an authoritative fresh DB row to return to client
+                if (!isset($fresh) || empty($fresh)) {
+                    try {
+                        $fresh = $db->fetchOne(
+                            "SELECT u.*, up.profile_image AS profile_img, up.address AS profile_address, up.city AS profile_city, up.phone AS profile_phone, up.home_phone, up.national_id, up.driver_license FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :user_id",
+                            ['user_id' => $user_id]
+                        );
+                    } catch (Throwable $_e) { $fresh = null; }
+                }
+
                 $ts = $_SESSION['profile_image_ts'] ?? time();
+                $canonical = $fresh['profile_img'] ?? $fresh['profile_image'] ?? ($_SESSION['user']['profile_image'] ?? '');
+                $profileWithCb = $canonical ? ($canonical . (strpos($canonical, '?') === false ? '?cb=' . $ts : '&cb=' . $ts)) : '';
+
                 echo json_encode([
                     'success' => true,
                     'message' => $successMessage,
-                    'profile_image' => ($_SESSION['user']['profile_image'] ?? '') . '?ts=' . $ts
+                    'profile_image' => $profileWithCb,
+                    'profile_image_ts' => $ts,
+                    'user' => $fresh
                 ]);
             }
             exit;
@@ -176,7 +240,8 @@ if (!empty($successMessage) && !empty($_SESSION['profile_image'])) {
 <script>
 (function(){
     // Batch DOM writes inside rAF to avoid forced reflow/layout thrash
-    var newSrc = '{$newImg}?ts={$ts}';
+    // Use `cb` cache-buster for client-driven updates to align with `refreshProfileImages` behavior
+    var newSrc = '{$newImg}' + (('{$newImg}'.indexOf('?') === -1) ? '?cb={$ts}' : '&cb={$ts}');
 
     function updateAvatars(){
         // Collect elements to update (reads only)
@@ -275,7 +340,7 @@ if (!isset($base_url)) {
             var url = window.CARWASH.profile.canonical || '<?php echo $base_url . "/frontend/images/default-avatar.svg"; ?>';
             var ts = window.CARWASH.profile.ts || '<?php echo intval($_SESSION['profile_image_ts'] ?? time()); ?>';
             var sep = url.indexOf('?') === -1 ? '?' : '&';
-            return url + sep + 'ts=' + ts;
+            return url + sep + 'cb=' + ts;
         };
     </script>
     
@@ -297,22 +362,22 @@ if (!isset($base_url)) {
     <!-- Lightweight Alpine data factory for profile section (defines profileSection) -->
     <script>
         (function(){
-            // Build initial profile data safely via json_encode to avoid attribute quoting issues
-            const profileInit = <?php echo json_encode([
-                'editMode' => false,
-                'profileData' => [
-                    'name' => $user_name,
-                    'email' => $user_email,
-                    'username' => $userData['username'] ?? $_SESSION['username'] ?? '',
-                    'phone' => $user_phone,
-                    'home_phone' => $user_home_phone,
-                    'national_id' => $user_national_id,
-                    'driver_license' => $user_driver_license,
-                    'city' => $user_city,
-                    'address' => $user_address,
-                    'profile_image' => !empty($header_profile_src) && $header_profile_src !== $default_avatar ? $header_profile_src : ($base_url . '/frontend/images/default-avatar.svg')
-                ]
-            ], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?>;
+            // Lightweight initial profile state (client will fetch authoritative DB values on init)
+            const profileInit = {
+                editMode: false,
+                profileData: {
+                    name: '',
+                    email: '',
+                    username: '',
+                    phone: '',
+                    home_phone: '',
+                    national_id: '',
+                    driver_license: '',
+                    city: '',
+                    address: '',
+                    profile_image: ''
+                }
+            };
 
             // Expose factory used by Alpine's x-data="profileSection()"
             function profileSection() {
@@ -407,6 +472,60 @@ if (!isset($base_url)) {
 
                 return state;
             }
+
+            // When the factory is available, fetch authoritative profile from the server
+            // and overwrite the local state deterministically with the returned `user` payload.
+            (function fetchAuthoritativeProfile(){
+                var url = (window.CONFIG && window.CONFIG.BASE_URL) ? (window.CONFIG.BASE_URL + '/backend/api/get_profile.php') : '/carwash_project/backend/api/get_profile.php';
+                try {
+                    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function(res){ if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                        .then(function(json){
+                            if (!json || !json.user) return;
+                            var u = json.user;
+                            var mapped = {
+                                name: u.name || u.full_name || '',
+                                email: u.email || '',
+                                username: u.username || '',
+                                phone: u.phone || u.profile_phone || '',
+                                home_phone: u.home_phone || u.profile_home_phone || '',
+                                national_id: u.national_id || '',
+                                driver_license: u.driver_license || '',
+                                city: u.city || u.profile_city || '',
+                                address: u.address || u.profile_address || '',
+                                profile_image: u.profile_img || u.profile_image || u.profile_image_up || ''
+                            };
+
+                            // Update any mounted Alpine instance
+                            try {
+                                var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                                var updated = false;
+                                if (alpineEl) {
+                                    try {
+                                        if (alpineEl.__x && alpineEl.__x.$data && typeof alpineEl.__x.$data.updateProfile === 'function') {
+                                            alpineEl.__x.$data.updateProfile(mapped);
+                                            updated = true;
+                                        }
+                                    } catch (e) {}
+                                    try {
+                                        if (!updated && alpineEl._x_dataStack && alpineEl._x_dataStack[0] && typeof alpineEl._x_dataStack[0].updateProfile === 'function') {
+                                            alpineEl._x_dataStack[0].updateProfile(mapped);
+                                            updated = true;
+                                        }
+                                    } catch (e) {}
+                                }
+
+                                if (!updated && window.profileSection && typeof window.profileSection === 'function') {
+                                    try { window.profileSection().updateProfile(mapped); } catch (e) {}
+                                }
+                            } catch (e) { /* ignore */ }
+
+                            // Ensure avatars show the authoritative image
+                            try { if (window.refreshProfileImages) window.refreshProfileImages(mapped.profile_image || null); } catch (e) {}
+                        })
+                        .catch(function(err){ console.warn('Failed to fetch authoritative profile:', err); });
+                } catch (err) { console.warn('Profile fetch init failed', err); }
+            })();
 
             // Make factory globally available (Alpine will call it by name)
             window.profileSection = profileSection;
@@ -1972,16 +2091,17 @@ if (!isset($base_url)) {
                     <!-- Profile Header -->
                     <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
                         <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
-                            <img 
-                                :src="profileData.profile_image" 
-                                alt="Profile" 
+                            <img
+                                src="<?php echo htmlspecialchars(!empty($user_profile_image) ? $user_profile_image : '/carwash_project/frontend/images/default-avatar.svg'); ?>"
+                                :src="profileData.profile_image"
+                                alt="Profile"
                                 class="w-full h-full object-cover"
                                 onerror="this.src='/carwash_project/frontend/images/default-avatar.svg'"
                             >
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-gray-900" x-text="profileData.name"></h3>
-                            <p class="text-gray-600 mt-1" x-text="profileData.email"></p>
+                            <h3 class="text-2xl font-bold text-gray-900" x-text="profileData.name"><?php echo htmlspecialchars($userData['name'] ?? $user_name); ?></h3>
+                            <p class="text-gray-600 mt-1" x-text="profileData.email"><?php echo htmlspecialchars($userData['email'] ?? $user_email); ?></p>
                         </div>
                     </div>
                     
@@ -1989,31 +2109,31 @@ if (!isset($base_url)) {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-gray-500">Kullanıcı Adı</label>
-                            <p class="text-base text-gray-900" x-text="profileData.username || '-'"></p>
+                            <p class="text-base text-gray-900" x-text="profileData.username || '-'"><?php echo htmlspecialchars($userData['username'] ?? $_SESSION['username'] ?? '-'); ?></p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-gray-500">Telefon</label>
-                            <p class="text-base text-gray-900" x-text="profileData.phone || '-'"></p>
+                            <p class="text-base text-gray-900" x-text="profileData.phone || '-'"><?php echo htmlspecialchars($user_phone ?: '-'); ?></p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-gray-500">Ev Telefonu</label>
-                            <p class="text-base text-gray-900" x-text="profileData.home_phone || '-'"></p>
+                            <p class="text-base text-gray-900" x-text="profileData.home_phone || '-'"><?php echo htmlspecialchars($user_home_phone ?: '-'); ?></p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-gray-500">T.C. Kimlik No</label>
-                            <p class="text-base text-gray-900" x-text="profileData.national_id || '-'"></p>
+                            <p class="text-base text-gray-900" x-text="profileData.national_id || '-'"><?php echo htmlspecialchars($user_national_id ?: '-'); ?></p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-gray-500">Sürücü Belgesi No</label>
-                            <p class="text-base text-gray-900" x-text="profileData.driver_license || '-'"></p>
+                            <p class="text-base text-gray-900" x-text="profileData.driver_license || '-'"><?php echo htmlspecialchars($user_driver_license ?: '-'); ?></p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-gray-500">Şehir</label>
-                            <p class="text-base text-gray-900" x-text="profileData.city || '-'"></p>
+                            <p class="text-base text-gray-900" x-text="profileData.city || '-'"><?php echo htmlspecialchars($user_city ?: '-'); ?></p>
                         </div>
                         <div class="space-y-2 md:col-span-2">
                             <label class="text-sm font-semibold text-gray-500">Adres</label>
-                            <p class="text-base text-gray-900" x-text="profileData.address || '-'"></p>
+                            <p class="text-base text-gray-900" x-text="profileData.address || '-'"><?php echo htmlspecialchars($user_address ?: '-'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -2075,7 +2195,7 @@ if (!isset($base_url)) {
                                 <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
                                     <img
                                         id="profileImagePreview"
-                                        src="<?php echo !empty($header_profile_src) && $header_profile_src !== $default_avatar ? htmlspecialchars($header_profile_src) : '/carwash_project/frontend/images/default-avatar.svg'; ?>"
+                                        x-bind:src="profileData.profile_image ? (profileData.profile_image) : (window.getCanonicalProfileImage ? window.getCanonicalProfileImage() : '/carwash_project/frontend/images/default-avatar.svg')"
                                         alt="Profile"
                                         class="w-full h-full object-cover"
                                         onerror="this.src='/carwash_project/frontend/images/default-avatar.svg'"
@@ -4171,32 +4291,88 @@ window.refreshProfileImages = function(newUrl) {
             })
             .then(result => {
                 if (result.success) {
-                    // Success: Show in global toast and update images
+                    // Success: Show in global toast
                     if (window.showSuccess) {
                         window.showSuccess(result.message || 'Profile updated successfully');
                     }
-                    
-                    // Update profile images: prefer returned URL, otherwise use canonical fallback
-                    if (result.profile_image) {
-                        // Keep the canonical value in sync for future fallback calls
-                        try {
-                            window.CARWASH = window.CARWASH || {};
-                            window.CARWASH.profile = window.CARWASH.profile || {};
-                            window.CARWASH.profile.canonical = result.profile_image;
-                            window.CARWASH.profile.ts = Date.now();
-                        } catch (e) { /* ignore */ }
+
+                    // Determine authoritative user payload from response
+                    var payloadUser = result.user || (result.data && result.data.user) || null;
+
+                    // Map server fields into client-friendly keys
+                    var mapped = {};
+                    if (payloadUser) {
+                        mapped.name = payloadUser.name || payloadUser.full_name || payloadUser.display_name || '';
+                        mapped.email = payloadUser.email || '';
+                        mapped.username = payloadUser.username || '';
+                        mapped.phone = payloadUser.phone || payloadUser.mobile || '';
+                        mapped.home_phone = payloadUser.home_phone || payloadUser.homePhone || '';
+                        mapped.national_id = payloadUser.national_id || payloadUser.nationalId || '';
+                        mapped.driver_license = payloadUser.driver_license || payloadUser.driverLicense || '';
+                        mapped.city = payloadUser.city || payloadUser.profile_city || payloadUser.profileCity || '';
+                        mapped.address = payloadUser.address || payloadUser.profile_address || payloadUser.profileAddress || '';
+                        // profile image can be stored under several keys on the server
+                        mapped.profile_image = payloadUser.profile_image_up || payloadUser.profile_img || payloadUser.profile_image || (result.data && result.data.image) || result.profile_image || '';
+                    } else {
+                        // Fallback to any direct image value returned
+                        mapped.profile_image = result.profile_image || (result.data && result.data.image) || '';
                     }
-                    if (window.refreshProfileImages) {
-                        if (result.profile_image) {
-                            window.refreshProfileImages(result.profile_image);
-                        } else {
-                            // No explicit URL returned; refresh using canonical header value
-                            window.refreshProfileImages();
-                        }
-                    }
-                    // Emit an event so profileSection and other listeners can react (close modal, refresh UI)
+
+                    // Keep the canonical value in sync for future fallback calls
                     try {
-                        document.dispatchEvent(new CustomEvent('profile:update:success', { detail: { profile_image: result.profile_image || null } }));
+                        window.CARWASH = window.CARWASH || {};
+                        window.CARWASH.profile = window.CARWASH.profile || {};
+                        if (mapped.profile_image) {
+                            window.CARWASH.profile.canonical = mapped.profile_image;
+                            window.CARWASH.profile.ts = Date.now();
+                        }
+                    } catch (e) { /* ignore */ }
+
+                    // Update profile images using refresh helper (adds cache-buster)
+                    if (window.refreshProfileImages) {
+                        window.refreshProfileImages(mapped.profile_image || null);
+                    }
+
+                    // Update Alpine profileSection state deterministically using returned user payload
+                    try {
+                        var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                        var updated = false;
+                        if (alpineEl) {
+                            // Alpine v3 exposes __x and $data
+                            try {
+                                if (alpineEl.__x && alpineEl.__x.$data) {
+                                    if (typeof alpineEl.__x.$data.updateProfile === 'function') {
+                                        alpineEl.__x.$data.updateProfile(mapped);
+                                        alpineEl.__x.$data.editMode = false;
+                                        updated = true;
+                                    }
+                                }
+                            } catch (err) { /* continue */ }
+
+                            // Alpine v2 or other builds may attach _x_dataStack
+                            try {
+                                if (!updated && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
+                                    var d = alpineEl._x_dataStack[0];
+                                    if (typeof d.updateProfile === 'function') {
+                                        d.updateProfile(mapped);
+                                        d.editMode = false;
+                                        updated = true;
+                                    }
+                                }
+                            } catch (err) { /* ignore */ }
+                        }
+
+                        // If no Alpine instance found, update global factory state if available
+                        if (!updated && window.profileSection && typeof window.profileSection === 'function') {
+                            try { window.profileSection().updateProfile(mapped); window.profileSection().editMode = false; } catch (err) { /* ignore */ }
+                        }
+                    } catch (e) {
+                        console.warn('Could not update Alpine profileData from AJAX response', e);
+                    }
+
+                    // Emit an event so other listeners can react (close modal, refresh UI)
+                    try {
+                        document.dispatchEvent(new CustomEvent('profile:update:success', { detail: mapped }));
                     } catch (e) { /* ignore */ }
 
                     // Also restore the profile tab explicitly (keeps the user on Profile view)
@@ -4326,3 +4502,30 @@ window.refreshProfileImages = function(newUrl) {
 echo '<!-- Footer include reached -->';
 include __DIR__ . '/../includes/footer.php';
 ?>
+
+<script>
+// Temporary: suppress noisy extension messaging error that originates from
+// browser extensions returning `true` for async responses but never calling
+// sendResponse. This is an external extension bug; the correct fix is to
+// disable or update the offending extension. This handler only suppresses
+// the exact known message so other unhandled rejections still surface.
+window.addEventListener('unhandledrejection', function (ev) {
+    try {
+        var reason = ev && ev.reason;
+        var msg = '';
+        if (!reason) return;
+        if (typeof reason === 'string') msg = reason;
+        else if (reason && reason.message) msg = reason.message;
+        else msg = String(reason);
+
+        if (msg && msg.indexOf('A listener indicated an asynchronous response by returning true') !== -1) {
+            // Prevent the default unhandledrejection logging for this specific message
+            try { ev.preventDefault && ev.preventDefault(); } catch (e) {}
+            // Optionally log at info level so developer knows it was suppressed
+            if (console && console.info) console.info('Suppressed extension messaging error:', msg);
+        }
+    } catch (e) {
+        // never throw from this handler
+    }
+});
+</script>

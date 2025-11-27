@@ -63,13 +63,22 @@ function handleProfileUploadFromPath(int $userId, string $sourceFilePath) {
     $imagePath = '/carwash_project/backend/auth/uploads/profiles/' . $finalName;
 
     try {
-        $existing = $db->fetchOne('SELECT user_id FROM user_profiles WHERE user_id = :user_id', ['user_id' => $userId]);
-        if (!empty($existing)) {
+        // Persist profile_image to canonical `user_profiles` table
+        $existingUser = $db->fetchOne('SELECT id FROM users WHERE id = :id', ['id' => $userId]);
+        if (empty($existingUser)) {
+            $result['error'] = 'User not found';
+            return $result;
+        }
+
+        // Upsert into user_profiles
+        $existingProfile = $db->fetchOne('SELECT user_id FROM user_profiles WHERE user_id = :user_id', ['user_id' => $userId]);
+        if ($existingProfile) {
             $db->update('user_profiles', ['profile_image' => $imagePath], ['user_id' => $userId]);
         } else {
             $db->insert('user_profiles', ['user_id' => $userId, 'profile_image' => $imagePath]);
         }
 
+        // Verify written to user_profiles table
         $verify = $db->fetchOne('SELECT profile_image FROM user_profiles WHERE user_id = :user_id', ['user_id' => $userId]);
         if (empty($verify) || empty($verify['profile_image'])) {
             $result['error'] = 'Database did not persist profile_image';
@@ -84,7 +93,8 @@ function handleProfileUploadFromPath(int $userId, string $sourceFilePath) {
 
         $result['success'] = true;
         $result['message'] = 'Profile image uploaded and DB updated';
-        $result['profile_image'] = $verify['profile_image'] . '?ts=' . intval($_SESSION['profile_image_ts']);
+        // Return a cache-busted URL using `cb` to match client behavior
+        $result['profile_image'] = $verify['profile_image'] . (strpos($verify['profile_image'], '?') === false ? '?cb=' . intval($_SESSION['profile_image_ts']) : '&cb=' . intval($_SESSION['profile_image_ts']));
         return $result;
     } catch (Exception $e) {
         $result['error'] = 'DB error: ' . $e->getMessage();

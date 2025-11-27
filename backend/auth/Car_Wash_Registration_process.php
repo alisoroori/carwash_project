@@ -227,10 +227,16 @@ try {
         $stmt->execute([$username, $business_name, $email, $hashed_password, $phone]);
         $user_id = $conn->lastInsertId();
         
-        // Insert user profile record
-        $profile_sql = "INSERT INTO user_profiles (user_id, name, email, phone, profile_image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
-        $stmt = $conn->prepare($profile_sql);
-        $stmt->execute([$user_id, $business_name, $email, $phone, $profile_image]);
+        // Persist profile image and contact data into canonical `users` table
+        if (!empty($profile_image)) {
+            $upd = $conn->prepare("UPDATE users SET profile_image = ? WHERE id = ?");
+            $upd->execute([$profile_image, $user_id]);
+        }
+        // Also ensure phone stored on users row
+        if (!empty($phone)) {
+            $upd2 = $conn->prepare("UPDATE users SET phone = ? WHERE id = ?");
+            $upd2->execute([$phone, $user_id]);
+        }
         
         // Insert or MERGE carwash business record into canonical `carwashes` table
         // If an authoritative carwash already exists (by user_id or name), merge form fields
