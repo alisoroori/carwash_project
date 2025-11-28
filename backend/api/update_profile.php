@@ -79,34 +79,91 @@ try {
     // Update session values (we'll refresh from DB after persisting)
     if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
-    // Persist all fields into users table (canonical)
+    // Persist fields into users and user_profiles tables
     try {
-        $update = ['name' => $name];
-        if (!empty($email)) $update['email'] = $email;
-        if (!empty($phone)) $update['phone'] = $phone;
-        if (!empty($username)) $update['username'] = $username;
-        if (!empty($nationalId)) $update['national_id'] = $nationalId;
-        if (!empty($_POST['driver_license'])) $update['driver_license'] = trim($_POST['driver_license']);
-        if (!empty($_POST['home_phone'])) $update['home_phone'] = trim($_POST['home_phone']);
-        if (!empty($_POST['city'])) $update['city'] = trim($_POST['city']);
-        if (!empty($_POST['address'])) $update['address'] = trim($_POST['address']);
-        if ($profilePath) $update['profile_image'] = $profilePath;
+        // Fields for users table
+        $userUpdate = [];
+        if (!empty($name)) $userUpdate['full_name'] = $name;
+        if (!empty($email)) $userUpdate['email'] = $email;
+        if (!empty($phone)) $userUpdate['phone'] = $phone;
+        if (!empty($_POST['address'])) $userUpdate['address'] = trim($_POST['address']);
+        if ($profilePath) $userUpdate['profile_image'] = $profilePath;
 
-        $db->update('users', $update, ['id' => $userId]);
+        if (!empty($userUpdate)) {
+            $db->update('users', $userUpdate, ['id' => $userId]);
+        }
 
-        // Fetch authoritative users row and refresh session
-        $fresh = $db->fetchOne('SELECT * FROM users WHERE id = :id', ['id' => $userId]);
+        // Fields for user_profiles table
+        $profileUpdate = [];
+        if (!empty($_POST['city'])) $profileUpdate['city'] = trim($_POST['city']);
+        if (!empty($_POST['state'])) $profileUpdate['state'] = trim($_POST['state']);
+        if (!empty($_POST['postal_code'])) $profileUpdate['postal_code'] = trim($_POST['postal_code']);
+        if (!empty($_POST['country'])) $profileUpdate['country'] = trim($_POST['country']);
+        if (!empty($_POST['birth_date'])) $profileUpdate['birth_date'] = trim($_POST['birth_date']);
+        if (!empty($_POST['gender'])) $profileUpdate['gender'] = trim($_POST['gender']);
+        if (!empty($_POST['notification_settings'])) $profileUpdate['notification_settings'] = json_encode($_POST['notification_settings']);
+        if (!empty($_POST['preferences'])) $profileUpdate['preferences'] = json_encode($_POST['preferences']);
+        if (!empty($phone)) $profileUpdate['phone'] = $phone;
+        if (!empty($_POST['home_phone'])) $profileUpdate['home_phone'] = trim($_POST['home_phone']);
+        if (!empty($nationalId)) $profileUpdate['national_id'] = $nationalId;
+        if (!empty($_POST['driver_license'])) $profileUpdate['driver_license'] = trim($_POST['driver_license']);
+        if ($profilePath) $profileUpdate['profile_image'] = $profilePath;
+
+        // Check if user_profiles row exists
+        $existingProfile = $db->fetchOne('SELECT id FROM user_profiles WHERE user_id = :user_id', ['user_id' => $userId]);
+        if ($existingProfile) {
+            if (!empty($profileUpdate)) {
+                $db->update('user_profiles', $profileUpdate, ['user_id' => $userId]);
+            }
+        } else {
+            // Insert new row
+            $profileUpdate['user_id'] = $userId;
+            $db->insert('user_profiles', $profileUpdate);
+        }
+
+        // Fetch authoritative merged data and refresh session
+        $fresh = $db->fetchOne("
+            SELECT 
+                u.id, u.full_name, u.email, u.phone, u.profile_image, u.address,
+                up.city, up.state, up.postal_code, up.country, up.birth_date, up.gender, 
+                up.notification_settings, up.preferences, up.profile_image AS profile_img_extended,
+                up.phone AS phone_extended, up.home_phone, up.national_id, up.driver_license
+            FROM users u 
+            LEFT JOIN user_profiles up ON u.id = up.user_id 
+            WHERE u.id = :id
+        ", ['id' => $userId]);
+
         if ($fresh) {
             $_SESSION['user'] = $fresh;
-            $_SESSION['profile_image'] = $fresh['profile_image'] ?? '';
+            $_SESSION['profile_image'] = $fresh['profile_img_extended'] ?? $fresh['profile_image'] ?? '';
             $_SESSION['profile_image_ts'] = time();
-            $_SESSION['name'] = $fresh['name'] ?? '';
+            $_SESSION['name'] = $fresh['full_name'] ?? '';
             $_SESSION['email'] = $fresh['email'] ?? '';
             $_SESSION['username'] = $fresh['username'] ?? '';
         }
 
-        // Return authoritative user in response
-        Response::success('Profile updated successfully', ['user' => $fresh, 'profile_image' => ($_SESSION['profile_image'] ? ($_SESSION['profile_image'] . '?cb=' . $_SESSION['profile_image_ts']) : '')]);
+        // Return merged profile in response
+        $profile = [
+            'id' => $fresh['id'],
+            'full_name' => $fresh['full_name'],
+            'email' => $fresh['email'],
+            'phone' => $fresh['phone_extended'] ?? $fresh['phone'],
+            'home_phone' => $fresh['home_phone'],
+            'national_id' => $fresh['national_id'],
+            'driver_license' => $fresh['driver_license'],
+            'profile_image' => $fresh['profile_img_extended'] ?? $fresh['profile_image'],
+            'address' => $fresh['address'],
+            'city' => $fresh['city'],
+            'state' => $fresh['state'],
+            'postal_code' => $fresh['postal_code'],
+            'country' => $fresh['country'],
+            'birth_date' => $fresh['birth_date'],
+            'gender' => $fresh['gender'],
+            'notification_settings' => $fresh['notification_settings'] ? json_decode($fresh['notification_settings'], true) : null,
+            'preferences' => $fresh['preferences'] ? json_decode($fresh['preferences'], true) : null,
+        ];
+
+        Response::success('Profile updated successfully', ['user' => $profile, 'profile_image' => ($_SESSION['profile_image'] ? ($_SESSION['profile_image'] . '?cb=' . $_SESSION['profile_image_ts']) : '')]);
     } catch (Exception $e) {
         error_log('Profile update DB error: ' . $e->getMessage());
         Response::error('Profil güncellenirken bir hata oluştu: ' . $e->getMessage(), 500);

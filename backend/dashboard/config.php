@@ -45,7 +45,7 @@ define('JS_PATH', FRONTEND_PATH . '/js');
 
 // Upload paths
 define('UPLOAD_PATH', ROOT_PATH . '/uploads');
-define('PROFILE_UPLOAD_PATH', AUTH_PATH . '/uploads/profiles');
+define('PROFILE_UPLOAD_PATH', ROOT_PATH . '/uploads/profiles');
 define('SERVICE_UPLOAD_PATH', UPLOAD_PATH . '/services');
 
 // Vendor path
@@ -71,7 +71,7 @@ define('JS_URL', FRONTEND_URL . '/js');
 
 // Upload URLs
 define('UPLOAD_URL', BASE_URL . '/uploads');
-define('PROFILE_UPLOAD_URL', AUTH_URL . '/uploads/profiles');
+define('PROFILE_UPLOAD_URL', '/carwash_project/uploads/profiles');
 define('SERVICE_UPLOAD_URL', UPLOAD_URL . '/services');
 
 // =============================================================================

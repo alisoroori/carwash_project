@@ -19,7 +19,14 @@ $user_email = $_SESSION['email'] ?? '';
 // Fetch complete user profile data from database (canonical: users + user_profiles)
 $db = Database::getInstance();
 $userData = $db->fetchOne(
-    "SELECT u.*, up.profile_image AS profile_img, up.address AS profile_address, up.city AS profile_city, up.phone AS profile_phone, up.home_phone AS profile_home_phone, up.national_id AS profile_national_id, up.driver_license AS profile_driver_license FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :user_id",
+    "SELECT 
+        u.id, u.full_name, u.email, u.phone, u.profile_image, u.address,
+        up.city, up.state, up.postal_code, up.country, up.birth_date, up.gender, 
+        up.notification_settings, up.preferences, up.profile_image AS profile_img_extended,
+        up.phone AS phone_extended, up.home_phone, up.national_id, up.driver_license
+    FROM users u 
+    LEFT JOIN user_profiles up ON u.id = up.user_id 
+    WHERE u.id = :user_id",
     ['user_id' => $user_id]
 );
 
@@ -39,13 +46,20 @@ cw_log_debug("[Customer_Dashboard] user_id={$user_id} - DB fetch profile_img=" .
 ));
 
 // Extract user data with defaults (prefer user_profiles columns)
-$user_phone = $userData['profile_phone'] ?? $userData['phone'] ?? '';
-$user_home_phone = $userData['profile_home_phone'] ?? $userData['home_phone'] ?? '';
-$user_national_id = $userData['profile_national_id'] ?? $userData['national_id'] ?? '';
-$user_driver_license = $userData['profile_driver_license'] ?? $userData['driver_license'] ?? '';
-$user_profile_image = $userData['profile_img'] ?? $userData['profile_image'] ?? '';
-$user_address = $userData['profile_address'] ?? $userData['address'] ?? '';
-$user_city = $userData['profile_city'] ?? $userData['city'] ?? '';
+$user_phone = $userData['phone_extended'] ?? $userData['phone'] ?? '';
+$user_home_phone = $userData['home_phone'] ?? '';
+$user_national_id = $userData['national_id'] ?? '';
+$user_driver_license = $userData['driver_license'] ?? '';
+$user_profile_image = $userData['profile_img_extended'] ?? $userData['profile_image'] ?? '';
+$user_address = $userData['address'] ?? '';
+$user_city = $userData['city'] ?? '';
+$user_state = $userData['state'] ?? '';
+$user_postal_code = $userData['postal_code'] ?? '';
+$user_country = $userData['country'] ?? '';
+$user_birth_date = $userData['birth_date'] ?? '';
+$user_gender = $userData['gender'] ?? '';
+$user_notification_settings = $userData['notification_settings'] ? json_decode($userData['notification_settings'], true) : null;
+$user_preferences = $userData['preferences'] ? json_decode($userData['preferences'], true) : null;
 
 // Debug: log resolved user profile image from DB and session values
 $sess1 = $_SESSION['user']['profile_image'] ?? 'MISSING';
@@ -148,21 +162,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
             // Re-select authoritative fresh user (users + user_profiles) and update session
             try {
-                $fresh = $db->fetchOne(
-                    "SELECT u.*, up.profile_image AS profile_img, up.address AS profile_address, up.city AS profile_city, up.phone AS profile_phone, up.home_phone, up.national_id, up.driver_license FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE u.id = :user_id",
-                    ['user_id' => $user_id]
-                );
+                $fresh = $db->fetchOne("
+                    SELECT 
+                        u.id, u.full_name, u.email, u.phone, u.profile_image, u.address,
+                        up.city, up.state, up.postal_code, up.country, up.birth_date, up.gender, 
+                        up.notification_settings, up.preferences, up.profile_image AS profile_img_extended,
+                        up.phone AS phone_extended, up.home_phone, up.national_id, up.driver_license
+                    FROM users u 
+                    LEFT JOIN user_profiles up ON u.id = up.user_id 
+                    WHERE u.id = :user_id
+                ", ['user_id' => $user_id]);
 
                 if ($fresh) {
                     if (session_status() !== PHP_SESSION_ACTIVE) session_start();
                     $_SESSION['user'] = array_merge($_SESSION['user'] ?? [], [
                         'id' => $fresh['id'] ?? $user_id,
-                        'name' => $fresh['name'] ?? '',
+                        'full_name' => $fresh['full_name'] ?? '',
                         'email' => $fresh['email'] ?? '',
                         'username' => $fresh['username'] ?? ''
                     ]);
 
-                    $canonical = $fresh['profile_img'] ?? $fresh['profile_image'] ?? '';
+                    $canonical = $fresh['profile_img_extended'] ?? $fresh['profile_image'] ?? '';
                     if ($canonical) {
                         $_SESSION['profile_image'] = $canonical;
                         $_SESSION['user']['profile_image'] = $canonical;
@@ -170,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $_SESSION['profile_image_ts'] = time();
 
                     // Also refresh top-level session shortcuts
-                    $_SESSION['name'] = $_SESSION['user']['name'];
+                    $_SESSION['name'] = $_SESSION['user']['full_name'];
                     $_SESSION['email'] = $_SESSION['user']['email'];
                     $_SESSION['username'] = $_SESSION['user']['username'];
                 }
