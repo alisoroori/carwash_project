@@ -547,8 +547,68 @@ if (!isset($base_url)) {
                 } catch (err) { console.warn('Profile fetch init failed', err); }
             })();
 
-            // Make factory globally available (Alpine will call it by name)
+            // History Section Factory
+            function historySection() {
+                const state = {
+                    bookings: [],
+                    loading: false,
+                    error: null,
+                    async loadHistory() {
+                        this.loading = true;
+                        this.error = null;
+                        try {
+                            const response = await fetch('/carwash_project/backend/api/get_reservations.php', {
+                                method: 'GET',
+                                credentials: 'same-origin',
+                                headers: { 
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest' 
+                                }
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                            }
+                            
+                            const data = await response.json();
+                            if (data.success) {
+                                this.bookings = data.bookings || [];
+                                console.log('✅ Loaded', this.bookings.length, 'past bookings');
+                            } else {
+                                this.error = data.message || 'Failed to load booking history';
+                                console.error('API error:', data);
+                            }
+                        } catch (err) {
+                            this.error = 'Failed to load booking history: ' + err.message;
+                            console.error('History load error:', err);
+                        } finally {
+                            this.loading = false;
+                        }
+                    },
+                    formatDate(dateString) {
+                        if (!dateString) return 'N/A';
+                        const date = new Date(dateString);
+                        return date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
+                    },
+                    formatTime(timeString) {
+                        if (!timeString) return 'N/A';
+                        return timeString.substring(0, 5); // HH:MM
+                    },
+                    formatPrice(price) {
+                        if (!price) return '0.00';
+                        return parseFloat(price).toFixed(2);
+                    }
+                };
+                
+                // Load history on initialization
+                state.loadHistory();
+                
+                return state;
+            }
+
+            // Make factories globally available (Alpine will call them by name)
             window.profileSection = profileSection;
+            window.historySection = historySection;
         })();
     </script>
     <!-- Alpine.js -->
@@ -1857,6 +1917,10 @@ if (!isset($base_url)) {
                                         <i class="fas fa-palette"></i>
                                         <span x-text="vehicle.color"></span>
                                     </span>
+                                    <span x-show="vehicle.vehicle_type" class="flex items-center gap-1">
+                                        <i class="fas fa-car"></i>
+                                        <span x-text="vehicle.vehicle_type"></span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -1944,7 +2008,7 @@ if (!isset($base_url)) {
                                 <input 
                                     type="text"
                                     id="vehicle_brand"
-                                    name="car_brand"
+                                    name="brand"
                                     x-model="formData.brand"
                                     required
                                     autocomplete="off"
@@ -1962,7 +2026,7 @@ if (!isset($base_url)) {
                                 <input 
                                     type="text"
                                     id="vehicle_model"
-                                    name="car_model"
+                                    name="model"
                                     x-model="formData.model"
                                     required
                                     autocomplete="off"
@@ -1996,7 +2060,7 @@ if (!isset($base_url)) {
                                 <input 
                                     type="number"
                                     id="vehicle_year"
-                                    name="car_year"
+                                    name="year"
                                     x-model="formData.year"
                                     min="1900"
                                     :max="new Date().getFullYear()"
@@ -2012,7 +2076,7 @@ if (!isset($base_url)) {
                                 <input 
                                     type="text"
                                     id="vehicle_color"
-                                    name="car_color"
+                                    name="color"
                                     x-model="formData.color"
                                     autocomplete="off"
                                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
@@ -2020,7 +2084,31 @@ if (!isset($base_url)) {
                                 >
                             </div>
                             
-                            <!-- Vehicle Image -->
+                            <!-- Vehicle Type -->
+                            <div class="mb-4">
+                                <label for="vehicle_type" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Araç Tipi <span class="text-red-500">*</span>
+                                </label>
+                                <select 
+                                    id="vehicle_type"
+                                    name="vehicle_type"
+                                    x-model="formData.vehicle_type"
+                                    required
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                                    :class="{'border-red-500': formData.vehicle_type === ''}"
+                                >
+                                    <option value="">Seçiniz</option>
+                                    <option value="sedan">Sedan</option>
+                                    <option value="hatchback">Hatchback</option>
+                                    <option value="suv">SUV</option>
+                                    <option value="pickup">Pickup</option>
+                                    <option value="van">Van</option>
+                                    <option value="coupe">Coupe</option>
+                                    <option value="convertible">Convertible</option>
+                                    <option value="wagon">Wagon</option>
+                                    <option value="other">Diğer</option>
+                                </select>
+                            </div>
                             <div class="mb-4">
                                 <label for="vehicle_image" class="block text-sm font-semibold text-gray-700 mb-2">Araç Fotoğrafı</label>
                                 <input 
@@ -2044,7 +2132,18 @@ if (!isset($base_url)) {
                             >
                         </div>
                         
-                        <!-- Form Actions -->
+                        <!-- Notes -->
+                        <div class="mb-4">
+                            <label for="vehicle_notes" class="block text-sm font-semibold text-gray-700 mb-2">Notlar</label>
+                            <textarea 
+                                id="vehicle_notes"
+                                name="notes"
+                                x-model="formData.notes"
+                                rows="3"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors resize-vertical"
+                                placeholder="Araç hakkında ek bilgiler..."
+                            ></textarea>
+                        </div>
                         <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
                             <button 
                                 type="button"
@@ -3673,6 +3772,112 @@ if (!isset($base_url)) {
                         </form>
                     </div>
                 </div>
+
+                <!-- ========== HISTORY SECTION ========== -->
+                <section x-show="currentSection === 'history'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-6 pt-6 lg:pt-8" style="display: none;" x-data="historySection()">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Geçmiş Rezervasyonlar</h2>
+                        <p class="text-gray-600">Tamamlanan rezervasyonlarınızın geçmişini görüntüleyin</p>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div x-show="error" x-transition class="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
+                            <p class="text-red-700" x-text="error"></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                        <div class="p-6 border-b">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-xl font-bold">Tamamlanan Rezervasyonlar</h3>
+                                <div class="flex gap-2">
+                                    <button @click="loadHistory()" :disabled="loading" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50">
+                                        <i class="fas" :class="loading ? 'fa-spinner fa-spin' : 'fa-sync-alt'" x-bind:class="{'fa-spin': loading}"></i>
+                                        <span class="ml-2" x-text="loading ? 'Yükleniyor...' : 'Yenile'"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hizmet</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Oto Yıkama</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Araç</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Saat</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fiyat</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ödeme</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" x-show="bookings.length > 0 && !loading" x-transition>
+                                    <template x-for="booking in bookings" :key="booking.booking_id">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="'#' + booking.booking_id"></td>
+                                            <td class="px-6 py-4 text-sm text-gray-700">
+                                                <div>
+                                                    <div class="font-medium" x-text="booking.service_name"></div>
+                                                    <div class="text-xs text-gray-500" x-show="booking.service_category" x-text="booking.service_category"></div>
+                                                    <div class="text-xs text-gray-500" x-show="booking.service_duration" x-text="booking.service_duration"></div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-gray-700">
+                                                <div>
+                                                    <div class="font-medium" x-text="booking.carwash_name"></div>
+                                                    <div class="text-xs text-gray-500" x-show="booking.carwash_city" x-text="booking.carwash_city"></div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-gray-700">
+                                                <div>
+                                                    <div class="font-medium" x-show="booking.vehicle_info" x-text="booking.vehicle_info"></div>
+                                                    <div class="text-xs text-gray-500" x-show="booking.vehicle_plate" x-text="booking.vehicle_plate"></div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="formatDate(booking.booking_date)"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="formatTime(booking.booking_time)"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="'₺' + formatPrice(booking.total_price)"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
+                                                      :class="{
+                                                          'bg-green-100 text-green-800': booking.payment_status === 'paid',
+                                                          'bg-yellow-100 text-yellow-800': booking.payment_status === 'pending',
+                                                          'bg-gray-100 text-gray-800': booking.payment_status === 'refunded'
+                                                      }"
+                                                      x-text="booking.payment_status === 'paid' ? 'Ödendi' : booking.payment_status === 'pending' ? 'Bekliyor' : 'İade Edildi'">
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                                <tbody x-show="bookings.length === 0 && !loading && !error" x-transition>
+                                    <tr>
+                                        <td colspan="8" class="px-6 py-8 text-center text-sm text-gray-500">
+                                            <div class="flex flex-col items-center">
+                                                <i class="fas fa-history text-4xl text-gray-300 mb-4"></i>
+                                                <p>Henüz tamamlanan rezervasyon bulunmuyor.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody x-show="loading" x-transition>
+                                    <tr>
+                                        <td colspan="8" class="px-6 py-8 text-center text-sm text-gray-500">
+                                            <div class="flex flex-col items-center">
+                                                <i class="fas fa-spinner fa-spin text-2xl text-blue-500 mb-4"></i>
+                                                <p>Yükleniyor...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Other sections (carWashSelection, history) would follow the same pattern -->
 

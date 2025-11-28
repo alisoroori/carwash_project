@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarWash Test Suite - Quick Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #667eea;
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        .stat {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+        .links-grid {
+            display: grid;
+            gap: 15px;
+        }
+        .link-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+        .link-card:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .link-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        .link-content {
+            flex: 1;
+        }
+        .link-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .link-desc {
+            font-size: 13px;
+            color: #666;
+        }
+        .link-arrow {
+            font-size: 20px;
+            color: #667eea;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .info-box strong {
+            color: #1976d2;
+        }
+        .success-badge {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🚗 CarWash Test Suite <span class="success-badge">✓ READY</span></h1>
+            <p class="subtitle">Complete test dataset generated for Customer Dashboard</p>
+
+            <div class="info-box">
+                <strong>Test User:</strong> hasan (ID: 14) | 
+                <strong>Generated:</strong> November 28, 2025 | 
+                <strong>Total Bookings:</strong> 9 new + existing
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Active</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Cancelled</div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 20px; color: #333;">Quick Access Links</h3>
+
+            <div class="links-grid">
+                <a href="/carwash_project/backend/dashboard/Customer_Dashboard.php" class="link-card">
+                    <span class="link-icon">👤</span>
+                    <div class="link-content">
+                        <div class="link-title">Customer Dashboard</div>
+                        <div class="link-desc">Login and view all bookings (hasan/ID:14)</div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+                <a href="/carwash_project/test_bookings_dashboard.html" class="link-card">
+                    <span class="link-icon">📊</span>
+                    <div class="link-content">
+                        <div class="link-title">Visual Test Dashboard</div>
+                        <div class="link-desc">Beautiful card view of all bookings</div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+                <a href="/carwash_project/TEST_BOOKINGS_SUMMARY.md" class="link-card">
+                    <span class="link-icon">📄</span>
+                    <div class="link-content">
+                        <div class="link-title">Complete Documentation</div>
+                        <div class="link-desc">Full summary with all booking details</div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+                <a href="#" onclick="runGenerator(); return false;" class="link-card">
+                    <span class="link-icon">🔄</span>
+                    <div class="link-content">
+                        <div class="link-title">Regenerate Dataset</div>
+                        <div class="link-desc">Create fresh test bookings (clears old ones)</div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+
+                <a href="#" onclick="verifyAPIs(); return false;" class="link-card">
+                    <span class="link-icon">✓</span>
+                    <div class="link-content">
+                        <div class="link-title">Verify APIs</div>
+                        <div class="link-desc">Check that all endpoints return correct data</div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 20px; color: #333;">Test Scenarios Covered</h3>
+            <ul style="line-height: 2; color: #555;">
+                <li>✅ <strong>Pending Bookings:</strong> Test payment workflows</li>
+                <li>✅ <strong>Confirmed Bookings:</strong> Test upcoming reservations</li>
+                <li>✅ <strong>In-Progress Services:</strong> Test real-time updates</li>
+                <li>✅ <strong>Completed History:</strong> Test past bookings display</li>
+                <li>✅ <strong>Cancellations:</strong> Test refund and cancellation reasons</li>
+                <li>✅ <strong>Vehicle Variety:</strong> Sedans, SUVs, trucks, vans</li>
+                <li>✅ <strong>Payment Methods:</strong> Cash, card, online</li>
+                <li>✅ <strong>Date Distribution:</strong> Past, present, and future</li>
+            </ul>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h3 style="margin-bottom: 15px;">Quick Commands</h3>
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; font-family: monospace; font-size: 14px;">
+                <div style="margin-bottom: 10px;">
+                    <strong>Generate Dataset:</strong><br>
+                    <code style="color: #ffd700;">php generate_bookings_dataset.php</code>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Verify APIs:</strong><br>
+                    <code style="color: #ffd700;">php verify_bookings_api.php</code>
+                </div>
+                <div>
+                    <strong>Check Database:</strong><br>
+                    <code style="color: #ffd700;">SELECT * FROM bookings WHERE user_id = 14;</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runGenerator() {
+            if (confirm('This will generate new test bookings. Continue?')) {
+                window.location.href = '/carwash_project/generate_bookings_dataset.php';
+            }
+        }
+
+        function verifyAPIs() {
+            window.open('/carwash_project/verify_bookings_api.php', '_blank');
+        }
+    </script>
+</body>
+</html>

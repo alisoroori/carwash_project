@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Get Reservations API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        .success {
+            border-left-color: #4CAF50;
+            background: #e8f5e9;
+        }
+        .booking-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .booking-card h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .label {
+            font-weight: bold;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Get Reservations API</h1>
+        <p>This page tests the <code>/backend/api/get_reservations.php</code> endpoint.</p>
+        
+        <button onclick="testAPI()">Load Past Bookings</button>
+        <button onclick="clearResult()">Clear</button>
+        
+        <div id="result"></div>
+        <div id="bookings"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            const bookingsDiv = document.getElementById('bookings');
+            
+            resultDiv.textContent = 'Loading...';
+            resultDiv.className = '';
+            bookingsDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/carwash_project/backend/api/get_reservations.php', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'success';
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                    
+                    // Display bookings in a nice format
+                    if (data.data && data.data.bookings && data.data.bookings.length > 0) {
+                        bookingsDiv.innerHTML = '<h2>Bookings (' + data.data.count + ')</h2>';
+                        
+                        data.data.bookings.forEach(booking => {
+                            const card = document.createElement('div');
+                            card.className = 'booking-card';
+                            card.innerHTML = `
+                                <h3>Booking #${booking.booking_id} - ${booking.service_name}</h3>
+                                <div class="info-row">
+                                    <span class="label">Carwash:</span>
+                                    <span>${booking.carwash_name}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Date/Time:</span>
+                                    <span>${booking.booking_date} at ${booking.booking_time}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Vehicle:</span>
+                                    <span>${booking.vehicle_info || 'N/A'} (${booking.vehicle_plate || 'N/A'})</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Price:</span>
+                                    <span>${booking.total_price} TL</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Payment:</span>
+                                    <span>${booking.payment_status} (${booking.payment_method || 'N/A'})</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Status:</span>
+                                    <span style="color: #4CAF50; font-weight: bold;">${booking.status}</span>
+                                </div>
+                            `;
+                            bookingsDiv.appendChild(card);
+                        });
+                    }
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.textContent = 'Error: ' + JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        function clearResult() {
+            document.getElementById('result').textContent = '';
+            document.getElementById('result').className = '';
+            document.getElementById('bookings').innerHTML = '';
+        }
+        
+        // Auto-load on page load
+        window.addEventListener('load', testAPI);
+    </script>
+</body>
+</html>

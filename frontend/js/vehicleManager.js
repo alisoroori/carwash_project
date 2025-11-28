@@ -18,7 +18,9 @@ function createVehicleManagerFactory() {
             model: '',
             license_plate: '',
             year: '',
-            color: ''
+            color: '',
+            vehicle_type: '',
+            notes: ''
         },
 
         init() {
@@ -29,7 +31,7 @@ function createVehicleManagerFactory() {
 
         async loadVehicles() {
             try {
-                const resObj = await apiCall('/carwash_project/backend/dashboard/vehicle_api.php?action=list', {
+                const resObj = await apiCall('/carwash_project/backend/api/get_vehicles.php', {
                     method: 'GET',
                     credentials: 'same-origin',
                     headers: { 'Accept': 'application/json' }
@@ -53,7 +55,9 @@ function createVehicleManagerFactory() {
                     model: vehicle.model || '',
                     license_plate: vehicle.license_plate || '',
                     year: vehicle.year || '',
-                    color: vehicle.color || ''
+                    color: vehicle.color || '',
+                    vehicle_type: vehicle.vehicle_type || '',
+                    notes: vehicle.notes || ''
                 };
                 this.imagePreview = vehicle.image_path || '';
             } else {
@@ -72,7 +76,7 @@ function createVehicleManagerFactory() {
 
         resetForm() {
             this.editingVehicle = null;
-            this.formData = { brand: '', model: '', license_plate: '', year: '', color: '' };
+            this.formData = { brand: '', model: '', license_plate: '', year: '', color: '', vehicle_type: '', notes: '' };
             this.imagePreview = '';
             this.message = '';
             this.messageType = '';
@@ -89,7 +93,10 @@ function createVehicleManagerFactory() {
                 // Ensure csrf present
                 if (!fd.has('csrf_token') && this.csrfToken) fd.append('csrf_token', this.csrfToken);
 
-                const resObj = await apiCall('/carwash_project/backend/dashboard/vehicle_api.php', {
+                const apiUrl = this.editingVehicle ? '/carwash_project/backend/api/update_vehicle.php' : '/carwash_project/backend/api/add_vehicle.php';
+                fd.append('vehicle_id', this.editingVehicle?.id || '');
+
+                const resObj = await apiCall(apiUrl, {
                     method: 'POST',
                     credentials: 'same-origin',
                     body: fd
@@ -118,11 +125,10 @@ function createVehicleManagerFactory() {
             this.loading = true;
             try {
                 const fd = new FormData();
-                fd.append('action', 'delete');
-                fd.append('id', id);
+                fd.append('vehicle_id', id);
                 if (this.csrfToken) fd.append('csrf_token', this.csrfToken);
 
-                const resObj = await apiCall('/carwash_project/backend/dashboard/vehicle_api.php', {
+                const resObj = await apiCall('/carwash_project/backend/api/delete_vehicle.php', {
                     method: 'POST',
                     credentials: 'same-origin',
                     body: fd
