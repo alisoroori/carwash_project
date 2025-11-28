@@ -6,6 +6,10 @@ require_once __DIR__ . '/../includes/profile_auto_fix.php';
 // Reusable profile upload helper (consolidated upload logic)
 require_once __DIR__ . '/../includes/profile_upload_helper.php';
 
+// Enable automatic booking completion trigger (runs max once per 5 minutes)
+define('ENABLE_AUTO_COMPLETION_TRIGGER', true);
+require_once __DIR__ . '/../includes/auto_complete_trigger.php';
+
 use App\Classes\Auth;
 use App\Classes\Database;
 
