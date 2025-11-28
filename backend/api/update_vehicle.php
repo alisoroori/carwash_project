@@ -27,7 +27,7 @@ try {
     $vehicleId = (int)$_POST['vehicle_id'];
 
     // Check if vehicle exists and belongs to user
-    $vehicle = $db->fetchOne("SELECT * FROM vehicles WHERE id = :id AND user_id = :user_id", [
+    $vehicle = $db->fetchOne("SELECT * FROM user_vehicles WHERE id = :id AND user_id = :user_id", [
         'id' => $vehicleId,
         'user_id' => $userId
     ]);
@@ -39,18 +39,24 @@ try {
 
     // Validate input
     $validator = new Validator($_POST);
-    $validator->required(['brand', 'model', 'year', 'license_plate', 'vehicle_type']);
-    $validator->numeric(['year']);
-    $validator->minLength(['brand' => 1, 'model' => 1, 'license_plate' => 1]);
-    $validator->maxLength(['brand' => 50, 'model' => 50, 'license_plate' => 20, 'color' => 30, 'notes' => 500]);
+    
+    $brand = $_POST['brand'] ?? '';
+    $model = $_POST['model'] ?? '';
+    $year = $_POST['year'] ?? '';
+    $licensePlate = $_POST['license_plate'] ?? '';
+    
+    $validator->required($brand, 'Brand')
+              ->required($model, 'Model')
+              ->required($year, 'Year')
+              ->required($licensePlate, 'License Plate');
 
-    if (!$validator->isValid()) {
+    if ($validator->fails()) {
         Response::error('Validation failed', $validator->getErrors());
         exit;
     }
 
     // Check for duplicate license plate (excluding current vehicle)
-    $existing = $db->fetchOne("SELECT id FROM vehicles WHERE license_plate = :plate AND user_id = :user_id AND id != :id", [
+    $existing = $db->fetchOne("SELECT id FROM user_vehicles WHERE license_plate = :plate AND user_id = :user_id AND id != :id", [
         'plate' => $_POST['license_plate'],
         'user_id' => $userId,
         'id' => $vehicleId
@@ -96,16 +102,14 @@ try {
         'year' => (int)$_POST['year'],
         'color' => $_POST['color'] ?? null,
         'license_plate' => $_POST['license_plate'],
-        'vehicle_type' => $_POST['vehicle_type'],
-        'notes' => $_POST['notes'] ?? null,
         'image_path' => $imagePath,
         'updated_at' => date('Y-m-d H:i:s')
     ];
 
-    $updated = $db->update('vehicles', $updateData, 'id = :id', ['id' => $vehicleId]);
+    $updated = $db->update('user_vehicles', $updateData, ['id' => $vehicleId]);
 
     if ($updated) {
-        $updatedVehicle = $db->fetchOne("SELECT * FROM vehicles WHERE id = :id", ['id' => $vehicleId]);
+        $updatedVehicle = $db->fetchOne("SELECT * FROM user_vehicles WHERE id = :id", ['id' => $vehicleId]);
         if ($updatedVehicle['image_path']) {
             $updatedVehicle['image_path'] = BASE_URL . '/' . $updatedVehicle['image_path'];
         }

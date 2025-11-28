@@ -26,7 +26,7 @@ try {
     $vehicleId = (int)$_POST['vehicle_id'];
 
     // Check if vehicle exists and belongs to user
-    $vehicle = $db->fetchOne("SELECT * FROM vehicles WHERE id = :id AND user_id = :user_id", [
+    $vehicle = $db->fetchOne("SELECT * FROM user_vehicles WHERE id = :id AND user_id = :user_id", [
         'id' => $vehicleId,
         'user_id' => $userId
     ]);
@@ -55,10 +55,7 @@ try {
     }
 
     // Delete vehicle
-    $deleted = $db->delete('vehicles', 'id = :id AND user_id = :user_id', [
-        'id' => $vehicleId,
-        'user_id' => $userId
-    ]);
+    $deleted = $db->delete('user_vehicles', ['id' => $vehicleId, 'user_id' => $userId]);
 
     if ($deleted) {
         Response::success('Vehicle deleted successfully');

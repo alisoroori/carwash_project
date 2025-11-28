@@ -553,13 +553,21 @@ if (!isset($base_url)) {
 
             // History Section Factory
             function historySection() {
-                const state = {
+                return {
                     bookings: [],
-                    loading: false,
+                    loading: true,
                     error: null,
+                    
+                    init() {
+                        console.log('🔄 History section initialized');
+                        this.loadHistory();
+                    },
+                    
                     async loadHistory() {
+                        console.log('📡 Loading history...');
                         this.loading = true;
                         this.error = null;
+                        
                         try {
                             const response = await fetch('/carwash_project/backend/api/get_reservations.php', {
                                 method: 'GET',
@@ -570,44 +578,47 @@ if (!isset($base_url)) {
                                 }
                             });
                             
+                            console.log('📦 Response status:', response.status, response.ok);
+                            
                             if (!response.ok) {
                                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                             }
                             
                             const data = await response.json();
+                            console.log('📋 API Response:', data);
+                            
                             if (data.success) {
                                 this.bookings = data.bookings || [];
                                 console.log('✅ Loaded', this.bookings.length, 'past bookings');
                             } else {
                                 this.error = data.message || 'Failed to load booking history';
-                                console.error('API error:', data);
+                                console.error('❌ API error:', data);
                             }
                         } catch (err) {
                             this.error = 'Failed to load booking history: ' + err.message;
-                            console.error('History load error:', err);
+                            console.error('❌ History load error:', err);
                         } finally {
                             this.loading = false;
+                            console.log('🏁 Loading complete. Bookings:', this.bookings.length, 'Error:', this.error);
                         }
                     },
+                    
                     formatDate(dateString) {
                         if (!dateString) return 'N/A';
                         const date = new Date(dateString);
                         return date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
                     },
+                    
                     formatTime(timeString) {
                         if (!timeString) return 'N/A';
                         return timeString.substring(0, 5); // HH:MM
                     },
+                    
                     formatPrice(price) {
                         if (!price) return '0.00';
                         return parseFloat(price).toFixed(2);
                     }
                 };
-                
-                // Load history on initialization
-                state.loadHistory();
-                
-                return state;
             }
 
             // Make factories globally available (Alpine will call them by name)

@@ -20,18 +20,24 @@ try {
 
     // Validate input
     $validator = new Validator($_POST);
-    $validator->required(['brand', 'model', 'year', 'license_plate', 'vehicle_type']);
-    $validator->numeric(['year']);
-    $validator->minLength(['brand' => 1, 'model' => 1, 'license_plate' => 1]);
-    $validator->maxLength(['brand' => 50, 'model' => 50, 'license_plate' => 20, 'color' => 30, 'notes' => 500]);
+    
+    $brand = $_POST['brand'] ?? '';
+    $model = $_POST['model'] ?? '';
+    $year = $_POST['year'] ?? '';
+    $licensePlate = $_POST['license_plate'] ?? '';
+    
+    $validator->required($brand, 'Brand')
+              ->required($model, 'Model')
+              ->required($year, 'Year')
+              ->required($licensePlate, 'License Plate');
 
-    if (!$validator->isValid()) {
+    if ($validator->fails()) {
         Response::error('Validation failed', $validator->getErrors());
         exit;
     }
 
     // Check for duplicate license plate
-    $existing = $db->fetchOne("SELECT id FROM vehicles WHERE license_plate = :plate AND user_id = :user_id", [
+    $existing = $db->fetchOne("SELECT id FROM user_vehicles WHERE license_plate = :plate AND user_id = :user_id", [
         'plate' => $_POST['license_plate'],
         'user_id' => $userId
     ]);
@@ -62,22 +68,20 @@ try {
     }
 
     // Insert vehicle
-    $vehicleId = $db->insert('vehicles', [
+    $vehicleId = $db->insert('user_vehicles', [
         'user_id' => $userId,
         'brand' => $_POST['brand'],
         'model' => $_POST['model'],
         'year' => (int)$_POST['year'],
         'color' => $_POST['color'] ?? null,
         'license_plate' => $_POST['license_plate'],
-        'vehicle_type' => $_POST['vehicle_type'],
-        'notes' => $_POST['notes'] ?? null,
         'image_path' => $imagePath,
         'created_at' => date('Y-m-d H:i:s'),
         'updated_at' => date('Y-m-d H:i:s')
     ]);
 
     if ($vehicleId) {
-        $vehicle = $db->fetchOne("SELECT * FROM vehicles WHERE id = :id", ['id' => $vehicleId]);
+        $vehicle = $db->fetchOne("SELECT * FROM user_vehicles WHERE id = :id", ['id' => $vehicleId]);
         if ($vehicle['image_path']) {
             $vehicle['image_path'] = BASE_URL . '/' . $vehicle['image_path'];
         }

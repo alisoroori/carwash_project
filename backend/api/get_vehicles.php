@@ -20,12 +20,10 @@ try {
             year,
             color,
             license_plate,
-            vehicle_type,
-            notes,
             image_path,
             created_at,
             updated_at
-        FROM vehicles
+        FROM user_vehicles
         WHERE user_id = :user_id
         ORDER BY created_at DESC
     ", ['user_id' => $userId]);

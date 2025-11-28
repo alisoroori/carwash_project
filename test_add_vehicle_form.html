@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Add Vehicle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold mb-6">Test: Yeni Araç Ekle</h1>
+        
+        <form id="addVehicleForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Marka</label>
+                <input type="text" name="brand" required class="w-full px-3 py-2 border rounded-md">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Model</label>
+                <input type="text" name="model" required class="w-full px-3 py-2 border rounded-md">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
+                <input type="number" name="year" required min="1900" max="2030" class="w-full px-3 py-2 border rounded-md">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Renk</label>
+                <input type="text" name="color" class="w-full px-3 py-2 border rounded-md">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Plaka</label>
+                <input type="text" name="license_plate" required class="w-full px-3 py-2 border rounded-md">
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                Araç Ekle
+            </button>
+        </form>
+        
+        <div id="result" class="mt-4 p-4 rounded hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById('addVehicleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const response = await fetch('/carwash_project/backend/api/add_vehicle.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.classList.remove('hidden');
+                if (data.success) {
+                    resultDiv.className = 'mt-4 p-4 rounded bg-green-100 text-green-800';
+                    resultDiv.innerHTML = `
+                        <h3 class="font-bold">✅ Başarılı!</h3>
+                        <p>${data.message}</p>
+                        <pre class="mt-2 text-xs">${JSON.stringify(data.vehicle, null, 2)}</pre>
+                    `;
+                    e.target.reset();
+                } else {
+                    resultDiv.className = 'mt-4 p-4 rounded bg-red-100 text-red-800';
+                    resultDiv.innerHTML = `
+                        <h3 class="font-bold">❌ Hata!</h3>
+                        <p>${data.message}</p>
+                        ${data.errors ? `<pre class="mt-2 text-xs">${JSON.stringify(data.errors, null, 2)}</pre>` : ''}
+                    `;
+                }
+            } catch (error) {
+                resultDiv.classList.remove('hidden');
+                resultDiv.className = 'mt-4 p-4 rounded bg-red-100 text-red-800';
+                resultDiv.innerHTML = `
+                    <h3 class="font-bold">❌ Hata!</h3>
+                    <p>Bir hata oluştu: ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
