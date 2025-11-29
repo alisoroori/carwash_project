@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Favorites API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        .info {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Favorites API Test</h1>
+        
+        <div class="test-section">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Make sure you're logged in as a customer</li>
+                <li>Open browser console (F12) to see detailed logs</li>
+                <li>Click the buttons below to test the favorites API</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 1: Get Favorite Status</h3>
+            <button onclick="testGetFavorite()">Get Favorite Status (Carwash ID: 1)</button>
+            <div id="result1" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 2: Add to Favorites</h3>
+            <button onclick="testAddFavorite()">Add Carwash #1 to Favorites</button>
+            <div id="result2" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 3: Remove from Favorites</h3>
+            <button onclick="testRemoveFavorite()">Remove Carwash #1 from Favorites</button>
+            <div id="result3" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 4: Toggle Favorite</h3>
+            <button onclick="testToggleFavorite()">Toggle Carwash #1 Favorite</button>
+            <div id="result4" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 5: Rapid Toggle (Stress Test)</h3>
+            <button onclick="testRapidToggle()">Toggle 5 Times Rapidly</button>
+            <div id="result5" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function getCsrfToken() {
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            if (meta) return meta.getAttribute('content');
+            
+            // Try to get from CONFIG object
+            if (window.CONFIG && window.CONFIG.CSRF_TOKEN) {
+                return window.CONFIG.CSRF_TOKEN;
+            }
+            
+            console.warn('CSRF token not found. Please log in first.');
+            return '';
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `result ${type}`;
+            el.style.display = 'block';
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        async function testGetFavorite() {
+            const resultId = 'result1';
+            showResult(resultId, 'Testing GET request...', 'info');
+            
+            try {
+                const response = await fetch('/carwash_project/backend/api/favorites.php?carwash_id=1', {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                console.log('GET Response:', data);
+                
+                if (response.ok && data.success) {
+                    showResult(resultId, 
+                        `✅ SUCCESS\nStatus: ${response.status}\nIs Favorite: ${data.is_favorite}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`,
+                        'success'
+                    );
+                } else {
+                    showResult(resultId, 
+                        `❌ API Error\nStatus: ${response.status}\nMessage: ${data.message || 'Unknown error'}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult(resultId, 
+                    `❌ NETWORK ERROR\n${error.message}\n\nStack:\n${error.stack}`,
+                    'error'
+                );
+            }
+        }
+
+        async function testAddFavorite() {
+            const resultId = 'result2';
+            showResult(resultId, 'Testing ADD action...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('carwash_id', '1');
+                formData.append('action', 'add');
+                formData.append('csrf_token', getCsrfToken());
+                
+                const response = await fetch('/carwash_project/backend/api/favorites.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                console.log('ADD Response:', data);
+                
+                if (response.ok && data.success) {
+                    showResult(resultId, 
+                        `✅ SUCCESS\nStatus: ${response.status}\nIs Favorite: ${data.is_favorite}\nMessage: ${data.message}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`,
+                        'success'
+                    );
+                } else {
+                    showResult(resultId, 
+                        `❌ API Error\nStatus: ${response.status}\nMessage: ${data.message || 'Unknown error'}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult(resultId, 
+                    `❌ NETWORK ERROR\n${error.message}\n\nStack:\n${error.stack}`,
+                    'error'
+                );
+            }
+        }
+
+        async function testRemoveFavorite() {
+            const resultId = 'result3';
+            showResult(resultId, 'Testing REMOVE action...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('carwash_id', '1');
+                formData.append('action', 'remove');
+                formData.append('csrf_token', getCsrfToken());
+                
+                const response = await fetch('/carwash_project/backend/api/favorites.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                console.log('REMOVE Response:', data);
+                
+                if (response.ok && data.success) {
+                    showResult(resultId, 
+                        `✅ SUCCESS\nStatus: ${response.status}\nIs Favorite: ${data.is_favorite}\nMessage: ${data.message}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`,
+                        'success'
+                    );
+                } else {
+                    showResult(resultId, 
+                        `❌ API Error\nStatus: ${response.status}\nMessage: ${data.message || 'Unknown error'}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult(resultId, 
+                    `❌ NETWORK ERROR\n${error.message}\n\nStack:\n${error.stack}`,
+                    'error'
+                );
+            }
+        }
+
+        async function testToggleFavorite() {
+            const resultId = 'result4';
+            showResult(resultId, 'Testing TOGGLE action...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('carwash_id', '1');
+                formData.append('action', 'toggle');
+                formData.append('csrf_token', getCsrfToken());
+                
+                const response = await fetch('/carwash_project/backend/api/favorites.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                console.log('TOGGLE Response:', data);
+                
+                if (response.ok && data.success) {
+                    showResult(resultId, 
+                        `✅ SUCCESS\nStatus: ${response.status}\nIs Favorite: ${data.is_favorite}\nMessage: ${data.message}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`,
+                        'success'
+                    );
+                } else {
+                    showResult(resultId, 
+                        `❌ API Error\nStatus: ${response.status}\nMessage: ${data.message || 'Unknown error'}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult(resultId, 
+                    `❌ NETWORK ERROR\n${error.message}\n\nStack:\n${error.stack}`,
+                    'error'
+                );
+            }
+        }
+
+        async function testRapidToggle() {
+            const resultId = 'result5';
+            showResult(resultId, 'Running rapid toggle test (5 toggles)...', 'info');
+            
+            const results = [];
+            
+            try {
+                for (let i = 0; i < 5; i++) {
+                    const formData = new FormData();
+                    formData.append('carwash_id', '1');
+                    formData.append('action', 'toggle');
+                    formData.append('csrf_token', getCsrfToken());
+                    
+                    const response = await fetch('/carwash_project/backend/api/favorites.php', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    });
+                    
+                    const data = await response.json();
+                    results.push({
+                        attempt: i + 1,
+                        status: response.status,
+                        success: data.success,
+                        is_favorite: data.is_favorite,
+                        message: data.message
+                    });
+                    
+                    // Small delay to prevent overwhelming the server
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                const allSuccessful = results.every(r => r.success);
+                const finalState = results[results.length - 1];
+                
+                showResult(resultId, 
+                    `${allSuccessful ? '✅' : '⚠️'} RAPID TEST COMPLETE\nAll requests successful: ${allSuccessful}\nFinal state: ${finalState.is_favorite ? 'FAVORITE' : 'NOT FAVORITE'}\n\nResults:\n${results.map(r => `#${r.attempt}: ${r.success ? '✅' : '❌'} ${r.message} (favorite: ${r.is_favorite})`).join('\n')}`,
+                    allSuccessful ? 'success' : 'error'
+                );
+                
+                console.log('Rapid Toggle Results:', results);
+            } catch (error) {
+                showResult(resultId, 
+                    `❌ TEST FAILED\n${error.message}\n\nCompleted: ${results.length}/5\n\nStack:\n${error.stack}`,
+                    'error'
+                );
+            }
+        }
+
+        // Auto-check login status on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = getCsrfToken();
+            if (!token) {
+                alert('⚠️ WARNING: CSRF token not found!\n\nPlease log in as a customer first, then reload this page.');
+            } else {
+                console.log('✅ CSRF token found:', token.substring(0, 20) + '...');
+            }
+        });
+    </script>
+</body>
+</html>

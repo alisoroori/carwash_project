@@ -1,4 +1,9 @@
 <?php
+// Enable comprehensive error logging for invoice debugging
+ini_set('log_errors', '1');
+ini_set('display_errors', '0'); // Don't show errors to users
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../includes/bootstrap.php';
 
 use App\Classes\Auth;
@@ -10,8 +15,11 @@ $db = Database::getInstance();
 
 $id = $_GET['id'] ?? null;
 if (!$id) {
+    Logger::error('[Invoice] No reservation ID provided');
     echo "<p>Rezervasyon bulunamadı.</p>"; exit;
 }
+
+Logger::info("[Invoice] Loading invoice for reservation ID: {$id}");
 
 // Check if this is a session-based reservation (fallback when DB insert failed)
 $booking = null;
@@ -54,15 +62,21 @@ if (strpos($id, 's_') === 0) {
 
     try {
         $booking = $db->fetchOne($query, ['id' => $id]);
+        
+        if ($booking) {
+            Logger::info("[Invoice] Booking found - ID: {$id}, Carwash ID: {$booking['carwash_id']}, Carwash Name: {$booking['carwash_name']}");
+            Logger::info("[Invoice] Carwash Logo Path from DB: " . ($booking['carwash_logo_path'] ?: 'NULL'));
+            Logger::info("[Invoice] Carwash Address: {$booking['cw_address']}, {$booking['cw_district']}, {$booking['cw_city']}");
+        }
     } catch (Exception $e) {
-        Logger::info('Failed to fetch booking: ' . $e->getMessage());
+        Logger::error('[Invoice] Failed to fetch booking: ' . $e->getMessage());
         echo "<p>Bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>";
         exit;
     }
 
     // For database bookings, initialize vehicle data from bookings table and enhance with user_vehicles if possible
     if ($booking) {
-        Logger::info('Fetched booking data: ' . json_encode($booking));
+        Logger::info('[Invoice] Fetched booking data keys: ' . implode(', ', array_keys($booking)));
 
         // Initialize vehicle data from bookings table using CORRECT column names
         $booking['vehicle_brand'] = $booking['vehicle_type'] ?? ''; // vehicle_type is the brand/category
@@ -405,39 +419,85 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
             <div class="flex items-center justify-between mb-4 no-print">
                 <div class="flex items-center gap-4">
                     <?php
-                        // Use carwash data from the booking
-                        $cw_name = htmlspecialchars($bookingData['carwash']['name']);
-                        $cw_address = htmlspecialchars($bookingData['carwash']['full_address']);
-                        $cw_phone = htmlspecialchars($bookingData['carwash']['phone']);
-                        $cw_email = htmlspecialchars($bookingData['carwash']['email']);
+                        // Use carwash data from the booking - with validation
+                        $cw_name = $bookingData['carwash']['name'] ?: 'Oto Yıkama';
+                        $cw_address = $bookingData['carwash']['full_address'] ?: 'Adres bilgisi mevcut değil';
+                        $cw_phone = $bookingData['carwash']['phone'] ?: '';
+                        $cw_email = $bookingData['carwash']['email'] ?: '';
+                        
+                        Logger::info("[Invoice] Displaying header - Carwash: {$cw_name}");
+                        Logger::info("[Invoice] Header Address: {$cw_address}");
+                        
+                        // Sanitize for HTML output
+                        $cw_name = htmlspecialchars($cw_name);
+                        $cw_address = htmlspecialchars($cw_address);
+                        $cw_phone = htmlspecialchars($cw_phone);
+                        $cw_email = htmlspecialchars($cw_email);
                     ?>
                     <div class="flex items-center gap-3">
                         <?php
-                            // Load carwash-specific logo for the invoice
+                            // Load carwash-specific logo with comprehensive fallback chain
                             $logo_url = '';
                             $carwash_logo_path = $bookingData['carwash']['logo_path'] ?? '';
+                            $carwash_id = $bookingData['carwash']['id'] ?? 0;
                             
+                            Logger::info("[Invoice] Logo Detection - Carwash ID: {$carwash_id}, Logo Path from data: " . ($carwash_logo_path ?: 'EMPTY'));
+                            
+                            // Try to load carwash-specific logo
                             if (!empty($carwash_logo_path)) {
-                                // Build full path to check if file exists
-                                $logo_file_path = __DIR__ . '/../../backend/uploads/business_logo/' . basename($carwash_logo_path);
+                                // Try multiple possible locations
+                                $possible_paths = [
+                                    __DIR__ . '/../../backend/uploads/business_logo/' . basename($carwash_logo_path),
+                                    __DIR__ . '/../../uploads/business_logo/' . basename($carwash_logo_path),
+                                    __DIR__ . '/../../uploads/logos/' . basename($carwash_logo_path),
+                                ];
                                 
-                                if (file_exists($logo_file_path)) {
-                                    $logo_url = $base . '/backend/uploads/business_logo/' . basename($carwash_logo_path);
+                                foreach ($possible_paths as $logo_file_path) {
+                                    if (file_exists($logo_file_path) && is_readable($logo_file_path)) {
+                                        // Determine the correct URL path based on which file was found
+                                        if (strpos($logo_file_path, 'backend/uploads/business_logo') !== false) {
+                                            $logo_url = $base . '/backend/uploads/business_logo/' . basename($carwash_logo_path);
+                                        } elseif (strpos($logo_file_path, 'uploads/business_logo') !== false) {
+                                            $logo_url = $base . '/uploads/business_logo/' . basename($carwash_logo_path);
+                                        } else {
+                                            $logo_url = $base . '/uploads/logos/' . basename($carwash_logo_path);
+                                        }
+                                        Logger::info("[Invoice] Logo FOUND: {$logo_file_path}");
+                                        Logger::info("[Invoice] Logo URL: {$logo_url}");
+                                        break;
+                                    }
                                 }
+                                
+                                if (empty($logo_url)) {
+                                    Logger::warning("[Invoice] Logo file not found for path: {$carwash_logo_path}");
+                                }
+                            } else {
+                                Logger::warning("[Invoice] No logo_path in database for carwash ID: {$carwash_id}");
                             }
                             
-                            // Fallback to system default logo if carwash logo not found
+                            // Fallback chain: try default logos if carwash logo not found
                             if (empty($logo_url)) {
-                                $candidate1 = __DIR__ . '/../../frontend/images/logo.png';
-                                $candidate2 = __DIR__ . '/../logo01.png';
+                                Logger::info("[Invoice] Using fallback logo chain");
+                                $fallback_paths = [
+                                    'uploads/logos/default.png',
+                                    'frontend/images/logo.png',
+                                    'backend/logo01.png',
+                                ];
                                 
-                                if (file_exists($candidate1)) {
-                                    $logo_url = $base . '/frontend/images/logo.png';
-                                } elseif (file_exists($candidate2)) {
-                                    $logo_url = $base . '/backend/logo01.png';
-                                } else {
-                                    // Last resort: use a data URI 1x1 transparent GIF to avoid broken image icon
-                                    $logo_url = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+                                foreach ($fallback_paths as $fallback_rel) {
+                                    $fallback_full = __DIR__ . '/../../' . $fallback_rel;
+                                    if (file_exists($fallback_full) && is_readable($fallback_full)) {
+                                        $logo_url = $base . '/' . $fallback_rel;
+                                        Logger::info("[Invoice] Using fallback logo: {$fallback_rel}");
+                                        break;
+                                    }
+                                }
+                                
+                                // Last resort: use a placeholder SVG with company initial
+                                if (empty($logo_url)) {
+                                    Logger::warning("[Invoice] No logo files found - using data URI placeholder");
+                                    $initial = substr($cw_name, 0, 1);
+                                    $logo_url = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%232563eb'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='48' fill='white'%3E{$initial}%3C/text%3E%3C/svg%3E";
                                 }
                             }
                         ?>
@@ -589,18 +649,29 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
                     <h3>Konum Bilgileri</h3>
                 </div>
                 <div class="section-content">
+                    <?php
+                        // Log location data for debugging
+                        Logger::info("[Invoice] Location section - Address: " . ($bookingData['carwash']['address'] ?: 'EMPTY'));
+                        Logger::info("[Invoice] Location section - District: " . ($bookingData['carwash']['district'] ?: 'EMPTY'));
+                        Logger::info("[Invoice] Location section - City: " . ($bookingData['carwash']['city'] ?: 'EMPTY'));
+                        
+                        // Prepare display values with fallbacks
+                        $display_address = $bookingData['carwash']['address'] ?: 'Adres bilgisi mevcut değil';
+                        $display_district = $bookingData['carwash']['district'] ?: '-';
+                        $display_city = $bookingData['carwash']['city'] ?: '-';
+                    ?>
                     <div class="detail-grid">
                         <div class="detail-item">
                             <div class="detail-label">Adres</div>
-                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['address']); ?></div>
+                            <div class="detail-value"><?php echo htmlspecialchars($display_address); ?></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">İlçe</div>
-                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['district']); ?></div>
+                            <div class="detail-value"><?php echo htmlspecialchars($display_district); ?></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Şehir</div>
-                            <div class="detail-value"><?php echo htmlspecialchars($bookingData['carwash']['city']); ?></div>
+                            <div class="detail-value"><?php echo htmlspecialchars($display_city); ?></div>
                         </div>
                     </div>
                     <?php if (!empty($bookingData['carwash']['phone'])): ?>

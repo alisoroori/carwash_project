@@ -4467,40 +4467,40 @@ window.refreshProfileImages = function(newUrl) {
     var handled = false;
     var fallbackUrl = '<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg';
     
+    // Pre-cache DOM elements to avoid forced reflows during updates
+    // Separate read phase from write phase completely
+    var knownIds = ['headerProfileImage', 'sidebarProfileImage', 'mobileMenuAvatar', 'profileImagePreview'];
+    var cachedElements = [];
+    
+    // PHASE 1: READ - collect all elements (causes one reflow, but before any writes)
+    for (var j = 0; j < knownIds.length; j++) {
+        var el = document.getElementById(knownIds[j]);
+        if (el && el.nodeName === 'IMG') cachedElements.push(el);
+    }
+    var classImgs = document.querySelectorAll('.profile-img, .sidebar-avatar-img');
+    for (var i = 0; i < classImgs.length; i++) {
+        if (classImgs[i].nodeName === 'IMG') cachedElements.push(classImgs[i]);
+    }
+    
     pre.onerror = function() {
         if (handled) return; handled = true;
         console.warn('Profile image failed to load: ' + cleanUrl + ' - using fallback');
-        // Batch fallback updates in single rAF
+        // PHASE 2: WRITE ONLY - no DOM reads, pure batch write in rAF
         requestAnimationFrame(function() {
-            var selectors = '#headerProfileImage, #sidebarProfileImage, #mobileMenuAvatar, #profileImagePreview, .profile-img, .sidebar-avatar-img';
-            var imgs = document.querySelectorAll(selectors);
-            for (var i = 0; i < imgs.length; i++) {
-                if (imgs[i] && imgs[i].tagName && imgs[i].tagName.toLowerCase() === 'img') {
-                    imgs[i].src = fallbackUrl;
-                    imgs[i].onerror = null;
-                }
+            for (var k = 0; k < cachedElements.length; k++) {
+                cachedElements[k].src = fallbackUrl;
+                cachedElements[k].onerror = null;
             }
         });
     };
     
     pre.onload = function() {
         if (handled) return; handled = true;
-        // Batch DOM updates in single rAF
+        // PHASE 2: WRITE ONLY - no DOM reads, pure batch write in rAF
         requestAnimationFrame(function() {
-            var selectors = '#headerProfileImage, #sidebarProfileImage, #mobileMenuAvatar, #profileImagePreview, .profile-img, .sidebar-avatar-img';
-            var imgs = document.querySelectorAll(selectors);
-            if (!imgs || imgs.length === 0) return;
-
-            // Update all image sources with clean validated URL
-            for (var i = 0; i < imgs.length; i++) {
-                var img = imgs[i];
-                if (img && img.tagName && img.tagName.toLowerCase() === 'img') {
-                    img.src = cleanUrl;
-                    img.onerror = function() {
-                        this.src = fallbackUrl;
-                        this.onerror = null;
-                    };
-                }
+            for (var k = 0; k < cachedElements.length; k++) {
+                cachedElements[k].src = cleanUrl;
+                cachedElements[k].onerror = function() { this.src = fallbackUrl; };
             }
         });
     };
@@ -4640,7 +4640,6 @@ window.refreshProfileImages = function(newUrl) {
             .then(result => {
                 if (result.success) {
                     // Success: Show Turkish success message with extended duration (3.5 seconds)
-                    // This ensures the message is fully visible before page reload
                     if (window.showGlobalToast) {
                         window.showGlobalToast('Bilgileriniz başarıyla güncellendi ✓ Sayfa yenileniyor...', 'success', 3500);
                     } else if (window.showSuccess) {
@@ -4662,14 +4661,12 @@ window.refreshProfileImages = function(newUrl) {
                         mapped.driver_license = payloadUser.driver_license || payloadUser.driverLicense || '';
                         mapped.city = payloadUser.city || payloadUser.profile_city || payloadUser.profileCity || '';
                         mapped.address = payloadUser.address || payloadUser.profile_address || payloadUser.profileAddress || '';
-                        // profile image can be stored under several keys on the server
                         mapped.profile_image = payloadUser.profile_image_up || payloadUser.profile_img || payloadUser.profile_image || (result.data && result.data.image) || result.profile_image || '';
                     } else {
-                        // Fallback to any direct image value returned
                         mapped.profile_image = result.profile_image || (result.data && result.data.image) || '';
                     }
 
-                    // Keep the canonical value in sync for future fallback calls
+                    // Keep the canonical value in sync
                     try {
                         window.CARWASH = window.CARWASH || {};
                         window.CARWASH.profile = window.CARWASH.profile || {};
@@ -4679,78 +4676,95 @@ window.refreshProfileImages = function(newUrl) {
                         }
                     } catch (e) { /* ignore */ }
 
-                    // Update profile images using refresh helper (adds cache-buster)
+                    // Update profile images using refresh helper (non-blocking)
                     if (window.refreshProfileImages) {
                         window.refreshProfileImages(mapped.profile_image || null);
                     }
 
-                    // Update Alpine profileSection state deterministically using returned user payload
-                    try {
-                        var alpineEl = document.querySelector('[x-data*="profileSection"]');
-                        var updated = false;
-                        if (alpineEl) {
-                            // Alpine v3 exposes __x and $data
-                            try {
-                                if (alpineEl.__x && alpineEl.__x.$data) {
-                                    if (typeof alpineEl.__x.$data.updateProfile === 'function') {
-                                        alpineEl.__x.$data.updateProfile(mapped);
-                                        alpineEl.__x.$data.editMode = false;
-                                        updated = true;
+                    // Defer Alpine updates to avoid blocking main thread (causes forced reflow)
+                    // Use requestIdleCallback to run during browser idle time
+                    var updateAlpine = function() {
+                        try {
+                            var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                            var updated = false;
+                            if (alpineEl) {
+                                try {
+                                    if (alpineEl.__x && alpineEl.__x.$data) {
+                                        if (typeof alpineEl.__x.$data.updateProfile === 'function') {
+                                            alpineEl.__x.$data.updateProfile(mapped);
+                                            alpineEl.__x.$data.editMode = false;
+                                            updated = true;
+                                        }
                                     }
-                                }
-                            } catch (err) { /* continue */ }
+                                } catch (err) { /* continue */ }
 
-                            // Alpine v2 or other builds may attach _x_dataStack
-                            try {
-                                if (!updated && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
-                                    var d = alpineEl._x_dataStack[0];
-                                    if (typeof d.updateProfile === 'function') {
-                                        d.updateProfile(mapped);
-                                        d.editMode = false;
-                                        updated = true;
+                                try {
+                                    if (!updated && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
+                                        var d = alpineEl._x_dataStack[0];
+                                        if (typeof d.updateProfile === 'function') {
+                                            d.updateProfile(mapped);
+                                            d.editMode = false;
+                                            updated = true;
+                                        }
                                     }
-                                }
-                            } catch (err) { /* ignore */ }
+                                } catch (err) { /* ignore */ }
+                            }
+
+                            if (!updated && window.profileSection && typeof window.profileSection === 'function') {
+                                try { window.profileSection().updateProfile(mapped); window.profileSection().editMode = false; } catch (err) { /* ignore */ }
+                            }
+                        } catch (e) {
+                            console.warn('Could not update Alpine profileData from AJAX response', e);
                         }
 
-                        // If no Alpine instance found, update global factory state if available
-                        if (!updated && window.profileSection && typeof window.profileSection === 'function') {
-                            try { window.profileSection().updateProfile(mapped); window.profileSection().editMode = false; } catch (err) { /* ignore */ }
-                        }
-                    } catch (e) {
-                        console.warn('Could not update Alpine profileData from AJAX response', e);
+                        // Emit events
+                        try {
+                            document.dispatchEvent(new CustomEvent('profile:update:success', { detail: mapped }));
+                            document.dispatchEvent(new CustomEvent('restoreTab', { detail: { tab: 'profile' } }));
+                        } catch (e) { /* ignore */ }
+                    };
+
+                    // Run Alpine updates in idle time to avoid blocking
+                    if (window.requestIdleCallback) {
+                        requestIdleCallback(updateAlpine, { timeout: 500 });
+                    } else {
+                        setTimeout(updateAlpine, 0);
                     }
 
-                    // Emit an event so other listeners can react (close modal, refresh UI)
-                    try {
-                        document.dispatchEvent(new CustomEvent('profile:update:success', { detail: mapped }));
-                    } catch (e) { /* ignore */ }
-
-                    // Also restore the profile tab explicitly (keeps the user on Profile view)
-                    try {
-                        document.dispatchEvent(new CustomEvent('restoreTab', { detail: { tab: 'profile' } }));
-                    } catch (e) { /* ignore */ }
-
-                    // Automatically reload page after 3 seconds to show updated data
-                    // This delay ensures user can fully read the success notification
-                    // Note: This setTimeout is intentional for UX and does not cause performance issues
-                    setTimeout(function() {
-                        // Store that we're reloading from a successful update
+                    // Defer reload setup to avoid blocking
+                    var scheduleReload = function() {
                         try {
                             sessionStorage.setItem('profile_update_success', 'true');
                         } catch (e) { /* ignore */ }
-                        
-                        // Reload the page to fetch fresh data
                         window.location.reload();
-                    }, 3000);
+                    };
+                    
+                    if (window.requestIdleCallback) {
+                        requestIdleCallback(function() {
+                            setTimeout(scheduleReload, 3000);
+                        }, { timeout: 500 });
+                    } else {
+                        setTimeout(scheduleReload, 3000);
+                    }
                 } else {
                     // Error: Show in global toast if requested, otherwise in form
                     if (result.show_global_error && window.showError) {
                         window.showError(result.message || 'Error updating profile');
-                        // Close edit mode so global error is visible
-                        var alpineEl = document.querySelector('[x-data*="profileSection"]');
-                        if (alpineEl && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
-                            alpineEl._x_dataStack[0].editMode = false;
+                        // Defer Alpine edit mode close to avoid forced reflow
+                        if (window.requestIdleCallback) {
+                            requestIdleCallback(function() {
+                                var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                                if (alpineEl && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
+                                    alpineEl._x_dataStack[0].editMode = false;
+                                }
+                            });
+                        } else {
+                            setTimeout(function() {
+                                var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                                if (alpineEl && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
+                                    alpineEl._x_dataStack[0].editMode = false;
+                                }
+                            }, 0);
                         }
                     } else {
                         // Show error in form

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Favorites API</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+        .test { background: white; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #2563eb; }
+        .success { border-left-color: #10b981; }
+        .error { border-left-color: #ef4444; }
+        h2 { margin-top: 0; }
+        pre { background: #f3f4f6; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .status { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Favorites API Test</h1>
+    <div id="results"></div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        // Get CSRF token from meta tag (if on Customer Dashboard page)
+        function getCsrfToken() {
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            if (meta) return meta.getAttribute('content');
+            // Fallback: check window.CONFIG
+            if (window.CONFIG && window.CONFIG.CSRF_TOKEN) return window.CONFIG.CSRF_TOKEN;
+            return 'test_token_' + Date.now(); // Generate a test token
+        }
+
+        function logTest(title, success, data) {
+            const div = document.createElement('div');
+            div.className = 'test ' + (success ? 'success' : 'error');
+            div.innerHTML = `
+                <h2>${title}</h2>
+                <p class="status">Status: ${success ? '✓ SUCCESS' : '✗ FAILED'}</p>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            resultsDiv.appendChild(div);
+        }
+
+        async function runTests() {
+            const csrfToken = getCsrfToken();
+            logTest('CSRF Token Retrieved', true, { token: csrfToken.substring(0, 16) + '...' });
+
+            // Test 1: Add favorite
+            try {
+                const formData = new FormData();
+                formData.append('carwash_id', '1');
+                formData.append('action', 'add');
+                formData.append('csrf_token', csrfToken);
+
+                const response1 = await fetch('/carwash_project/backend/api/favorites.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                const result1 = await response1.json();
+                logTest('Test 1: Add Favorite (carwash_id=1)', result1.success, result1);
+            } catch (e) {
+                logTest('Test 1: Add Favorite', false, { error: e.message });
+            }
+
+            // Wait a bit
+            await new Promise(r => setTimeout(r, 500));
+
+            // Test 2: Get favorite status
+            try {
+                const response2 = await fetch('/carwash_project/backend/api/favorites.php?carwash_id=1', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+
+                const result2 = await response2.json();
+                logTest('Test 2: Get Favorite Status', result2.success, result2);
+            } catch (e) {
+                logTest('Test 2: Get Favorite Status', false, { error: e.message });
+            }
+
+            // Wait a bit
+            await new Promise(r => setTimeout(r, 500));
+
+            // Test 3: Remove favorite
+            try {
+                const formData = new FormData();
+                formData.append('carwash_id', '1');
+                formData.append('action', 'remove');
+                formData.append('csrf_token', csrfToken);
+
+                const response3 = await fetch('/carwash_project/backend/api/favorites.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                const result3 = await response3.json();
+                logTest('Test 3: Remove Favorite', result3.success, result3);
+            } catch (e) {
+                logTest('Test 3: Remove Favorite', false, { error: e.message });
+            }
+
+            // Wait a bit
+            await new Promise(r => setTimeout(r, 500));
+
+            // Test 4: CSRF validation (should fail)
+            try {
+                const formData = new FormData();
+                formData.append('carwash_id', '1');
+                formData.append('action', 'add');
+                formData.append('csrf_token', 'invalid_token_12345');
+
+                const response4 = await fetch('/carwash_project/backend/api/favorites.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                const result4 = await response4.json();
+                // We expect this to fail (success = false)
+                logTest('Test 4: CSRF Protection (should fail)', !result4.success, result4);
+            } catch (e) {
+                logTest('Test 4: CSRF Protection', false, { error: e.message });
+            }
+        }
+
+        // Run tests on page load
+        runTests();
+    </script>
+</body>
+</html>
