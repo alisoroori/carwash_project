@@ -35,8 +35,9 @@ if (!function_exists('autoFixProfileImage')) {
         $writeLog("Initial DB value: " . ($dbVal ?: 'EMPTY'));
         $writeLog("Initial Session value: " . ($sessVal ?: 'EMPTY'));
 
-        $uploadDirWeb = '/carwash_project/backend/auth/uploads/profiles/';
-        $uploadDirFs = realpath(__DIR__ . '/../auth/uploads/profiles') ?: (__DIR__ . '/../auth/uploads/profiles');
+        // Use correct upload paths (uploads/profiles/ at project root)
+        $uploadDirWeb = 'uploads/profiles/';
+        $uploadDirFs = realpath(__DIR__ . '/../../uploads/profiles') ?: (__DIR__ . '/../../uploads/profiles');
 
         // CHECK 1 — DB mismatch: if DB empty but session or uploaded file exists, try to repair
         if (empty($dbVal) && !empty($sessVal)) {

@@ -52,17 +52,17 @@ $pathOnly = parse_url($img, PHP_URL_PATH) ?: $img;
 // Normalize to filename
 $basename = basename($pathOnly);
 
-// Build expected uploads path
-$uploadsFs = __DIR__ . '/auth/uploads/profiles/' . $basename;
+// Build expected uploads path (project root uploads/profiles/)
+$uploadsFs = __DIR__ . '/../uploads/profiles/' . $basename;
 
 // Additional legacy locations to try
-$docCandidate = $docRoot . '/carwash_project/backend/auth/uploads/profiles/' . $basename;
+$legacyCandidate = __DIR__ . '/auth/uploads/profiles/' . $basename;
 
 $finalFs = null;
 if (is_readable($uploadsFs)) {
     $finalFs = $uploadsFs;
-} elseif (is_readable($docCandidate)) {
-    $finalFs = $docCandidate;
+} elseif (is_readable($legacyCandidate)) {
+    $finalFs = $legacyCandidate;
 } else {
     // If img looks like an absolute path under document root, try that
     $possible = $docRoot . $pathOnly;

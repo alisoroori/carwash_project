@@ -58,8 +58,8 @@ try {
             Response::error('Error: Profil resmi yüklenemedi. ' . $detail, 500);
         }
 
-        // Store canonical path in DB (no cache-buster)
-        $profilePath = PROFILE_UPLOAD_URL . '/' . $filename;
+        // Store relative path in DB (consistent with vehicle images)
+        $profilePath = 'uploads/profiles/' . $filename;
 
         // Remove old profile image if set and not default
         $old = $_SESSION['profile_image'] ?? null;

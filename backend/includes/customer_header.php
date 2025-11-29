@@ -138,15 +138,15 @@ if (empty($profile_src)) {
             }
         }
     } else {
-        // Relative filename stored in session - assume uploads directory
+        // Relative filename stored in session - assume uploads directory (project root)
         $filename = basename($profile_src);
-        $uploadsWeb = $base_url . '/backend/auth/uploads/profiles/' . $filename;
+        $uploadsWeb = $base_url . '/uploads/profiles/' . $filename;
         $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\/');
-        $filePath = $docRoot . '/carwash_project/backend/auth/uploads/profiles/' . $filename;
+        $filePath = $docRoot . '/carwash_project/uploads/profiles/' . $filename;
         if (file_exists($filePath) && is_readable($filePath)) {
             $profile_src = $uploadsWeb;
         } else {
-            // Try legacy locations
+            // Try legacy locations for backwards compatibility
             $alts = [
                 $docRoot . '/carwash_project/backend/auth/uploads/profiles/' . $filename,
                 $docRoot . '/carwash_project/backend/uploads/' . $filename,

@@ -118,7 +118,7 @@ define('JS_URL', FRONTEND_URL . '/js');
 
 // Upload URLs
 define('UPLOAD_URL', BASE_URL . '/uploads');
-define('PROFILE_UPLOAD_URL', '/carwash_project/uploads/profiles');
+define('PROFILE_UPLOAD_URL', BASE_URL . '/uploads/profiles');
 define('SERVICE_UPLOAD_URL', UPLOAD_URL . '/services');
 
 // Default vehicle image URL (used when a vehicle has no uploaded image)
@@ -401,7 +401,7 @@ if (!defined('UPLOAD_DIR')) {
 	define('UPLOAD_DIR', ROOT_PATH . '/uploads');
 }
 if (!defined('PROFILE_UPLOAD_DIR')) {
-	define('PROFILE_UPLOAD_DIR', ROOT_PATH . '/backend/auth/uploads/profiles');
+	define('PROFILE_UPLOAD_DIR', ROOT_PATH . '/uploads/profiles');
 }
 if (!defined('LOG_DIR')) {
 	define('LOG_DIR', ROOT_PATH . '/logs');

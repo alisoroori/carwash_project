@@ -31,7 +31,7 @@ try {
         $action = $_POST['action'] ?? 'toggle';
 
         // Get current user preferences stored on users table
-        $profile = $db->fetchOne("SELECT id, preferences FROM users WHERE id = ?", [$user_id]);
+        $profile = $db->fetchOne("SELECT id, preferences FROM users WHERE id = :user_id", ['user_id' => $user_id]);
 
         $favorites = [];
         if ($profile && !empty($profile['preferences'])) {
@@ -57,7 +57,7 @@ try {
         $profile_data = ['favorites' => array_values($favorites)];
 
         // Persist preferences into users table
-        $existing = $db->fetchOne('SELECT id FROM users WHERE id = ?', [$user_id]);
+        $existing = $db->fetchOne('SELECT id FROM users WHERE id = :user_id', ['user_id' => $user_id]);
         if ($existing) {
             $db->update('users', ['preferences' => json_encode($profile_data)], ['id' => $user_id]);
         } else {
@@ -75,7 +75,7 @@ try {
 
     } elseif ($method === 'GET') {
         // Get favorite status
-        $profile = $db->fetchOne("SELECT preferences FROM users WHERE id = ?", [$user_id]);
+        $profile = $db->fetchOne("SELECT preferences FROM users WHERE id = :user_id", ['user_id' => $user_id]);
 
         $favorites = [];
         if ($profile && !empty($profile['preferences'])) {

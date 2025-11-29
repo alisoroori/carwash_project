@@ -4428,16 +4428,16 @@ window.refreshProfileImages = function(newUrl) {
     var targetTab = serverActiveTab || storedTab;
     
     if (targetTab) {
-        // Wait for Alpine to initialize - use shorter timeout and avoid direct data manipulation
+        // Wait for Alpine to initialize - use rAF instead of setTimeout
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
+            requestAnimationFrame(function() {
                 // Use a more efficient approach - dispatch custom event
                 const event = new CustomEvent('restoreTab', { detail: { tab: targetTab } });
                 document.dispatchEvent(event);
 
                 // Clear stored tab after dispatching event
                 localStorage.removeItem('customer-dashboard-active-tab');
-            }, 50); // Reduced from 150ms
+            });
         });
     }
     
@@ -4734,9 +4734,9 @@ window.refreshProfileImages = function(newUrl) {
 
     // Initial check
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function(){ setTimeout(updateButtonVisibility, 50); });
+        document.addEventListener('DOMContentLoaded', updateButtonVisibility, { once: true });
     } else {
-        setTimeout(updateButtonVisibility, 50);
+        requestAnimationFrame(updateButtonVisibility);
     }
 })();
 </script>

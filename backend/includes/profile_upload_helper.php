@@ -12,7 +12,7 @@ function handleProfileUploadFromPath(int $userId, string $sourceFilePath) {
         return $result;
     }
 
-    $uploadDir = __DIR__ . '/../auth/uploads/profiles/';
+    $uploadDir = __DIR__ . '/../../uploads/profiles/';
     if (!is_dir($uploadDir)) {
         if (!mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
             $result['error'] = 'Failed to create upload directory';
@@ -60,7 +60,7 @@ function handleProfileUploadFromPath(int $userId, string $sourceFilePath) {
     @chmod($dest, 0644);
 
     // Build web-accessible path (consistent with header logic)
-    $imagePath = '/carwash_project/backend/auth/uploads/profiles/' . $finalName;
+    $imagePath = 'uploads/profiles/' . $finalName;
 
     try {
         // Persist profile_image to canonical `user_profiles` table
@@ -132,7 +132,7 @@ function handleProfileUpload(int $userId, array $fileArray) {
         return $result;
     }
 
-    $uploadDir = __DIR__ . '/../auth/uploads/profiles/';
+    $uploadDir = __DIR__ . '/../../uploads/profiles/';
     if (!is_dir($uploadDir)) {
         if (!mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
             $result['error'] = 'Failed to create upload directory';
