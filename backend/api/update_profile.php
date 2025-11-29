@@ -84,9 +84,9 @@ try {
         // Fields for users table
         $userUpdate = [];
         if (!empty($name)) $userUpdate['full_name'] = $name;
+        if (!empty($username)) $userUpdate['username'] = $username;
         if (!empty($email)) $userUpdate['email'] = $email;
         if (!empty($phone)) $userUpdate['phone'] = $phone;
-        if (!empty($_POST['address'])) $userUpdate['address'] = trim($_POST['address']);
         if ($profilePath) $userUpdate['profile_image'] = $profilePath;
 
         if (!empty($userUpdate)) {
@@ -95,6 +95,7 @@ try {
 
         // Fields for user_profiles table
         $profileUpdate = [];
+        if (!empty($_POST['address'])) $profileUpdate['address'] = trim($_POST['address']);
         if (!empty($_POST['city'])) $profileUpdate['city'] = trim($_POST['city']);
         if (!empty($_POST['state'])) $profileUpdate['state'] = trim($_POST['state']);
         if (!empty($_POST['postal_code'])) $profileUpdate['postal_code'] = trim($_POST['postal_code']);
@@ -124,10 +125,11 @@ try {
         // Fetch authoritative merged data and refresh session
         $fresh = $db->fetchOne("
             SELECT 
-                u.id, u.full_name, u.email, u.phone, u.profile_image, u.address,
+                u.id, u.full_name, u.username, u.email, u.phone, u.profile_image, u.address,
                 up.city, up.state, up.postal_code, up.country, up.birth_date, up.gender, 
                 up.notification_settings, up.preferences, up.profile_image AS profile_img_extended,
-                up.phone AS phone_extended, up.home_phone, up.national_id, up.driver_license
+                up.phone AS phone_extended, up.home_phone, up.national_id, up.driver_license,
+                up.address AS profile_address
             FROM users u 
             LEFT JOIN user_profiles up ON u.id = up.user_id 
             WHERE u.id = :id
@@ -146,13 +148,14 @@ try {
         $profile = [
             'id' => $fresh['id'],
             'full_name' => $fresh['full_name'],
+            'username' => $fresh['username'] ?? '',
             'email' => $fresh['email'],
             'phone' => $fresh['phone_extended'] ?? $fresh['phone'],
             'home_phone' => $fresh['home_phone'],
             'national_id' => $fresh['national_id'],
             'driver_license' => $fresh['driver_license'],
             'profile_image' => $fresh['profile_img_extended'] ?? $fresh['profile_image'],
-            'address' => $fresh['address'],
+            'address' => $fresh['profile_address'] ?? $fresh['address'] ?? '',
             'city' => $fresh['city'],
             'state' => $fresh['state'],
             'postal_code' => $fresh['postal_code'],

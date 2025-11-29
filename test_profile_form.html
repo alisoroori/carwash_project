@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Edit Form Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        h1 { color: #2563eb; }
+        .test-section { background: #f0f9ff; border: 2px solid #2563eb; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .info { color: #6b7280; font-size: 14px; }
+        pre { background: #1f2937; color: #f3f4f6; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        button { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #1d4ed8; }
+        .field-check { padding: 5px; margin: 5px 0; border-left: 3px solid #2563eb; padding-left: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Profile Edit Form - Complete Test</h1>
+    <p class="info">This page tests that the Profile Edit form loads with actual database values instead of empty fields.</p>
+
+    <div class="test-section">
+        <h2>Test 1: API Endpoint Check</h2>
+        <button onclick="testAPI()">Run API Test</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Dashboard Page Load Check</h2>
+        <button onclick="testDashboard()">Run Dashboard Test</button>
+        <div id="dashboard-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Form Field Values</h2>
+        <p class="info">Expected: All fields should have values from database, not placeholders or empty strings.</p>
+        <button onclick="testFormFields()">Check Form Values</button>
+        <div id="form-result"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<p>Testing API...</p>';
+            
+            try {
+                const response = await fetch('/carwash_project/backend/api/get_profile.php', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const json = await response.json();
+                
+                if (!json.user) {
+                    throw new Error('No user data in response');
+                }
+                
+                const user = json.user;
+                const checks = [
+                    { field: 'full_name', value: user.full_name },
+                    { field: 'username', value: user.username },
+                    { field: 'email', value: user.email },
+                    { field: 'phone', value: user.phone },
+                    { field: 'home_phone', value: user.home_phone },
+                    { field: 'national_id', value: user.national_id },
+                    { field: 'driver_license', value: user.driver_license },
+                    { field: 'address', value: user.address },
+                    { field: 'city', value: user.city }
+                ];
+                
+                let html = '<h3 class="success">✓ API Response Received</h3>';
+                html += '<div style="margin-top: 15px;">';
+                
+                checks.forEach(check => {
+                    const hasValue = check.value && check.value !== '';
+                    const status = hasValue ? '<span class="success">✓</span>' : '<span class="error">✗ EMPTY</span>';
+                    html += `<div class="field-check">${status} ${check.field}: <code>${check.value || '(empty)'}</code></div>`;
+                });
+                
+                html += '</div>';
+                html += '<h4 style="margin-top: 20px;">Full Response:</h4>';
+                html += `<pre>${JSON.stringify(json, null, 2)}</pre>`;
+                
+                resultDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">✗ API Test Failed: ${error.message}</p>`;
+            }
+        }
+        
+        async function testDashboard() {
+            const resultDiv = document.getElementById('dashboard-result');
+            resultDiv.innerHTML = '<p>Loading dashboard HTML...</p>';
+            
+            try {
+                const response = await fetch('/carwash_project/backend/dashboard/Customer_Dashboard.php');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const html = await response.text();
+                
+                // Parse the HTML to check profileInit data
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Check if profileData is initialized with values
+                const scripts = doc.querySelectorAll('script');
+                let profileInitFound = false;
+                let profileDataContent = '';
+                
+                for (let script of scripts) {
+                    if (script.textContent.includes('profileInit')) {
+                        profileInitFound = true;
+                        // Extract profileData initialization
+                        const match = script.textContent.match(/profileData:\s*{([^}]+)}/);
+                        if (match) {
+                            profileDataContent = match[0];
+                        }
+                        break;
+                    }
+                }
+                
+                let html_result = '<h3 class="success">✓ Dashboard Loaded Successfully</h3>';
+                
+                if (profileInitFound) {
+                    html_result += '<h4>Profile Initialization Found:</h4>';
+                    html_result += `<pre>${profileDataContent}</pre>`;
+                    
+                    // Check if it has PHP values (not empty strings)
+                    if (profileDataContent.includes('<?php') || profileDataContent.includes('json_encode')) {
+                        html_result += '<p class="success">✓ Profile data is initialized with PHP values from database</p>';
+                    } else if (profileDataContent.includes("name: ''") && profileDataContent.includes("username: ''")) {
+                        html_result += '<p class="error">✗ WARNING: Profile data appears to use empty string defaults</p>';
+                    }
+                } else {
+                    html_result += '<p class="error">✗ profileInit not found in page source</p>';
+                }
+                
+                resultDiv.innerHTML = html_result;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">✗ Dashboard Test Failed: ${error.message}</p>`;
+            }
+        }
+        
+        function testFormFields() {
+            const resultDiv = document.getElementById('form-result');
+            
+            // We can't directly test the form from this page, so provide instructions
+            resultDiv.innerHTML = `
+                <h3>📋 Manual Form Check Instructions:</h3>
+                <ol style="line-height: 2;">
+                    <li>Open <a href="/carwash_project/backend/dashboard/Customer_Dashboard.php" target="_blank">Customer Dashboard</a></li>
+                    <li>Click on "Profil" in the sidebar</li>
+                    <li>Click "Düzenle" button to enter edit mode</li>
+                    <li>Verify the following fields have actual values (not placeholders):</li>
+                </ol>
+                <div style="margin-left: 40px;">
+                    <div class="field-check">✓ Ad Soyad (Name) - Should show full name</div>
+                    <div class="field-check">✓ Kullanıcı Adı (Username) - Should show username</div>
+                    <div class="field-check">✓ E-posta (Email) - Should show email</div>
+                    <div class="field-check">✓ Telefon (Phone) - Should show phone number</div>
+                    <div class="field-check">✓ Ev Telefonu (Home Phone) - Should show home phone</div>
+                    <div class="field-check">✓ T.C. Kimlik No (National ID) - Should show national ID</div>
+                    <div class="field-check">✓ Sürücü Belgesi No (Driver License) - Should show license (if set)</div>
+                    <div class="field-check">✓ Şehir (City) - Should show city</div>
+                    <div class="field-check">✓ Adres (Address) - Should show full address</div>
+                </div>
+                <p style="margin-top: 20px;"><strong>Expected Result:</strong> All fields with data in database should display those values, NOT empty fields or placeholder text.</p>
+            `;
+        }
+    </script>
+</body>
+</html>

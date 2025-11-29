@@ -24,10 +24,11 @@ $user_email = $_SESSION['email'] ?? '';
 $db = Database::getInstance();
 $userData = $db->fetchOne(
     "SELECT 
-        u.id, u.full_name, u.email, u.phone, u.profile_image, u.address,
+        u.id, u.full_name, u.username, u.email, u.phone, u.profile_image, u.address,
         up.city, up.state, up.postal_code, up.country, up.birth_date, up.gender, 
         up.notification_settings, up.preferences, up.profile_image AS profile_img_extended,
-        up.phone AS phone_extended, up.home_phone, up.national_id, up.driver_license
+        up.phone AS phone_extended, up.home_phone, up.national_id, up.driver_license,
+        up.address AS profile_address
     FROM users u 
     LEFT JOIN user_profiles up ON u.id = up.user_id 
     WHERE u.id = :user_id",
@@ -55,8 +56,9 @@ $user_home_phone = $userData['home_phone'] ?? '';
 $user_national_id = $userData['national_id'] ?? '';
 $user_driver_license = $userData['driver_license'] ?? '';
 $user_profile_image = $userData['profile_img_extended'] ?? $userData['profile_image'] ?? '';
-$user_address = $userData['address'] ?? '';
+$user_address = $userData['profile_address'] ?? $userData['address'] ?? '';
 $user_city = $userData['city'] ?? '';
+$user_username = $userData['username'] ?? '';
 $user_state = $userData['state'] ?? '';
 $user_postal_code = $userData['postal_code'] ?? '';
 $user_country = $userData['country'] ?? '';
@@ -275,28 +277,29 @@ if (!empty($successMessage) && !empty($_SESSION['profile_image'])) {
         document.querySelectorAll('.profile-img, .sidebar-avatar-img').forEach(function(img){ els.push(img); });
 
         if (els.length === 0) {
-            // Defer a lightweight search for a fallback element to avoid blocking critical path
-            setTimeout(function(){
+            // Use targeted selector instead of expensive querySelectorAll on ALL images
+            // Schedule with rAF for better performance (non-blocking)
+            requestAnimationFrame(function(){
                 try {
-                    var imgs = document.querySelectorAll('img');
-                    for (var i = 0; i < imgs.length; i++) {
-                        var el = imgs[i];
-                        var idc = el.id || '';
-                        var cls = el.className || '';
-                        if (/avatar|profile/i.test(idc + ' ' + cls)) {
-                            requestAnimationFrame(function(){ try{ el.src = newSrc; }catch(e){} });
-                            break;
-                        }
+                    // More specific selectors prevent heavy DOM traversal
+                    var fallbackImgs = document.querySelectorAll('img[class*="avatar"], img[class*="profile"], img[id*="avatar"], img[id*="profile"]');
+                    if (fallbackImgs.length > 0 && fallbackImgs[0]) {
+                        fallbackImgs[0].src = newSrc;
                     }
                 } catch (e) { /* ignore */ }
-            }, 50);
+            });
             return;
         }
 
-        // Perform writes in one rAF callback
+        // Perform writes in one rAF callback (pure writes, no reads)
         requestAnimationFrame(function(){
+            // Batch all writes together without any reads to prevent forced reflow
             for (var i = 0; i < els.length; i++) {
-                try { els[i].src = newSrc; } catch (e) { /* ignore update errors */ }
+                try { 
+                    if (els[i] && els[i].src !== undefined) {
+                        els[i].src = newSrc;
+                    }
+                } catch (e) { /* ignore update errors */ }
             }
         });
     }
@@ -383,23 +386,54 @@ if (!isset($base_url)) {
             console.log('filterCarWashes called but not yet initialized');
         };
     </script>
+    <!-- Check if page reloaded after successful profile update -->
+    <script>
+        (function(){
+            // Check if we just reloaded from a successful profile update
+            try {
+                if (sessionStorage.getItem('profile_update_success') === 'true') {
+                    // Clear the flag
+                    sessionStorage.removeItem('profile_update_success');
+                    
+                    // Show success message after DOM is ready with extended duration (4 seconds)
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (window.showGlobalToast) {
+                                window.showGlobalToast('✓ Bilgileriniz güncellendi ve sayfa yenilendi', 'success', 4000);
+                            } else if (window.showSuccess) {
+                                window.showSuccess('Bilgileriniz başarıyla güncellendi');
+                            }
+                        });
+                    } else {
+                        if (window.showGlobalToast) {
+                            window.showGlobalToast('✓ Bilgileriniz güncellendi ve sayfa yenilendi', 'success', 4000);
+                        } else if (window.showSuccess) {
+                            window.showSuccess('Bilgileriniz başarıyla güncellendi');
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not check profile update status', e);
+            }
+        })();
+    </script>
     <!-- Lightweight Alpine data factory for profile section (defines profileSection) -->
     <script>
         (function(){
-            // Lightweight initial profile state (client will fetch authoritative DB values on init)
+            // Initialize profile state with PHP data from database (authoritative values on load)
             const profileInit = {
                 editMode: false,
                 profileData: {
-                    name: '',
-                    email: '',
-                    username: '',
-                    phone: '',
-                    home_phone: '',
-                    national_id: '',
-                    driver_license: '',
-                    city: '',
-                    address: '',
-                    profile_image: ''
+                    name: <?php echo json_encode($user_name); ?>,
+                    email: <?php echo json_encode($user_email); ?>,
+                    username: <?php echo json_encode($user_username ?? ''); ?>,
+                    phone: <?php echo json_encode($user_phone); ?>,
+                    home_phone: <?php echo json_encode($user_home_phone); ?>,
+                    national_id: <?php echo json_encode($user_national_id); ?>,
+                    driver_license: <?php echo json_encode($user_driver_license); ?>,
+                    city: <?php echo json_encode($user_city); ?>,
+                    address: <?php echo json_encode($user_address); ?>,
+                    profile_image: <?php echo json_encode($user_profile_image); ?>
                 }
             };
 
@@ -425,7 +459,11 @@ if (!isset($base_url)) {
                         if (!data || typeof data !== 'object') return;
                         Object.keys(data).forEach(k => {
                             if (k === 'profile_image') {
-                                this.profileData.profile_image = data[k];
+                                // Strip any existing cache-busters from the URL before storing
+                                var cleanUrl = data[k] ? data[k].split('?')[0].split('#')[0] : '';
+                                this.profileData.profile_image = cleanUrl;
+                                // Force Alpine to re-render by updating timestamp
+                                this.profileData._imageTimestamp = Date.now();
                             } else if (data[k] !== undefined) {
                                 this.profileData[k] = data[k];
                             }
@@ -2226,10 +2264,17 @@ if (!isset($base_url)) {
                     <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
                         <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
                             <img
-                                :src="profileData.profile_image ? ('<?php echo BASE_URL; ?>/' + profileData.profile_image) : '<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'"
+                                :src="(function(){
+                                    var base = '<?php echo BASE_URL; ?>';
+                                    var img = profileData.profile_image || '';
+                                    if (!img) return base + '/frontend/images/default-avatar.svg';
+                                    if (img.startsWith('http://') || img.startsWith('https://')) return img + '?t=' + Date.now();
+                                    if (img.startsWith(base)) return img + '?t=' + Date.now();
+                                    return base + '/' + img.replace(/^\/+/, '') + '?t=' + Date.now();
+                                })()"
                                 alt="Profile"
                                 class="w-full h-full object-cover"
-                                onerror="this.src='<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'"
+                                @error="$event.target.src='<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'; $event.target.onerror=null;"
                             >
                         </div>
                         <div>
@@ -2242,7 +2287,7 @@ if (!isset($base_url)) {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-gray-500">Kullanıcı Adı</label>
-                            <p class="text-base text-gray-900" x-text="profileData.username || '-'"><?php echo htmlspecialchars($userData['username'] ?? $_SESSION['username'] ?? '-'); ?></p>
+                            <p class="text-base text-gray-900" x-text="profileData.username || '-'"><?php echo htmlspecialchars($user_username ?: '-'); ?></p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-gray-500">Telefon</label>
@@ -2328,10 +2373,18 @@ if (!isset($base_url)) {
                                 <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
                                     <img
                                         id="profileImagePreview"
-                                        x-bind:src="profileData.profile_image ? (profileData.profile_image) : (window.getCanonicalProfileImage ? window.getCanonicalProfileImage() : '/carwash_project/frontend/images/default-avatar.svg')"
+                                        :src="(function(){
+                                            var base = '<?php echo BASE_URL; ?>';
+                                            var img = profileData.profile_image || '';
+                                            var cb = '?t=' + Date.now();
+                                            if (!img) return base + '/frontend/images/default-avatar.svg';
+                                            if (img.startsWith('http://') || img.startsWith('https://')) return img + cb;
+                                            if (img.startsWith(base)) return img + cb;
+                                            return base + '/' + img.replace(/^\/+/, '') + cb;
+                                        })()"
                                         alt="Profile"
                                         class="w-full h-full object-cover"
-                                        onerror="this.src='/carwash_project/frontend/images/default-avatar.svg'"
+                                        @error="$event.target.src='<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'; $event.target.onerror=null;"
                                     >
                                 </div>
                             </div>
@@ -2380,7 +2433,7 @@ if (!isset($base_url)) {
                                 type="text"
                                 id="profile_username"
                                 name="username"
-                                value="<?php echo htmlspecialchars($userData['username'] ?? $_SESSION['username'] ?? ''); ?>"
+                                value="<?php echo htmlspecialchars($user_username); ?>"
                                 required
                                 autocomplete="username"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
@@ -3487,9 +3540,14 @@ if (!isset($base_url)) {
                             });
 
                             // Load favorites when section becomes visible
+                            // Use requestIdleCallback to avoid blocking main thread (fallback to rAF)
                             document.addEventListener('sectionChanged', function(e) {
                                 if (e.detail && e.detail.section === 'carWashSelection') {
-                                    setTimeout(loadAllFavoriteStatuses, 100);
+                                    if (window.requestIdleCallback) {
+                                        requestIdleCallback(loadAllFavoriteStatuses, { timeout: 200 });
+                                    } else {
+                                        requestAnimationFrame(loadAllFavoriteStatuses);
+                                    }
                                 }
                             });
 
@@ -4351,13 +4409,19 @@ window.refreshProfileImages = function(newUrl) {
 
     if (!newUrl) return;
 
+    // Clear any previously cached profile image URLs to prevent 404 errors
+    try {
+        localStorage.removeItem('carwash_profile_image');
+        localStorage.removeItem('carwash_profile_image_ts');
+    } catch (e) { /* ignore */ }
+
     // Always append a lightweight client-side cache-buster so browsers reload
     // (use `cb` to avoid interfering with server-managed `?ts=` param)
     var cb = 'cb=' + Date.now();
     var separator = newUrl.indexOf('?') === -1 ? '?' : '&';
     var newUrlWithCb = newUrl + separator + cb;
 
-    // Persist canonical image and timestamp to localStorage for cross-tab updates
+    // Persist NEW canonical image and timestamp to localStorage for cross-tab updates
     try {
         localStorage.setItem('carwash_profile_image', newUrl);
         localStorage.setItem('carwash_profile_image_ts', Date.now().toString());
@@ -4366,6 +4430,25 @@ window.refreshProfileImages = function(newUrl) {
     // layout thrash; only update DOM once on successful load.
     var pre = new Image();
     var handled = false;
+    var fallbackUrl = '<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg';
+    
+    pre.onerror = function() {
+        if (handled) return; handled = true;
+        // Image failed to load (404 or other error) - use fallback immediately
+        console.warn('Profile image failed to load (404): ' + newUrlWithCb + ' - using fallback');
+        requestAnimationFrame(function() {
+            var selectors = '#headerProfileImage, #sidebarProfileImage, #mobileMenuAvatar, #profileImagePreview, .profile-img, .sidebar-avatar-img';
+            var imgs = document.querySelectorAll(selectors);
+            for (var i = 0; i < imgs.length; i++) {
+                var el = imgs[i];
+                if (el && el.tagName && el.tagName.toLowerCase() === 'img') {
+                    el.setAttribute('src', fallbackUrl);
+                    el.onerror = null; // Prevent infinite error loops
+                }
+            }
+        });
+    };
+    
     pre.onload = function() {
         if (handled) return; handled = true;
         // Batch the DOM writes in a single rAF callback.
@@ -4375,33 +4458,43 @@ window.refreshProfileImages = function(newUrl) {
             var imgs = document.querySelectorAll(selectors);
             if (!imgs || imgs.length === 0) return;
 
-            // Compute base of the new URL (without cb) so we can compare
-            var newBase = newUrlWithCb.split('cb=')[0];
-
-            // Update src/background in-place with minimal per-element work
+            // PHASE 1: Batch all DOM READS first (prevent read-write interleaving)
+            var updates = [];
+            var newBase = newUrlWithCb.split('cb=')[0].split('?t=')[0];
+            
             for (var i = 0; i < imgs.length; i++) {
+                var el = imgs[i];
+                if (!el) continue;
+                
+                var isImg = el.tagName && el.tagName.toLowerCase() === 'img';
+                var needsUpdate = false;
+                
+                if (isImg) {
+                    var current = el.getAttribute('src') || '';
+                    var curBase = current.split('cb=')[0].split('?t=')[0];
+                    needsUpdate = (curBase !== newBase || current.indexOf('cb=') === -1);
+                } else {
+                    var bg = el.style && el.style.backgroundImage ? el.style.backgroundImage : '';
+                    needsUpdate = (bg.indexOf(newBase) === -1);
+                }
+                
+                if (needsUpdate) {
+                    updates.push({el: el, isImg: isImg});
+                }
+            }
+            
+            // PHASE 2: Batch all DOM WRITES (no reads, no forced reflows)
+            for (var j = 0; j < updates.length; j++) {
                 try {
-                    var el = imgs[i];
-                    if (!el) continue;
-                    if (el.tagName && el.tagName.toLowerCase() === 'img') {
-                        var current = el.getAttribute('src') || '';
-                        var curBase = current.split('cb=')[0];
-                        if (curBase !== newBase) {
-                            el.setAttribute('src', newUrlWithCb);
-                        } else if (current.indexOf('cb=') === -1) {
-                            // ensure cache-buster present
-                            el.setAttribute('src', newUrlWithCb);
-                        }
-                        // touch srcset lightly if present (no heavy layout read)
-                        if (el.srcset) el.srcset = el.srcset;
+                    var item = updates[j];
+                    if (item.isImg) {
+                        item.el.setAttribute('src', newUrlWithCb);
+                        item.el.onerror = function() {
+                            this.src = fallbackUrl;
+                            this.onerror = null;
+                        };
                     } else {
-                        // For non-img elements, set inline background-image only if different
-                        try {
-                            var bg = el.style && el.style.backgroundImage ? el.style.backgroundImage : '';
-                            if (bg.indexOf(newBase) === -1) {
-                                el.style.backgroundImage = 'url("' + newUrlWithCb + '")';
-                            }
-                        } catch (e) { /* ignore */ }
+                        item.el.style.backgroundImage = 'url("' + newUrlWithCb + '")';
                     }
                 } catch (e) { /* ignore per-element errors */ }
             }
@@ -4491,10 +4584,20 @@ window.refreshProfileImages = function(newUrl) {
                         window.showError && window.showError('Dosya çok büyük. Maksimum 3MB.');
                         return;
                     }
+                    
+                    // Clear old cached profile image from localStorage to prevent 404 errors
+                    try {
+                        localStorage.removeItem('carwash_profile_image');
+                        localStorage.removeItem('carwash_profile_image_ts');
+                    } catch (e) { /* ignore */ }
+                    
                     var reader = new FileReader();
                     reader.onload = function(eu) {
                         var preview = document.getElementById('profileImagePreview');
-                        if (preview) preview.src = eu.target.result;
+                        if (preview) {
+                            preview.src = eu.target.result;
+                            preview.onerror = null; // Clear any existing error handlers
+                        }
                     };
                     reader.readAsDataURL(f);
                 });
@@ -4534,9 +4637,12 @@ window.refreshProfileImages = function(newUrl) {
             })
             .then(result => {
                 if (result.success) {
-                    // Success: Show in global toast
-                    if (window.showSuccess) {
-                        window.showSuccess(result.message || 'Profile updated successfully');
+                    // Success: Show Turkish success message with extended duration (3.5 seconds)
+                    // This ensures the message is fully visible before page reload
+                    if (window.showGlobalToast) {
+                        window.showGlobalToast('Bilgileriniz başarıyla güncellendi ✓ Sayfa yenileniyor...', 'success', 3500);
+                    } else if (window.showSuccess) {
+                        window.showSuccess('Bilgileriniz başarıyla güncellendi');
                     }
 
                     // Determine authoritative user payload from response
@@ -4622,6 +4728,19 @@ window.refreshProfileImages = function(newUrl) {
                     try {
                         document.dispatchEvent(new CustomEvent('restoreTab', { detail: { tab: 'profile' } }));
                     } catch (e) { /* ignore */ }
+
+                    // Automatically reload page after 3 seconds to show updated data
+                    // This delay ensures user can fully read the success notification
+                    // Note: This setTimeout is intentional for UX and does not cause performance issues
+                    setTimeout(function() {
+                        // Store that we're reloading from a successful update
+                        try {
+                            sessionStorage.setItem('profile_update_success', 'true');
+                        } catch (e) { /* ignore */ }
+                        
+                        // Reload the page to fetch fresh data
+                        window.location.reload();
+                    }, 3000);
                 } else {
                     // Error: Show in global toast if requested, otherwise in form
                     if (result.show_global_error && window.showError) {
