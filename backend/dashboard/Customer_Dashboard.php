@@ -72,6 +72,40 @@ $sess1 = $_SESSION['user']['profile_image'] ?? 'MISSING';
 $sess2 = $_SESSION['profile_image'] ?? 'MISSING';
 cw_log_debug("[Customer_Dashboard] user_id={$user_id} - resolved user_profile_image={$user_profile_image}; session[user][profile_image]={$sess1}; session[profile_image]={$sess2}");
 
+// SERVER-SIDE VALIDATION: Verify profile image exists, fallback to default if missing
+// This prevents 404 errors by validating the file path before rendering
+// Database stores relative path (e.g., uploads/profiles/profile_14_1764414270.jpg)
+if (!empty($user_profile_image)) {
+    // Clean the path - remove any query parameters (cb=xxx, t=xxx, ts=xxx)
+    $cleanPath = preg_replace('/\?.*$/', '', $user_profile_image);
+    
+    // Remove any leading slash
+    $cleanPath = ltrim($cleanPath, '/');
+    
+    // If path doesn't start with uploads/profiles/, prepend it (backward compatibility)
+    if (strpos($cleanPath, 'uploads/profiles/') !== 0) {
+        // If it's just a filename, add the path
+        if (strpos($cleanPath, '/') === false) {
+            $cleanPath = 'uploads/profiles/' . $cleanPath;
+        }
+    }
+    
+    // Build absolute filesystem path from project root
+    $absolutePath = __DIR__ . '/../../' . $cleanPath;
+    
+    // Verify file exists on disk
+    if (!file_exists($absolutePath) || !is_readable($absolutePath)) {
+        cw_log_debug("[Customer_Dashboard] Profile image not found or not readable: {$absolutePath} - using fallback");
+        $user_profile_image = 'frontend/images/default-avatar.svg';
+    } else {
+        // File exists - use relative path
+        $user_profile_image = $cleanPath;
+    }
+} else {
+    // No profile image set - use default
+    $user_profile_image = 'frontend/images/default-avatar.svg';
+}
+
 // Attempt automatic fixes on dashboard load to ensure session/DB/file consistency
 if (function_exists('autoFixProfileImage')) {
     try {
@@ -260,7 +294,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // If upload succeeded, inject a small script to update avatar images on the page
 // This helps when forms are submitted via AJAX or when the page reload still shows cached images
 if (!empty($successMessage) && !empty($_SESSION['profile_image'])) {
-    $newImg = htmlspecialchars($_SESSION['profile_image'], ENT_QUOTES, 'UTF-8');
+    // Build full URL from relative path
+    $relativePath = $_SESSION['profile_image'];
+    $fullImageUrl = $base_url . '/' . ltrim($relativePath, '/');
+    $newImg = htmlspecialchars($fullImageUrl, ENT_QUOTES, 'UTF-8');
     $ts = intval($_SESSION['profile_image_ts'] ?? time());
     echo <<<HTML
 <script>
@@ -359,15 +396,23 @@ if (!isset($base_url)) {
     </script>
     <script>
         // Expose a canonical profile image URL and helper for client-side code
+        // SERVER-VALIDATED: $user_profile_image is guaranteed to exist or fallback to default
         window.CARWASH = window.CARWASH || {};
         window.CARWASH.profile = window.CARWASH.profile || {};
-        window.CARWASH.profile.canonical = '<?php echo htmlspecialchars($user_profile_image ?: ($base_url . "/frontend/images/default-avatar.svg"), ENT_QUOTES, "UTF-8"); ?>';
+        <?php
+        // Build absolute URL from validated path (no query parameters)
+        $profileImageUrl = $user_profile_image;
+        if (!preg_match('/^https?:\/\//', $profileImageUrl)) {
+            // Relative path - prepend BASE_URL
+            $profileImageUrl = $base_url . '/' . ltrim($profileImageUrl, '/');
+        }
+        ?>
+        window.CARWASH.profile.canonical = '<?php echo htmlspecialchars($profileImageUrl, ENT_QUOTES, "UTF-8"); ?>';
         window.CARWASH.profile.ts = '<?php echo intval($_SESSION['profile_image_ts'] ?? time()); ?>';
         window.getCanonicalProfileImage = function() {
-            var url = window.CARWASH.profile.canonical || '<?php echo $base_url . "/frontend/images/default-avatar.svg"; ?>';
-            var ts = window.CARWASH.profile.ts || '<?php echo intval($_SESSION['profile_image_ts'] ?? time()); ?>';
-            var sep = url.indexOf('?') === -1 ? '?' : '&';
-            return url + sep + 'cb=' + ts;
+            // Return validated canonical URL without additional query parameters
+            // The server has already verified this file exists
+            return window.CARWASH.profile.canonical || '<?php echo $base_url . "/frontend/images/default-avatar.svg"; ?>';
         };
     </script>
     
@@ -2264,14 +2309,7 @@ if (!isset($base_url)) {
                     <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
                         <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
                             <img
-                                :src="(function(){
-                                    var base = '<?php echo BASE_URL; ?>';
-                                    var img = profileData.profile_image || '';
-                                    if (!img) return base + '/frontend/images/default-avatar.svg';
-                                    if (img.startsWith('http://') || img.startsWith('https://')) return img + '?t=' + Date.now();
-                                    if (img.startsWith(base)) return img + '?t=' + Date.now();
-                                    return base + '/' + img.replace(/^\/+/, '') + '?t=' + Date.now();
-                                })()"
+                                :src="window.CARWASH && window.CARWASH.profile && window.CARWASH.profile.canonical ? window.CARWASH.profile.canonical : '<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'"
                                 alt="Profile"
                                 class="w-full h-full object-cover"
                                 @error="$event.target.src='<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'; $event.target.onerror=null;"
@@ -2373,15 +2411,7 @@ if (!isset($base_url)) {
                                 <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100">
                                     <img
                                         id="profileImagePreview"
-                                        :src="(function(){
-                                            var base = '<?php echo BASE_URL; ?>';
-                                            var img = profileData.profile_image || '';
-                                            var cb = '?t=' + Date.now();
-                                            if (!img) return base + '/frontend/images/default-avatar.svg';
-                                            if (img.startsWith('http://') || img.startsWith('https://')) return img + cb;
-                                            if (img.startsWith(base)) return img + cb;
-                                            return base + '/' + img.replace(/^\/+/, '') + cb;
-                                        })()"
+                                        :src="window.CARWASH && window.CARWASH.profile && window.CARWASH.profile.canonical ? window.CARWASH.profile.canonical : '<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'"
                                         alt="Profile"
                                         class="w-full h-full object-cover"
                                         @error="$event.target.src='<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'; $event.target.onerror=null;"
@@ -4393,9 +4423,10 @@ if (!isset($base_url)) {
 
 // ================================
 // Profile Image Refresh Helper
+// Uses server-validated canonical URLs to prevent 404 errors
 // ================================
 window.refreshProfileImages = function(newUrl) {
-    // If caller didn't provide a URL, try to obtain canonical URL exposed by header include
+    // Use server-validated canonical URL if available
     if (!newUrl) {
         if (typeof window.getCanonicalProfileImage === 'function') {
             newUrl = window.getCanonicalProfileImage();
@@ -4409,41 +4440,44 @@ window.refreshProfileImages = function(newUrl) {
 
     if (!newUrl) return;
 
-    // Clear any previously cached profile image URLs to prevent 404 errors
+    // Convert relative path to full URL if needed
+    if (newUrl.indexOf('http://') !== 0 && newUrl.indexOf('https://') !== 0) {
+        // It's a relative path - prepend BASE_URL
+        var baseUrl = window.CONFIG && window.CONFIG.BASE_URL ? window.CONFIG.BASE_URL : '<?php echo BASE_URL; ?>';
+        newUrl = baseUrl + '/' + newUrl.replace(/^\/+/, ''); // Remove leading slashes
+    }
+
+    // Clear cached profile image URLs
     try {
         localStorage.removeItem('carwash_profile_image');
         localStorage.removeItem('carwash_profile_image_ts');
     } catch (e) { /* ignore */ }
 
-    // Always append a lightweight client-side cache-buster so browsers reload
-    // (use `cb` to avoid interfering with server-managed `?ts=` param)
-    var cb = 'cb=' + Date.now();
-    var separator = newUrl.indexOf('?') === -1 ? '?' : '&';
-    var newUrlWithCb = newUrl + separator + cb;
+    // Clean URL - remove existing query parameters (server validates paths)
+    var cleanUrl = newUrl.split('?')[0].split('#')[0];
 
-    // Persist NEW canonical image and timestamp to localStorage for cross-tab updates
+    // Persist canonical image to localStorage
     try {
-        localStorage.setItem('carwash_profile_image', newUrl);
+        localStorage.setItem('carwash_profile_image', cleanUrl);
         localStorage.setItem('carwash_profile_image_ts', Date.now().toString());
     } catch (e) { /* ignore storage errors */ }
-    // Preload the new image first to avoid swapping broken images and to reduce
-    // layout thrash; only update DOM once on successful load.
+    
+    // Preload image before updating DOM to verify it exists
     var pre = new Image();
     var handled = false;
     var fallbackUrl = '<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg';
     
     pre.onerror = function() {
         if (handled) return; handled = true;
-        // Image failed to load (404 or other error) - use fallback immediately
-        console.warn('Profile image failed to load (404): ' + newUrlWithCb + ' - using fallback');
+        console.warn('Profile image failed to load: ' + cleanUrl + ' - using fallback');
+        // Batch fallback updates in single rAF
         requestAnimationFrame(function() {
             var selectors = '#headerProfileImage, #sidebarProfileImage, #mobileMenuAvatar, #profileImagePreview, .profile-img, .sidebar-avatar-img';
             var imgs = document.querySelectorAll(selectors);
             for (var i = 0; i < imgs.length; i++) {
-                var el = imgs[i];
-                if (el && el.tagName && el.tagName.toLowerCase() === 'img') {
-                    el.setAttribute('src', fallbackUrl);
-                    el.onerror = null; // Prevent infinite error loops
+                if (imgs[i] && imgs[i].tagName && imgs[i].tagName.toLowerCase() === 'img') {
+                    imgs[i].src = fallbackUrl;
+                    imgs[i].onerror = null;
                 }
             }
         });
@@ -4451,60 +4485,28 @@ window.refreshProfileImages = function(newUrl) {
     
     pre.onload = function() {
         if (handled) return; handled = true;
-        // Batch the DOM writes in a single rAF callback.
+        // Batch DOM updates in single rAF
         requestAnimationFrame(function() {
-            // Query selectors once. Avoid reading layout properties here.
             var selectors = '#headerProfileImage, #sidebarProfileImage, #mobileMenuAvatar, #profileImagePreview, .profile-img, .sidebar-avatar-img';
             var imgs = document.querySelectorAll(selectors);
             if (!imgs || imgs.length === 0) return;
 
-            // PHASE 1: Batch all DOM READS first (prevent read-write interleaving)
-            var updates = [];
-            var newBase = newUrlWithCb.split('cb=')[0].split('?t=')[0];
-            
+            // Update all image sources with clean validated URL
             for (var i = 0; i < imgs.length; i++) {
-                var el = imgs[i];
-                if (!el) continue;
-                
-                var isImg = el.tagName && el.tagName.toLowerCase() === 'img';
-                var needsUpdate = false;
-                
-                if (isImg) {
-                    var current = el.getAttribute('src') || '';
-                    var curBase = current.split('cb=')[0].split('?t=')[0];
-                    needsUpdate = (curBase !== newBase || current.indexOf('cb=') === -1);
-                } else {
-                    var bg = el.style && el.style.backgroundImage ? el.style.backgroundImage : '';
-                    needsUpdate = (bg.indexOf(newBase) === -1);
+                var img = imgs[i];
+                if (img && img.tagName && img.tagName.toLowerCase() === 'img') {
+                    img.src = cleanUrl;
+                    img.onerror = function() {
+                        this.src = fallbackUrl;
+                        this.onerror = null;
+                    };
                 }
-                
-                if (needsUpdate) {
-                    updates.push({el: el, isImg: isImg});
-                }
-            }
-            
-            // PHASE 2: Batch all DOM WRITES (no reads, no forced reflows)
-            for (var j = 0; j < updates.length; j++) {
-                try {
-                    var item = updates[j];
-                    if (item.isImg) {
-                        item.el.setAttribute('src', newUrlWithCb);
-                        item.el.onerror = function() {
-                            this.src = fallbackUrl;
-                            this.onerror = null;
-                        };
-                    } else {
-                        item.el.style.backgroundImage = 'url("' + newUrlWithCb + '")';
-                    }
-                } catch (e) { /* ignore per-element errors */ }
             }
         });
     };
-    pre.onerror = function() {
-        try { window.showError && window.showError('Profil resmi yüklenemedi. Lütfen tekrar deneyin.'); } catch (e) {}
-    };
-    // Start preload (assign src last to trigger load)
-    pre.src = newUrlWithCb;
+    
+    // Start preload to verify image exists
+    pre.src = cleanUrl;
 };
 
 // ================================

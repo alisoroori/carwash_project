@@ -59,8 +59,8 @@ function handleProfileUploadFromPath(int $userId, string $sourceFilePath) {
     // Ensure reasonable permissions on the stored file
     @chmod($dest, 0644);
 
-    // Build web-accessible path (consistent with header logic)
-    $imagePath = 'uploads/profiles/' . $finalName;
+    // Store relative path in database: uploads/profiles/filename
+    $relativePath = 'uploads/profiles/' . $finalName;
 
     try {
         // Persist profile_image to canonical `user_profiles` table
@@ -70,12 +70,12 @@ function handleProfileUploadFromPath(int $userId, string $sourceFilePath) {
             return $result;
         }
 
-        // Upsert into user_profiles
+        // Upsert into user_profiles - store relative path
         $existingProfile = $db->fetchOne('SELECT user_id FROM user_profiles WHERE user_id = :user_id', ['user_id' => $userId]);
         if ($existingProfile) {
-            $db->update('user_profiles', ['profile_image' => $imagePath], ['user_id' => $userId]);
+            $db->update('user_profiles', ['profile_image' => $relativePath], ['user_id' => $userId]);
         } else {
-            $db->insert('user_profiles', ['user_id' => $userId, 'profile_image' => $imagePath]);
+            $db->insert('user_profiles', ['user_id' => $userId, 'profile_image' => $relativePath]);
         }
 
         // Verify written to user_profiles table
@@ -87,14 +87,14 @@ function handleProfileUploadFromPath(int $userId, string $sourceFilePath) {
 
         // Update PHP session if available
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $_SESSION['profile_image'] = $verify['profile_image'];
-        $_SESSION['user']['profile_image'] = $verify['profile_image'];
+        $_SESSION['profile_image'] = $verify['profile_image'];  // Relative path
+        $_SESSION['user']['profile_image'] = $verify['profile_image'];  // Relative path
         $_SESSION['profile_image_ts'] = time();
 
         $result['success'] = true;
         $result['message'] = 'Profile image uploaded and DB updated';
-        // Return a cache-busted URL using `cb` to match client behavior
-        $result['profile_image'] = $verify['profile_image'] . (strpos($verify['profile_image'], '?') === false ? '?cb=' . intval($_SESSION['profile_image_ts']) : '&cb=' . intval($_SESSION['profile_image_ts']));
+        // Return relative path
+        $result['profile_image'] = $verify['profile_image'];
         return $result;
     } catch (Exception $e) {
         $result['error'] = 'DB error: ' . $e->getMessage();

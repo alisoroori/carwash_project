@@ -167,18 +167,20 @@ try {
             die('Error: Profile image too large. Maximum 5MB.');
         }
 
-        $uploadDir = __DIR__ . '/uploads/profiles/';
+        // Use project root uploads/profiles/ directory
+        $uploadDir = __DIR__ . '/../../uploads/profiles/';
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
         $file_extension = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
-        $profile_image = 'profile_' . uniqid() . '_' . time() . '.' . $file_extension;
-        $target = $uploadDir . $profile_image;
+        $filename = 'profile_' . uniqid() . '_' . time() . '.' . $file_extension;
+        $target = $uploadDir . $filename;
 
         if (!move_uploaded_file($_FILES['profile_image']['tmp_name'], $target)) {
             die('Error: Failed to upload profile image.');
         }
 
-        $profile_image = '/carwash_project/backend/auth/uploads/profiles/' . $profile_image . '?ts=' . time();
+        // Store relative path in database: uploads/profiles/filename
+        $profile_image = 'uploads/profiles/' . $filename;
     }
     
     // Handle logo image upload

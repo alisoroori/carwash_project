@@ -45,7 +45,8 @@ try {
                 Response::error('Error: Dosya çok büyük. Maksimum 3MB.', 400);
             }
 
-        $uploadDir = PROFILE_UPLOAD_PATH;
+        // Use project root uploads/profiles/ directory
+        $uploadDir = __DIR__ . '/../../uploads/profiles';
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
         $ext = pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION);
@@ -58,7 +59,7 @@ try {
             Response::error('Error: Profil resmi yüklenemedi. ' . $detail, 500);
         }
 
-        // Store relative path in DB (consistent with vehicle images)
+        // Store relative path in DB: uploads/profiles/filename
         $profilePath = 'uploads/profiles/' . $filename;
 
         // Remove old profile image if set and not default
