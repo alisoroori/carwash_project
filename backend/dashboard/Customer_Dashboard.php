@@ -2226,11 +2226,10 @@ if (!isset($base_url)) {
                     <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
                         <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
                             <img
-                                src="<?php echo htmlspecialchars(!empty($user_profile_image) ? $user_profile_image : '/carwash_project/frontend/images/default-avatar.svg'); ?>"
-                                :src="profileData.profile_image"
+                                :src="profileData.profile_image ? ('<?php echo BASE_URL; ?>/' + profileData.profile_image) : '<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'"
                                 alt="Profile"
                                 class="w-full h-full object-cover"
-                                onerror="this.src='/carwash_project/frontend/images/default-avatar.svg'"
+                                onerror="this.src='<?php echo BASE_URL; ?>/frontend/images/default-avatar.svg'"
                             >
                         </div>
                         <div>
