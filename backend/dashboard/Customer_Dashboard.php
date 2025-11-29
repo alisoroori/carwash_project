@@ -4214,11 +4214,18 @@ if (!isset($base_url)) {
 (function() {
     'use strict';
     
+    let layoutUpdateScheduled = false;
+    
     function updateLayoutHeights() {
+        // Prevent duplicate updates
+        if (layoutUpdateScheduled) return;
+        layoutUpdateScheduled = true;
+        
         // Use requestAnimationFrame to batch DOM reads/writes
         requestAnimationFrame(() => {
+            layoutUpdateScheduled = false;
+            
             const root = document.documentElement;
-
             // Cache viewport width to avoid multiple reflows
             const viewportWidth = window.innerWidth;
             let sidebarWidth = 250;
@@ -4234,30 +4241,27 @@ if (!isset($base_url)) {
             // Batch style property updates
             root.style.setProperty('--header-height', '80px');
             root.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
-
-            // Remove console.log for performance
-            // console.log('✅ Layout updated - Header: 80px, Sidebar:', sidebarWidth + 'px');
         });
     }
     
-    // Update on load
+    // Update on load - single call, no setTimeout needed
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', updateLayoutHeights);
+        document.addEventListener('DOMContentLoaded', updateLayoutHeights, { once: true });
     } else {
         updateLayoutHeights();
     }
     
-    // Update on resize (debounced)
+    // Update on resize (debounced with rAF instead of setTimeout)
     let resizeTimer;
     window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(updateLayoutHeights, 250);
-    });
+        if (resizeTimer) cancelAnimationFrame(resizeTimer);
+        resizeTimer = requestAnimationFrame(updateLayoutHeights);
+    }, { passive: true });
     
-    // Update after images load (layout might change)
+    // Update after images load (use rAF instead of setTimeout)
     window.addEventListener('load', function() {
-        setTimeout(updateLayoutHeights, 100);
-    });
+        requestAnimationFrame(updateLayoutHeights);
+    }, { once: true });
 })();
 
 // ================================

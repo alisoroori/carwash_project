@@ -36,9 +36,9 @@ try {
         exit;
     }
 
-    // Check if vehicle has active bookings
-    $activeBookings = $db->fetchOne("SELECT COUNT(*) as count FROM bookings WHERE vehicle_id = :vehicle_id AND status IN ('pending', 'confirmed', 'in_progress')", [
-        'vehicle_id' => $vehicleId
+    // Check if vehicle has active bookings (using license plate since bookings don't have vehicle_id)
+    $activeBookings = $db->fetchOne("SELECT COUNT(*) as count FROM bookings WHERE vehicle_plate = :license_plate AND status IN ('pending', 'confirmed', 'in_progress')", [
+        'license_plate' => $vehicle['license_plate']
     ]);
 
     if ($activeBookings['count'] > 0) {

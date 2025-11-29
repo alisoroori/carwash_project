@@ -93,8 +93,9 @@ function createVehicleManagerFactory() {
                 // Ensure csrf present
                 if (!fd.has('csrf_token') && this.csrfToken) fd.append('csrf_token', this.csrfToken);
 
-                const apiUrl = this.editingVehicle ? '/carwash_project/backend/api/update_vehicle.php' : '/carwash_project/backend/api/add_vehicle.php';
-                fd.append('vehicle_id', this.editingVehicle?.id || '');
+                const isEdit = !!this.editingVehicle;
+                const apiUrl = isEdit ? '/carwash_project/backend/api/update_vehicle.php' : '/carwash_project/backend/api/add_vehicle.php';
+                if (isEdit) fd.append('vehicle_id', this.editingVehicle.id);
 
                 const resObj = await apiCall(apiUrl, {
                     method: 'POST',
@@ -104,8 +105,33 @@ function createVehicleManagerFactory() {
 
                 const data = resObj.data;
                 if (data?.success || data?.status === 'success') {
-                    this.showMessage(this.editingVehicle ? 'Araç güncellendi' : 'Araç eklendi', 'success');
-                    await this.loadVehicles();
+                    this.showMessage(isEdit ? 'Araç güncellendi' : 'Araç eklendi', 'success');
+                    
+                    // Optimized: Update locally instead of full reload
+                    const returnedVehicle = data?.vehicle || data?.data?.vehicle;
+                    if (returnedVehicle) {
+                        if (isEdit) {
+                            // Update existing vehicle in array
+                            const idx = this.vehicles.findIndex(v => v.id === this.editingVehicle.id);
+                            if (idx !== -1) {
+                                this.vehicles[idx] = returnedVehicle;
+                            } else {
+                                this.vehicles.push(returnedVehicle);
+                            }
+                        } else {
+                            // Add new vehicle to array
+                            this.vehicles.push(returnedVehicle);
+                        }
+                        // Update stat count
+                        requestAnimationFrame(() => {
+                            const statEl = document.getElementById('vehicleStatCount');
+                            if (statEl) statEl.textContent = this.vehicles.length;
+                        });
+                    } else {
+                        // Fallback: reload if no vehicle returned
+                        await this.loadVehicles();
+                    }
+                    
                     setTimeout(() => this.closeVehicleForm(), 1500);
                 } else {
                     throw new Error(data?.message || 'İşlem başarısız');
@@ -123,6 +149,21 @@ function createVehicleManagerFactory() {
         async deleteVehicle(id) {
             if (!confirm('Bu aracı silmek istediğinizden emin misiniz?')) return;
             this.loading = true;
+            
+            // Store the index for optimistic rollback if needed
+            const vehicleIndex = this.vehicles.findIndex(v => v.id === id);
+            const deletedVehicle = vehicleIndex !== -1 ? {...this.vehicles[vehicleIndex]} : null;
+            
+            // Optimistically remove from UI immediately (better UX)
+            if (vehicleIndex !== -1) {
+                this.vehicles.splice(vehicleIndex, 1);
+                // Update stat count immediately
+                requestAnimationFrame(() => {
+                    const statEl = document.getElementById('vehicleStatCount');
+                    if (statEl) statEl.textContent = this.vehicles.length;
+                });
+            }
+            
             try {
                 const fd = new FormData();
                 fd.append('vehicle_id', id);
@@ -136,12 +177,20 @@ function createVehicleManagerFactory() {
                 const data = resObj.data;
                 if (data?.success || data?.status === 'success') {
                     this.showMessage('Araç başarıyla silindi', 'success');
-                    await this.loadVehicles();
+                    // No need to reload all vehicles - already removed optimistically
                 } else {
                     throw new Error(data?.message || 'Silme işlemi başarısız');
                 }
             } catch (err) {
                 console.error('Delete vehicle error:', err);
+                // Rollback: restore the deleted vehicle on error
+                if (deletedVehicle && vehicleIndex !== -1) {
+                    this.vehicles.splice(vehicleIndex, 0, deletedVehicle);
+                    requestAnimationFrame(() => {
+                        const statEl = document.getElementById('vehicleStatCount');
+                        if (statEl) statEl.textContent = this.vehicles.length;
+                    });
+                }
                 this.showMessage(err.message || 'Silme işlemi başarısız', 'error');
             } finally {
                 this.loading = false;
