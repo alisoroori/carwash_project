@@ -3685,16 +3685,17 @@ if (!isset($base_url)) {
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Saat</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlem</th>
                                         </tr>
                                     </thead>
                                     <tbody id="reservationsTableBody" class="divide-y divide-gray-200">
                                         <?php if (empty($reservations)): ?>
                                             <tr>
-                                                <td colspan="9" class="px-6 py-8 text-center text-sm text-gray-500">Rezervasyon bulunamadı.</td>
+                                                <td colspan="10" class="px-6 py-8 text-center text-sm text-gray-500">Rezervasyon bulunamadı.</td>
                                             </tr>
                                         <?php else: ?>
                                             <?php foreach ($reservations as $r): ?>
-                                                <tr class="hover:bg-gray-50">
+                                                <tr class="hover:bg-gray-50" id="reservation-row-<?php echo htmlspecialchars($r['booking_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-status="<?php echo htmlspecialchars($r['status'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['carwash_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['plate_number'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
@@ -3711,10 +3712,38 @@ if (!isset($base_url)) {
                                                             echo '<span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">Beklemede</span>';
                                                         } elseif ($status === 'cancelled' || $status === 'cancel') {
                                                             echo '<span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">İptal Edildi</span>';
+                                                        } elseif ($status === 'completed') {
+                                                            echo '<span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">Tamamlandı</span>';
                                                         } else {
                                                             echo '<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">' . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . '</span>';
                                                         }
                                                     ?></td>
+                                                    <td class="px-6 py-4 text-sm">
+                                                        <?php 
+                                                        $bookingId = $r['booking_id'] ?? '';
+                                                        $reviewStatus = $r['review_status'] ?? 'pending';
+                                                        
+                                                        if ($status === 'completed' && $reviewStatus !== 'reviewed'): ?>
+                                                            <button 
+                                                                type="button"
+                                                                onclick="openReviewModal(<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>)"
+                                                                data-reservation-id="<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-row-id="reservation-row-<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                class="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg font-bold hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                                                                title="Service completed - Click to leave a review"
+                                                            >
+                                                                <i class="fas fa-check-circle"></i>
+                                                                Completed
+                                                            </button>
+                                                        <?php elseif ($status === 'completed' && $reviewStatus === 'reviewed'): ?>
+                                                            <span class="text-green-600 flex items-center gap-2 font-semibold">
+                                                                <i class="fas fa-star text-yellow-500"></i>
+                                                                Reviewed
+                                                            </span>
+                                                        <?php else: ?>
+                                                            <span class="text-gray-400">-</span>
+                                                        <?php endif; ?>
+                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -4284,6 +4313,409 @@ if (!isset($base_url)) {
 
 </div> <!-- END: Flex Container (Sidebar + Content) -->
 
+<!-- ================================
+     REVIEW MODAL - Customer Feedback System
+     ================================ -->
+<div id="reviewModal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden items-center justify-center p-4" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all" onclick="event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-gray-900">
+                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                Değerlendirme Bırakın
+            </h3>
+            <button type="button" id="closeReviewModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <form id="reviewForm" class="px-6 py-6">
+            <input type="hidden" id="review_reservation_id" name="reservation_id" value="">
+            
+            <!-- Star Rating -->
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-gray-700 mb-3">Puanınız</label>
+                <div class="flex gap-2 justify-center" id="starRating">
+                    <i class="fas fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="1"></i>
+                    <i class="fas fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="2"></i>
+                    <i class="fas fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="3"></i>
+                    <i class="fas fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="4"></i>
+                    <i class="fas fa-star text-4xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="5"></i>
+                </div>
+                <input type="hidden" id="review_rating" name="rating" value="0" required>
+                <p class="text-center text-sm text-gray-500 mt-2" id="ratingText">Lütfen bir puan seçin</p>
+            </div>
+
+            <!-- Review Comment -->
+            <div class="mb-6">
+                <label for="review_comment" class="block text-sm font-bold text-gray-700 mb-2">
+                    Yorumunuz <span class="text-gray-400 font-normal">(İsteğe bağlı)</span>
+                </label>
+                <textarea 
+                    id="review_comment" 
+                    name="comment" 
+                    rows="4" 
+                    maxlength="1000"
+                    placeholder="Deneyiminizi bizimle paylaşın..."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                ></textarea>
+                <p class="text-xs text-gray-400 mt-1 text-right">
+                    <span id="charCount">0</span>/1000 karakter
+                </p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="reviewErrorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm hidden">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span id="reviewErrorText"></span>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex gap-3">
+                <button 
+                    type="button" 
+                    id="cancelReviewBtn"
+                    class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-gray-50 transition-colors"
+                >
+                    İptal
+                </button>
+                <button 
+                    type="submit" 
+                    id="submitReviewBtn"
+                    class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Gönder
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Review Modal Styles */
+#reviewModal {
+    backdrop-filter: blur(4px);
+}
+
+#reviewModal.show {
+    display: flex !important;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#reviewModal .bg-white {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Star rating hover effects */
+#starRating i {
+    transition: all 0.2s ease;
+}
+
+#starRating i:hover,
+#starRating i.active {
+    transform: scale(1.1);
+}
+
+#starRating i.active {
+    color: #eab308 !important; /* yellow-500 */
+}
+
+/* Textarea focus styling */
+#review_comment:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+</style>
+
+<script>
+// ================================
+// Review Modal System
+// ================================
+(function() {
+    'use strict';
+    
+    const reviewModal = document.getElementById('reviewModal');
+    const reviewForm = document.getElementById('reviewForm');
+    const starRating = document.getElementById('starRating');
+    const ratingInput = document.getElementById('review_rating');
+    const ratingText = document.getElementById('ratingText');
+    const commentTextarea = document.getElementById('review_comment');
+    const charCount = document.getElementById('charCount');
+    const errorMessage = document.getElementById('reviewErrorMessage');
+    const errorText = document.getElementById('reviewErrorText');
+    const submitBtn = document.getElementById('submitReviewBtn');
+    
+    let currentRating = 0;
+    
+    // Rating text labels
+    const ratingLabels = {
+        0: 'Lütfen bir puan seçin',
+        1: 'Çok Kötü',
+        2: 'Kötü',
+        3: 'Orta',
+        4: 'İyi',
+        5: 'Mükemmel'
+    };
+    
+    // Open review modal
+    window.openReviewModal = function(reservationId) {
+        if (!reservationId) {
+            console.error('Reservation ID is required');
+            return;
+        }
+        
+        // Reset form
+        resetReviewForm();
+        
+        // Set reservation ID
+        document.getElementById('review_reservation_id').value = reservationId;
+        
+        // Show modal
+        reviewModal.classList.remove('hidden');
+        reviewModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        console.log('Review modal opened for reservation:', reservationId);
+    };
+    
+    // Close review modal
+    function closeReviewModal() {
+        reviewModal.classList.remove('show');
+        reviewModal.classList.add('hidden');
+        document.body.style.overflow = '';
+        resetReviewForm();
+    }
+    
+    // Reset form to initial state
+    function resetReviewForm() {
+        currentRating = 0;
+        ratingInput.value = '0';
+        commentTextarea.value = '';
+        charCount.textContent = '0';
+        updateStars(0);
+        ratingText.textContent = ratingLabels[0];
+        hideError();
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Gönder';
+    }
+    
+    // Update star display
+    function updateStars(rating) {
+        const stars = starRating.querySelectorAll('i');
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+                star.classList.remove('text-gray-300');
+                star.classList.add('text-yellow-500');
+            } else {
+                star.classList.remove('active');
+                star.classList.remove('text-yellow-500');
+                star.classList.add('text-gray-300');
+            }
+        });
+    }
+    
+    // Show error message
+    function showError(message) {
+        errorText.textContent = message;
+        errorMessage.classList.remove('hidden');
+    }
+    
+    // Hide error message
+    function hideError() {
+        errorMessage.classList.add('hidden');
+        errorText.textContent = '';
+    }
+    
+    // Star rating click handler
+    starRating.addEventListener('click', function(e) {
+        if (e.target.tagName === 'I') {
+            const rating = parseInt(e.target.getAttribute('data-rating'));
+            currentRating = rating;
+            ratingInput.value = rating;
+            updateStars(rating);
+            ratingText.textContent = ratingLabels[rating];
+            hideError();
+        }
+    });
+    
+    // Star rating hover handler
+    starRating.addEventListener('mouseover', function(e) {
+        if (e.target.tagName === 'I') {
+            const rating = parseInt(e.target.getAttribute('data-rating'));
+            updateStars(rating);
+        }
+    });
+    
+    // Star rating mouse leave handler (restore current rating)
+    starRating.addEventListener('mouseleave', function() {
+        updateStars(currentRating);
+    });
+    
+    // Character counter for textarea
+    commentTextarea.addEventListener('input', function() {
+        const count = this.value.length;
+        charCount.textContent = count;
+        
+        // Warn if approaching limit
+        if (count > 900) {
+            charCount.classList.add('text-red-600');
+        } else {
+            charCount.classList.remove('text-red-600');
+        }
+    });
+    
+    // Close modal handlers
+    document.getElementById('closeReviewModal').addEventListener('click', closeReviewModal);
+    document.getElementById('cancelReviewBtn').addEventListener('click', closeReviewModal);
+    
+    // Click outside modal to close
+    reviewModal.addEventListener('click', function(e) {
+        if (e.target === reviewModal) {
+            closeReviewModal();
+        }
+    });
+    
+    // ESC key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && reviewModal.classList.contains('show')) {
+            closeReviewModal();
+        }
+    });
+    
+    // Form submission
+    reviewForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        hideError();
+        
+        // Validate rating
+        const rating = parseInt(ratingInput.value);
+        if (rating < 1 || rating > 5) {
+            showError('Lütfen 1-5 arası bir puan seçin');
+            return;
+        }
+        
+        const reservationId = document.getElementById('review_reservation_id').value;
+        if (!reservationId) {
+            showError('Rezervasyon ID bulunamadı');
+            return;
+        }
+        
+        const comment = commentTextarea.value.trim();
+        
+        // Get CSRF token
+        const csrfToken = window.CONFIG && window.CONFIG.CSRF_TOKEN 
+            ? window.CONFIG.CSRF_TOKEN 
+            : document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        
+        if (!csrfToken) {
+            showError('Güvenlik tokeni bulunamadı. Lütfen sayfayı yenileyin.');
+            return;
+        }
+        
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Gönderiliyor...';
+        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('reservation_id', reservationId);
+        formData.append('rating', rating);
+        formData.append('comment', comment);
+        formData.append('csrf_token', csrfToken);
+        
+        try {
+            // Send AJAX request
+            const response = await fetch('/carwash_project/backend/api/add_review.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                // Success!
+                closeReviewModal();
+                
+                // Show success message
+                if (typeof window.showSuccess === 'function') {
+                    window.showSuccess('Review submitted successfully! Reservation moved to History.');
+                } else {
+                    alert('Review submitted successfully! Reservation moved to History.');
+                }
+                
+                // Remove the entire reservation row from Active Reservations table
+                const reservationRow = document.getElementById(`reservation-row-${reservationId}`);
+                if (reservationRow) {
+                    // Add fade-out animation before removal
+                    reservationRow.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                    reservationRow.style.opacity = '0';
+                    reservationRow.style.transform = 'translateX(-20px)';
+                    
+                    setTimeout(() => {
+                        reservationRow.remove();
+                        
+                        // Check if table is now empty and show "no reservations" message
+                        const tbody = document.getElementById('reservationsTableBody');
+                        const remainingRows = tbody.querySelectorAll('tr[id^="reservation-row-"]');
+                        
+                        if (remainingRows.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="10" class="px-6 py-8 text-center text-sm text-gray-500">No active reservations. Completed reservations are in History.</td></tr>';
+                        }
+                    }, 500);
+                }
+                
+                // Reload History section to show the newly reviewed reservation
+                if (typeof window.historySection !== 'undefined') {
+                    setTimeout(() => {
+                        const historyComponent = document.querySelector('[x-data*="historySection"]');
+                        if (historyComponent && historyComponent.__x) {
+                            historyComponent.__x.$data.loadHistory();
+                        }
+                    }, 600);
+                }
+                
+                console.log('✅ Review submitted successfully. Reservation moved to History:', data);
+            } else {
+                showError(data.message || 'Değerlendirme gönderilemedi');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Gönder';
+            }
+        } catch (error) {
+            console.error('Review submission error:', error);
+            showError('Bir hata oluştu. Lütfen tekrar deneyin.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Gönder';
+        }
+    });
+    
+    console.log('✅ Review modal system initialized');
+})();
+</script>
+
 <!-- Footer follows naturally at the bottom after content -->
 
 <!-- Scroll-to-Top Button (appears after scrolling) -->
@@ -4676,96 +5108,97 @@ window.refreshProfileImages = function(newUrl) {
                         }
                     } catch (e) { /* ignore */ }
 
-                    // Update profile images using refresh helper (non-blocking)
-                    if (window.refreshProfileImages) {
-                        window.refreshProfileImages(mapped.profile_image || null);
-                    }
-
-                    // Defer Alpine updates to avoid blocking main thread (causes forced reflow)
-                    // Use requestIdleCallback to run during browser idle time
-                    var updateAlpine = function() {
-                        try {
-                            var alpineEl = document.querySelector('[x-data*="profileSection"]');
-                            var updated = false;
-                            if (alpineEl) {
-                                try {
-                                    if (alpineEl.__x && alpineEl.__x.$data) {
-                                        if (typeof alpineEl.__x.$data.updateProfile === 'function') {
-                                            alpineEl.__x.$data.updateProfile(mapped);
-                                            alpineEl.__x.$data.editMode = false;
-                                            updated = true;
-                                        }
-                                    }
-                                } catch (err) { /* continue */ }
-
-                                try {
-                                    if (!updated && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
-                                        var d = alpineEl._x_dataStack[0];
-                                        if (typeof d.updateProfile === 'function') {
-                                            d.updateProfile(mapped);
-                                            d.editMode = false;
-                                            updated = true;
-                                        }
-                                    }
-                                } catch (err) { /* ignore */ }
-                            }
-
-                            if (!updated && window.profileSection && typeof window.profileSection === 'function') {
-                                try { window.profileSection().updateProfile(mapped); window.profileSection().editMode = false; } catch (err) { /* ignore */ }
-                            }
-                        } catch (e) {
-                            console.warn('Could not update Alpine profileData from AJAX response', e);
+                    // Schedule all updates in a single idle callback to prevent forced reflows
+                    var performUpdates = function(deadline) {
+                        var startTime = performance.now();
+                        
+                        // Step 1: Update profile images (non-blocking, already optimized with rAF)
+                        if (window.refreshProfileImages && deadline.timeRemaining() > 10) {
+                            window.refreshProfileImages(mapped.profile_image || null);
                         }
 
-                        // Emit events
-                        try {
-                            document.dispatchEvent(new CustomEvent('profile:update:success', { detail: mapped }));
-                            document.dispatchEvent(new CustomEvent('restoreTab', { detail: { tab: 'profile' } }));
-                        } catch (e) { /* ignore */ }
+                        // Step 2: Update Alpine state (no DOM reads, pure state updates)
+                        if (deadline.timeRemaining() > 5) {
+                            try {
+                                var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                                var updated = false;
+                                if (alpineEl) {
+                                    try {
+                                        if (alpineEl.__x && alpineEl.__x.$data) {
+                                            if (typeof alpineEl.__x.$data.updateProfile === 'function') {
+                                                alpineEl.__x.$data.updateProfile(mapped);
+                                                alpineEl.__x.$data.editMode = false;
+                                                updated = true;
+                                            }
+                                        }
+                                    } catch (err) { /* continue */ }
+
+                                    try {
+                                        if (!updated && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
+                                            var d = alpineEl._x_dataStack[0];
+                                            if (typeof d.updateProfile === 'function') {
+                                                d.updateProfile(mapped);
+                                                d.editMode = false;
+                                                updated = true;
+                                            }
+                                        }
+                                    } catch (err) { /* ignore */ }
+                                }
+
+                                if (!updated && window.profileSection && typeof window.profileSection === 'function') {
+                                    try { window.profileSection().updateProfile(mapped); window.profileSection().editMode = false; } catch (err) { /* ignore */ }
+                                }
+                            } catch (e) {
+                                console.warn('Could not update Alpine profileData from AJAX response', e);
+                            }
+
+                            // Step 3: Emit events (no DOM manipulation)
+                            try {
+                                document.dispatchEvent(new CustomEvent('profile:update:success', { detail: mapped }));
+                                document.dispatchEvent(new CustomEvent('restoreTab', { detail: { tab: 'profile' } }));
+                            } catch (e) { /* ignore */ }
+                        }
+
+                        // Step 4: Schedule reload (defer to avoid blocking)
+                        if (deadline.timeRemaining() > 2) {
+                            try {
+                                sessionStorage.setItem('profile_update_success', 'true');
+                            } catch (e) { /* ignore */ }
+                            
+                            // Use requestAnimationFrame instead of setTimeout to prevent violation
+                            var reloadFrames = 0;
+                            var maxFrames = 180; // 3 seconds at 60fps
+                            var scheduleReload = function() {
+                                if (++reloadFrames >= maxFrames) {
+                                    window.location.reload();
+                                } else {
+                                    requestAnimationFrame(scheduleReload);
+                                }
+                            };
+                            requestAnimationFrame(scheduleReload);
+                        }
                     };
 
-                    // Run Alpine updates in idle time to avoid blocking
+                    // Use requestIdleCallback for all updates - single callback prevents multiple reflows
                     if (window.requestIdleCallback) {
-                        requestIdleCallback(updateAlpine, { timeout: 500 });
+                        requestIdleCallback(performUpdates, { timeout: 1000 });
                     } else {
-                        setTimeout(updateAlpine, 0);
-                    }
-
-                    // Defer reload setup to avoid blocking
-                    var scheduleReload = function() {
-                        try {
-                            sessionStorage.setItem('profile_update_success', 'true');
-                        } catch (e) { /* ignore */ }
-                        window.location.reload();
-                    };
-                    
-                    if (window.requestIdleCallback) {
-                        requestIdleCallback(function() {
-                            setTimeout(scheduleReload, 3000);
-                        }, { timeout: 500 });
-                    } else {
-                        setTimeout(scheduleReload, 3000);
+                        // Fallback: use single rAF to batch all updates
+                        requestAnimationFrame(function() {
+                            performUpdates({ timeRemaining: function() { return 50; } });
+                        });
                     }
                 } else {
                     // Error: Show in global toast if requested, otherwise in form
                     if (result.show_global_error && window.showError) {
                         window.showError(result.message || 'Error updating profile');
-                        // Defer Alpine edit mode close to avoid forced reflow
-                        if (window.requestIdleCallback) {
-                            requestIdleCallback(function() {
-                                var alpineEl = document.querySelector('[x-data*="profileSection"]');
-                                if (alpineEl && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
-                                    alpineEl._x_dataStack[0].editMode = false;
-                                }
-                            });
-                        } else {
-                            setTimeout(function() {
-                                var alpineEl = document.querySelector('[x-data*="profileSection"]');
-                                if (alpineEl && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
-                                    alpineEl._x_dataStack[0].editMode = false;
-                                }
-                            }, 0);
-                        }
+                        // Defer Alpine edit mode close using rAF to avoid forced reflow
+                        requestAnimationFrame(function() {
+                            var alpineEl = document.querySelector('[x-data*="profileSection"]');
+                            if (alpineEl && alpineEl._x_dataStack && alpineEl._x_dataStack[0]) {
+                                alpineEl._x_dataStack[0].editMode = false;
+                            }
+                        });
                     } else {
                         // Show error in form
                         showFormErrors([result.message || 'Error updating profile']);
