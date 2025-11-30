@@ -98,8 +98,8 @@ try {
         Response::error('You do not have permission to review this reservation', 403);
     }
     
-    // Verify reservation is completed
-    if ($reservation['status'] !== 'completed') {
+    // Verify reservation is completed (support both English and Turkish)
+    if ($reservation['status'] !== 'completed' && $reservation['status'] !== 'Tamamlandı') {
         error_log("Review API: Attempt to review non-completed reservation, id={$reservation_id}, status={$reservation['status']}");
         Response::error('Only completed reservations can be reviewed', 400);
     }

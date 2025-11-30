@@ -3723,19 +3723,20 @@ if (!isset($base_url)) {
                                                         $bookingId = $r['booking_id'] ?? '';
                                                         $reviewStatus = $r['review_status'] ?? 'pending';
                                                         
-                                                        if ($status === 'completed' && $reviewStatus !== 'reviewed'): ?>
+                                                        // Show review button for both 'completed' and 'Tamamlandı' statuses
+                                                        if (($status === 'completed' || $status === 'Tamamlandı') && $reviewStatus !== 'reviewed'): ?>
                                                             <button 
                                                                 type="button"
                                                                 onclick="openReviewModal(<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>)"
                                                                 data-reservation-id="<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-row-id="reservation-row-<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 class="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg font-bold hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
-                                                                title="Service completed - Click to leave a review"
+                                                                title="Hizmeti değerlendirin - 5 yıldız verin"
                                                             >
-                                                                <i class="fas fa-check-circle"></i>
-                                                                Completed
+                                                                <i class="fas fa-star"></i>
+                                                                ✓ Review
                                                             </button>
-                                                        <?php elseif ($status === 'completed' && $reviewStatus === 'reviewed'): ?>
+                                                        <?php elseif (($status === 'completed' || $status === 'Tamamlandı') && $reviewStatus === 'reviewed'): ?>
                                                             <span class="text-green-600 flex items-center gap-2 font-semibold">
                                                                 <i class="fas fa-star text-yellow-500"></i>
                                                                 Reviewed
