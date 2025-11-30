@@ -3660,8 +3660,24 @@ if (!isset($base_url)) {
                                             $serviceJoin = "LEFT JOIN services s ON b.service_id = s.id";
                                         }
 
-                                        $sql = "SELECT \
-                                            b.id AS booking_id,\n+                                            b.booking_date,\n+                                            b.booking_time,\n+                                            b.status,\n+                                            COALESCE(cw.name, cw.business_name, '') AS carwash_name,\n+                                            {$plateExpr},\n+                                            COALESCE(s.name, b.service_type, '') AS service_name,\n+                                            COALESCE(s.duration, 0) AS duration,\n+                                            COALESCE(s.price, b.total_price, 0) AS price\n+                                        FROM bookings b\n+                                        LEFT JOIN carwashes cw ON b.carwash_id = cw.id\n+                                        {$vehicleJoin}\n+                                        {$serviceJoin}\n+                                        WHERE b.user_id = :user_id\n+                                        ORDER BY b.booking_date DESC, b.booking_time DESC";
+                                        $sql = "SELECT 
+                                            b.id AS booking_id,
+                                            b.booking_date,
+                                            b.booking_time,
+                                            b.status,
+                                            b.carwash_id,
+                                            COALESCE(b.review_status, 'pending') AS review_status,
+                                            COALESCE(cw.name, cw.business_name, '') AS carwash_name,
+                                            {$plateExpr},
+                                            COALESCE(s.name, b.service_type, '') AS service_name,
+                                            COALESCE(s.duration, 0) AS duration,
+                                            COALESCE(s.price, b.total_price, 0) AS price
+                                        FROM bookings b
+                                        LEFT JOIN carwashes cw ON b.carwash_id = cw.id
+                                        {$vehicleJoin}
+                                        {$serviceJoin}
+                                        WHERE b.user_id = :user_id
+                                        ORDER BY b.booking_date DESC, b.booking_time DESC";
 
                                         $stmt = $pdoConn->prepare($sql);
                                         $stmt->execute(['user_id' => (int)$_SESSION['user_id']]);
@@ -3721,22 +3737,25 @@ if (!isset($base_url)) {
                                                     <td class="px-6 py-4 text-sm">
                                                         <?php 
                                                         $bookingId = $r['booking_id'] ?? '';
+                                                        $carwashId = $r['carwash_id'] ?? '';
                                                         $reviewStatus = $r['review_status'] ?? 'pending';
+                                                        $currentUserId = (int)$_SESSION['user_id'];
                                                         
-                                                        // Show review button for both 'completed' and 'Tamamlandı' statuses
-                                                        if (($status === 'completed' || $status === 'Tamamlandı') && $reviewStatus !== 'reviewed'): ?>
+                                                        // Show review button for both 'completed' and 'Tamamlandı' statuses (case-insensitive)
+                                                        $statusLower = strtolower($status);
+                                                        if (($statusLower === 'completed' || $statusLower === 'tamamlandı') && $reviewStatus !== 'reviewed'): ?>
                                                             <button 
                                                                 type="button"
-                                                                onclick="openReviewModal(<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>)"
+                                                                onclick="openReviewModal(<?php echo (int)$bookingId; ?>, <?php echo $currentUserId; ?>, <?php echo (int)$carwashId; ?>)"
                                                                 data-reservation-id="<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-row-id="reservation-row-<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>"
-                                                                class="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg font-bold hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                                                                class="review-btn px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg font-bold hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
                                                                 title="Hizmeti değerlendirin - 5 yıldız verin"
                                                             >
                                                                 <i class="fas fa-star"></i>
                                                                 ✓ Review
                                                             </button>
-                                                        <?php elseif (($status === 'completed' || $status === 'Tamamlandı') && $reviewStatus === 'reviewed'): ?>
+                                                        <?php elseif (($statusLower === 'completed' || $statusLower === 'tamamlandı') && $reviewStatus === 'reviewed'): ?>
                                                             <span class="text-green-600 flex items-center gap-2 font-semibold">
                                                                 <i class="fas fa-star text-yellow-500"></i>
                                                                 Reviewed
@@ -4333,6 +4352,8 @@ if (!isset($base_url)) {
         <!-- Modal Body -->
         <form id="reviewForm" class="px-6 py-6">
             <input type="hidden" id="review_reservation_id" name="reservation_id" value="">
+            <input type="hidden" id="review_user_id" name="user_id" value="">
+            <input type="hidden" id="review_carwash_id" name="carwash_id" value="">
             
             <!-- Star Rating -->
             <div class="mb-6">
@@ -4479,25 +4500,30 @@ if (!isset($base_url)) {
         5: 'Mükemmel'
     };
     
-    // Open review modal
-    window.openReviewModal = function(reservationId) {
+    // Open review modal with all required parameters
+    window.openReviewModal = function(reservationId, userId, carwashId) {
         if (!reservationId) {
             console.error('Reservation ID is required');
+            if (typeof window.showError === 'function') {
+                window.showError('Rezervasyon ID bulunamadı');
+            }
             return;
         }
         
         // Reset form
         resetReviewForm();
         
-        // Set reservation ID
+        // Set all hidden input values
         document.getElementById('review_reservation_id').value = reservationId;
+        document.getElementById('review_user_id').value = userId || '';
+        document.getElementById('review_carwash_id').value = carwashId || '';
         
         // Show modal
         reviewModal.classList.remove('hidden');
         reviewModal.classList.add('show');
         document.body.style.overflow = 'hidden';
         
-        console.log('Review modal opened for reservation:', reservationId);
+        console.log('Review modal opened for reservation:', reservationId, 'user:', userId, 'carwash:', carwashId);
     };
     
     // Close review modal
@@ -4519,6 +4545,10 @@ if (!isset($base_url)) {
         hideError();
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Gönder';
+        // Clear hidden inputs
+        document.getElementById('review_reservation_id').value = '';
+        document.getElementById('review_user_id').value = '';
+        document.getElementById('review_carwash_id').value = '';
     }
     
     // Update star display
