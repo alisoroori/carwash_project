@@ -3738,15 +3738,16 @@ if (!isset($base_url)) {
                                                         <?php 
                                                         $bookingId = $r['booking_id'] ?? '';
                                                         $carwashId = $r['carwash_id'] ?? '';
-                                                        $reviewStatus = $r['review_status'] ?? null;
+                                                        $reviewStatus = strtolower(trim($r['review_status'] ?? ''));
                                                         $currentUserId = (int)$_SESSION['user_id'];
                                                         
                                                         // Normalize status from database (use raw DB value, not translated label)
                                                         $statusNormalized = strtolower(trim($r['status'] ?? ''));
                                                         
                                                         // Show review button ONLY when status is 'completed' AND review not done
+                                                        // Note: SQL uses COALESCE so NULL becomes 'pending'
                                                         $isCompleted = ($statusNormalized === 'completed');
-                                                        $reviewNotDone = ($reviewStatus === null || ($reviewStatus !== 'reviewed' && $reviewStatus !== 'done'));
+                                                        $reviewNotDone = ($reviewStatus === '' || $reviewStatus === 'pending' || $reviewStatus === null);
                                                         
                                                         if ($isCompleted && $reviewNotDone): ?>
                                                             <button 
