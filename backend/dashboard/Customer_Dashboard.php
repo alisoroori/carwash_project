@@ -4286,6 +4286,36 @@ if (!isset($base_url)) {
                         document.getElementById('newReservationForm')?.scrollIntoView({ behavior: 'smooth' });
                     }
 
+                    // Ensure native date inputs use Turkish locale and open native picker reliably
+                    function enhanceNativeDateInputs() {
+                        try {
+                            document.querySelectorAll('input[type="date"]').forEach(function(inp){
+                                try {
+                                    inp.setAttribute('lang','tr');
+                                    // Some browsers honor the input's lang attribute for the calendar UI
+                                    // Call showPicker() where supported to reliably open native picker on click
+                                    inp.addEventListener('click', function(e){
+                                        if (typeof inp.showPicker === 'function') {
+                                            try { inp.showPicker(); } catch (e) {}
+                                        }
+                                    });
+                                    inp.addEventListener('focus', function(e){
+                                        if (typeof inp.showPicker === 'function') {
+                                            try { inp.showPicker(); } catch (e) {}
+                                        }
+                                    });
+                                } catch (inner) { /* ignore per-input failures */ }
+                            });
+                        } catch (e) { console.warn('enhanceNativeDateInputs failed', e); }
+                    }
+
+                    // Run enhancement early
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', enhanceNativeDateInputs);
+                    } else {
+                        enhanceNativeDateInputs();
+                    }
+
                     // Hide new reservation form and restore it to its original parent if moved
                     function hideNewReservationForm(){
                         const origFormWrapper = document.getElementById('newReservationForm');
