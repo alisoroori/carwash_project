@@ -105,9 +105,81 @@ try {
     }
     
     // Check if review already exists
+    // Determine reviews table reference column (reservation_id vs booking_id vs order_id)
+    $reviewRefColumn = 'reservation_id'; // default expected column
+    try {
+        $cols = $db->fetchAll('DESCRIBE reviews');
+        $colNames = array_map(function($c){ return $c['Field'] ?? $c['field'] ?? ''; }, $cols ?: []);
+        if (in_array('reservation_id', $colNames)) {
+            $reviewRefColumn = 'reservation_id';
+        } elseif (in_array('booking_id', $colNames)) {
+            $reviewRefColumn = 'booking_id';
+        } elseif (in_array('order_id', $colNames)) {
+            $reviewRefColumn = 'order_id';
+        } else {
+            // fallback: pick first INT-like column after id and user_id
+            foreach ($colNames as $cn) {
+                if (preg_match('/id$/i', $cn) && $cn !== 'id' && $cn !== 'user_id') {
+                    $reviewRefColumn = $cn;
+                    break;
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        // If DESCRIBE fails, log and continue with default
+        error_log('Review API: Failed to DESCRIBE reviews table: ' . $e->getMessage());
+    }
+
+    // Ensure reviews table columns have expected types (rating numeric, comment text)
+    try {
+        if (!empty($cols) && is_array($cols)) {
+            $colMap = [];
+            foreach ($cols as $c) {
+                $fname = $c['Field'] ?? $c['field'] ?? '';
+                $colMap[$fname] = $c;
+            }
+
+            // Ensure rating column is integer-like
+            if (isset($colMap['rating'])) {
+                $ratingType = strtolower($colMap['rating']['Type'] ?? $colMap['rating']['type'] ?? '');
+                if (strpos($ratingType, 'int') === false && strpos($ratingType, 'tinyint') === false) {
+                    // Attempt to alter column to tinyint
+                    try {
+                        $db->query("ALTER TABLE reviews MODIFY COLUMN rating TINYINT(1) UNSIGNED NOT NULL COMMENT 'Rating from 1 to 5 stars'");
+                        error_log('Review API: Altered reviews.rating to TINYINT');
+                    } catch (Throwable $_e) {
+                        error_log('Review API: Failed to alter reviews.rating: ' . $_e->getMessage());
+                    }
+                }
+            }
+
+            // Ensure comment column exists and is text
+            if (!isset($colMap['comment'])) {
+                try {
+                    $db->query("ALTER TABLE reviews ADD COLUMN comment TEXT NULL COMMENT 'Optional review text'");
+                    error_log('Review API: Added missing reviews.comment column');
+                } catch (Throwable $_e) {
+                    error_log('Review API: Failed to add reviews.comment: ' . $_e->getMessage());
+                }
+            } else {
+                $commentType = strtolower($colMap['comment']['Type'] ?? $colMap['comment']['type'] ?? '');
+                if (strpos($commentType, 'text') === false && strpos($commentType, 'varchar') === false) {
+                    try {
+                        $db->query("ALTER TABLE reviews MODIFY COLUMN comment TEXT NULL COMMENT 'Optional review text'");
+                        error_log('Review API: Modified reviews.comment to TEXT');
+                    } catch (Throwable $_e) {
+                        error_log('Review API: Failed to modify reviews.comment: ' . $_e->getMessage());
+                    }
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('Review API: Schema validation error: ' . $e->getMessage());
+    }
+
     $existingReview = $db->fetchOne(
-        "SELECT id FROM reviews WHERE user_id = :user_id AND booking_id = :booking_id",
-        ['user_id' => $user_id, 'booking_id' => $reservation_id]
+        "SELECT id FROM reviews WHERE user_id = :user_id AND {$reviewRefColumn} = :ref_id",
+        ['user_id' => $user_id, 'ref_id' => $reservation_id]
     );
     
     if ($existingReview) {
@@ -120,21 +192,64 @@ try {
     $pdo->beginTransaction();
     
     try {
-        // Insert review (using booking_id column name from actual table structure)
-        $reviewInserted = $db->insert('reviews', [
+        // Build insert payload using detected reference column
+        $insertPayload = [
             'user_id' => $user_id,
-            'booking_id' => $reservation_id,
+            $reviewRefColumn => $reservation_id,
             'carwash_id' => $reservation['carwash_id'],
             'rating' => $rating,
             'comment' => $comment
-        ]);
+        ];
+
+        // Validate payload keys against actual table columns to avoid SQL errors
+        try {
+            $validCols = [];
+            $cols = $db->fetchAll('DESCRIBE reviews');
+            foreach ($cols as $c) {
+                $validCols[] = $c['Field'] ?? $c['field'] ?? '';
+            }
+            // Filter payload to only include valid columns
+            $insertPayload = array_intersect_key($insertPayload, array_flip($validCols));
+        } catch (Throwable $_e) {
+            // Ignore - will attempt insert and let DB error be caught
+        }
+
+        // Insert review
+        $reviewInserted = false;
+        try {
+            $reviewInserted = $db->insert('reviews', $insertPayload);
+        } catch (Throwable $ie) {
+            error_log('Review API: Insert failed - ' . $ie->getMessage());
+            throw new Exception('Failed to insert review: ' . $ie->getMessage());
+        }
         
         if (!$reviewInserted) {
             throw new Exception('Failed to insert review');
         }
         
-        $review_id = $db->lastInsertId();
+        // Obtain last insert id in a safe way
+        try {
+            $review_id = $db->lastInsertId();
+        } catch (Throwable $_e) {
+            $review_id = null;
+        }
         
+        // Ensure bookings.review_status exists; add if missing
+        try {
+            $bookingCols = $db->fetchAll('DESCRIBE bookings');
+            $bookingColNames = array_map(function($c){ return $c['Field'] ?? $c['field'] ?? ''; }, $bookingCols ?: []);
+            if (!in_array('review_status', $bookingColNames)) {
+                try {
+                    $db->query("ALTER TABLE bookings ADD COLUMN review_status ENUM('pending','reviewed') DEFAULT 'pending' COMMENT 'Whether customer has left a review'");
+                    error_log('Review API: Added bookings.review_status column');
+                } catch (Throwable $_e) {
+                    error_log('Review API: Failed to add bookings.review_status: ' . $_e->getMessage());
+                }
+            }
+        } catch (Throwable $_e) {
+            error_log('Review API: Could not DESCRIBE bookings: ' . $_e->getMessage());
+        }
+
         // Update reservation review_status
         $statusUpdated = $db->update(
             'bookings',
