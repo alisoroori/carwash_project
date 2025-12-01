@@ -711,14 +711,32 @@ if (!isset($base_url)) {
                     },
                     
                     formatDate(dateString) {
-                        if (!dateString) return 'N/A';
-                        const date = new Date(dateString);
-                        return date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
+                        if (!dateString) return '-';
+                        try {
+                            const d = new Date(dateString);
+                            if (isNaN(d.getTime())) return '-';
+                            const dd = String(d.getDate()).padStart(2, '0');
+                            const mm = String(d.getMonth() + 1).padStart(2, '0');
+                            const yyyy = String(d.getFullYear());
+                            return dd + '.' + mm + '.' + yyyy;
+                        } catch (e) {
+                            return '-';
+                        }
                     },
-                    
+
                     formatTime(timeString) {
-                        if (!timeString) return 'N/A';
-                        return timeString.substring(0, 5); // HH:MM
+                        if (!timeString) return '-';
+                        try {
+                            const parts = String(timeString).split(':');
+                            if (parts.length >= 2) {
+                                return String(parts[0]).padStart(2, '0') + ':' + String(parts[1]).padStart(2, '0');
+                            }
+                            const dt = new Date('1970-01-01T' + timeString);
+                            if (!isNaN(dt.getTime())) {
+                                return String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
+                            }
+                        } catch (e) {}
+                        return '-';
                     },
                     
                     formatPrice(price) {
@@ -3250,7 +3268,48 @@ if (!isset($base_url)) {
                                 if (locId && carWashId) locId.value = carWashId;
                             }
 
-                            function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+                                function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+
+                                // Client-side date formatting helper (DD.MM.YYYY) with safe fallback
+                                function formatDashClient(dateString) {
+                                    if (!dateString && dateString !== 0) return '-';
+                                    try {
+                                        // Handle numeric timestamps (seconds or milliseconds)
+                                        var s = String(dateString).trim();
+                                        var d;
+                                        if (/^\d+$/.test(s)) {
+                                            // If 10 digits assume seconds, if 13 assume ms
+                                            if (s.length === 10) d = new Date(parseInt(s, 10) * 1000);
+                                            else d = new Date(parseInt(s, 10));
+                                        } else {
+                                            d = new Date(s);
+                                        }
+                                        if (isNaN(d.getTime())) return '-';
+                                        var dd = String(d.getDate()).padStart(2, '0');
+                                        var mm = String(d.getMonth() + 1).padStart(2, '0');
+                                        var yyyy = String(d.getFullYear());
+                                        return dd + '.' + mm + '.' + yyyy;
+                                    } catch (e) {
+                                        return '-';
+                                    }
+                                }
+
+                                // Client-side time formatter: returns HH:MM or '-'
+                                function formatTimeClient(timeString) {
+                                    if (!timeString && timeString !== 0) return '-';
+                                    try {
+                                        var s = String(timeString).trim();
+                                        var parts = s.split(':');
+                                        if (parts.length >= 2) {
+                                            return String(parts[0]).padStart(2, '0') + ':' + String(parts[1]).padStart(2, '0');
+                                        }
+                                        var dt = new Date('1970-01-01T' + s);
+                                        if (!isNaN(dt.getTime())) {
+                                            return String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
+                                        }
+                                    } catch (e) {}
+                                    return '-';
+                                }
 
                                 // -----------------------------
                                 // Bookings (Reservations) Management
@@ -3361,8 +3420,8 @@ if (!isset($base_url)) {
                                                 +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(service)+'</td>'
                                                 +'<td class="px-6 py-4 text-sm text-gray-900">'+(duration ? duration + ' dk' : '')+'</td>'
                                                 +'<td class="px-6 py-4 text-sm font-medium text-gray-900">'+(price ? ('₺'+parseFloat(price).toFixed(2)) : '')+'</td>'
-                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(date)+'</td>'
-                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(time)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(formatDashClient(date))+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(formatTimeClient(time))+'</td>'
                                                 +'<td class="px-6 py-4">'+statusLabel(status)+'</td>'
                                                 +'<td class="px-6 py-4 text-sm">'+actionHtml+'</td>'
                                             +'</tr>';
