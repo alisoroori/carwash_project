@@ -378,6 +378,28 @@ if (!function_exists('formatDashDate')) {
     }
 }
 
+// Helper: Format time for dashboard as HH:MM (24-hour) or '-' when empty
+if (!function_exists('formatDashTime')) {
+    function formatDashTime($val) {
+        if (empty($val) && $val !== '0') return '-';
+        // If already HH:MM or HH:MM:SS
+        if (preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $val)) {
+            $parts = explode(':', $val);
+            $hh = str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+            $mm = str_pad($parts[1], 2, '0', STR_PAD_LEFT);
+            return $hh . ':' . $mm;
+        }
+        try {
+            $dt = new DateTime($val);
+            return $dt->format('H:i');
+        } catch (Exception $e) {
+            $ts = strtotime($val);
+            if ($ts !== false) return date('H:i', $ts);
+            return (string)$val;
+        }
+    }
+}
+
 // Dashboard header variables
 $dashboard_type = 'customer';
 $page_title = 'Müşteri Paneli - CarWash';
@@ -3311,6 +3333,33 @@ if (!isset($base_url)) {
                                     return '-';
                                 }
 
+                                // Parse DD.MM.YYYY or YYYY-MM-DD or timestamps into ISO YYYY-MM-DD for form submission
+                                function parseDashToISO(dateString) {
+                                    if (!dateString && dateString !== 0) return '';
+                                    try {
+                                        var s = String(dateString).trim();
+                                        // If already ISO-like YYYY-MM-DD
+                                        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+                                        // If DD.MM.YYYY
+                                        var m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+                                        if (m) {
+                                            var dd = String(m[1]).padStart(2,'0');
+                                            var mm = String(m[2]).padStart(2,'0');
+                                            var yyyy = m[3];
+                                            return yyyy + '-' + mm + '-' + dd;
+                                        }
+                                        // If numeric timestamp (10 or 13)
+                                        if (/^\d+$/.test(s)) {
+                                            if (s.length === 10) return new Date(parseInt(s,10)*1000).toISOString().slice(0,10);
+                                            return new Date(parseInt(s,10)).toISOString().slice(0,10);
+                                        }
+                                        // Try Date parse
+                                        var d = new Date(s);
+                                        if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+                                    } catch (e) {}
+                                    return '';
+                                }
+
                                 // -----------------------------
                                 // Bookings (Reservations) Management
                                 // -----------------------------
@@ -3455,8 +3504,9 @@ if (!isset($base_url)) {
                                         document.getElementById('edit_booking_id').value = obj.id || '';
                                         document.getElementById('edit_carwash_id').value = obj.carwash_id || '';
                                         document.getElementById('edit_service_id').value = obj.service_id || '';
-                                        document.getElementById('edit_date').value = obj.date || '';
-                                        document.getElementById('edit_time').value = obj.time || '';
+                                        // Display date as DD.MM.YYYY in the text input for readability
+                                        document.getElementById('edit_date').value = (typeof formatDashClient === 'function') ? (obj.date ? formatDashClient(obj.date) : '') : (obj.date || '');
+                                        document.getElementById('edit_time').value = (typeof formatTimeClient === 'function') ? (obj.time ? formatTimeClient(obj.time) : '') : (obj.time || '');
                                         document.getElementById('edit_notes').value = obj.notes || '';
                                         const modal = document.getElementById('editBookingModal');
                                         modal.classList.remove('hidden');
@@ -3476,8 +3526,10 @@ if (!isset($base_url)) {
                                     const bookingId = document.getElementById('edit_booking_id').value;
                                     const carwashId = document.getElementById('edit_carwash_id').value;
                                     const serviceId = document.getElementById('edit_service_id').value;
-                                    const date = document.getElementById('edit_date').value;
-                                    const time = document.getElementById('edit_time').value;
+                                    // Convert displayed DD.MM.YYYY back to ISO YYYY-MM-DD for backend
+                                    const rawEditDate = document.getElementById('edit_date').value;
+                                    const date = (typeof parseDashToISO === 'function') ? (parseDashToISO(rawEditDate) || rawEditDate) : rawEditDate;
+                                    const time = (typeof normalizeTimeTo24 === 'function') ? normalizeTimeTo24(document.getElementById('edit_time').value) : document.getElementById('edit_time').value;
                                     const notes = document.getElementById('edit_notes').value;
                                     if (!bookingId) return alert('Booking id missing');
                                     const fd = new FormData();
@@ -3821,7 +3873,7 @@ if (!isset($base_url)) {
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['duration'] ?? 0, ENT_QUOTES, 'UTF-8'); ?> dk</td>
                                                     <td class="px-6 py-4 text-sm text-gray-700">₺<?php echo number_format((float)($r['price'] ?? 0), 2); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars(formatDashDate($r['booking_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
-                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_time'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars(formatDashTime($r['booking_time'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4"><?php 
                                                         $status = $r['status'] ?? '';
                                                         if ($status === 'confirmed' || $status === 'paid') {
@@ -3962,7 +4014,7 @@ if (!isset($base_url)) {
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
-                                        <input type="date" id="reservationDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                        <input type="text" id="reservationDate" name="reservationDate" placeholder="gg.aa.yyyy" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
                                     </div>
                                     <div>
                                             <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
@@ -4011,7 +4063,7 @@ if (!isset($base_url)) {
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Tarih</label>
-                                <input type="date" id="edit_date" name="date" class="w-full px-3 py-2 border rounded">
+                                <input type="text" id="edit_date" name="date" placeholder="gg.aa.yyyy" class="w-full px-3 py-2 border rounded" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
                             </div>
 
                             <div>
@@ -4232,7 +4284,8 @@ if (!isset($base_url)) {
 
                         const service = (form.querySelector('#service_id') || form.querySelector('[name="service_id"]') || form.querySelector('#service') || form.querySelector('[name="service"]'))?.value || '';
                         const vehicle = (form.querySelector('#vehicle') || form.querySelector('[name="vehicle"]'))?.value || '';
-                        const date = (form.querySelector('#reservationDate') || form.querySelector('[name="reservationDate"]'))?.value || '';
+                        const rawDate = (form.querySelector('#reservationDate') || form.querySelector('[name="reservationDate"]'))?.value || '';
+                        const date = parseDashToISO(rawDate) || rawDate; // convert DD.MM.YYYY to ISO for backend
                         let time = (form.querySelector('#reservationTime') || form.querySelector('[name="reservationTime"]'))?.value || '';
                         time = normalizeTimeTo24(time);
                         const location = (form.querySelector('#location') || form.querySelector('[name="location"]'))?.value || '';
