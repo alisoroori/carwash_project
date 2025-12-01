@@ -93,14 +93,18 @@ if ($user_role === 'admin') {
         .dashboard-wrapper {
             display: flex;
             width: 100%;
+            max-width: 100vw;
             flex: 1;
             min-height: calc(100vh - var(--header-height));
+            height: auto; /* Allow dynamic height growth */
             margin-top: 0 !important;
             margin-bottom: 0 !important;
             padding-top: var(--header-height); /* ensure content starts below fixed header */
             background: #f8fafc;
             position: relative;
-            align-items: stretch;
+            align-items: stretch; /* Force both columns to equal height */
+            overflow-x: hidden !important;
+            box-sizing: border-box;
         }
         
         /* Mobile Menu Toggle Button */
@@ -165,17 +169,21 @@ if ($user_role === 'admin') {
         /* Türkçe: Kenar Çubuğu Stilleri. */
         /* English: Sidebar Styles. */
         .sidebar {
-            width: 280px;
+            width: var(--sidebar-width);
             background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
             box-shadow: 4px 0 15px rgba(0,0,0,0.1);
             position: relative;
             left: 0;
-            overflow-y: auto;
+            overflow: visible; /* Allow sidebar to expand naturally; no internal scroll */
+            flex: 0 0 var(--sidebar-width); /* fixed width in flex layout */
             flex-shrink: 0;
+            min-height: 100%; /* Ensure it stretches to wrapper height */
+            height: auto; /* Allow natural content growth */
             z-index: 30;
             transition: transform 0.3s ease;
             display: flex;
             flex-direction: column;
+            box-sizing: border-box;
         }
         
         /* Mobile Sidebar - Slide from left */
@@ -187,28 +195,10 @@ if ($user_role === 'admin') {
             transform: translateX(0);
         }
         
-        /* Smooth scrollbar for sidebar */
-        .sidebar::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        .sidebar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-        
-        .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-        }
-        
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
+        /* Removed internal sidebar scrollbar styling (sidebar should not scroll itself) */
 
         .nav-menu {
-            flex: 1;
-            overflow-y: auto;
+            flex: 0 0 auto; /* don't force vertical scrolling within the menu */
             display: flex;
             flex-direction: column;
         }
@@ -285,25 +275,91 @@ if ($user_role === 'admin') {
             text-overflow: ellipsis;
         }
 
+        /* Nav item sizing for compact sidebar */
+        .nav-item {
+            padding: 0.625rem 1.25rem;
+            font-size: x-small;
+        }
+
+        /* Sidebar (by id) - natural height, sticky under header, no internal scroll */
+        #sidebar {
+            position: -webkit-sticky;
+            position: sticky;
+            top: var(--header-height);
+            left: 0;
+            height: auto; /* allow natural expansion */
+            width: var(--sidebar-width);
+            z-index: 50;
+            overflow: visible !important; /* prevent internal scrolling */
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
         /* Main Content - Seamlessly connected and full height */
         .main-content {
-            flex: 1;
+            flex: 1 1 auto; /* Take remaining width and stretch height */
             padding: 2rem;
             background: #f8fafc;
             margin-bottom: 0 !important;
             display: flex;
             flex-direction: column;
+            min-width: 0; /* Allow flex item to shrink below content size */
+            min-height: 100%; /* Match parent height */
+            height: auto; /* Allow dynamic growth */
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden !important;
         }
 
-        /* Remove footer top margin for seamless connection */
+        /* Ensure all child elements respect main content width */
+        .main-content * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Responsive media elements */
+        .main-content img,
+        .main-content video,
+        .main-content iframe {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Responsive tables and wide content */
+        .main-content table {
+            width: 100%;
+            max-width: 100%;
+            table-layout: auto;
+        }
+
+        .main-content .table-container {
+            overflow-x: auto;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* Responsive text and content blocks */
+        .main-content pre,
+        .main-content code {
+            max-width: 100%;
+            overflow-x: auto;
+            word-wrap: break-word;
+        }
+
+        /* Footer positioning and styling */
         footer {
-            margin-top: 0 !important;
+            margin-top: auto !important; /* Push footer to bottom of flex container */
             margin-bottom: 0 !important;
+            flex-shrink: 0;
+            width: 100%;
+            clear: both;
         }
         
         /* Ensure footer parent wrapper has no gap */
         body > footer,
-        main + footer {
+        .dashboard-wrapper + footer {
             margin-top: 0 !important;
         }
         
@@ -320,6 +376,49 @@ if ($user_role === 'admin') {
         /* Content Section */
         .content-section {
             display: none;
+        }
+
+        /* Desktop-only sidebar behavior: sticky, natural height, and no internal scroll.
+           Keep mobile rules (fixed overlay) intact for small screens. */
+        @media (min-width: 1024px) {
+            #sidebar,
+            .sidebar {
+                position: sticky !important;
+                position: -webkit-sticky !important;
+                top: var(--header-height) !important;
+                height: auto !important;
+                min-height: 100% !important; /* Match wrapper height */
+                max-height: none !important;
+                overflow: visible !important;
+                flex: 0 0 var(--sidebar-width) !important;
+            }
+
+            /* Ensure the wrapper uses a responsive flex row and prevents overflow */
+            .dashboard-wrapper {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: stretch !important; /* Force equal height columns */
+                min-height: calc(100vh - var(--header-height));
+                height: auto !important; /* Allow dynamic growth */
+            }
+
+            /* Main content should take remaining width and match sidebar height */
+            .main-content {
+                flex: 1 1 auto !important;
+                min-width: 0 !important; /* allows flex children to shrink to prevent overflow */
+                min-height: 100% !important; /* Match sidebar height */
+                height: auto !important; /* Allow dynamic growth */
+                max-width: calc(100% - var(--sidebar-width)) !important; /* exact remaining width */
+                overflow-x: hidden !important;
+                overflow-y: visible !important;
+                word-wrap: break-word;
+            }
+
+            /* Ensure wrapper doesn't allow horizontal scroll */
+            .dashboard-wrapper {
+                overflow-x: hidden !important;
+                max-width: 100vw !important;
+            }
         }
 
         .content-section.active {
@@ -1217,7 +1316,6 @@ if ($user_role === 'admin') {
             
             .main-content {
                 padding: 2rem;
-                margin-left: var(--sidebar-width); /* ensure main clears the sidebar on large screens */
             }
             
             .stats-grid {
@@ -1676,7 +1774,7 @@ if ($user_role === 'admin') {
     <!-- Farsça: Ù†ÙˆØ§Ø± Ú©Ù†Ø§Ø±ÛŒ Ù†Ø§ÙˆØ¨Ø±ÛŒ - Ù…ÙˆÙ‚Ø¹ÛŒØª Ú†Ø³Ø¨Ù†Ø¯Ù‡. -->
     <!-- Türkçe: Kenar çubuğu navigasyonu - Yapışkan Konum. -->
     <!-- English: Sidebar Navigation - Sticky Position. -->
-    <aside id="sidebar" class="sidebar-fixed fixed bottom-0 left-0 w-72 bg-white/5 backdrop-blur-sm text-white z-40 shadow-xl" style="top: var(--header-height); background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);">
+    <aside id="sidebar" class="sidebar-fixed fixed bottom-0 left-0 w-72 bg-white/5 backdrop-blur-sm text-white z-40 shadow-xl">
         <div class="flex flex-col h-full">
             <!-- User Profile Section (matching customer dashboard) -->
             <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30">
@@ -1809,7 +1907,7 @@ if ($user_role === 'admin') {
     <!-- Farsça: Ù…Ø­ØªÙˆØ§ÛŒ Ø§ØµÙ„ÛŒ. -->
     <!-- Türkçe: Ana Ğ°çerik. -->
     <!-- English: Main Content. -->
-    <main class="main-content" style="margin-left: var(--sidebar-width); padding: 1.5rem;">
+    <main class="main-content">
             <!-- Dashboard Section -->
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
@@ -6011,6 +6109,16 @@ if ($user_role === 'admin') {
         </div>
     </div>
 
+    </main>
+    <!-- End Main Content -->
+
+</div>
+<!-- End Dashboard Wrapper -->
+
+<!-- Footer -->
+<?php include '../includes/footer.php'; ?>
+<!-- End Footer -->
+
     <script>
         // Toast & Confirm helpers (non-blocking)
         (function(){
@@ -7245,9 +7353,5 @@ if ($user_role === 'admin') {
         }
     </script>
 
-<?php
-// Include the universal footer
-include '../includes/footer.php';
-?>
-
-</div>
+</body>
+</html>
