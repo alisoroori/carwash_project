@@ -356,6 +356,28 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Helper: Format dates for dashboard as GG.AA.YYYY (day.month.year)
+if (!function_exists('formatDashDate')) {
+    function formatDashDate($val) {
+        if (empty($val)) return '';
+        // If value already looks like a timestamp integer
+        if (is_numeric($val) && strlen((string)$val) === 10) {
+            return date('d.m.Y', (int)$val);
+        }
+        try {
+            // Try to parse with DateTime (supports many formats)
+            $dt = new DateTime($val);
+            return $dt->format('d.m.Y');
+        } catch (Exception $e) {
+            // Fallback to strtotime
+            $ts = strtotime($val);
+            if ($ts !== false) return date('d.m.Y', $ts);
+            // As last resort, return original string (escaped by caller)
+            return (string)$val;
+        }
+    }
+}
+
 // Dashboard header variables
 $dashboard_type = 'customer';
 $page_title = 'Müşteri Paneli - CarWash';
@@ -3739,7 +3761,7 @@ if (!isset($base_url)) {
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['service_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['duration'] ?? 0, ENT_QUOTES, 'UTF-8'); ?> dk</td>
                                                     <td class="px-6 py-4 text-sm text-gray-700">₺<?php echo number_format((float)($r['price'] ?? 0), 2); ?></td>
-                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars(formatDashDate($r['booking_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_time'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4"><?php 
                                                         $status = $r['status'] ?? '';
