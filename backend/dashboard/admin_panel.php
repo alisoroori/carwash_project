@@ -4697,8 +4697,8 @@ include '../includes/admin_header.php';
                         <div class="form-group" st for="auto_32">pk_live_...<input type="text" placeholder="pk_live_..." id="auto_32">            <label for="auto_33">Publishable Key</label>
                             <label for="auto_33" class="sr-only">pk_live_...</label><input type="text" placeholder="pk_live_..." id="auto_33">
                         </div>
-                        <div clas for="auto_34" class="sr-only">sk_live_...<input type="password" placeholder="sk_live_..." id="auto_34">                      <label for="auto_35">Secret Key</label>
-                            <label for="auto_35" class="sr-only">sk_live_...</label><input type="password" placeholder="sk_live_..." id="auto_35">
+                        <div clas for="auto_34" class="sr-only">sk_live_...<input type="password" placeholder="sk_live_..." id="auto_34" autocomplete="off">                      <label for="auto_35">Secret Key</label>
+                            <label for="auto_35" class="sr-only">sk_live_...</label><input type="password" placeholder="sk_live_..." id="auto_35" autocomplete="off">
                         </div>
                     </div>
 
@@ -4719,9 +4719,9 @@ include '../includes/admin_header.php';
                             <label for="auto_39">Client ID</label>
                             <label for="auto_39" class="sr-only">AXxxx...</label><input type="text" placeholder="AXxxx..." id="auto_39">
                         </div>
-      <label for="auto_40" class="sr-only">ECxxx...</label><input type="password" placeholder="ECxxx..." id="auto_40">e="margin-bottom: 0;"&gt;
+      <label for="auto_40" class="sr-only">ECxxx...</label><input type="password" placeholder="ECxxx..." id="auto_40" autocomplete="off">e="margin-bottom: 0;"&gt;
                             <label for="auto_41">Secret Key</label>
-                            <label for="auto_41" class="sr-only">ECxxx...</label><input type="password" placeholder="ECxxx..." id="auto_41">
+                            <label for="auto_41" class="sr-only">ECxxx...</label><input type="password" placeholder="ECxxx..." id="auto_41" autocomplete="off">
                         </div>
                     </section></main></div>
 
@@ -4739,9 +4739,9 @@ include '../includes/admin_header.php';
                     <label for="auto_44" class="sr-only">sandbox-xxx...</label><input type="text" placeholder="sandbox-xxx..." id="auto_44">form-group" style="margin-bottom: 1rem;"&gt;
                             <label for="auto_45">API Key</label>
                             <label for="auto_45" class="sr-only">sandbox-xxx...</label><input type="text" placeholder="sandbox-xxx..." id="auto_45">
-           <label for="auto_46" class="sr-only">sandbox-xxx...</label><input type="password" placeholder="sandbox-xxx..." id="auto_46">ass="form-group" style="margin-bottom: 0;"&gt;
+           <label for="auto_46" class="sr-only">sandbox-xxx...</label><input type="password" placeholder="sandbox-xxx..." id="auto_46" autocomplete="off">ass="form-group" style="margin-bottom: 0;"&gt;
                             <label for="auto_47">Secret Key</label>
-                            <label for="auto_47" class="sr-only">sandbox-xxx...</label><input type="password" placeholder="sandbox-xxx..." id="auto_47">
+                            <label for="auto_47" class="sr-only">sandbox-xxx...</label><input type="password" placeholder="sandbox-xxx..." id="auto_47" autocomplete="off">
                         </div>
                     </div>
 
@@ -4774,11 +4774,11 @@ include '../includes/admin_header.php';
                 <label for="auto_54" class="sr-only">Input</label><input type="text" value="no-reply@otoparkdemotime.com" id="auto_54">                   </select></select></div>
                     <div class="form-group">
                         <label for="auto_55">SMTP Username</label>
-                  <label for="auto_55" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_55">
+                  <label for="auto_55" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_55" autocomplete="username">
                     </div>
                     <div class="form-group">
                         <label for="auto_56">SMTP Password</label>
-                        <label for="auto_56" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_56">
+                        <label for="auto_56" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_56" autocomplete="current-password">
                     </div>
                     
                     <!-- SMS Notifications -->
@@ -4788,7 +4788,7 @@ include '../includes/admin_header.php';
                            <label for="auto_59" class="sr-only">ACxxxxxxxxxx</label><input type="text" placeholder="ACxxxxxxxxxx" id="auto_59">                     </label>
                     </div>
                     <div class="form-group">
-                        <label>Twilio Accoun<label for="auto_60" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_60">eholder="ACxxxxxxxxxx"&gt;
+                        <label>Twilio Accoun<label for="auto_60" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_60" autocomplete="off">eholder="ACxxxxxxxxxx"&gt;
                     </label></div>
                     <div class="form-group">
                         <label>Twilio Auth Token&lt;<label for="auto_61" class="sr-only">Phone</label><input type="tel" value="+905551234567" id="auto_61">type="password" placeholder="••••••••"&gt;
@@ -4807,7 +4807,7 @@ include '../includes/admin_header.php';
                     </div>
                     <div class="form-group">
                         <label for="auto_65">Firebase Server Key</label>
-                        <label for="auto_65" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_65">
+                        <label for="auto_65" class="sr-only">••••••••</label><input type="password" placeholder="••••••••" id="auto_65" autocomplete="off">
                     </div>
                     
                     <button class="save-btn" style="margin-top: 1rem;">
