@@ -18,16 +18,11 @@ if (!isset($_SESSION['test_session']) || $_SESSION['test_session'] !== 'working'
 
 // Note: This page allows direct access for admin user creation (exception)
 
-// Generate CSRF token if not exists
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    error_log('CSRF token generated: ' . $_SESSION['csrf_token']); // Debug log
-}
-$csrf_token = $_SESSION['csrf_token'];
-
-// Debug: Check if token exists
-if (!isset($_SESSION['csrf_token'])) {
-    error_log('CSRF token not set in session');
+// Ensure CSRF token exists using Session helper
+$csrf_token = Session::get('csrf_token');
+if (empty($csrf_token)) {
+  $csrf_token = Session::generateCsrfToken();
+  error_log('[create_user] CSRF token generated via Session::generateCsrfToken');
 }
 
 // Handle form submission
