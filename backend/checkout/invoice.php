@@ -779,7 +779,8 @@ $base = defined('BASE_URL') ? BASE_URL : (isset($base_url) ? $base_url : '/carwa
                     pdfBtn.disabled = false;
                 }).catch(err => {
                     console.error(err);
-                    alert('PDF oluşturulamadı.');
+                    const msg = 'PDF oluşturulamadı.';
+                    if (window.showToast) showToast(msg, 'error'); else alert(msg);
                     pdfBtn.textContent = originalText;
                     pdfBtn.disabled = false;
                 });

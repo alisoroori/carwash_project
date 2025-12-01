@@ -144,9 +144,8 @@ async function fetchContentDetails(id) {
 }
 
 async function deleteContent(id) {
-    if (!confirm('Are you sure you want to delete this content?')) {
-        return;
-    }
+    const proceed = (window.showConfirm) ? await window.showConfirm('Are you sure you want to delete this content?') : confirm('Are you sure you want to delete this content?');
+    if (!proceed) return;
 
     try {
         const response = await fetch(`/carwash_project/backend/api/admin/content.php?id=${id}`, {

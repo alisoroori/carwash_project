@@ -3360,37 +3360,6 @@ if (!isset($base_url)) {
                                     return '';
                                 }
 
-                                // Convert ISO YYYY-MM-DD (or other common date strings) into DD.MM.YYYY for display/submission
-                                function isoToDash(dateString) {
-                                    if (!dateString && dateString !== 0) return '';
-                                    try {
-                                        var s = String(dateString).trim();
-                                        // Already ISO YYYY-MM-DD
-                                        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-                                            var p = s.split('-');
-                                            return String(p[2]).padStart(2,'0') + '.' + String(p[1]).padStart(2,'0') + '.' + p[0];
-                                        }
-                                        // If already DD.MM.YYYY
-                                        var m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-                                        if (m) {
-                                            var dd = String(m[1]).padStart(2,'0');
-                                            var mm = String(m[2]).padStart(2,'0');
-                                            var yyyy = m[3];
-                                            return dd + '.' + mm + '.' + yyyy;
-                                        }
-                                        // If numeric timestamp
-                                        if (/^\d+$/.test(s)) {
-                                            var d = (s.length === 10) ? new Date(parseInt(s,10)*1000) : new Date(parseInt(s,10));
-                                            if (!isNaN(d.getTime())) {
-                                                return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getFullYear());
-                                            }
-                                        }
-                                        var d = new Date(s);
-                                        if (!isNaN(d.getTime())) return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getFullYear());
-                                    } catch (e) {}
-                                    return '';
-                                }
-
                                 // Using native HTML5 date inputs (`type="date" lang="tr"`) and native browser
                                 // month/year navigation for consistent behavior across browsers. The old
                                 // custom JS datepicker was removed to avoid interfering with native calendars.
@@ -3539,8 +3508,8 @@ if (!isset($base_url)) {
                                         document.getElementById('edit_booking_id').value = obj.id || '';
                                         document.getElementById('edit_carwash_id').value = obj.carwash_id || '';
                                         document.getElementById('edit_service_id').value = obj.service_id || '';
-                                        // For native date inputs we set ISO YYYY-MM-DD value so browser shows native picker
-                                        document.getElementById('edit_date').value = (typeof parseDashToISO === 'function') ? (obj.date ? parseDashToISO(obj.date) : '') : (obj.date || '');
+                                        // Display date as DD.MM.YYYY in the text input for readability
+                                        document.getElementById('edit_date').value = (typeof formatDashClient === 'function') ? (obj.date ? formatDashClient(obj.date) : '') : (obj.date || '');
                                         document.getElementById('edit_time').value = (typeof formatTimeClient === 'function') ? (obj.time ? formatTimeClient(obj.time) : '') : (obj.time || '');
                                         document.getElementById('edit_notes').value = obj.notes || '';
                                         const modal = document.getElementById('editBookingModal');
@@ -3561,12 +3530,17 @@ if (!isset($base_url)) {
                                     const bookingId = document.getElementById('edit_booking_id').value;
                                     const carwashId = document.getElementById('edit_carwash_id').value;
                                     const serviceId = document.getElementById('edit_service_id').value;
-                                    // Convert native ISO (YYYY-MM-DD) to DD.MM.YYYY for submission (GG.AA.YYYY)
+                                    // Convert displayed DD.MM.YYYY back to ISO YYYY-MM-DD for backend
                                     const rawEditDate = document.getElementById('edit_date').value;
-                                    const date = (typeof isoToDash === 'function') ? (isoToDash(rawEditDate) || rawEditDate) : rawEditDate;
+                                    const date = (typeof parseDashToISO === 'function') ? (parseDashToISO(rawEditDate) || rawEditDate) : rawEditDate;
                                     const time = (typeof normalizeTimeTo24 === 'function') ? normalizeTimeTo24(document.getElementById('edit_time').value) : document.getElementById('edit_time').value;
                                     const notes = document.getElementById('edit_notes').value;
-                                    if (!bookingId) return alert('Booking id missing');
+                                    if (!bookingId) {
+                                        if (window.showError) showError('Booking id missing');
+                                        else if (window.showToast) showToast('Booking id missing', 'error');
+                                        else alert('Booking id missing');
+                                        return;
+                                    }
                                     const fd = new FormData();
                                     fd.append('booking_id', bookingId);
                                     fd.append('carwash_id', carwashId);
@@ -3619,7 +3593,8 @@ if (!isset($base_url)) {
                                 }
 
                                 async function cancelBookingById(id) {
-                                    if (!confirm('Rezervasyonu iptal etmek istiyor musunuz?')) return;
+                                    const proceed = (window.showConfirm) ? await window.showConfirm('Rezervasyonu iptal etmek istiyor musunuz?') : confirm('Rezervasyonu iptal etmek istiyor musunuz?');
+                                    if (!proceed) return;
                                     const fd = new FormData();
                                     fd.append('booking_id', id);
                                     fd.append('csrf_token', getCsrfToken());
@@ -3630,7 +3605,10 @@ if (!isset($base_url)) {
                                             await loadBookings();
                                             return;
                                         }
-                                        alert(result && result.error ? result.error : 'İptal başarısız');
+                                        const err = result && result.error ? result.error : 'İptal başarısız';
+                                        if (window.showError) showError(err);
+                                        else if (window.showToast) showToast(err, 'error');
+                                        else alert(err);
                                       } catch (err) { console.error(err); showError('Sunucu hatası'); }
                                 }
                             function escapeAttr(s){ return (s||'').replace(/\"/g,'&quot;'); }
@@ -4049,7 +4027,7 @@ if (!isset($base_url)) {
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
-                                        <input type="date" id="reservationDate" name="reservationDate" lang="tr" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                        <input type="text" id="reservationDate" name="reservationDate" placeholder="gg.aa.yyyy" data-datepicker="true" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
                                     </div>
                                     <div>
                                             <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
@@ -4098,7 +4076,7 @@ if (!isset($base_url)) {
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Tarih</label>
-                                <input type="date" id="edit_date" name="date" lang="tr" class="w-full px-3 py-2 border rounded">
+                                <input type="text" id="edit_date" name="date" placeholder="gg.aa.yyyy" data-datepicker="true" class="w-full px-3 py-2 border rounded cursor-pointer" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
                             </div>
 
                             <div>
@@ -4286,36 +4264,6 @@ if (!isset($base_url)) {
                         document.getElementById('newReservationForm')?.scrollIntoView({ behavior: 'smooth' });
                     }
 
-                    // Ensure native date inputs use Turkish locale and open native picker reliably
-                    function enhanceNativeDateInputs() {
-                        try {
-                            document.querySelectorAll('input[type="date"]').forEach(function(inp){
-                                try {
-                                    inp.setAttribute('lang','tr');
-                                    // Some browsers honor the input's lang attribute for the calendar UI
-                                    // Call showPicker() where supported to reliably open native picker on click
-                                    inp.addEventListener('click', function(e){
-                                        if (typeof inp.showPicker === 'function') {
-                                            try { inp.showPicker(); } catch (e) {}
-                                        }
-                                    });
-                                    inp.addEventListener('focus', function(e){
-                                        if (typeof inp.showPicker === 'function') {
-                                            try { inp.showPicker(); } catch (e) {}
-                                        }
-                                    });
-                                } catch (inner) { /* ignore per-input failures */ }
-                            });
-                        } catch (e) { console.warn('enhanceNativeDateInputs failed', e); }
-                    }
-
-                    // Run enhancement early
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', enhanceNativeDateInputs);
-                    } else {
-                        enhanceNativeDateInputs();
-                    }
-
                     // Hide new reservation form and restore it to its original parent if moved
                     function hideNewReservationForm(){
                         const origFormWrapper = document.getElementById('newReservationForm');
@@ -4343,15 +4291,17 @@ if (!isset($base_url)) {
 
                         const form = (evt && evt.target && (evt.target.tagName === 'FORM' ? evt.target : evt.target.closest('form'))) || document.getElementById('newReservationFormElement');
                         if (!form) {
-                            alert('Form bulunamadı. Lütfen sayfayı yenileyin.');
+                            const msg = 'Form bulunamadı. Lütfen sayfayı yenileyin.';
+                            if (window.showError) showError(msg);
+                            else if (window.showToast) showToast(msg, 'error');
+                            else alert(msg);
                             return;
                         }
 
                         const service = (form.querySelector('#service_id') || form.querySelector('[name="service_id"]') || form.querySelector('#service') || form.querySelector('[name="service"]'))?.value || '';
                         const vehicle = (form.querySelector('#vehicle') || form.querySelector('[name="vehicle"]'))?.value || '';
                         const rawDate = (form.querySelector('#reservationDate') || form.querySelector('[name="reservationDate"]'))?.value || '';
-                        // Convert native ISO (YYYY-MM-DD) to DD.MM.YYYY for submission (GG.AA.YYYY)
-                        const date = (typeof isoToDash === 'function') ? (isoToDash(rawDate) || rawDate) : rawDate;
+                        const date = parseDashToISO(rawDate) || rawDate; // convert DD.MM.YYYY to ISO for backend
                         let time = (form.querySelector('#reservationTime') || form.querySelector('[name="reservationTime"]'))?.value || '';
                         time = normalizeTimeTo24(time);
                         const location = (form.querySelector('#location') || form.querySelector('[name="location"]'))?.value || '';
@@ -4359,7 +4309,10 @@ if (!isset($base_url)) {
                         const notes = (form.querySelector('#notes') || form.querySelector('[name="notes"]'))?.value || '';
 
                         if (!service || !vehicle || !date || !time || !location) {
-                            alert('Lütfen tüm zorunlu alanları doldurun.');
+                            const msg = 'Lütfen tüm zorunlu alanları doldurun.';
+                            if (window.showError) showError(msg);
+                            else if (window.showToast) showToast(msg, 'error');
+                            else alert(msg);
                             return;
                         }
 
@@ -4382,7 +4335,10 @@ if (!isset($base_url)) {
                             });
                             const result = await resp.json();
                             if (!result || !result.success) {
-                                alert(result && result.message ? result.message : 'Rezervasyon oluşturulamadı.');
+                                const err = result && result.message ? result.message : 'Rezervasyon oluşturulamadı.';
+                                if (window.showError) showError(err);
+                                else if (window.showToast) showToast(err, 'error');
+                                else alert(err);
                                 return;
                             }
 
@@ -4392,10 +4348,16 @@ if (!isset($base_url)) {
                                 return;
                             }
 
-                            alert('Rezervasyon oluşturuldu, fakat yönlendirme bilgisi alınamadı.');
+                            const warn = 'Rezervasyon oluşturuldu, fakat yönlendirme bilgisi alınamadı.';
+                            if (window.showWarning) showWarning(warn);
+                            else if (window.showToast) showToast(warn, 'info');
+                            else alert(warn);
                         } catch (err) {
                             console.error('Reservation create error:', err);
-                            alert('Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.');
+                            const msg = 'Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.';
+                            if (window.showError) showError(msg);
+                            else if (window.showToast) showToast(msg, 'error');
+                            else alert(msg);
                         }
                     }
 
@@ -4928,6 +4890,8 @@ if (!isset($base_url)) {
                 // Show success message
                 if (typeof window.showSuccess === 'function') {
                     window.showSuccess('Review submitted successfully! Reservation moved to History.');
+                } else if (window.showToast) {
+                    window.showToast('Review submitted successfully! Reservation moved to History.', 'success');
                 } else {
                     alert('Review submitted successfully! Reservation moved to History.');
                 }

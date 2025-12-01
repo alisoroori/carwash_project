@@ -609,7 +609,11 @@
         modal.querySelector('#confirmReg').addEventListener('click', function(){
             const path = document.getElementById('newPath').value.trim();
             const label = document.getElementById('newLabel').value.trim() || path;
-            if (!path) return alert('Please provide path');
+            if (!path) {
+                if (window.showToast) showToast('Please provide path', 'error');
+                else alert('Please provide path');
+                return;
+            }
             // append to frontend folder by default
             const parent = document.querySelector('.folder[data-path="frontend"] .children') || document.querySelector('.sidebar');
             const a = document.createElement('a');

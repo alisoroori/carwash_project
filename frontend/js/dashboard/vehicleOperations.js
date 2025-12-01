@@ -204,9 +204,9 @@
       return;
     }
 
-    if (!confirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
-      return;
-    }
+    // Use custom confirm modal when available (non-blocking)
+    const proceed = (window.showConfirm) ? await window.showConfirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.') : confirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.');
+    if (!proceed) return;
 
     try {
       // Find and disable delete button
@@ -283,7 +283,7 @@
         setTimeout(loadVehicles, 500);
       } else {
         const errorMsg = result.message || result.error || 'Silme işlemi başarısız';
-        alert(errorMsg);
+        if (window.showToast) showToast(errorMsg, 'error'); else alert(errorMsg);
         if (btn) {
           btn.disabled = false;
           btn.innerHTML = '<i class="fas fa-trash mr-1"></i>Sil';
@@ -291,7 +291,7 @@
       }
     } catch (error) {
       console.error('Delete vehicle error:', error);
-      alert('Bir hata oluştu: ' + error.message);
+      if (window.showToast) showToast('Bir hata oluştu: ' + error.message, 'error'); else alert('Bir hata oluştu: ' + error.message);
       
       const btn = document.querySelector(`[data-vehicle-id="${vehicleId}"] [data-action="delete"]`);
       if (btn) {

@@ -402,13 +402,15 @@ include 'backend/includes/header.php';
 
       if (!fullName || !email || !password || !role) {
         e.preventDefault();
-        alert('Please fill in all fields.');
+        const msg = 'Please fill in all fields.';
+        if (window.showToast) showToast(msg, 'error'); else alert(msg);
         return false;
       }
 
       if (!csrfToken) {
         e.preventDefault();
-        alert('Security token missing. Please refresh the page.');
+        const msg = 'Security token missing. Please refresh the page.';
+        if (window.showToast) showToast(msg, 'error'); else alert(msg);
         return false;
       }
 

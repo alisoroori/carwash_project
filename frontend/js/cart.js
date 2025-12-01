@@ -65,7 +65,7 @@ function removeItem(index) {
 // Proceed to checkout
 function proceedToCheckout() {
     if (cart.items.length === 0) {
-        alert('Sepetiniz boş!');
+        if (window.showToast) showToast('Sepetiniz boş!', 'info'); else alert('Sepetiniz boş!');
         return;
     }
 
@@ -82,7 +82,7 @@ function proceedToCheckout() {
         if (data.success) {
             window.location.href = 'checkout.html';
         } else {
-            alert(data.error || 'Bir hata oluştu');
+            if (window.showToast) showToast(data.error || 'Bir hata oluştu', 'error'); else alert(data.error || 'Bir hata oluştu');
         }
     });
 }

@@ -179,12 +179,12 @@ function getStatusText(status) {
 
 function showError(message) {
     // Add your error notification logic here
-    alert(message);
+    if (window.showToast) showToast(message, 'error'); else alert(message);
 }
 
 function showSuccess(message) {
     // Add your success notification logic here
-    alert(message);
+    if (window.showToast) showToast(message, 'success'); else alert(message);
 }
 
 // Add this function to the existing profile.js file

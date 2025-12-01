@@ -36,7 +36,7 @@ class CategoryManager {
             }
         } catch (error) {
             console.error('Error updating order:', error);
-            alert('Sıralama güncellenirken hata oluştu');
+            if (window.showToast) showToast('Sıralama güncellenirken hata oluştu', 'error'); else alert('Sıralama güncellenirken hata oluştu');
         }
     }
 }

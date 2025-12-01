@@ -73,13 +73,13 @@ async function applyCoupon() {
             orderData.discount = data.discount;
             orderData.total = orderData.subtotal + orderData.tax - orderData.discount;
             updateTotals();
-            alert('İndirim uygulandı!');
+            if (window.showToast) showToast('İndirim uygulandı!', 'success'); else alert('İndirim uygulandı!');
         } else {
-            alert(data.error || 'Geçersiz kupon kodu');
+            if (window.showToast) showToast(data.error || 'Geçersiz kupon kodu', 'error'); else alert(data.error || 'Geçersiz kupon kodu');
         }
     } catch (error) {
         console.error('Error applying coupon:', error);
-        alert('Kupon uygulanırken bir hata oluştu');
+        if (window.showToast) showToast('Kupon uygulanırken bir hata oluştu', 'error'); else alert('Kupon uygulanırken bir hata oluştu');
     }
 }
 
@@ -126,11 +126,11 @@ document.getElementById('paymentForm').addEventListener('submit', async function
         if (data.success) {
             window.location.href = `confirmation.html?order_id=${data.order_id}`;
         } else {
-            alert(data.error || 'Ödeme işlemi başarısız');
+            if (window.showToast) showToast(data.error || 'Ödeme işlemi başarısız', 'error'); else alert(data.error || 'Ödeme işlemi başarısız');
         }
     } catch (error) {
         console.error('Payment error:', error);
-        alert('Ödeme işlemi sırasında bir hata oluştu');
+        if (window.showToast) showToast('Ödeme işlemi sırasında bir hata oluştu', 'error'); else alert('Ödeme işlemi sırasında bir hata oluştu');
     }
 });
 

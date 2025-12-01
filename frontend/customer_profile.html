@@ -867,12 +867,14 @@
 
       // Basic validation (you'd want more robust validation)
       if (!service || !vehicle || !date || !time || !location) {
-        alert('Lütfen tüm zorunlu alanları doldurun.');
+        if (window.showToast) showToast('Lütfen tüm zorunlu alanları doldurun.', 'error');
+        else alert('Lütfen tüm zorunlu alanları doldurun.');
         return;
       }
 
       console.log('New Reservation Data:', { service, vehicle, date, time, location, notes });
-      alert('Rezervasyonunuz başarıyla oluşturuldu! (Bu bir demo mesajıdır)');
+      if (window.showToast) showToast('Rezervasyonunuz başarıyla oluşturuldu! (Bu bir demo mesajıdır)', 'success');
+      else alert('Rezervasyonunuz başarıyla oluşturuldu! (Bu bir demo mesajıdır)');
       
       // Optionally, clear the form
       document.getElementById('service').value = '';

@@ -827,7 +827,7 @@ if (!empty($raw_logo)) {
                             
                             <a href="<?php echo $logout_url; ?>" class="dropdown-item dropdown-logout">
                                 <i class="fas fa-sign-out-alt"></i>
-                                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                                <span>Çıkış Yap</span>
                             </a>
                         </div>
                     </div>
@@ -895,7 +895,7 @@ if (!empty($raw_logo)) {
             
             <a href="<?php echo $logout_url; ?>" class="mobile-nav-item" style="color: #dc2626;">
                 <i class="fas fa-sign-out-alt"></i>
-                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                <span>Çıkış Yap</span>
             </a>
         </nav>
         
@@ -981,7 +981,7 @@ document.querySelectorAll('.user-menu-button').forEach(button => {
     });
 });
 
-console.log('âœ… Dashboard Header: Loaded successfully for <?php echo strtoupper($dashboard_type); ?> dashboard');
+console.log('✅ Dashboard Header: Loaded successfully for <?php echo strtoupper($dashboard_type); ?> dashboard');
 </script>
 
 <!-- Central layout height updater: sets --header-height, --footer-height, and --sidebar-width -->

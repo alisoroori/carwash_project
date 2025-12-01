@@ -159,7 +159,8 @@ class ScheduleHistory {
     }
 
     async restoreSchedule(scheduleId) {
-        if (!confirm('Are you sure you want to restore this schedule?')) return;
+        const proceed = (window.showConfirm) ? await window.showConfirm('Are you sure you want to restore this schedule?') : confirm('Are you sure you want to restore this schedule?');
+        if (!proceed) return;
 
         try {
             const response = await fetch(this.endpoints.restore, {
