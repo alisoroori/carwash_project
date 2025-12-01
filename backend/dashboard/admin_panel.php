@@ -27,6 +27,23 @@ if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
 }
 // Include Admin Header (standardized)
 include '../includes/admin_header.php';
+
+// Setup profile image paths (matching customer dashboard)
+$default_avatar = $base_url . '/frontend/images/default-avatar.svg';
+$ts = time();
+if (!empty($user_id)) {
+    $header_profile_src = rtrim($base_url, '\/') . '/backend/profile_image_handler.php?user_id=' . intval($user_id) . '&ts=' . $ts;
+} else {
+    $header_profile_src = $default_avatar;
+}
+
+// Get user role display name
+$role_display = ucfirst($user_role ?? 'Admin');
+if ($user_role === 'admin') {
+    $role_display = 'Yönetici';
+} elseif ($user_role === 'carwash') {
+    $role_display = 'İşletme Sahibi';
+}
 ?>
 <!-- Lazy-section loader (loads dashboard fragments when they come into view) -->
 <script defer src="<?php echo $base_url; ?>/frontend/js/section-loader.js"></script>
@@ -52,8 +69,11 @@ include '../includes/admin_header.php';
     body {
         margin: 0 !important;
         padding: 0 !important;
+        padding-top: 0 !important; /* override global body padding; wrapper will reserve header space */
         overflow-x: hidden;
         min-height: 100vh;
+        display: flex;
+        flex-direction: column;
     }
     
     /* Dashboard-specific overrides only - Universal fixes included via header */
@@ -72,12 +92,15 @@ include '../includes/admin_header.php';
         /* Dashboard Container - Full height, connected to header and footer seamlessly */
         .dashboard-wrapper {
             display: flex;
-            min-height: 100vh;
+            width: 100%;
+            flex: 1;
+            min-height: calc(100vh - var(--header-height));
             margin-top: 0 !important;
             margin-bottom: 0 !important;
-            padding-top: 70px;
+            padding-top: var(--header-height); /* ensure content starts below fixed header */
             background: #f8fafc;
             position: relative;
+            align-items: stretch;
         }
         
         /* Mobile Menu Toggle Button */
@@ -1173,9 +1196,10 @@ include '../includes/admin_header.php';
             }
             
             .sidebar {
-                width: 280px;
+                width: var(--sidebar-width);
                 position: relative;
                 transform: translateX(0) !important;
+                min-width: var(--sidebar-width);
             }
             
             .sidebar.mobile-hidden,
@@ -1193,6 +1217,7 @@ include '../includes/admin_header.php';
             
             .main-content {
                 padding: 2rem;
+                margin-left: var(--sidebar-width); /* ensure main clears the sidebar on large screens */
             }
             
             .stats-grid {
@@ -1651,12 +1676,22 @@ include '../includes/admin_header.php';
     <!-- Farsça: Ù†ÙˆØ§Ø± Ú©Ù†Ø§Ø±ÛŒ Ù†Ø§ÙˆØ¨Ø±ÛŒ - Ù…ÙˆÙ‚Ø¹ÛŒØª Ú†Ø³Ø¨Ù†Ø¯Ù‡. -->
     <!-- Türkçe: Kenar çubuğu navigasyonu - Yapışkan Konum. -->
     <!-- English: Sidebar Navigation - Sticky Position. -->
-    <aside id="sidebar" class="sidebar-fixed fixed top-16 bottom-0 left-0 w-72 bg-white/5 backdrop-blur-sm text-white z-40 shadow-xl">
+    <aside id="sidebar" class="sidebar-fixed fixed bottom-0 left-0 w-72 bg-white/5 backdrop-blur-sm text-white z-40 shadow-xl" style="top: var(--header-height); background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);">
         <div class="flex flex-col h-full">
-            <div class="p-4">
-                <!-- Optional top area: logo / user -->
-                <div class="mb-4">
-                    <div class="text-sm font-semibold">Yönetim</div>
+            <!-- User Profile Section (matching customer dashboard) -->
+            <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30">
+                <div class="text-center">
+                    <div class="sidebar-profile-container mx-auto mb-2" style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; display: block; box-shadow: 0 4px 6px rgba(0,0,0,0.08); margin: 0 auto;">
+                        <img 
+                            id="sidebarProfileImage" 
+                            src="<?php echo htmlspecialchars($header_profile_src); ?>" 
+                            alt="<?php echo htmlspecialchars($user_name); ?>"
+                            style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; display: block;"
+                            onerror="this.src='<?php echo $default_avatar; ?>'"
+                        >
+                    </div>
+                    <h3 class="text-sm font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
+                    <p class="text-xs text-blue-100 opacity-90 truncate mt-1"><?php echo htmlspecialchars($role_display); ?></p>
                 </div>
             </div>
             <nav class="nav-menu flex-1 overflow-auto px-2 py-3">
@@ -1774,7 +1809,7 @@ include '../includes/admin_header.php';
     <!-- Farsça: Ù…Ø­ØªÙˆØ§ÛŒ Ø§ØµÙ„ÛŒ. -->
     <!-- Türkçe: Ana Ğ°çerik. -->
     <!-- English: Main Content. -->
-    <main class="main-content lg:ml-72">
+    <main class="main-content" style="margin-left: var(--sidebar-width); padding: 1.5rem;">
             <!-- Dashboard Section -->
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
