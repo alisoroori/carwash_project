@@ -3360,6 +3360,134 @@ if (!isset($base_url)) {
                                     return '';
                                 }
 
+                                // ========================================
+                                // Turkish Date Picker Component (Vanilla JS)
+                                // ========================================
+                                (function() {
+                                    const trMonths = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+                                    const trDays = ['Pz','Pt','Sa','Ça','Pe','Cu','Ct'];
+                                    let activePicker = null;
+
+                                    function createDatePicker(inputEl) {
+                                        const picker = document.createElement('div');
+                                        picker.className = 'cw-datepicker';
+                                        picker.style.cssText = 'position:absolute;z-index:9999;background:#fff;border:2px solid #2563eb;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.15);padding:12px;width:280px;display:none;';
+                                        let currentDate = new Date();
+                                        let selectedDate = null;
+
+                                        function parseInput(val) {
+                                            if (!val) return null;
+                                            const m = val.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+                                            if (m) {
+                                                const d = new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10));
+                                                if (!isNaN(d.getTime())) return d;
+                                            }
+                                            return null;
+                                        }
+
+                                        function render() {
+                                            const year = currentDate.getFullYear();
+                                            const month = currentDate.getMonth();
+                                            const firstDay = new Date(year, month, 1).getDay();
+                                            const daysInMonth = new Date(year, month+1, 0).getDate();
+                                            const today = new Date();
+                                            today.setHours(0,0,0,0);
+
+                                            let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+                                            html += '<button type="button" class="dp-prev-year" style="background:#1e40af;color:#fff;border:none;border-radius:6px;width:32px;height:32px;cursor:pointer;font-weight:bold;font-size:14px;" aria-label="Önceki yıl" title="Önceki yıl">«</button>';
+                                            html += '<button type="button" class="dp-prev" style="background:#2563eb;color:#fff;border:none;border-radius:6px;width:32px;height:32px;cursor:pointer;font-weight:bold;" aria-label="Önceki ay">&lt;</button>';
+                                            html += '<span style="font-weight:bold;color:#1e40af;font-size:15px;flex:1;text-align:center;">' + trMonths[month] + ' ' + year + '</span>';
+                                            html += '<button type="button" class="dp-next" style="background:#2563eb;color:#fff;border:none;border-radius:6px;width:32px;height:32px;cursor:pointer;font-weight:bold;" aria-label="Sonraki ay">&gt;</button>';
+                                            html += '<button type="button" class="dp-next-year" style="background:#1e40af;color:#fff;border:none;border-radius:6px;width:32px;height:32px;cursor:pointer;font-weight:bold;font-size:14px;" aria-label="Sonraki yıl" title="Sonraki yıl">»</button>';
+                                            html += '</div>';
+                                            html += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;">';
+                                            trDays.forEach(d => html += '<div style="text-align:center;font-size:11px;font-weight:600;color:#6b7280;padding:4px 0;">' + d + '</div>');
+                                            html += '</div>';
+                                            html += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">';
+                                            const startDay = (firstDay === 0) ? 6 : firstDay - 1;
+                                            for (let i = 0; i < startDay; i++) html += '<div></div>';
+                                            for (let day = 1; day <= daysInMonth; day++) {
+                                                const d = new Date(year, month, day);
+                                                d.setHours(0,0,0,0);
+                                                const isPast = d < today;
+                                                const isSelected = selectedDate && d.getTime() === selectedDate.getTime();
+                                                const isToday = d.getTime() === today.getTime();
+                                                let style = 'text-align:center;padding:8px 4px;border-radius:8px;cursor:pointer;font-size:13px;transition:all 0.2s;';
+                                                if (isPast) style += 'color:#9ca3af;';
+                                                else if (isSelected) style += 'background:#2563eb;color:#fff;font-weight:bold;';
+                                                else if (isToday) style += 'background:#dbeafe;color:#1e40af;font-weight:600;';
+                                                else style += 'color:#1f2937;';
+                                                if (!isPast) style += 'hover:background:#bfdbfe;';
+                                                html += '<button type="button" class="dp-day" data-day="' + day + '" style="' + style + '" ' + (isPast ? 'disabled' : '') + '>' + day + '</button>';
+                                            }
+                                            html += '</div>';
+                                            picker.innerHTML = html;
+                                            picker.querySelector('.dp-prev-year').onclick = () => { currentDate.setFullYear(currentDate.getFullYear() - 1); render(); };
+                                            picker.querySelector('.dp-prev').onclick = () => { currentDate.setMonth(currentDate.getMonth() - 1); render(); };
+                                            picker.querySelector('.dp-next').onclick = () => { currentDate.setMonth(currentDate.getMonth() + 1); render(); };
+                                            picker.querySelector('.dp-next-year').onclick = () => { currentDate.setFullYear(currentDate.getFullYear() + 1); render(); };
+                                            picker.querySelectorAll('.dp-day').forEach(btn => {
+                                                btn.onclick = () => {
+                                                    const day = parseInt(btn.dataset.day, 10);
+                                                    selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                                                    const dd = String(selectedDate.getDate()).padStart(2, '0');
+                                                    const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                                                    const yyyy = selectedDate.getFullYear();
+                                                    inputEl.value = dd + '.' + mm + '.' + yyyy;
+                                                    inputEl.dispatchEvent(new Event('input', {bubbles:true}));
+                                                    inputEl.dispatchEvent(new Event('change', {bubbles:true}));
+                                                    closePicker();
+                                                };
+                                            });
+                                        }
+
+                                        function openPicker() {
+                                            if (activePicker && activePicker !== picker) activePicker.style.display = 'none';
+                                            activePicker = picker;
+                                            const val = inputEl.value.trim();
+                                            selectedDate = parseInput(val);
+                                            if (selectedDate) currentDate = new Date(selectedDate);
+                                            else currentDate = new Date();
+                                            render();
+                                            const rect = inputEl.getBoundingClientRect();
+                                            picker.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+                                            picker.style.left = (rect.left + window.scrollX) + 'px';
+                                            picker.style.display = 'block';
+                                        }
+
+                                        function closePicker() {
+                                            picker.style.display = 'none';
+                                            if (activePicker === picker) activePicker = null;
+                                        }
+
+                                        inputEl.addEventListener('click', openPicker);
+                                        inputEl.addEventListener('focus', openPicker);
+                                        inputEl.setAttribute('autocomplete', 'off');
+                                        inputEl.setAttribute('readonly', 'true');
+                                        document.body.appendChild(picker);
+                                        document.addEventListener('click', (e) => {
+                                            if (e.target !== inputEl && !picker.contains(e.target)) closePicker();
+                                        });
+                                        return picker;
+                                    }
+
+                                    function initDatePickers() {
+                                        document.querySelectorAll('input[data-datepicker="true"]').forEach(input => {
+                                            if (!input.dataset.pickerInit) {
+                                                createDatePicker(input);
+                                                input.dataset.pickerInit = 'true';
+                                            }
+                                        });
+                                    }
+
+                                    if (document.readyState === 'loading') {
+                                        document.addEventListener('DOMContentLoaded', initDatePickers);
+                                    } else {
+                                        initDatePickers();
+                                    }
+                                    window.initDatePickers = initDatePickers;
+                                })();
+
                                 // -----------------------------
                                 // Bookings (Reservations) Management
                                 // -----------------------------
@@ -4014,7 +4142,7 @@ if (!isset($base_url)) {
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
-                                        <input type="text" id="reservationDate" name="reservationDate" placeholder="gg.aa.yyyy" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
+                                        <input type="text" id="reservationDate" name="reservationDate" placeholder="gg.aa.yyyy" data-datepicker="true" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
                                     </div>
                                     <div>
                                             <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
@@ -4063,7 +4191,7 @@ if (!isset($base_url)) {
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Tarih</label>
-                                <input type="text" id="edit_date" name="date" placeholder="gg.aa.yyyy" class="w-full px-3 py-2 border rounded" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
+                                <input type="text" id="edit_date" name="date" placeholder="gg.aa.yyyy" data-datepicker="true" class="w-full px-3 py-2 border rounded cursor-pointer" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
                             </div>
 
                             <div>
