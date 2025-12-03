@@ -68,6 +68,14 @@ if (!empty($raw)) {
 }
 $profile_src = $_SESSION['profile_image'] ?? ($base_url . '/frontend/images/default-avatar.svg');
 
+// Build canonical header profile src (use profile_image_handler like customer header)
+$ts = intval($_SESSION['profile_image_ts'] ?? time());
+if (!empty($user_id)) {
+    $header_profile_src = rtrim($base_url, '\\/') . '/backend/profile_image_handler.php?user_id=' . intval($user_id) . '&ts=' . $ts;
+} else {
+    $header_profile_src = $base_url . '/frontend/images/default-avatar.svg';
+}
+
 // Current logged-in user's display name and email (used in header)
 $user_name = $_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Kullanıcı';
 $user_email = $_SESSION['email'] ?? '';
@@ -247,7 +255,7 @@ if (empty($workplace_status)) $workplace_status = 'open';
                         :aria-expanded="open.toString()" aria-haspopup="true">
 
                         <div id="headerProfileContainer" class="rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600" style="width:40px;height:40px;">
-                            <img id="userAvatarTop" src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" style="border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <img id="userAvatarTop" src="<?php echo htmlspecialchars($header_profile_src, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" style="border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                             <div id="userAvatarFallback" class="text-white font-semibold text-sm" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
                                 <?php echo strtoupper(substr($user_name,0,1)); ?>
                             </div>
@@ -318,7 +326,7 @@ if (empty($workplace_status)) $workplace_status = 'open';
 <div id="mobileMenu" style="display:none; position:fixed; top:var(--header-height); left:0; right:0; bottom:0; background:rgba(255,255,255,0.97); z-index:1190; overflow:auto;">
     <div style="padding:1rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-            <img id="mobileMenuAvatar" src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+            <img id="mobileMenuAvatar" src="<?php echo htmlspecialchars($header_profile_src, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
             <div>
                 <div id="mobileMenuUserName" style="font-weight:700"><?php echo htmlspecialchars($user_name); ?></div>
                 <div id="mobileMenuUserEmail" style="font-size:0.85rem;opacity:0.8"><?php echo htmlspecialchars($user_email); ?></div>
@@ -372,7 +380,7 @@ window.addEventListener('resize', updateHeaderHeight);
 <script>
     (function(){
         try {
-            var profileSrc = <?php echo json_encode($profile_src); ?>;
+            var profileSrc = <?php echo json_encode($header_profile_src); ?>;
             if (profileSrc) {
                 var ts = Date.now();
                 var url = profileSrc + (profileSrc.indexOf('?') === -1 ? ('?ts=' + ts) : ('&ts=' + ts));

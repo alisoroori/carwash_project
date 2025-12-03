@@ -1,0 +1,120 @@
+*** Begin Patch
+*** Update File: c:\xampp\htdocs\carwash_project\backend\includes\dashboard_header_improved.php
+@@
+-$user_avatar = $_SESSION['avatar'] ?? null;
++$user_avatar = $_SESSION['avatar'] ?? null;
++
++// Normalize user avatar to absolute URL so templates never output raw DB values
++// Accepts: absolute http(s) URL, root-relative path ("/uploads/..."), or stored filename/relative path
++$default_avatar = $base_url . '/frontend/images/default-avatar.svg';
++if (empty($user_avatar)) {
++    $user_avatar_url = $default_avatar;
++} else if (preg_match('#^https?://#i', $user_avatar) || strpos($user_avatar, '/') === 0) {
++    // Already absolute or root-relative
++    if (strpos($user_avatar, 'http') === 0) {
++        $user_avatar_url = $user_avatar;
++    } else {
++        $user_avatar_url = rtrim($base_url, '\\/') . $user_avatar;
++    }
++    // validate file exists when possible
++    $parsed = parse_url($user_avatar_url);
++    if (!empty($parsed['path'])) {
++        $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\\/');
++        $filePath = $docRoot . $parsed['path'];
++        if (!file_exists($filePath) || !is_readable($filePath)) {
++            $user_avatar_url = $default_avatar;
++        }
++    }
++} else {
++    // Treat as filename stored in DB (e.g., uploads/profiles/filename.jpg or just filename.jpg)
++    $filename = basename($user_avatar);
++    $candidateWeb = $base_url . '/uploads/profiles/' . $filename;
++    $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\\/');
++    $filePath = $docRoot . '/carwash_project/uploads/profiles/' . $filename;
++    if (file_exists($filePath) && is_readable($filePath)) {
++        $user_avatar_url = $candidateWeb;
++    } else {
++        // Try legacy locations
++        $alts = [
++            $docRoot . '/carwash_project/backend/auth/uploads/profiles/' . $filename,
++            $docRoot . '/carwash_project/backend/uploads/' . $filename,
++            $docRoot . '/carwash_project/backend/auth/uploads/' . $filename,
++        ];
++        $found = false;
++        foreach ($alts as $a) {
++            if (file_exists($a) && is_readable($a)) {
++                $web = str_replace($docRoot, '', $a);
++                if ($web === '' || $web[0] !== '/') $web = '/' . ltrim($web, '/');
++                $user_avatar_url = rtrim($base_url, '\\/') . $web;
++                $found = true;
++                break;
++            }
++        }
++        if (!$found) {
++            $user_avatar_url = $default_avatar;
++        }
++    }
++}
++
++// Append cache-buster if session timestamp exists
++$ts = intval($_SESSION['profile_image_ts'] ?? time());
++$user_avatar_url = $user_avatar_url . (strpos($user_avatar_url, '?') === false ? '?ts=' . $ts : '&ts=' . $ts);
+*** End Patch
+*** Begin Patch
+*** Update File: c:\xampp\htdocs\carwash_project\backend\dashboard\dashboard_header_improved.php
+@@
+-$user_avatar = $_SESSION['avatar'] ?? null;
++$user_avatar = $_SESSION['avatar'] ?? null;
++
++// Normalize user avatar to absolute URL so templates never output raw DB values
++// Accepts: absolute http(s) URL, root-relative path ("/uploads/..."), or stored filename/relative path
++$default_avatar = $base_url . '/frontend/images/default-avatar.svg';
++if (empty($user_avatar)) {
++    $user_avatar_url = $default_avatar;
++} else if (preg_match('#^https?://#i', $user_avatar) || strpos($user_avatar, '/') === 0) {
++    if (strpos($user_avatar, 'http') === 0) {
++        $user_avatar_url = $user_avatar;
++    } else {
++        $user_avatar_url = rtrim($base_url, '\\/') . $user_avatar;
++    }
++    $parsed = parse_url($user_avatar_url);
++    if (!empty($parsed['path'])) {
++        $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\\/');
++        $filePath = $docRoot . $parsed['path'];
++        if (!file_exists($filePath) || !is_readable($filePath)) {
++            $user_avatar_url = $default_avatar;
++        }
++    }
++} else {
++    $filename = basename($user_avatar);
++    $candidateWeb = $base_url . '/uploads/profiles/' . $filename;
++    $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '\\\/');
++    $filePath = $docRoot . '/carwash_project/uploads/profiles/' . $filename;
++    if (file_exists($filePath) && is_readable($filePath)) {
++        $user_avatar_url = $candidateWeb;
++    } else {
++        $alts = [
++            $docRoot . '/carwash_project/backend/auth/uploads/profiles/' . $filename,
++            $docRoot . '/carwash_project/backend/uploads/' . $filename,
++            $docRoot . '/carwash_project/backend/auth/uploads/' . $filename,
++        ];
++        $found = false;
++        foreach ($alts as $a) {
++            if (file_exists($a) && is_readable($a)) {
++                $web = str_replace($docRoot, '', $a);
++                if ($web === '' || $web[0] !== '/') $web = '/' . ltrim($web, '/');
++                $user_avatar_url = rtrim($base_url, '\\/') . $web;
++                $found = true;
++                break;
++            }
++        }
++        if (!$found) {
++            $user_avatar_url = $default_avatar;
++        }
++    }
++}
++
++// Append cache-buster if session timestamp exists
++$ts = intval($_SESSION['profile_image_ts'] ?? time());
++$user_avatar_url = $user_avatar_url . (strpos($user_avatar_url, '?') === false ? '?ts=' . $ts : '&ts=' . $ts);
+*** End Patch

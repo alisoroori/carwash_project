@@ -5556,6 +5556,7 @@ if ($user_role === 'admin') {
                         </code>
                     </div>
                 </div>
+            </section>
             
     
 </div>

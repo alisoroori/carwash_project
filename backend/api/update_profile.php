@@ -7,6 +7,28 @@ use App\Classes\Database;
 use App\Classes\Validator;
 use App\Classes\Session;
 
+/**
+ * Helper: Normalize profile image path to absolute URL
+ * @param string|null $path Relative or absolute path from DB
+ * @return string Absolute URL or empty string
+ */
+function normalizeProfileImageUrl($path) {
+    if (empty($path)) return '';
+    
+    // Already absolute URL
+    if (preg_match('#^https?://#i', $path)) return $path;
+    
+    // Build base URL
+    $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') 
+              . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/carwash_project';
+    
+    // Root-relative path
+    if ($path[0] === '/') return $base_url . $path;
+    
+    // Relative path - prepend base
+    return $base_url . '/' . ltrim($path, '/');
+}
+
 Session::start();
 
 Auth::requireAuth();
@@ -145,7 +167,10 @@ try {
             $_SESSION['username'] = $fresh['username'] ?? '';
         }
 
-        // Return merged profile in response
+        // Return merged profile in response - normalize profile_image to absolute URL
+        $rawProfileImage = $fresh['profile_img_extended'] ?? $fresh['profile_image'] ?? '';
+        $absoluteProfileImage = normalizeProfileImageUrl($rawProfileImage);
+        
         $profile = [
             'id' => $fresh['id'],
             'full_name' => $fresh['full_name'],
@@ -155,7 +180,7 @@ try {
             'home_phone' => $fresh['home_phone'],
             'national_id' => $fresh['national_id'],
             'driver_license' => $fresh['driver_license'],
-            'profile_image' => $fresh['profile_img_extended'] ?? $fresh['profile_image'],
+            'profile_image' => $absoluteProfileImage,
             'address' => $fresh['profile_address'] ?? $fresh['address'] ?? '',
             'city' => $fresh['city'],
             'state' => $fresh['state'],
@@ -167,7 +192,9 @@ try {
             'preferences' => $fresh['preferences'] ? json_decode($fresh['preferences'], true) : null,
         ];
 
-        Response::success('Profile updated successfully', ['user' => $profile, 'profile_image' => ($_SESSION['profile_image'] ? ($_SESSION['profile_image'] . '?cb=' . $_SESSION['profile_image_ts']) : '')]);
+        // Return absolute URL with cache-busting timestamp
+        $responseImage = $absoluteProfileImage ? ($absoluteProfileImage . '?cb=' . $_SESSION['profile_image_ts']) : '';
+        Response::success('Profile updated successfully', ['user' => $profile, 'profile_image' => $responseImage]);
     } catch (Exception $e) {
         error_log('Profile update DB error: ' . $e->getMessage());
         Response::error('Profil güncellenirken bir hata oluştu: ' . $e->getMessage(), 500);

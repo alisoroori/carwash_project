@@ -2475,9 +2475,18 @@ try {
               <!-- Profile Header -->
               <div class="flex items-center gap-6 pb-6 border-b border-gray-200">
                 <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
+                  <?php
+                  // Ensure session profile image is an absolute URL so browsers don't resolve it relative to the current page path
+                  $sessionProfile = $_SESSION['profile_image'] ?? '';
+                  if ($sessionProfile && !preg_match('#^(?:https?://|/)#i', $sessionProfile)) {
+                      $sessionProfile = rtrim($base_url, '/') . '/' . ltrim($sessionProfile, '/');
+                  } elseif (!$sessionProfile) {
+                      $sessionProfile = rtrim($base_url, '/') . '/frontend/images/default-avatar.svg';
+                  }
+                  ?>
                   <img 
                     id="profileViewImage"
-                    src="<?php echo htmlspecialchars($_SESSION['profile_image'] ?? '/carwash_project/frontend/images/default-avatar.svg'); ?>" 
+                    src="<?php echo htmlspecialchars($sessionProfile, ENT_QUOTES, 'UTF-8'); ?>" 
                     alt="Profil Fotoğrafı" 
                     class="w-full h-full object-cover"
                   >
@@ -2535,7 +2544,7 @@ try {
                   <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-100 bg-gray-100">
                     <img 
                       id="profileEditImagePreview"
-                      src="<?php echo htmlspecialchars($_SESSION['profile_image'] ?? '/carwash_project/frontend/images/default-avatar.svg'); ?>" 
+                      src="<?php echo htmlspecialchars($sessionProfile, ENT_QUOTES, 'UTF-8'); ?>" 
                       alt="Profil Fotoğrafı Önizleme" 
                       class="w-full h-full object-cover"
                     >
@@ -3638,6 +3647,13 @@ try {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Kaydediliyor...';
             
+            // helper: normalize profile image URLs returned from APIs (make absolute when relative)
+            function normalizeImageUrl(url) {
+              if (!url) return '';
+              if (/^https?:\/\//i.test(url) || url.charAt(0) === '/') return url;
+              return (window.CONFIG && window.CONFIG.BASE_URL ? window.CONFIG.BASE_URL : '') + '/' + url.replace(/^\/+/, '');
+            }
+
             // Send to backend API
             fetch('/carwash_project/backend/api/update_profile.php', {
               method: 'POST',
@@ -3658,15 +3674,19 @@ try {
                   if (data.data && data.data.profile_image) {
                     // Append timestamp to bust caches and keep both headers in sync via localStorage
                     const ts = Date.now();
-                    const imageUrl = data.data.profile_image + (data.data.profile_image.indexOf('?') === -1 ? ('?ts=' + ts) : ('&ts=' + ts));
+                    let normalized = normalizeImageUrl(data.data.profile_image || '');
+                    if (normalized) {
+                      normalized += (normalized.indexOf('?') === -1 ? ('?ts=' + ts) : ('&ts=' + ts));
+                    }
+                    const imageUrl = normalized || '';
 
                     const avatarEl = document.getElementById('userAvatarTop');
-                    if (avatarEl) {
+                    if (avatarEl && imageUrl) {
                       avatarEl.src = imageUrl;
                       avatarEl.style.display = '';
                     }
                     const mobileAvatar = document.getElementById('mobileMenuAvatar');
-                    if (mobileAvatar) mobileAvatar.src = imageUrl;
+                    if (mobileAvatar && imageUrl) mobileAvatar.src = imageUrl;
 
                     try {
                       localStorage.setItem('carwash_profile_image', imageUrl);
@@ -3698,7 +3718,9 @@ try {
                 const viewImage = document.getElementById('profileViewImage');
                 if (viewImage) {
                   if (data.data && data.data.profile_image) {
-                    viewImage.src = data.data.profile_image;
+                    // Use normalized URL for view image as well
+                    const normalizedView = normalizeImageUrl(data.data.profile_image || '');
+                    viewImage.src = normalizedView || (document.getElementById('profileEditImagePreview')?.src || viewImage.src);
                   } else {
                     const preview = document.getElementById('profileEditImagePreview');
                     if (preview) viewImage.src = preview.src;
