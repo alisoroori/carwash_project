@@ -2914,7 +2914,14 @@ if (!isset($base_url)) {
                                                 $tblExistsStmt->execute(['tbl' => 'carwashes']);
                                                 if ((int)$tblExistsStmt->fetchColumn() > 0) {
                                                     // Use a full-row select so new/changed columns are automatically included
-                                                    $sql = "SELECT * FROM carwashes ORDER BY name";
+                                                    // Only return carwashes that are open. Accept multiple indicators for backwards compatibility
+                                                    // Open indicators: 'Açık' (Turkish), 'open', 'active'
+                                                    // Closed indicators: 'Kapalı' (Turkish), 'closed', 'inactive'
+                                                    // If status is explicitly closed, hide even if is_active=1
+                                                    $sql = "SELECT * FROM carwashes 
+                                                            WHERE COALESCE(status,'') NOT IN ('Kapalı','closed','inactive')
+                                                              AND (status IN ('Açık','open','active') OR COALESCE(is_active,1) = 1)
+                                                            ORDER BY name";
                                                     $carwashes = $db->fetchAll($sql);
                                                 } else {
                                                     // No canonical table found — surface clear message to JavaScript/UI
@@ -5007,9 +5014,10 @@ if (!isset($base_url)) {
 
                     // Emit to console as structured JSON for CI or manual inspection
                     console.log('ReviewButtonVisibilityReport', report);
-                    if (typeof window.showSuccess === 'function') {
-                        window.showSuccess('Review button visibility checked (' + report.length + ' completed reservations scanned)');
-                    }
+                    // Debug UI notification intentionally disabled for CI/production.
+                    // if (typeof window.showSuccess === 'function') {
+                    //     window.showSuccess('Review button visibility checked (' + report.length + ' completed reservations scanned)');
+                    // }
                 } catch (e) {
                     console.error('reportReviewButtonVisibility error', e);
                 }

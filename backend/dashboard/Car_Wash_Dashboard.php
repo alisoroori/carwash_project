@@ -2627,6 +2627,7 @@ try {
                     type="text"
                     id="profile_username"
                     name="username"
+                    autocomplete="username"
                     value="<?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?>"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
@@ -2647,6 +2648,7 @@ try {
                       type="password"
                       id="current_password"
                       name="current_password"
+                      autocomplete="current-password"
                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                       placeholder="••••••••"
                     >
@@ -2659,6 +2661,7 @@ try {
                       type="password"
                       id="new_password"
                       name="new_password"
+                      autocomplete="new-password"
                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                       placeholder="••••••••"
                     >
@@ -2671,6 +2674,7 @@ try {
                       type="password"
                       id="confirm_password"
                       name="confirm_password"
+                      autocomplete="new-password"
                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                       placeholder="••••••••"
                     >
@@ -3029,22 +3033,17 @@ try {
       // English: Initial load: show dashboard.
       document.addEventListener('DOMContentLoaded', () => {
         showSection('dashboard');
-        // Set initial toggle state based on localStorage or default
-        // Farsça: وضعیت اولیه سوئیچ را بر اساس localStorage یا پیش‌فرض تنظیم کنید.
-        // Türkçe: Başlangıçtaki geçiş durumunu localStorage veya varsayılan değere göre ayarla.
-        // English: Set initial toggle state based on localStorage or default.
-        const status = localStorage.getItem('workplaceStatus');
+        // The seller_header.php already sets the toggle's checked state from DB
+        // We only sync localStorage to match the server state (no override)
+        // Farsça: وضعیت اولیه از پایگاه داده توسط seller_header.php تنظیم می‌شود.
+        // Türkçe: Başlangıç durumu seller_header.php tarafından veritabanından ayarlanır.
+        // English: Initial state is set from DB by seller_header.php.
         const toggle = document.getElementById('workplaceStatus') || document.getElementById('workplaceStatusToggle');
         if (toggle) {
-          if (status === 'off') {
-            toggle.checked = false;
-          } else {
-            toggle.checked = true; // Default to On
-          }
-          toggleWorkplaceStatus(); // Apply initial styling
-        } else {
-          // No toggle found on page; skip initial toggle setup
-          console.warn('Workplace toggle element not found; skipping toggle initialization');
+          // Sync localStorage to match the server-rendered state (don't override toggle.checked)
+          localStorage.setItem('workplaceStatus', toggle.checked ? 'on' : 'off');
+          // Apply styling to match the server-rendered checked state (no AJAX)
+          applyWorkplaceStatusUI(toggle.checked);
         }
       });
 
@@ -3326,37 +3325,51 @@ try {
         document.getElementById('staffModal').classList.add('hidden');
       }
 
+      // Farsça: تابع تنها رابط کاربری وضعیت محل کار (بدون AJAX).
+      // Türkçe: İşyeri Durumu UI Fonksiyonu (AJAX olmadan).
+      // English: Workplace Status UI Function (no AJAX).
+      function applyWorkplaceStatusUI(isOpen) {
+        const statusIndicator = document.getElementById('statusIndicator') || document.getElementById('workplaceStatusIndicator');
+        const statusText = document.getElementById('statusText') || document.getElementById('workplaceStatusText');
+        const toggleLabel = document.getElementById('toggleLabel') || null;
+        if (isOpen) {
+          if (statusIndicator) {
+            statusIndicator.className = 'status-indicator status-open';
+            if (statusText) statusText.textContent = 'Açık';
+          }
+          if (toggleLabel) {
+            toggleLabel.textContent = 'İşletme Açık';
+          }
+        } else {
+          if (statusIndicator) {
+            statusIndicator.className = 'status-indicator status-closed';
+            if (statusText) statusText.textContent = 'Kapalı';
+          }
+          if (toggleLabel) {
+            toggleLabel.textContent = 'İşletme Kapalı';
+          }
+        }
+      }
+
       // Farsça: تابع تغییر وضعیت محل کار.
       // Türkçe: İşyeri Durumu Geçiş Fonksiyonu.
       // English: Workplace Status Toggle Function.
       function toggleWorkplaceStatus() {
         // Support both older and seller-header IDs
         const toggle = document.getElementById('workplaceStatus') || document.getElementById('workplaceStatusToggle');
-        const statusIndicator = document.getElementById('statusIndicator') || document.getElementById('workplaceStatusIndicator');
-        const statusText = document.getElementById('statusText') || document.getElementById('workplaceStatusText');
-        const toggleLabel = document.getElementById('toggleLabel') || null;
+        if (!toggle) return;
+        const isOpen = toggle.checked;
 
-        if (toggle && toggle.checked) {
-          localStorage.setItem('workplaceStatus', 'on');
-          if (statusIndicator) {
-            statusIndicator.className = 'status-indicator status-open';
-            statusText.textContent = 'Açık';
-          }
-          if (toggleLabel) {
-            toggleLabel.textContent = 'İşletme Açık';
-          }
-          console.log('Workplace is now OPEN (Green)');
-        } else {
-          localStorage.setItem('workplaceStatus', 'off');
-          if (statusIndicator) {
-            statusIndicator.className = 'status-indicator status-closed';
-            statusText.textContent = 'Kapalı';
-          }
-          if (toggleLabel) {
-            toggleLabel.textContent = 'İşletme Kapalı';
-          }
-          console.log('Workplace is now CLOSED (Red)');
-        }
+        // Update localStorage
+        localStorage.setItem('workplaceStatus', isOpen ? 'on' : 'off');
+        // Apply UI changes
+        applyWorkplaceStatusUI(isOpen);
+        // Persist explicit Turkish token to server so the choice is saved
+        try {
+          var form = new FormData();
+          form.append('ajax_workplace_status', isOpen ? 'Açık' : 'Kapalı');
+          fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php"); ?>', { method: 'POST', credentials: 'same-origin', body: form }).then(r=>r.json()).then(j=>{ if (!j || !j.success) console.warn('Failed to persist workplace status', j); }).catch(e=>console.error(e));
+        } catch(e) { console.warn('Failed to send workplace status', e); }
       }
 
       // Farsça: توابع مودال رزرو دستی.
@@ -3789,10 +3802,18 @@ try {
           // Add to document
           document.body.appendChild(notification);
 
-          // Animate in
-          setTimeout(() => {
-            notification.classList.remove('translate-x-full');
-          }, 10);
+          // Animate in: use requestAnimationFrame to schedule the class removal
+          // Two rAFs ensure the element is inserted and styles are applied before transition begins.
+          if (typeof requestAnimationFrame === 'function') {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                notification.classList.remove('translate-x-full');
+              });
+            });
+          } else {
+            // Fallback to small timeout if rAF unavailable
+            setTimeout(() => { notification.classList.remove('translate-x-full'); }, 10);
+          }
 
           // Auto remove after 4 seconds
           setTimeout(() => {

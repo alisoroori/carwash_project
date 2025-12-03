@@ -1503,10 +1503,32 @@ if ($is_logged_in) {
 
   // Keep header avatar in sync with localStorage updates (set by dashboard on profile change)
   (function() {
+    // Migration: Clear old relative paths from localStorage
+    try {
+      const oldPath = localStorage.getItem('carwash_profile_image');
+      if (oldPath && !oldPath.startsWith('http') && (oldPath.indexOf('uploads/profiles/') !== -1 || oldPath.indexOf('backend/uploads/') !== -1)) {
+        // Old relative path detected - clear it
+        console.log('[Migration] Clearing old relative profile image path:', oldPath);
+        localStorage.removeItem('carwash_profile_image');
+        localStorage.removeItem('carwash_profile_image_ts');
+      }
+    } catch (e) {
+      console.warn('Could not migrate localStorage', e);
+    }
+    
     function updateHeaderAvatarFromStorage() {
       try {
         const imgUrl = localStorage.getItem('carwash_profile_image');
         if (!imgUrl) return;
+        
+        // Validate URL is absolute (starts with http or /)
+        if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+          console.warn('[Index Header] Invalid relative path in localStorage, clearing:', imgUrl);
+          localStorage.removeItem('carwash_profile_image');
+          localStorage.removeItem('carwash_profile_image_ts');
+          return;
+        }
+        
         const img = document.getElementById('indexUserAvatar');
         const fallback = document.getElementById('indexAvatarFallback');
         if (img) {

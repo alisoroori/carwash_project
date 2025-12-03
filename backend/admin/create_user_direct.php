@@ -155,12 +155,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input id="email" name="email" type="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required>
+                <input id="email" name="email" type="email" autocomplete="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required>
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input id="password" name="password" type="password" placeholder="Leave blank to auto-generate">
+                <input id="password" name="password" type="password" autocomplete="new-password" placeholder="Leave blank to auto-generate">
             </div>
 
             <div class="form-group">

@@ -88,6 +88,7 @@ $logout_url = $base_url . '/backend/includes/logout.php';
 $dashboard_url = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
 
 // ---- Workplace status AJAX handler (allows POST to this file to update status) ----
+// Expected incoming values: 'Açık' or 'Kapalı' (preferred), but accept legacy 'open'/'closed' for compatibility.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_workplace_status'])) {
     // Simple auth check
     $uid = $_SESSION['user_id'] ?? null;
@@ -96,17 +97,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_workplace_status
         echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit;
     }
+    $incoming = trim((string)($_POST['ajax_workplace_status'] ?? ''));
 
-    $new = $_POST['ajax_workplace_status'] === 'open' ? 'open' : 'closed';
-    // Persist to session immediately
+    // Normalize incoming legacy values but DO NOT overwrite a deliberate Turkish value.
+    // If incoming is legacy 'open'/'closed' translate them to Turkish for storage for consistency,
+    // but if incoming already uses 'Açık'/'Kapalı' keep it verbatim (user choice preserved).
+    $legacyMap = [
+        'open' => 'Açık',
+        'closed' => 'Kapalı'
+    ];
+
+    if ($incoming === '') {
+        header('Content-Type: application/json', true, 400);
+        echo json_encode(['success' => false, 'message' => 'Empty status']);
+        exit;
+    }
+
+    if (isset($legacyMap[strtolower($incoming)])) {
+        $new = $legacyMap[strtolower($incoming)];
+    } else {
+        // Accept only expected values to avoid injection
+        $allowed = ['Açık', 'Kapalı', 'open', 'closed', 'active'];
+        if (!in_array($incoming, $allowed, true)) {
+            // Reject unknown tokens
+            header('Content-Type: application/json', true, 400);
+            echo json_encode(['success' => false, 'message' => 'Invalid status token', 'token' => $incoming]);
+            exit;
+        }
+        // Keep exact incoming string (preserve user intent)
+        $new = $incoming;
+    }
+
+    // Persist to session immediately (store Turkish canonical or incoming exact)
     $_SESSION['workplace_status'] = $new;
 
     // Attempt DB persistence if Database class exists (best-effort)
     try {
-        if (class_exists('App\\Classes\\Database')) {
+        if (class_exists('App\Classes\Database')) {
             $db = App\Classes\Database::getInstance();
-            // Try updating `users` table - fallback if schema differs is acceptable
-            $db->update('users', ['workplace_status' => $new], ['id' => $uid]);
+
+            // Check whether `workplace_status` column exists before attempting to update users table
+            $canUpdateUsers = false;
+            try {
+                $pdoChk = $db->getPdo();
+                $col = $pdoChk->query("SHOW COLUMNS FROM users LIKE 'workplace_status'")->fetch();
+                $canUpdateUsers = !empty($col);
+            } catch (Exception $_) {
+                $canUpdateUsers = false;
+            }
+
+            if ($canUpdateUsers) {
+                $db->update('users', ['workplace_status' => $new], ['id' => $uid]);
+            }
+
+            // Also attempt to update the related carwashes.status for the user's carwash (so customer list respects toggle)
+            // Find carwash(s) owned by this user and update their status to the same token (Turkish or legacy)
+            try {
+                $pdo = $db->getPdo();
+                $upd = $pdo->prepare('UPDATE carwashes SET status = :status WHERE user_id = :uid');
+                $upd->execute(['status' => $new, 'uid' => $uid]);
+            } catch (Exception $innerE) {
+                // ignore carwashes update errors; users table update is optional
+            }
         }
     } catch (Exception $e) {
         // Ignore DB errors here (status still saved to session)
@@ -123,14 +175,27 @@ if (empty($workplace_status) && isset($user_id)) {
     try {
         if (class_exists('App\\Classes\\Database')) {
             $db = App\Classes\Database::getInstance();
-            $row = $db->fetchOne('SELECT workplace_status FROM users WHERE id = :id', ['id' => $user_id]);
-            if ($row && isset($row['workplace_status'])) $workplace_status = $row['workplace_status'];
+            // Only query users.workplace_status if the column exists in this schema
+            try {
+                $pdoChk = $db->getPdo();
+                $col = $pdoChk->query("SHOW COLUMNS FROM users LIKE 'workplace_status'")->fetch();
+                if (!empty($col)) {
+                    $row = $db->fetchOne('SELECT workplace_status FROM users WHERE id = :id', ['id' => $user_id]);
+                    if ($row && isset($row['workplace_status'])) $workplace_status = $row['workplace_status'];
+                }
+            } catch (Exception $_) {
+                // ignore schema check or query errors
+            }
         }
     } catch (Exception $e) {
         // ignore
     }
 }
 if (empty($workplace_status)) $workplace_status = 'open';
+
+// For rendering, treat several tokens as 'open' for display purposes
+$openTokens = ['open', 'Açık', 'active'];
+$is_open = in_array($workplace_status, $openTokens, true);
 
 ?>
 <!DOCTYPE html>
@@ -228,12 +293,12 @@ if (empty($workplace_status)) $workplace_status = 'open';
 
                 <!-- Workplace Status Toggle -->
                 <div class="workplace-toggle-container" id="workplaceToggleRoot">
-                    <div class="status-indicator <?php echo ($workplace_status === 'open') ? 'status-open' : 'status-closed'; ?>" id="workplaceStatusIndicator">
-                        <span id="workplaceStatusText"><?php echo ($workplace_status === 'open') ? 'Açık' : 'Kapalı'; ?></span>
+                    <div class="status-indicator <?php echo ($is_open) ? 'status-open' : 'status-closed'; ?>" id="workplaceStatusIndicator">
+                        <span id="workplaceStatusText"><?php echo ($is_open) ? 'Açık' : 'Kapalı'; ?></span>
                     </div>
 
                     <label class="toggle-switch" title="İşletme Durumu">
-                        <input type="checkbox" id="workplaceStatusToggle" <?php echo ($workplace_status === 'open') ? 'checked' : ''; ?> aria-checked="<?php echo ($workplace_status === 'open') ? 'true' : 'false'; ?>">
+                        <input type="checkbox" id="workplaceStatusToggle" <?php echo ($is_open) ? 'checked' : ''; ?> aria-checked="<?php echo ($is_open) ? 'true' : 'false'; ?>">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -380,6 +445,14 @@ window.addEventListener('resize', updateHeaderHeight);
 <script>
     (function(){
         try {
+            // Migration: Clear old relative paths from localStorage
+            var oldPath = localStorage.getItem('carwash_profile_image');
+            if (oldPath && (oldPath.indexOf('uploads/profiles/') === 0 || oldPath.indexOf('backend/uploads/') !== -1)) {
+                // Old relative path detected - clear it so the new absolute URL can be set
+                localStorage.removeItem('carwash_profile_image');
+                localStorage.removeItem('carwash_profile_image_ts');
+            }
+            
             var profileSrc = <?php echo json_encode($header_profile_src); ?>;
             if (profileSrc) {
                 var ts = Date.now();
@@ -401,7 +474,11 @@ window.addEventListener('resize', updateHeaderHeight);
     if (!toggle) return;
 
     function setUI(state){
-        if(state === 'open'){
+        // Accept both legacy and Turkish tokens
+        var s = (state || '').toString();
+        var openTokens = ['open','Açık','active'];
+        var isOpen = openTokens.indexOf(s) !== -1;
+        if(isOpen){
             toggle.checked = true;
             indicator.classList.remove('status-closed');
             indicator.classList.add('status-open');
@@ -417,7 +494,8 @@ window.addEventListener('resize', updateHeaderHeight);
     }
 
     toggle.addEventListener('change', function(){
-        var desired = toggle.checked ? 'open' : 'closed';
+        // Send Turkish explicit tokens so user choice is preserved server-side
+        var desired = toggle.checked ? 'Açık' : 'Kapalı';
         // Optimistically update UI
         setUI(desired);
 
@@ -432,13 +510,13 @@ window.addEventListener('resize', updateHeaderHeight);
             return resp.json();
         }).then(function(json){
             if(!json || !json.success){
-                // Revert UI on failure
-                setUI(json && json.status ? json.status : (desired === 'open' ? 'closed' : 'open'));
+                // Revert UI on failure; json.status may be legacy or Turkish token
+                setUI(json && json.status ? json.status : (desired === 'Açık' ? 'Kapalı' : 'Açık'));
                 console.warn('Failed to save workplace status', json);
             }
         }).catch(function(err){
             // Revert UI
-            setUI(desired === 'open' ? 'closed' : 'open');
+            setUI(desired === 'Açık' ? 'Kapalı' : 'Açık');
             console.error('Error saving workplace status', err);
         });
     });
