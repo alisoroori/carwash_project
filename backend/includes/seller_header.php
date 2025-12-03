@@ -1,9 +1,8 @@
 <?php
 /**
- * Seller Header (Self-contained)
- * Outputs a complete, Turkish-language seller/carwash dashboard header.
  * Safe to include on Carwash dashboard pages as the primary header.
  */
+
 
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
@@ -249,6 +248,26 @@ if (in_array($ws_norm, $closedTokens, true) || $workplace_status === 0 || $workp
     $is_open = false;
 }
 
+// Load opening hours (if available) for display in header
+$opening_hours = [];
+if (!empty($user_id) && class_exists('App\\Classes\\Database')) {
+    try {
+        $db = App\Classes\Database::getInstance();
+        $cw = $db->fetchOne('SELECT COALESCE(working_hours, opening_hours) AS working_hours FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $user_id]);
+        if ($cw && !empty($cw['working_hours'])) {
+            $raw = $cw['working_hours'];
+            if (is_string($raw)) {
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded)) $opening_hours = $decoded;
+            } elseif (is_array($raw)) {
+                $opening_hours = $raw;
+            }
+        }
+    } catch (Exception $_e) {
+        // ignore fetch errors
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -299,6 +318,7 @@ if (in_array($ws_norm, $closedTokens, true) || $workplace_status === 0 || $workp
         .status-indicator { display:flex; align-items:center; gap:0.5rem; padding:0.25rem 0.6rem; border-radius:999px; font-size:0.85rem; font-weight:700; }
         .status-open { background: rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.18); }
         .status-closed { background: rgba(239,68,68,0.10); color:#ef4444; border:1px solid rgba(239,68,68,0.15); }
+        .closing-soon { color: #ef4444 !important; }
         @media (max-width:900px) { .toggle-label{ display:none; } }
     </style>
         <!-- Vehicle manager factory (same-origin) - required by vehicle sections -->
@@ -355,6 +375,8 @@ if (in_array($ws_norm, $closedTokens, true) || $workplace_status === 0 || $workp
                         <input type="checkbox" id="workplaceStatusToggle" <?php echo ($is_open) ? 'checked' : ''; ?> aria-checked="<?php echo ($is_open) ? 'true' : 'false'; ?>">
                         <span class="slider"></span>
                     </label>
+                    <div id="sellerHeaderDay" style="color:#fff;font-size:0.85rem;margin-left:0.6rem;">&nbsp;</div>
+                    <div id="closingCountdown" aria-live="polite" style="margin-left:0.6rem;font-weight:600;color:#fff;">&nbsp;</div>
                 </div>
 
                 <?php
@@ -608,6 +630,161 @@ window.addEventListener('resize', updateHeaderHeight);
                 }).catch(function(){ /* ignore */ });
         } catch (e) { /* ignore */ }
     })();
+})();
+</script>
+
+<script>
+// Display today's day name and today's opening hours in the header
+(function(){
+    var opening_hours = <?php echo json_encode($opening_hours ?? [], JSON_UNESCAPED_UNICODE); ?> || {};
+    var turkishDays = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+    var dayKeys = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+
+    function renderTodayHours(){
+        try{
+            var el = document.getElementById('sellerHeaderDay');
+            if(!el) return;
+            var now = new Date();
+            var dn = now.getDay();
+            var dayName = turkishDays[dn] || '';
+            var key = dayKeys[dn] || '';
+            var hours = null;
+            if (opening_hours) {
+                if (opening_hours.hasOwnProperty(key)) hours = opening_hours[key];
+                else {
+                    var capKey = key.charAt(0).toUpperCase() + key.slice(1);
+                    if (opening_hours.hasOwnProperty(capKey)) hours = opening_hours[capKey];
+                }
+            }
+
+            function formatHours(h) {
+                if (h === null || h === undefined) return 'Kapalı';
+                if (typeof h === 'string') return h;
+                if (Array.isArray(h)) {
+                    return h.map(formatHours).join(' / ');
+                }
+                if (typeof h === 'object') {
+                    // Common shapes: { open: '08:00', close: '18:00' } or { from: '08:00', to: '18:00' }
+                    if (h.open && h.close) return h.open + '-' + h.close;
+                    if (h.from && h.to) return h.from + '-' + h.to;
+                    // If object has numeric keys or nested intervals
+                    var parts = [];
+                    for (var k in h) {
+                        if (!h.hasOwnProperty(k)) continue;
+                        var v = h[k];
+                        if (typeof v === 'string') parts.push(v);
+                        else parts.push(formatHours(v));
+                    }
+                    if (parts.length) return parts.join(' / ');
+                    try { return JSON.stringify(h); } catch (e) { return String(h); }
+                }
+                return String(h);
+            }
+
+            var rendered = formatHours(hours);
+            el.textContent = dayName + ': ' + rendered;
+        } catch(e) { /* ignore */ }
+    }
+
+    renderTodayHours();
+    // update every minute in case hours change or day rolls over
+    setInterval(renderTodayHours, 60000);
+})();
+</script>
+
+<!-- Closing countdown: displays remaining time until today's closing in #closingCountdown -->
+<script>
+(function(){
+    var el = document.getElementById('closingCountdown');
+    if (!el) return; // nothing to do if element is absent
+
+    function getClosingDateForToday() {
+        var now = new Date();
+
+        // 1) data-closing attribute (ISO or HH:MM)
+        var data = el.getAttribute('data-closing');
+        if (data) {
+            data = data.trim();
+            if (/[T\-]/.test(data)) {
+                var iso = new Date(data);
+                if (!isNaN(iso)) return iso;
+            }
+            var m = data.match(/^(\d{1,2}):(\d{2})$/);
+            if (m) {
+                var h = parseInt(m[1], 10);
+                var min = parseInt(m[2], 10);
+                var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, min, 0, 0);
+                if (d <= now) d.setDate(d.getDate() + 1);
+                return d;
+            }
+        }
+
+        // 2) parse element with workplace hours like "09:00 - 18:30"
+        var hoursEl = document.getElementById('workplaceHours') || document.querySelector('.workplace-hours') || document.querySelector('[data-workplace-hours]');
+        if (hoursEl) {
+            var txt = (hoursEl.textContent || '').trim();
+            var m2 = txt.match(/(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})/);
+            if (m2) {
+                var ch = parseInt(m2[3], 10);
+                var cm = parseInt(m2[4], 10);
+                var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ch, cm, 0, 0);
+                if (d <= now) d.setDate(d.getDate() + 1);
+                return d;
+            }
+        }
+
+        // 3) alternate attributes on the countdown element
+        var alt = el.getAttribute('data-closing-time') || el.getAttribute('data-closing-hour');
+        if (alt) {
+            var ma = alt.match(/(\d{1,2}):(\d{2})/);
+            if (ma) {
+                var dh = parseInt(ma[1], 10);
+                var dm = parseInt(ma[2], 10);
+                var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), dh, dm, 0, 0);
+                if (d <= now) d.setDate(d.getDate() + 1);
+                return d;
+            }
+        }
+
+        return null;
+    }
+
+    function formatRemaining(ms) {
+        var totalMinutes = Math.floor(ms / 60000);
+        var hours = Math.floor(totalMinutes / 60);
+        var minutes = totalMinutes % 60;
+        return hours + 's ' + (minutes < 10 ? '0' + minutes : minutes) + 'dk';
+    }
+
+    function update() {
+        var closing = getClosingDateForToday();
+        if (!closing) {
+            el.textContent = '';
+            el.classList.remove('closing-soon');
+            return;
+        }
+        var now = new Date();
+        var diff = closing.getTime() - now.getTime();
+        if (diff <= 0) {
+            el.textContent = 'Kapandı';
+            el.classList.remove('closing-soon');
+            return;
+        }
+        el.textContent = formatRemaining(diff);
+        if (diff <= 3 * 60 * 60 * 1000) {
+            el.classList.add('closing-soon');
+        } else {
+            el.classList.remove('closing-soon');
+        }
+    }
+
+    update();
+    var now = new Date();
+    var msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+    setTimeout(function(){
+        update();
+        setInterval(update, 60 * 1000);
+    }, msToNextMinute);
 })();
 </script>
 
