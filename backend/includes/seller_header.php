@@ -566,7 +566,7 @@ window.addEventListener('resize', updateHeaderHeight);
         form.append('ajax_workplace_status', desired);
         form.append('ajax_is_active', toggle.checked ? '1' : '0');
 
-        fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php"); ?>', {
+        fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/workplace_status_api.php"); ?>', {
             method: 'POST',
             credentials: 'same-origin',
             body: form
@@ -597,7 +597,7 @@ window.addEventListener('resize', updateHeaderHeight);
     // On load, sync with server authoritative state to avoid session/local mismatches
     (function(){
         try {
-            fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php?ajax_get_workplace_status=1"); ?>', { credentials: 'same-origin' })
+            fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/workplace_status_api.php"); ?>', { credentials: 'same-origin' })
                 .then(r => r.json())
                 .then(j => {
                     if (!j || !j.success) return;

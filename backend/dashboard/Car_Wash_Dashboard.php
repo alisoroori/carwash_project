@@ -3041,7 +3041,7 @@ try {
         const toggle = document.getElementById('workplaceStatus') || document.getElementById('workplaceStatusToggle');
         if (!toggle) return;
         try {
-          fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php?ajax_get_workplace_status=1"); ?>', { credentials: 'same-origin' })
+          fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/workplace_status_api.php"); ?>', { credentials: 'same-origin' })
             .then(r => r.json())
             .then(j => {
               if (!j || !j.success) return;
@@ -3387,7 +3387,7 @@ try {
           var form = new FormData();
           form.append('ajax_workplace_status', isOpen ? 'Açık' : 'Kapalı');
           form.append('ajax_is_active', isOpen ? '1' : '0');
-          fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php"); ?>', { method: 'POST', credentials: 'same-origin', body: form })
+          fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/workplace_status_api.php"); ?>', { method: 'POST', credentials: 'same-origin', body: form })
             .then(r => r.json())
             .then(j => {
               if (!j || !j.success) {
