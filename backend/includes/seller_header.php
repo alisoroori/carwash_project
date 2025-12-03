@@ -90,9 +90,34 @@ $contact_url = $base_url . '/backend/contact.php';
 $logout_url = $base_url . '/backend/includes/logout.php';
 $dashboard_url = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
 
-// ---- Workplace status AJAX handler (allows POST to this file to update status) ----
-// Expected incoming values: 'Açık' or 'Kapalı' (preferred), but accept legacy 'open'/'closed' for compatibility.
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_workplace_status'])) {
+// ---- Workplace status AJAX handler (POST to update, GET to fetch current) ----
+// POST expected fields: 'ajax_workplace_status' (optional), 'ajax_is_active' (optional)
+// GET: provide ?ajax_get_workplace_status=1 to receive JSON { status, is_active }
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax_get_workplace_status'])) {
+    $uid = $_SESSION['user_id'] ?? null;
+    if (!$uid) {
+        header('Content-Type: application/json', true, 401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+    try {
+        if (class_exists('App\\Classes\\Database')) {
+            $db = App\Classes\Database::getInstance();
+            $cw = $db->fetchOne('SELECT status, COALESCE(is_active,0) AS is_active FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $uid]);
+            $status = $cw['status'] ?? null;
+            $isActive = isset($cw['is_active']) ? (int)$cw['is_active'] : 0;
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'status' => $status, 'is_active' => $isActive]);
+            exit;
+        }
+    } catch (Exception $e) {
+        header('Content-Type: application/json', true, 500);
+        echo json_encode(['success' => false, 'message' => 'DB error']);
+        exit;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['ajax_workplace_status']) || isset($_POST['ajax_is_active']))) {
     // Simple auth check
     $uid = $_SESSION['user_id'] ?? null;
     if (!$uid) {
@@ -100,68 +125,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_workplace_status
         echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit;
     }
-    $incoming = trim((string)($_POST['ajax_workplace_status'] ?? ''));
-
-    if ($incoming === '') {
-        header('Content-Type: application/json', true, 400);
-        echo json_encode(['success' => false, 'message' => 'Empty status']);
-        exit;
+    // Prefer explicit ajax_is_active if provided (1 or 0)
+    $isActiveVal = null;
+    if (isset($_POST['ajax_is_active'])) {
+        $isActiveVal = (int)$_POST['ajax_is_active'] ? 1 : 0;
     }
 
-    // Normalize ALL incoming values to canonical Turkish tokens for consistent storage
-    $incomingLower = strtolower($incoming);
-    $openVariants = ['açık', 'acik', 'open', 'active', '1'];
-    $closedVariants = ['kapalı', 'kapali', 'closed', 'inactive', '0'];
-    
-    if (in_array($incomingLower, $openVariants, true) || $incoming === 1 || $incoming === '1') {
-        $new = 'Açık';  // Canonical open value
-    } elseif (in_array($incomingLower, $closedVariants, true) || $incoming === 0 || $incoming === '0') {
-        $new = 'Kapalı';  // Canonical closed value
+    // If ajax_is_active provided, derive canonical status from it; otherwise fall back to ajax_workplace_status token
+    if ($isActiveVal !== null) {
+        $new = ($isActiveVal === 1) ? 'Açık' : 'Kapalı';
     } else {
-        // Reject unknown tokens
-        header('Content-Type: application/json', true, 400);
-        echo json_encode(['success' => false, 'message' => 'Invalid status token', 'token' => $incoming]);
-        exit;
+        $incoming = trim((string)($_POST['ajax_workplace_status'] ?? ''));
+        if ($incoming === '') {
+            header('Content-Type: application/json', true, 400);
+            echo json_encode(['success' => false, 'message' => 'Empty status']);
+            exit;
+        }
+        // Normalize incoming text token
+        $incomingLower = strtolower($incoming);
+        $openVariants = ['açık', 'acik', 'open', 'active'];
+        $closedVariants = ['kapalı', 'kapali', 'closed', 'inactive'];
+        if (in_array($incomingLower, $openVariants, true)) {
+            $new = 'Açık';
+            $isActiveVal = 1;
+        } elseif (in_array($incomingLower, $closedVariants, true)) {
+            $new = 'Kapalı';
+            $isActiveVal = 0;
+        } else {
+            header('Content-Type: application/json', true, 400);
+            echo json_encode(['success' => false, 'message' => 'Invalid status token', 'token' => $incoming]);
+            exit;
+        }
     }
 
-    // Persist to session immediately (store Turkish canonical or incoming exact)
+    // Persist to session
     $_SESSION['workplace_status'] = $new;
 
-    // Attempt DB persistence if Database class exists (best-effort)
+    // Persist to DB: update users.workplace_status (if column exists) and carwashes.status + is_active
     try {
-        if (class_exists('App\Classes\Database')) {
+        if (class_exists('App\\Classes\\Database')) {
             $db = App\Classes\Database::getInstance();
 
-            // Check whether `workplace_status` column exists before attempting to update users table
-            $canUpdateUsers = false;
+            // Update users.workplace_status if the column exists
             try {
                 $pdoChk = $db->getPdo();
                 $col = $pdoChk->query("SHOW COLUMNS FROM users LIKE 'workplace_status'")->fetch();
-                $canUpdateUsers = !empty($col);
+                if (!empty($col)) {
+                    $db->update('users', ['workplace_status' => $new], ['id' => $uid]);
+                }
             } catch (Exception $_) {
-                $canUpdateUsers = false;
+                // ignore
             }
 
-            if ($canUpdateUsers) {
-                $db->update('users', ['workplace_status' => $new], ['id' => $uid]);
-            }
-
-            // Also attempt to update the related carwashes.status for the user's carwash (so customer list respects toggle)
-            // Find carwash(s) owned by this user and update their status to the same token (Turkish or legacy)
+            // Update carwashes rows owned by this user
             try {
                 $pdo = $db->getPdo();
-                $upd = $pdo->prepare('UPDATE carwashes SET status = :status WHERE user_id = :uid');
-                $upd->execute(['status' => $new, 'uid' => $uid]);
+                $upd = $pdo->prepare('UPDATE carwashes SET status = :status, is_active = :is_active, updated_at = NOW() WHERE user_id = :uid');
+                $upd->execute(['status' => $new, 'is_active' => $isActiveVal, 'uid' => $uid]);
             } catch (Exception $innerE) {
-                // ignore carwashes update errors; users table update is optional
+                // ignore carwashes update errors
             }
         }
     } catch (Exception $e) {
-        // Ignore DB errors here (status still saved to session)
+        // ignore
     }
 
     header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'status' => $new]);
+    echo json_encode(['success' => true, 'status' => $new, 'is_active' => (int)$isActiveVal]);
     exit;
 }
 
@@ -503,10 +533,19 @@ window.addEventListener('resize', updateHeaderHeight);
     if (!toggle) return;
 
     function setUI(state){
-        // Accept both legacy and Turkish tokens
+        // Normalize and accept legacy tokens (case-insensitive)
         var s = (state || '').toString();
-        var openTokens = ['open','Açık','active'];
-        var isOpen = openTokens.indexOf(s) !== -1;
+        var sNorm = s.toLowerCase();
+        var openTokens = ['açık','acik','open','active','1'];
+        var closedTokens = ['kapalı','kapali','closed','inactive','0'];
+
+        var isOpen = false;
+        if (openTokens.indexOf(sNorm) !== -1) isOpen = true;
+        else if (closedTokens.indexOf(sNorm) !== -1) isOpen = false;
+        else if (s === '1' || s === 1) isOpen = true;
+        else if (s === '0' || s === 0) isOpen = false;
+        // Unknown token -> leave closed by default
+
         if(isOpen){
             toggle.checked = true;
             indicator.classList.remove('status-closed');
@@ -530,6 +569,7 @@ window.addEventListener('resize', updateHeaderHeight);
 
         var form = new FormData();
         form.append('ajax_workplace_status', desired);
+        form.append('ajax_is_active', toggle.checked ? '1' : '0');
 
         fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php"); ?>', {
             method: 'POST',
@@ -542,6 +582,15 @@ window.addEventListener('resize', updateHeaderHeight);
                 // Revert UI on failure; json.status may be legacy or Turkish token
                 setUI(json && json.status ? json.status : (desired === 'Açık' ? 'Kapalı' : 'Açık'));
                 console.warn('Failed to save workplace status', json);
+                return;
+            }
+            // If server returned canonical values, update UI accordingly
+            if (json.status !== undefined || json.is_active !== undefined) {
+                var serverStatus = json.status || '';
+                var serverIsActive = (parseInt(json.is_active || 0, 10) === 1);
+                // Prefer explicit token; fallback to is_active
+                if (serverStatus && serverStatus !== '') setUI(serverStatus);
+                else setUI(serverIsActive ? '1' : '0');
             }
         }).catch(function(err){
             // Revert UI
@@ -549,6 +598,21 @@ window.addEventListener('resize', updateHeaderHeight);
             console.error('Error saving workplace status', err);
         });
     });
+
+    // On load, sync with server authoritative state to avoid session/local mismatches
+    (function(){
+        try {
+            fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php?ajax_get_workplace_status=1"); ?>', { credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(j => {
+                    if (!j || !j.success) return;
+                    var st = j.status || '';
+                    var ia = (parseInt(j.is_active || 0, 10) === 1);
+                    if (st && st !== '') setUI(st);
+                    else setUI(ia ? '1' : '0');
+                }).catch(function(){ /* ignore */ });
+        } catch (e) { /* ignore */ }
+    })();
 })();
 </script>
 

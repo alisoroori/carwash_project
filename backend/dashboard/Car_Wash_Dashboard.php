@@ -131,16 +131,16 @@ $custom_header_content = '
     }
 </style>
 
-<div class="workplace-toggle-container">
-    <span class="toggle-label" id="toggleLabel">İşletme Kapalı</span>
-    <label class="toggle-switch" title="İşletme Durumu">
-        <label for="workplaceStatus" class="sr-only">Input</label><input type="checkbox" id="workplaceStatus" checked onchange="toggleWorkplaceStatus()">
-        <span class="slider"></span>
-    </label>
-    <div class="status-indicator status-open" id="statusIndicator">
-        <span class="status-dot" style="background: currentColor;"></span>
-        <span id="statusText">Açık</span>
-    </div>
+<div class="workplace-toggle-container" id="workplaceToggleRoot">
+  <span class="toggle-label" id="toggleLabel">İşletme Durumu</span>
+  <label class="toggle-switch" title="İşletme Durumu">
+    <input type="checkbox" id="workplaceStatusToggle" aria-checked="false">
+    <span class="slider"></span>
+  </label>
+  <div class="status-indicator status-closed" id="workplaceStatusIndicator">
+    <span class="status-dot" style="background: currentColor;"></span>
+    <span id="workplaceStatusText">Kapalı</span>
+  </div>
 </div>
 ';
 
@@ -3033,19 +3033,38 @@ try {
       // English: Initial load: show dashboard.
       document.addEventListener('DOMContentLoaded', () => {
         showSection('dashboard');
-        // The seller_header.php already sets the toggle's checked state from DB
-        // We only sync localStorage to match the server state (no override)
-        // Farsça: وضعیت اولیه از پایگاه داده توسط seller_header.php تنظیم می‌شود.
-        // Türkçe: Başlangıç durumu seller_header.php tarafından veritabanından ayarlanır.
-        // English: Initial state is set from DB by seller_header.php.
-        const toggle = document.getElementById('workplaceStatus') || document.getElementById('workplaceStatusToggle');
-        if (toggle) {
-          // Sync localStorage to match the server-rendered state (don't override toggle.checked)
-          localStorage.setItem('workplaceStatus', toggle.checked ? 'on' : 'off');
-          // Apply styling to match the server-rendered checked state (no AJAX)
-          applyWorkplaceStatusUI(toggle.checked);
-        }
+        // Initialize workplace toggle from authoritative DB value via AJAX (do not use localStorage to override)
+        fetchWorkplaceStatusFromServer();
       });
+
+      function fetchWorkplaceStatusFromServer() {
+        const toggle = document.getElementById('workplaceStatus') || document.getElementById('workplaceStatusToggle');
+        if (!toggle) return;
+        try {
+          fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php?ajax_get_workplace_status=1"); ?>', { credentials: 'same-origin' })
+            .then(r => r.json())
+            .then(j => {
+              if (!j || !j.success) return;
+              const status = (j.status || '').toString().toLowerCase();
+              const isActive = parseInt(j.is_active || 0, 10) === 1;
+              const openTokens = ['açık','acik','open','active','1'];
+              const closedTokens = ['kapalı','kapali','closed','inactive','0'];
+              let isOpen = false;
+              if (openTokens.includes(status)) {
+                isOpen = true;
+              } else if (!status || status === '' ) {
+                // status empty -> fallback to is_active
+                isOpen = isActive;
+              } else {
+                // explicit token (e.g., 'kapalı') -> closed
+                isOpen = false;
+              }
+              toggle.checked = !!isOpen;
+              applyWorkplaceStatusUI(!!isOpen);
+            })
+            .catch(e => { console.warn('Failed to fetch workplace status', e); });
+        } catch (e) { console.warn('Failed to fetch workplace status', e); }
+      }
 
       // Farsça: توابع پنل اعلان.
       // Türkçe: Bildirim Paneli fonksiyonları.
@@ -3360,15 +3379,33 @@ try {
         if (!toggle) return;
         const isOpen = toggle.checked;
 
-        // Update localStorage
-        localStorage.setItem('workplaceStatus', isOpen ? 'on' : 'off');
-        // Apply UI changes
+        // Apply UI changes immediately
         applyWorkplaceStatusUI(isOpen);
-        // Persist explicit Turkish token to server so the choice is saved
+
+        // Persist explicit Turkish token and is_active to server so the choice is saved
         try {
           var form = new FormData();
           form.append('ajax_workplace_status', isOpen ? 'Açık' : 'Kapalı');
-          fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php"); ?>', { method: 'POST', credentials: 'same-origin', body: form }).then(r=>r.json()).then(j=>{ if (!j || !j.success) console.warn('Failed to persist workplace status', j); }).catch(e=>console.error(e));
+          form.append('ajax_is_active', isOpen ? '1' : '0');
+          fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php"); ?>', { method: 'POST', credentials: 'same-origin', body: form })
+            .then(r => r.json())
+            .then(j => {
+              if (!j || !j.success) {
+                console.warn('Failed to persist workplace status', j);
+                return;
+              }
+              // Ensure UI reflects DB-returned canonical state
+              const status = (j.status || '').toString().toLowerCase();
+              const isActive = parseInt(j.is_active || 0, 10) === 1;
+              const openTokens = ['açık','acik','open','active','1'];
+              let isOpenCanonical = false;
+              if (openTokens.includes(status)) isOpenCanonical = true;
+              else if (!status || status === '') isOpenCanonical = isActive;
+              else isOpenCanonical = false;
+              toggle.checked = !!isOpenCanonical;
+              applyWorkplaceStatusUI(!!isOpenCanonical);
+            })
+            .catch(e => console.error(e));
         } catch(e) { console.warn('Failed to send workplace status', e); }
       }
 
