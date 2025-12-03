@@ -126,7 +126,8 @@ class AnalyticsServer implements MessageComponentInterface {
     }
 
     protected function getActiveCarwashes(): int {
-    $sql = "SELECT COUNT(*) AS cnt FROM carwashes WHERE status = 'active'";
+    // Count carwashes with canonical 'Açık' status or legacy open values
+    $sql = "SELECT COUNT(*) AS cnt FROM carwashes WHERE (status = 'Açık' OR LOWER(status) IN ('açık','acik','open','active') OR status = '1') AND LOWER(COALESCE(status,'')) NOT IN ('kapalı','kapali','closed','inactive') AND COALESCE(status,'') != '0'";
         $res = $this->db->query($sql);
         if ($res && $row = $res->fetch_assoc()) {
             return (int)$row['cnt'];

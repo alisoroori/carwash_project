@@ -17,12 +17,18 @@ try {
 try {
     $db = Database::getInstance();
 
-    // Only return carwashes that are open (exclude closed/inactive)
+    // Only return carwashes that are open (canonical status = 'Açık')
+    // Backward compatibility: accept legacy 'open', 'active', '1', 'pending'
     $rows = $db->fetchAll(
         "SELECT id, COALESCE(name,business_name) AS name, address, city, district, COALESCE(phone,contact_phone) AS phone, average_rating AS rating, verified, COALESCE(logo_path,profile_image,featured_image) AS logo 
          FROM carwashes 
-         WHERE COALESCE(status,'') NOT IN ('Kapalı','closed','inactive')
-           AND (status IN ('Açık','open','active') OR COALESCE(is_active,1) = 1)
+                 WHERE (
+                         status = 'Açık'
+                         OR LOWER(COALESCE(status,'')) IN ('açık','acik','open','active')
+                         OR status = '1'
+                 )
+                     AND LOWER(COALESCE(status,'')) NOT IN ('kapalı','kapali','closed','inactive')
+                     AND COALESCE(status,'') != '0'
          ORDER BY COALESCE(name,business_name)"
     );
 

@@ -8,7 +8,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
     exit();
 }
 
-$carwashes_query = "SELECT id, name, city, district FROM carwashes WHERE status = 'active'";
+// Only show open carwashes (canonical 'Açık' or legacy 'open'/'active'/'pending')
+$carwashes_query = "SELECT id, name, city, district FROM carwashes WHERE (status = 'Açık' OR LOWER(status) IN ('açık','acik','open','active') OR status = '1') AND LOWER(COALESCE(status,'')) NOT IN ('kapalı','kapali','closed','inactive') AND COALESCE(status,'') != '0'";
 $carwashes = $conn->query($carwashes_query);
 
 // Support partial embedding: if ?partial=1, return only the form fragment

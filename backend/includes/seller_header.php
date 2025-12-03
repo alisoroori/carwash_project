@@ -7,6 +7,9 @@
 
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
+// Debug flag: enable verbose debug output when APP_DEBUG=true in the environment
+$APP_DEBUG = (getenv('APP_DEBUG') !== false) ? filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN) : false;
+
 if (!isset($dashboard_type)) $dashboard_type = 'carwash';
 if (!isset($page_title)) $page_title = 'İşletme Paneli - MyCar';
 if (!isset($current_page)) $current_page = 'dashboard';
@@ -99,33 +102,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_workplace_status
     }
     $incoming = trim((string)($_POST['ajax_workplace_status'] ?? ''));
 
-    // Normalize incoming legacy values but DO NOT overwrite a deliberate Turkish value.
-    // If incoming is legacy 'open'/'closed' translate them to Turkish for storage for consistency,
-    // but if incoming already uses 'Açık'/'Kapalı' keep it verbatim (user choice preserved).
-    $legacyMap = [
-        'open' => 'Açık',
-        'closed' => 'Kapalı'
-    ];
-
     if ($incoming === '') {
         header('Content-Type: application/json', true, 400);
         echo json_encode(['success' => false, 'message' => 'Empty status']);
         exit;
     }
 
-    if (isset($legacyMap[strtolower($incoming)])) {
-        $new = $legacyMap[strtolower($incoming)];
+    // Normalize ALL incoming values to canonical Turkish tokens for consistent storage
+    $incomingLower = strtolower($incoming);
+    $openVariants = ['açık', 'acik', 'open', 'active', '1'];
+    $closedVariants = ['kapalı', 'kapali', 'closed', 'inactive', '0'];
+    
+    if (in_array($incomingLower, $openVariants, true) || $incoming === 1 || $incoming === '1') {
+        $new = 'Açık';  // Canonical open value
+    } elseif (in_array($incomingLower, $closedVariants, true) || $incoming === 0 || $incoming === '0') {
+        $new = 'Kapalı';  // Canonical closed value
     } else {
-        // Accept only expected values to avoid injection
-        $allowed = ['Açık', 'Kapalı', 'open', 'closed', 'active'];
-        if (!in_array($incoming, $allowed, true)) {
-            // Reject unknown tokens
-            header('Content-Type: application/json', true, 400);
-            echo json_encode(['success' => false, 'message' => 'Invalid status token', 'token' => $incoming]);
-            exit;
-        }
-        // Keep exact incoming string (preserve user intent)
-        $new = $incoming;
+        // Reject unknown tokens
+        header('Content-Type: application/json', true, 400);
+        echo json_encode(['success' => false, 'message' => 'Invalid status token', 'token' => $incoming]);
+        exit;
     }
 
     // Persist to session immediately (store Turkish canonical or incoming exact)
@@ -191,11 +187,42 @@ if (empty($workplace_status) && isset($user_id)) {
         // ignore
     }
 }
-if (empty($workplace_status)) $workplace_status = 'open';
 
-// For rendering, treat several tokens as 'open' for display purposes
-$openTokens = ['open', 'Açık', 'active'];
-$is_open = in_array($workplace_status, $openTokens, true);
+// If not present in session/users table, attempt to read `carwashes.status` for the user's carwash
+if (empty($workplace_status) && !empty($user_id)) {
+    try {
+        if (class_exists('App\\Classes\\Database')) {
+            $db = App\Classes\Database::getInstance();
+            try {
+                $cw = $db->fetchOne('SELECT status, COALESCE(is_active,1) AS is_active FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $user_id]);
+                if ($cw && isset($cw['status']) && $cw['status'] !== null && $cw['status'] !== '') {
+                    $workplace_status = $cw['status'];
+                } elseif ($cw && isset($cw['is_active'])) {
+                    // If status is empty but is_active exists, use it as numeric indicator
+                    $workplace_status = ($cw['is_active'] == 1) ? '1' : '0';
+                }
+            } catch (Exception $_e) {
+                // ignore carwashes read errors
+            }
+        }
+    } catch (Exception $_e) {
+        // ignore
+    }
+}
+
+// For rendering, compute open/closed using a normalized, case-insensitive check.
+// Explicit closed tokens override any is_active flag.
+$ws_norm = strtolower((string)($workplace_status ?? ''));
+$openTokens = ['açık','acik','open','active','pending','1'];
+$closedTokens = ['kapalı','kapali','closed','inactive','0'];
+if (in_array($ws_norm, $closedTokens, true) || $workplace_status === 0 || $workplace_status === '0') {
+    $is_open = false;
+} elseif (in_array($ws_norm, $openTokens, true) || $workplace_status === 1 || $workplace_status === '1') {
+    $is_open = true;
+} else {
+    // Unknown or empty value: default to closed to avoid accidentally exposing a business as open.
+    $is_open = false;
+}
 
 ?>
 <!DOCTYPE html>
@@ -253,7 +280,9 @@ $is_open = in_array($workplace_status, $openTokens, true);
         <script src="/carwash_project/frontend/js/vehicleManager.js" defer></script>
         <!-- Alpine.js -->
         <script src="/carwash_project/frontend/vendor/alpine/cdn.min.js" defer></script>
-        <script defer>console.log('Alpine initialized');</script>
+        <?php if (!empty($APP_DEBUG)) {
+            echo '<script defer>console.log("seller_header: Alpine initialized");</script>';
+        } ?>
         <?php
         // Ensure a CSRF token is available for JS-driven forms and APIs
         $csrf_file = __DIR__ . '/csrf_protect.php';

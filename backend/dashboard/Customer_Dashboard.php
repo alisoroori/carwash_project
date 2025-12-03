@@ -775,7 +775,13 @@ if (!isset($base_url)) {
     </script>
     <!-- Alpine.js -->
         <script src="/carwash_project/frontend/vendor/alpine/cdn.min.js" defer></script>
-        <script defer>console.log('Alpine initialized');</script>
+        <?php 
+        // Debug output only when APP_DEBUG is enabled
+        $app_debug = (getenv('APP_DEBUG') !== false) ? filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN) : false;
+        if ($app_debug) {
+            echo '<script defer>console.log("Customer_Dashboard: Alpine initialized");</script>';
+        }
+        ?>
     
     <style>
         /* ================================
@@ -2918,9 +2924,18 @@ if (!isset($base_url)) {
                                                     // Open indicators: 'Açık' (Turkish), 'open', 'active'
                                                     // Closed indicators: 'Kapalı' (Turkish), 'closed', 'inactive'
                                                     // If status is explicitly closed, hide even if is_active=1
-                                                    $sql = "SELECT * FROM carwashes 
-                                                            WHERE COALESCE(status,'') NOT IN ('Kapalı','closed','inactive')
-                                                              AND (status IN ('Açık','open','active') OR COALESCE(is_active,1) = 1)
+                                                    // Visibility filter: show only open carwashes
+                                                    // Primary check: status = 'Açık' (canonical value)
+                                                    // Backward compatibility: accept legacy 'open', 'active', '1', 'pending'
+                                                    // Explicitly exclude closed statuses to prevent false positives
+                                                    $sql = "SELECT * FROM carwashes
+                                                            WHERE (
+                                                                status = 'Açık'
+                                                                OR LOWER(COALESCE(status,'')) IN ('açık','acik','open','active')
+                                                                OR status = '1'
+                                                            )
+                                                              AND LOWER(COALESCE(status,'')) NOT IN ('kapalı','kapali','closed','inactive')
+                                                              AND COALESCE(status,'') != '0'
                                                             ORDER BY name";
                                                     $carwashes = $db->fetchAll($sql);
                                                 } else {
