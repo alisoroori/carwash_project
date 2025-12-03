@@ -184,15 +184,16 @@ class ReviewComponent {
                         await this.loadReviews();
                         form.reset();
                     } else {
-                        alert(data?.message || data?.error || 'Değerlendirme gönderilemedi');
+                        const msg = data?.message || data?.error || 'Değerlendirme gönderilemedi';
+                        if (window.showToast) showToast(msg, 'error'); else alert(msg);
                     }
                 } catch (err) {
                     console.warn('[ReviewForms] Submission failed:', err);
-                    alert(err.message || 'Sistem hatası');
+                    if (window.showToast) showToast(err.message || 'Sistem hatası', 'error'); else alert(err.message || 'Sistem hatası');
                 }
             } catch (error) {
                 console.error('Error submitting review:', error);
-                alert('Sistem hatası');
+                if (window.showToast) showToast('Sistem hatası', 'error'); else alert('Sistem hatası');
             }
         });
     }
@@ -297,11 +298,12 @@ class ReviewComponent {
                     await this.loadReviews();
                     form.reset();
                 } else {
-                    alert(data.error || 'Değerlendirme gönderilemedi');
+                    const msg = data.error || 'Değerlendirme gönderilemedi';
+                    if (window.showToast) showToast(msg, 'error'); else alert(msg);
                 }
             } catch (error) {
                 console.error('Error submitting review:', error);
-                alert('Sistem hatası');
+                if (window.showToast) showToast('Sistem hatası', 'error'); else alert('Sistem hatası');
             }
         });
     }
@@ -370,14 +372,15 @@ class ReviewComponent {
             const data = await response.json();
             
             if (data.success) {
-                alert('Bildiriminiz için teşekkürler');
+                if (window.showToast) showToast('Bildiriminiz için teşekkürler', 'success'); else alert('Bildiriminiz için teşekkürler');
                 this.closeReportModal();
             } else {
-                alert(data.error || 'Bildirim gönderilemedi');
+                const msg = data.error || 'Bildirim gönderilemedi';
+                if (window.showToast) showToast(msg, 'error'); else alert(msg);
             }
         } catch (error) {
             console.error('Error submitting report:', error);
-            alert('Sistem hatası');
+            if (window.showToast) showToast('Sistem hatası', 'error'); else alert('Sistem hatası');
         }
     }
 
@@ -439,7 +442,7 @@ class ReviewManager {
             e.preventDefault();
             
             if (!this.selectedRating) {
-                alert('Please select a rating');
+                if (window.showToast) showToast('Please select a rating', 'error'); else alert('Please select a rating');
                 return;
             }
 
@@ -457,11 +460,12 @@ class ReviewManager {
                 if (data.success) {
                     window.location.href = '/carwash_project/frontend/dashboard/user_dashboard.php?review_submitted=1';
                 } else {
-                    alert(data.error || 'Failed to submit review');
+                    const msg = data.error || 'Failed to submit review';
+                    if (window.showToast) showToast(msg, 'error'); else alert(msg);
                 }
             } catch (error) {
                 console.error('Error submitting review:', error);
-                alert('Failed to submit review. Please try again.');
+                if (window.showToast) showToast('Failed to submit review. Please try again.', 'error'); else alert('Failed to submit review. Please try again.');
             }
         });
     }

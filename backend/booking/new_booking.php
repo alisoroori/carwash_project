@@ -50,7 +50,8 @@ if (class_exists('\App\Classes\Database')) {
     try {
         $db = \App\Classes\Database::getInstance();
   // Use canonical `carwashes` table and normalize fields to match the API
-  $carwashes = $db->fetchAll("SELECT id, COALESCE(name,business_name) AS name, city, district FROM carwashes ORDER BY COALESCE(name,business_name)");
+  // Only return carwashes that are open (canonical 'Açık' or legacy open values)
+  $carwashes = $db->fetchAll("SELECT id, COALESCE(name,business_name) AS name, city, district FROM carwashes WHERE (status = 'Açık' OR LOWER(COALESCE(status,'')) IN ('açık','acik','open','active') OR status = '1') AND LOWER(COALESCE(status,'')) NOT IN ('kapalı','kapali','closed','inactive') AND COALESCE(status,'') != '0' ORDER BY COALESCE(name,business_name)");
         if ($selectedCarwashId) {
             $services = $db->fetchAll('SELECT id, name, price FROM services WHERE carwash_id = :cw ORDER BY name', ['cw' => $selectedCarwashId]);
         }
@@ -66,7 +67,8 @@ if (class_exists('\App\Classes\Database')) {
             try {
                 $conn = getDBConnection();
                 // Read from canonical `carwashes` table (legacy `carwash_profiles` removed)
-                $res = $conn->query("SELECT id, COALESCE(name,business_name) AS name, city, district FROM carwashes ORDER BY COALESCE(name,business_name)");
+                // Only return carwashes that are open (canonical 'Açık' or legacy open values)
+                $res = $conn->query("SELECT id, COALESCE(name,business_name) AS name, city, district FROM carwashes WHERE (status = 'Açık' OR LOWER(COALESCE(status,'')) IN ('açık','acik','open','active') OR status = '1') AND LOWER(COALESCE(status,'')) NOT IN ('kapalı','kapali','closed','inactive') AND COALESCE(status,'') != '0' ORDER BY COALESCE(name,business_name)");
                 while ($r = $res->fetch_assoc()) $carwashes[] = $r;
                 if ($selectedCarwashId) {
                     $stmt = $conn->prepare('SELECT id, name, price FROM services WHERE carwash_id = ? ORDER BY name');

@@ -41,9 +41,11 @@ async function loadProfileData() {
             
             // Update profile image and username
             document.getElementById('userName').textContent = data.user.name;
-            if (data.user.profile_image) {
-                document.getElementById('profileImage').src = data.user.profile_image;
-            }
+                // Normalize profile image URL to avoid relative-path 404s
+                if (data.user.profile_image) {
+                    const imgEl = document.getElementById('profileImage');
+                    if (imgEl) imgEl.src = normalizeImageUrl(data.user.profile_image) || imgEl.src;
+                }
         }
     } catch (error) {
         console.error('Error loading profile:', error);
@@ -179,12 +181,22 @@ function getStatusText(status) {
 
 function showError(message) {
     // Add your error notification logic here
-    alert(message);
+    if (window.showToast) showToast(message, 'error'); else alert(message);
 }
 
 function showSuccess(message) {
     // Add your success notification logic here
-    alert(message);
+    if (window.showToast) showToast(message, 'success'); else alert(message);
+}
+
+// Helper: normalize profile image URLs returned from APIs
+function normalizeImageUrl(url) {
+    if (!url) return '';
+    // Absolute URL or root-relative path are returned unchanged
+    if (/^https?:\/\//i.test(url) || url.charAt(0) === '/') return url;
+    // Prepend BASE_URL from window.CONFIG if available, otherwise assume project root
+    const base = (window.CONFIG && window.CONFIG.BASE_URL) ? window.CONFIG.BASE_URL.replace(/\/$/, '') : (window.location.origin + '/carwash_project');
+    return base + '/' + url.replace(/^\/+/, '');
 }
 
 // Add this function to the existing profile.js file

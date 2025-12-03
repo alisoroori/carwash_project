@@ -197,8 +197,13 @@ $existingReview = $db->fetchOne(
         window.CONFIG = { CSRF_TOKEN: '<?php echo $_SESSION['csrf_token'] ?? ''; ?>' };
         
         function showSuccess(message) {
-            alert(message);
-            setTimeout(() => location.reload(), 1000);
+            if (window.showToast) {
+                showToast(message, 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert(message);
+                setTimeout(() => location.reload(), 1000);
+            }
         }
     </script>
 </body>

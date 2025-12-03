@@ -144,7 +144,7 @@ include '../includes/universal_header.php';
                 <i class="fas fa-lock mr-2"></i>Şifre *
               </label>
               <div class="relative">
-                <label for="password" class="sr-only">Password</label><input type="password" name="password" id="password" placeholder="Güçlü bir şifre belirleyin" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-12">
+                <label for="password" class="sr-only">Password</label><input type="password" name="password" id="password" placeholder="Güçlü bir şifre belirleyin" autocomplete="new-password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-12">
                 <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors">
                   <i class="fas fa-eye" id="passwordToggle"></i>
                 </button>

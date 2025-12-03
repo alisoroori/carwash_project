@@ -97,7 +97,8 @@ class DisputeManager {
     }
 
     async resolveDispute(disputeId) {
-        if (!confirm('Are you sure you want to resolve this dispute?')) return;
+        const proceed = (window.showConfirm) ? await window.showConfirm('Are you sure you want to resolve this dispute?') : confirm('Are you sure you want to resolve this dispute?');
+        if (!proceed) return;
 
         try {
             const response = await fetch(this.endpoints.resolve, {

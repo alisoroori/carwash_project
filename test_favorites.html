@@ -334,7 +334,8 @@
         window.addEventListener('DOMContentLoaded', () => {
             const token = getCsrfToken();
             if (!token) {
-                alert('⚠️ WARNING: CSRF token not found!\n\nPlease log in as a customer first, then reload this page.');
+                const msg = '⚠️ WARNING: CSRF token not found!\n\nPlease log in as a customer first, then reload this page.';
+                if (window.showToast) showToast(msg, 'error'); else alert(msg);
             } else {
                 console.log('✅ CSRF token found:', token.substring(0, 20) + '...');
             }

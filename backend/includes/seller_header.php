@@ -7,6 +7,9 @@
 
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
+// Debug flag: enable verbose debug output when APP_DEBUG=true in the environment
+$APP_DEBUG = (getenv('APP_DEBUG') !== false) ? filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN) : false;
+
 if (!isset($dashboard_type)) $dashboard_type = 'carwash';
 if (!isset($page_title)) $page_title = 'İşletme Paneli - MyCar';
 if (!isset($current_page)) $current_page = 'dashboard';
@@ -68,6 +71,14 @@ if (!empty($raw)) {
 }
 $profile_src = $_SESSION['profile_image'] ?? ($base_url . '/frontend/images/default-avatar.svg');
 
+// Build canonical header profile src (use profile_image_handler like customer header)
+$ts = intval($_SESSION['profile_image_ts'] ?? time());
+if (!empty($user_id)) {
+    $header_profile_src = rtrim($base_url, '\\/') . '/backend/profile_image_handler.php?user_id=' . intval($user_id) . '&ts=' . $ts;
+} else {
+    $header_profile_src = $base_url . '/frontend/images/default-avatar.svg';
+}
+
 // Current logged-in user's display name and email (used in header)
 $user_name = $_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Kullanıcı';
 $user_email = $_SESSION['email'] ?? '';
@@ -80,6 +91,7 @@ $logout_url = $base_url . '/backend/includes/logout.php';
 $dashboard_url = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
 
 // ---- Workplace status AJAX handler (allows POST to this file to update status) ----
+// Expected incoming values: 'Açık' or 'Kapalı' (preferred), but accept legacy 'open'/'closed' for compatibility.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_workplace_status'])) {
     // Simple auth check
     $uid = $_SESSION['user_id'] ?? null;
@@ -88,17 +100,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_workplace_status
         echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit;
     }
+    $incoming = trim((string)($_POST['ajax_workplace_status'] ?? ''));
 
-    $new = $_POST['ajax_workplace_status'] === 'open' ? 'open' : 'closed';
-    // Persist to session immediately
+    if ($incoming === '') {
+        header('Content-Type: application/json', true, 400);
+        echo json_encode(['success' => false, 'message' => 'Empty status']);
+        exit;
+    }
+
+    // Normalize ALL incoming values to canonical Turkish tokens for consistent storage
+    $incomingLower = strtolower($incoming);
+    $openVariants = ['açık', 'acik', 'open', 'active', '1'];
+    $closedVariants = ['kapalı', 'kapali', 'closed', 'inactive', '0'];
+    
+    if (in_array($incomingLower, $openVariants, true) || $incoming === 1 || $incoming === '1') {
+        $new = 'Açık';  // Canonical open value
+    } elseif (in_array($incomingLower, $closedVariants, true) || $incoming === 0 || $incoming === '0') {
+        $new = 'Kapalı';  // Canonical closed value
+    } else {
+        // Reject unknown tokens
+        header('Content-Type: application/json', true, 400);
+        echo json_encode(['success' => false, 'message' => 'Invalid status token', 'token' => $incoming]);
+        exit;
+    }
+
+    // Persist to session immediately (store Turkish canonical or incoming exact)
     $_SESSION['workplace_status'] = $new;
 
     // Attempt DB persistence if Database class exists (best-effort)
     try {
-        if (class_exists('App\\Classes\\Database')) {
+        if (class_exists('App\Classes\Database')) {
             $db = App\Classes\Database::getInstance();
-            // Try updating `users` table - fallback if schema differs is acceptable
-            $db->update('users', ['workplace_status' => $new], ['id' => $uid]);
+
+            // Check whether `workplace_status` column exists before attempting to update users table
+            $canUpdateUsers = false;
+            try {
+                $pdoChk = $db->getPdo();
+                $col = $pdoChk->query("SHOW COLUMNS FROM users LIKE 'workplace_status'")->fetch();
+                $canUpdateUsers = !empty($col);
+            } catch (Exception $_) {
+                $canUpdateUsers = false;
+            }
+
+            if ($canUpdateUsers) {
+                $db->update('users', ['workplace_status' => $new], ['id' => $uid]);
+            }
+
+            // Also attempt to update the related carwashes.status for the user's carwash (so customer list respects toggle)
+            // Find carwash(s) owned by this user and update their status to the same token (Turkish or legacy)
+            try {
+                $pdo = $db->getPdo();
+                $upd = $pdo->prepare('UPDATE carwashes SET status = :status WHERE user_id = :uid');
+                $upd->execute(['status' => $new, 'uid' => $uid]);
+            } catch (Exception $innerE) {
+                // ignore carwashes update errors; users table update is optional
+            }
         }
     } catch (Exception $e) {
         // Ignore DB errors here (status still saved to session)
@@ -115,14 +171,58 @@ if (empty($workplace_status) && isset($user_id)) {
     try {
         if (class_exists('App\\Classes\\Database')) {
             $db = App\Classes\Database::getInstance();
-            $row = $db->fetchOne('SELECT workplace_status FROM users WHERE id = :id', ['id' => $user_id]);
-            if ($row && isset($row['workplace_status'])) $workplace_status = $row['workplace_status'];
+            // Only query users.workplace_status if the column exists in this schema
+            try {
+                $pdoChk = $db->getPdo();
+                $col = $pdoChk->query("SHOW COLUMNS FROM users LIKE 'workplace_status'")->fetch();
+                if (!empty($col)) {
+                    $row = $db->fetchOne('SELECT workplace_status FROM users WHERE id = :id', ['id' => $user_id]);
+                    if ($row && isset($row['workplace_status'])) $workplace_status = $row['workplace_status'];
+                }
+            } catch (Exception $_) {
+                // ignore schema check or query errors
+            }
         }
     } catch (Exception $e) {
         // ignore
     }
 }
-if (empty($workplace_status)) $workplace_status = 'open';
+
+// If not present in session/users table, attempt to read `carwashes.status` for the user's carwash
+if (empty($workplace_status) && !empty($user_id)) {
+    try {
+        if (class_exists('App\\Classes\\Database')) {
+            $db = App\Classes\Database::getInstance();
+            try {
+                $cw = $db->fetchOne('SELECT status, COALESCE(is_active,1) AS is_active FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $user_id]);
+                if ($cw && isset($cw['status']) && $cw['status'] !== null && $cw['status'] !== '') {
+                    $workplace_status = $cw['status'];
+                } elseif ($cw && isset($cw['is_active'])) {
+                    // If status is empty but is_active exists, use it as numeric indicator
+                    $workplace_status = ($cw['is_active'] == 1) ? '1' : '0';
+                }
+            } catch (Exception $_e) {
+                // ignore carwashes read errors
+            }
+        }
+    } catch (Exception $_e) {
+        // ignore
+    }
+}
+
+// For rendering, compute open/closed using a normalized, case-insensitive check.
+// Explicit closed tokens override any is_active flag.
+$ws_norm = strtolower((string)($workplace_status ?? ''));
+$openTokens = ['açık','acik','open','active','pending','1'];
+$closedTokens = ['kapalı','kapali','closed','inactive','0'];
+if (in_array($ws_norm, $closedTokens, true) || $workplace_status === 0 || $workplace_status === '0') {
+    $is_open = false;
+} elseif (in_array($ws_norm, $openTokens, true) || $workplace_status === 1 || $workplace_status === '1') {
+    $is_open = true;
+} else {
+    // Unknown or empty value: default to closed to avoid accidentally exposing a business as open.
+    $is_open = false;
+}
 
 ?>
 <!DOCTYPE html>
@@ -180,7 +280,9 @@ if (empty($workplace_status)) $workplace_status = 'open';
         <script src="/carwash_project/frontend/js/vehicleManager.js" defer></script>
         <!-- Alpine.js -->
         <script src="/carwash_project/frontend/vendor/alpine/cdn.min.js" defer></script>
-        <script defer>console.log('Alpine initialized');</script>
+        <?php if (!empty($APP_DEBUG)) {
+            echo '<script defer>console.log("seller_header: Alpine initialized");</script>';
+        } ?>
         <?php
         // Ensure a CSRF token is available for JS-driven forms and APIs
         $csrf_file = __DIR__ . '/csrf_protect.php';
@@ -220,12 +322,12 @@ if (empty($workplace_status)) $workplace_status = 'open';
 
                 <!-- Workplace Status Toggle -->
                 <div class="workplace-toggle-container" id="workplaceToggleRoot">
-                    <div class="status-indicator <?php echo ($workplace_status === 'open') ? 'status-open' : 'status-closed'; ?>" id="workplaceStatusIndicator">
-                        <span id="workplaceStatusText"><?php echo ($workplace_status === 'open') ? 'Açık' : 'Kapalı'; ?></span>
+                    <div class="status-indicator <?php echo ($is_open) ? 'status-open' : 'status-closed'; ?>" id="workplaceStatusIndicator">
+                        <span id="workplaceStatusText"><?php echo ($is_open) ? 'Açık' : 'Kapalı'; ?></span>
                     </div>
 
                     <label class="toggle-switch" title="İşletme Durumu">
-                        <input type="checkbox" id="workplaceStatusToggle" <?php echo ($workplace_status === 'open') ? 'checked' : ''; ?> aria-checked="<?php echo ($workplace_status === 'open') ? 'true' : 'false'; ?>">
+                        <input type="checkbox" id="workplaceStatusToggle" <?php echo ($is_open) ? 'checked' : ''; ?> aria-checked="<?php echo ($is_open) ? 'true' : 'false'; ?>">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -247,7 +349,7 @@ if (empty($workplace_status)) $workplace_status = 'open';
                         :aria-expanded="open.toString()" aria-haspopup="true">
 
                         <div id="headerProfileContainer" class="rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600" style="width:40px;height:40px;">
-                            <img id="userAvatarTop" src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" style="border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <img id="userAvatarTop" src="<?php echo htmlspecialchars($header_profile_src, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" style="border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                             <div id="userAvatarFallback" class="text-white font-semibold text-sm" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
                                 <?php echo strtoupper(substr($user_name,0,1)); ?>
                             </div>
@@ -318,7 +420,7 @@ if (empty($workplace_status)) $workplace_status = 'open';
 <div id="mobileMenu" style="display:none; position:fixed; top:var(--header-height); left:0; right:0; bottom:0; background:rgba(255,255,255,0.97); z-index:1190; overflow:auto;">
     <div style="padding:1rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-            <img id="mobileMenuAvatar" src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+            <img id="mobileMenuAvatar" src="<?php echo htmlspecialchars($header_profile_src, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
             <div>
                 <div id="mobileMenuUserName" style="font-weight:700"><?php echo htmlspecialchars($user_name); ?></div>
                 <div id="mobileMenuUserEmail" style="font-size:0.85rem;opacity:0.8"><?php echo htmlspecialchars($user_email); ?></div>
@@ -372,7 +474,15 @@ window.addEventListener('resize', updateHeaderHeight);
 <script>
     (function(){
         try {
-            var profileSrc = <?php echo json_encode($profile_src); ?>;
+            // Migration: Clear old relative paths from localStorage
+            var oldPath = localStorage.getItem('carwash_profile_image');
+            if (oldPath && (oldPath.indexOf('uploads/profiles/') === 0 || oldPath.indexOf('backend/uploads/') !== -1)) {
+                // Old relative path detected - clear it so the new absolute URL can be set
+                localStorage.removeItem('carwash_profile_image');
+                localStorage.removeItem('carwash_profile_image_ts');
+            }
+            
+            var profileSrc = <?php echo json_encode($header_profile_src); ?>;
             if (profileSrc) {
                 var ts = Date.now();
                 var url = profileSrc + (profileSrc.indexOf('?') === -1 ? ('?ts=' + ts) : ('&ts=' + ts));
@@ -393,7 +503,11 @@ window.addEventListener('resize', updateHeaderHeight);
     if (!toggle) return;
 
     function setUI(state){
-        if(state === 'open'){
+        // Accept both legacy and Turkish tokens
+        var s = (state || '').toString();
+        var openTokens = ['open','Açık','active'];
+        var isOpen = openTokens.indexOf(s) !== -1;
+        if(isOpen){
             toggle.checked = true;
             indicator.classList.remove('status-closed');
             indicator.classList.add('status-open');
@@ -409,7 +523,8 @@ window.addEventListener('resize', updateHeaderHeight);
     }
 
     toggle.addEventListener('change', function(){
-        var desired = toggle.checked ? 'open' : 'closed';
+        // Send Turkish explicit tokens so user choice is preserved server-side
+        var desired = toggle.checked ? 'Açık' : 'Kapalı';
         // Optimistically update UI
         setUI(desired);
 
@@ -424,13 +539,13 @@ window.addEventListener('resize', updateHeaderHeight);
             return resp.json();
         }).then(function(json){
             if(!json || !json.success){
-                // Revert UI on failure
-                setUI(json && json.status ? json.status : (desired === 'open' ? 'closed' : 'open'));
+                // Revert UI on failure; json.status may be legacy or Turkish token
+                setUI(json && json.status ? json.status : (desired === 'Açık' ? 'Kapalı' : 'Açık'));
                 console.warn('Failed to save workplace status', json);
             }
         }).catch(function(err){
             // Revert UI
-            setUI(desired === 'open' ? 'closed' : 'open');
+            setUI(desired === 'Açık' ? 'Kapalı' : 'Açık');
             console.error('Error saving workplace status', err);
         });
     });

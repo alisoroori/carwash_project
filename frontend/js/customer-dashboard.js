@@ -280,9 +280,8 @@
             return;
         }
 
-        if (!confirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
-            return;
-        }
+        const proceed = (window.showConfirm) ? await window.showConfirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.') : confirm('Bu aracı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.');
+        if (!proceed) return;
 
         try {
             const card = document.querySelector(`[data-vehicle-id="${vehicleId}"]`);
@@ -327,14 +326,14 @@
                     setTimeout(() => card.remove(), 300);
                 }
                 setTimeout(loadUserVehicles, 500);
-            } else {
+                } else {
                 const errorMsg = result.message || result.error || 'Silme işlemi başarısız';
-                alert(errorMsg);
+                if (window.showToast) showToast(errorMsg, 'error'); else alert(errorMsg);
                 if (btn) btn.disabled = false;
             }
         } catch (error) {
             console.error('Delete vehicle error:', error);
-            alert('Bir hata oluştu: ' + error.message);
+            if (window.showToast) showToast('Bir hata oluştu: ' + error.message, 'error'); else alert('Bir hata oluştu: ' + error.message);
         }
     };
 
