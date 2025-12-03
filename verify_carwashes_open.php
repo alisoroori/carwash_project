@@ -10,7 +10,7 @@ try {
     echo json_encode($rows, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n\n";
 
     // Run the new filter used by customer dashboard (Kapalı overrides is_active)
-    $filterSql = "SELECT id, name, status, is_active FROM carwashes WHERE (status IN ('Açık','open','active') OR (COALESCE(is_active,0) = 1 AND COALESCE(status,'') NOT IN ('Kapalı'))) ORDER BY name";
+    $filterSql = "SELECT id, name, status, is_active FROM carwashes WHERE LOWER(COALESCE(status,'')) IN ('açık','acik','open','active','1') AND COALESCE(is_active,0) = 1 ORDER BY name";
     $filtered = $db->fetchAll($filterSql);
     echo "Carwashes matching open-indicators filter:\n";
     echo json_encode($filtered, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n";

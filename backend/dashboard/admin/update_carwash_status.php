@@ -56,10 +56,11 @@ try {
             throw new Exception('Carwash not found or already processed');
         }
 
-        // Update carwash status (normalize approved to canonical Turkish 'Açık')
-        $new_status = $action === 'approve' ? 'Açık' : 'rejected';
-        $stmt = $conn->prepare("UPDATE carwashes SET status = ?, processed_at = NOW(), processed_by = ? WHERE id = ?");
-        $stmt->bind_param("sii", $new_status, $_SESSION['user_id'], $carwash_id);
+        // Update carwash status (normalize approved to canonical Turkish 'Açık', rejected to 'Kapalı')
+        $new_status = $action === 'approve' ? 'Açık' : 'Kapalı';
+        $new_is_active = $action === 'approve' ? 1 : 0;
+        $stmt = $conn->prepare("UPDATE carwashes SET status = ?, is_active = ?, processed_at = NOW(), processed_by = ? WHERE id = ?");
+        $stmt->bind_param("siii", $new_status, $new_is_active, $_SESSION['user_id'], $carwash_id);
 
         if (!$stmt->execute()) {
             throw new Exception('Failed to update carwash status');

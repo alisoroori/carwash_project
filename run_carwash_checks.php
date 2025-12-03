@@ -11,7 +11,7 @@ function runTest($pdo, $db, $name, $status, $shouldBeVisible) {
         $stmt->execute(['name' => $name, 'status' => $status]);
         $id = $pdo->lastInsertId();
 
-        $sql = "SELECT id FROM carwashes WHERE (status = 'Açık' OR LOWER(COALESCE(status,'')) IN ('açık','acik','open','active') OR status = '1') AND LOWER(COALESCE(status,'')) NOT IN ('kapalı','kapali','closed','inactive') AND COALESCE(status,'') != '0'";
+        $sql = "SELECT id FROM carwashes WHERE LOWER(COALESCE(status,'')) IN ('açık','acik','open','active','1') AND COALESCE(is_active,0) = 1";
         $rows = $db->fetchAll($sql);
         $ids = array_map(function($r){ return (int)$r['id']; }, $rows);
         $visible = in_array((int)$id, $ids, true);

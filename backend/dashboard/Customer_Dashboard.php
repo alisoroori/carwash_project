@@ -2928,15 +2928,16 @@ if (!isset($base_url)) {
                                                     // Primary check: status = 'Açık' (canonical value)
                                                     // Backward compatibility: accept legacy 'open', 'active', '1', 'pending'
                                                     // Explicitly exclude closed statuses to prevent false positives
-                                                    $sql = "SELECT * FROM carwashes
-                                                            WHERE (
-                                                                status = 'Açık'
-                                                                OR LOWER(COALESCE(status,'')) IN ('açık','acik','open','active')
-                                                                OR status = '1'
-                                                            )
-                                                              AND LOWER(COALESCE(status,'')) NOT IN ('kapalı','kapali','closed','inactive')
-                                                              AND COALESCE(status,'') != '0'
-                                                            ORDER BY name";
+                                                                                                                        // Visibility rules:
+                                                                                                                        // - If status = 'Açık' (canonical) -> visible
+                                                                                                                        // - If status = explicit closed token ('Kapalı', etc.) -> hidden (closed overrides)
+                                                                                                                        // - If status is NULL -> fall back to is_active = 1
+                                                                                                                        // - Accept legacy open tokens for backwards compatibility
+                                                                                                                        // Show only carwashes that are explicitly open AND active
+                                                                                                                        $sql = "SELECT * FROM carwashes
+                                                                                                                                        WHERE LOWER(COALESCE(status,'')) IN ('açık','acik','open','active','1')
+                                                                                                                                            AND COALESCE(is_active,0) = 1
+                                                                                                                                        ORDER BY name";
                                                     $carwashes = $db->fetchAll($sql);
                                                 } else {
                                                     // No canonical table found — surface clear message to JavaScript/UI

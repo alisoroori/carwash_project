@@ -7,6 +7,97 @@
 
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
+// Load bootstrap early so Database class is available for AJAX handlers
+require_once __DIR__ . '/bootstrap.php';
+
+// ---- Workplace status AJAX handler (POST to update, GET to fetch current) ----
+// These handlers must run BEFORE any HTML output
+// POST expected fields: 'ajax_workplace_status' (optional), 'ajax_is_active' (optional)
+// GET: provide ?ajax_get_workplace_status=1 to receive JSON { status, is_active }
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax_get_workplace_status'])) {
+    $uid = $_SESSION['user_id'] ?? null;
+    if (!$uid) {
+        header('Content-Type: application/json', true, 401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+    try {
+        $db = App\Classes\Database::getInstance();
+        $cw = $db->fetchOne('SELECT status, COALESCE(is_active,0) AS is_active FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $uid]);
+        $status = $cw['status'] ?? null;
+        $isActive = isset($cw['is_active']) ? (int)$cw['is_active'] : 0;
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'status' => $status, 'is_active' => $isActive]);
+        exit;
+    } catch (Exception $e) {
+        header('Content-Type: application/json', true, 500);
+        echo json_encode(['success' => false, 'message' => 'DB error: ' . $e->getMessage()]);
+        exit;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['ajax_workplace_status']) || isset($_POST['ajax_is_active']))) {
+    $uid = $_SESSION['user_id'] ?? null;
+    if (!$uid) {
+        header('Content-Type: application/json', true, 401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+    
+    // Determine new status and is_active values
+    $isActiveVal = null;
+    if (isset($_POST['ajax_is_active'])) {
+        $isActiveVal = (int)$_POST['ajax_is_active'] ? 1 : 0;
+    }
+
+    if ($isActiveVal !== null) {
+        $new = ($isActiveVal === 1) ? 'Açık' : 'Kapalı';
+    } else {
+        $incoming = trim((string)($_POST['ajax_workplace_status'] ?? ''));
+        if ($incoming === '') {
+            header('Content-Type: application/json', true, 400);
+            echo json_encode(['success' => false, 'message' => 'Empty status']);
+            exit;
+        }
+        $incomingLower = strtolower($incoming);
+        $openVariants = ['açık', 'acik', 'open', 'active'];
+        $closedVariants = ['kapalı', 'kapali', 'closed', 'inactive'];
+        if (in_array($incomingLower, $openVariants, true)) {
+            $new = 'Açık';
+            $isActiveVal = 1;
+        } elseif (in_array($incomingLower, $closedVariants, true)) {
+            $new = 'Kapalı';
+            $isActiveVal = 0;
+        } else {
+            header('Content-Type: application/json', true, 400);
+            echo json_encode(['success' => false, 'message' => 'Invalid status token', 'token' => $incoming]);
+            exit;
+        }
+    }
+
+    // Persist to session
+    $_SESSION['workplace_status'] = $new;
+
+    // Persist to DB
+    try {
+        $db = App\Classes\Database::getInstance();
+        $pdo = $db->getPdo();
+        $upd = $pdo->prepare('UPDATE carwashes SET status = :status, is_active = :is_active, updated_at = NOW() WHERE user_id = :uid');
+        $upd->execute(['status' => $new, 'is_active' => $isActiveVal, 'uid' => $uid]);
+        $rowCount = $upd->rowCount();
+        error_log("[seller_header] Toggle update: user_id={$uid}, status={$new}, is_active={$isActiveVal}, rows_affected={$rowCount}");
+        
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'status' => $new, 'is_active' => (int)$isActiveVal]);
+        exit;
+    } catch (Exception $e) {
+        error_log("[seller_header] Toggle update FAILED: " . $e->getMessage());
+        header('Content-Type: application/json', true, 500);
+        echo json_encode(['success' => false, 'message' => 'DB error: ' . $e->getMessage()]);
+        exit;
+    }
+}
+
 // Debug flag: enable verbose debug output when APP_DEBUG=true in the environment
 $APP_DEBUG = (getenv('APP_DEBUG') !== false) ? filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN) : false;
 
@@ -90,152 +181,56 @@ $contact_url = $base_url . '/backend/contact.php';
 $logout_url = $base_url . '/backend/includes/logout.php';
 $dashboard_url = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
 
-// ---- Workplace status AJAX handler (POST to update, GET to fetch current) ----
-// POST expected fields: 'ajax_workplace_status' (optional), 'ajax_is_active' (optional)
-// GET: provide ?ajax_get_workplace_status=1 to receive JSON { status, is_active }
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax_get_workplace_status'])) {
-    $uid = $_SESSION['user_id'] ?? null;
-    if (!$uid) {
-        header('Content-Type: application/json', true, 401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-        exit;
-    }
+// Load current workplace status from DB (authoritative source), fallback to session
+// IMPORTANT: Always read from DB first to ensure UI matches actual database state
+$workplace_status = null;
+
+// First, try to read from carwashes table (authoritative source)
+if (!empty($user_id)) {
     try {
         if (class_exists('App\\Classes\\Database')) {
             $db = App\Classes\Database::getInstance();
-            $cw = $db->fetchOne('SELECT status, COALESCE(is_active,0) AS is_active FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $uid]);
-            $status = $cw['status'] ?? null;
-            $isActive = isset($cw['is_active']) ? (int)$cw['is_active'] : 0;
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'status' => $status, 'is_active' => $isActive]);
-            exit;
+            $cw = $db->fetchOne('SELECT status, COALESCE(is_active,0) AS is_active FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $user_id]);
+            if ($cw && isset($cw['status']) && $cw['status'] !== null && $cw['status'] !== '') {
+                $workplace_status = $cw['status'];
+                // Sync session with DB value
+                $_SESSION['workplace_status'] = $workplace_status;
+            } elseif ($cw && isset($cw['is_active'])) {
+                // If status is empty but is_active exists, derive status from it
+                $workplace_status = ($cw['is_active'] == 1) ? 'Açık' : 'Kapalı';
+                $_SESSION['workplace_status'] = $workplace_status;
+            }
         }
-    } catch (Exception $e) {
-        header('Content-Type: application/json', true, 500);
-        echo json_encode(['success' => false, 'message' => 'DB error']);
-        exit;
+    } catch (Exception $_e) {
+        // ignore carwashes read errors
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['ajax_workplace_status']) || isset($_POST['ajax_is_active']))) {
-    // Simple auth check
-    $uid = $_SESSION['user_id'] ?? null;
-    if (!$uid) {
-        header('Content-Type: application/json', true, 401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-        exit;
-    }
-    // Prefer explicit ajax_is_active if provided (1 or 0)
-    $isActiveVal = null;
-    if (isset($_POST['ajax_is_active'])) {
-        $isActiveVal = (int)$_POST['ajax_is_active'] ? 1 : 0;
-    }
-
-    // If ajax_is_active provided, derive canonical status from it; otherwise fall back to ajax_workplace_status token
-    if ($isActiveVal !== null) {
-        $new = ($isActiveVal === 1) ? 'Açık' : 'Kapalı';
-    } else {
-        $incoming = trim((string)($_POST['ajax_workplace_status'] ?? ''));
-        if ($incoming === '') {
-            header('Content-Type: application/json', true, 400);
-            echo json_encode(['success' => false, 'message' => 'Empty status']);
-            exit;
-        }
-        // Normalize incoming text token
-        $incomingLower = strtolower($incoming);
-        $openVariants = ['açık', 'acik', 'open', 'active'];
-        $closedVariants = ['kapalı', 'kapali', 'closed', 'inactive'];
-        if (in_array($incomingLower, $openVariants, true)) {
-            $new = 'Açık';
-            $isActiveVal = 1;
-        } elseif (in_array($incomingLower, $closedVariants, true)) {
-            $new = 'Kapalı';
-            $isActiveVal = 0;
-        } else {
-            header('Content-Type: application/json', true, 400);
-            echo json_encode(['success' => false, 'message' => 'Invalid status token', 'token' => $incoming]);
-            exit;
-        }
-    }
-
-    // Persist to session
-    $_SESSION['workplace_status'] = $new;
-
-    // Persist to DB: update users.workplace_status (if column exists) and carwashes.status + is_active
-    try {
-        if (class_exists('App\\Classes\\Database')) {
-            $db = App\Classes\Database::getInstance();
-
-            // Update users.workplace_status if the column exists
-            try {
-                $pdoChk = $db->getPdo();
-                $col = $pdoChk->query("SHOW COLUMNS FROM users LIKE 'workplace_status'")->fetch();
-                if (!empty($col)) {
-                    $db->update('users', ['workplace_status' => $new], ['id' => $uid]);
-                }
-            } catch (Exception $_) {
-                // ignore
-            }
-
-            // Update carwashes rows owned by this user
-            try {
-                $pdo = $db->getPdo();
-                $upd = $pdo->prepare('UPDATE carwashes SET status = :status, is_active = :is_active, updated_at = NOW() WHERE user_id = :uid');
-                $upd->execute(['status' => $new, 'is_active' => $isActiveVal, 'uid' => $uid]);
-            } catch (Exception $innerE) {
-                // ignore carwashes update errors
-            }
-        }
-    } catch (Exception $e) {
-        // ignore
-    }
-
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'status' => $new, 'is_active' => (int)$isActiveVal]);
-    exit;
+// Fallback to session only if DB read failed
+if (empty($workplace_status)) {
+    $workplace_status = $_SESSION['workplace_status'] ?? null;
 }
 
-// Load current workplace status from session or DB (best-effort)
-$workplace_status = $_SESSION['workplace_status'] ?? null;
+// Fallback to users.workplace_status if still empty
 if (empty($workplace_status) && isset($user_id)) {
     try {
         if (class_exists('App\\Classes\\Database')) {
             $db = App\Classes\Database::getInstance();
-            // Only query users.workplace_status if the column exists in this schema
             try {
                 $pdoChk = $db->getPdo();
                 $col = $pdoChk->query("SHOW COLUMNS FROM users LIKE 'workplace_status'")->fetch();
                 if (!empty($col)) {
                     $row = $db->fetchOne('SELECT workplace_status FROM users WHERE id = :id', ['id' => $user_id]);
-                    if ($row && isset($row['workplace_status'])) $workplace_status = $row['workplace_status'];
+                    if ($row && isset($row['workplace_status'])) {
+                        $workplace_status = $row['workplace_status'];
+                        $_SESSION['workplace_status'] = $workplace_status;
+                    }
                 }
             } catch (Exception $_) {
                 // ignore schema check or query errors
             }
         }
     } catch (Exception $e) {
-        // ignore
-    }
-}
-
-// If not present in session/users table, attempt to read `carwashes.status` for the user's carwash
-if (empty($workplace_status) && !empty($user_id)) {
-    try {
-        if (class_exists('App\\Classes\\Database')) {
-            $db = App\Classes\Database::getInstance();
-            try {
-                $cw = $db->fetchOne('SELECT status, COALESCE(is_active,1) AS is_active FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $user_id]);
-                if ($cw && isset($cw['status']) && $cw['status'] !== null && $cw['status'] !== '') {
-                    $workplace_status = $cw['status'];
-                } elseif ($cw && isset($cw['is_active'])) {
-                    // If status is empty but is_active exists, use it as numeric indicator
-                    $workplace_status = ($cw['is_active'] == 1) ? '1' : '0';
-                }
-            } catch (Exception $_e) {
-                // ignore carwashes read errors
-            }
-        }
-    } catch (Exception $_e) {
         // ignore
     }
 }

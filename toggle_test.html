@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Toggle Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; white-space: pre-wrap; }
+        .success { color: green; }
+        .error { color: red; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; font-size: 16px; }
+        .status-box { padding: 20px; margin: 10px 0; border-radius: 10px; font-size: 20px; font-weight: bold; }
+        .open { background: #d4edda; color: #155724; }
+        .closed { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Toggle Status Test</h1>
+    
+    <div id="statusBox" class="status-box">Loading...</div>
+    
+    <button onclick="setStatus('Açık', 1)">🟢 Set OPEN (Açık)</button>
+    <button onclick="setStatus('Kapalı', 0)">🔴 Set CLOSED (Kapalı)</button>
+    <button onclick="getStatus()">🔄 Refresh Status from DB</button>
+    
+    <h3>Logs:</h3>
+    <div id="logs"></div>
+
+    <script>
+        const BASE_URL = '/carwash_project/backend/includes/seller_header.php';
+        
+        function log(msg, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'log ' + (isError ? 'error' : 'success');
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + msg;
+            document.getElementById('logs').prepend(div);
+        }
+        
+        function updateStatusBox(status, isActive) {
+            const box = document.getElementById('statusBox');
+            const isOpen = ['açık', 'acik', 'open', 'active', '1'].includes((status || '').toLowerCase()) && isActive == 1;
+            box.className = 'status-box ' + (isOpen ? 'open' : 'closed');
+            box.textContent = isOpen ? '🟢 OPEN (Açık) - is_active=1' : '🔴 CLOSED (Kapalı) - is_active=0';
+            box.textContent += '\nDB status: "' + status + '"';
+        }
+        
+        async function getStatus() {
+            log('Fetching status from DB...');
+            try {
+                const resp = await fetch(BASE_URL + '?ajax_get_workplace_status=1', { credentials: 'same-origin' });
+                const json = await resp.json();
+                log('GET Response: ' + JSON.stringify(json));
+                if (json.success) {
+                    updateStatusBox(json.status, json.is_active);
+                } else {
+                    log('Failed to get status: ' + JSON.stringify(json), true);
+                }
+            } catch (e) {
+                log('Error: ' + e.message, true);
+            }
+        }
+        
+        async function setStatus(status, isActive) {
+            log('Setting status to: ' + status + ', is_active=' + isActive);
+            try {
+                const form = new FormData();
+                form.append('ajax_workplace_status', status);
+                form.append('ajax_is_active', isActive);
+                
+                const resp = await fetch(BASE_URL, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: form
+                });
+                
+                const text = await resp.text();
+                log('POST Response (raw): ' + text);
+                
+                try {
+                    const json = JSON.parse(text);
+                    if (json.success) {
+                        log('✅ Success! Status set to: ' + json.status + ', is_active=' + json.is_active);
+                        updateStatusBox(json.status, json.is_active);
+                    } else {
+                        log('❌ Failed: ' + JSON.stringify(json), true);
+                    }
+                } catch (parseErr) {
+                    log('❌ Response is not JSON: ' + text.substring(0, 200), true);
+                }
+            } catch (e) {
+                log('Error: ' + e.message, true);
+            }
+        }
+        
+        // Load initial status
+        getStatus();
+    </script>
+</body>
+</html>

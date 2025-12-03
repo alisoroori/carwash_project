@@ -43,7 +43,7 @@ try {
     logline("Selected carwash ID={$cw_id} name='{$cw_name}' orig_status='{$orig_status}' is_active={$orig_active}");
 
     // Helper: query customer-visible carwashes using canonical query used in dashboard
-    $visibilityQuery = "SELECT id, name, status FROM carwashes WHERE (status = 'Açık' OR LOWER(COALESCE(status,'')) IN ('açık','acik','open','active') OR status = '1') AND LOWER(COALESCE(status,'')) NOT IN ('kapalı','kapali','closed','inactive') AND COALESCE(status,'') != '0' ORDER BY name";
+    $visibilityQuery = "SELECT id, name, status FROM carwashes WHERE LOWER(COALESCE(status,'')) IN ('açık','acik','open','active','1') AND COALESCE(is_active,0) = 1 ORDER BY name";
     function visibleIds($db, $sql) {
         $rows = $db->fetchAll($sql);
         $ids = [];
