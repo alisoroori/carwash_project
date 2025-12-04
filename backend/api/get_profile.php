@@ -47,7 +47,7 @@ try {
         WHERE u.id = :id
     ", ['id' => $userId]);
 
-    if (!$user) {
+    if (!$user || !is_array($user)) {
         Response::notFound('User not found');
     }
 

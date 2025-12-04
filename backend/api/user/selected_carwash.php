@@ -25,13 +25,13 @@ if (empty($user_id)) {
 
 // verify carwash exists
 $cw = $db->fetchOne("SELECT id FROM carwashes WHERE id = :id", ['id' => $carwash_id]);
-if (!$cw) {
+if (!$cw || !is_array($cw)) {
     Response::notFound('Carwash not found');
 }
 
 // Upsert into user_profiles.preferred_carwash_id
 $exists = $db->fetchOne("SELECT user_id FROM user_profiles WHERE user_id = :uid", ['uid' => $user_id]);
-if ($exists) {
+if ($exists && is_array($exists)) {
     $db->update('user_profiles', ['preferred_carwash_id' => $carwash_id], ['user_id' => $user_id]);
 } else {
     // insert minimal profile row

@@ -783,6 +783,49 @@ try {
     }
   </style>
 
+  <style>
+    /* Compact modal styles for manual reservation to fit fields without scrolling */
+    .manual-modal-dialog {
+      max-width: 900px;
+      padding: 0.75rem;
+      box-sizing: border-box;
+      width: 100%;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 0.75rem;
+    }
+
+    /* Slightly tighter vertical rhythm so the form fits inside the dialog */
+    .manual-modal-dialog .form-row { margin-bottom: 0.35rem; }
+    .manual-modal-dialog label { font-size: 0.8125rem; margin-bottom: 0.18rem; }
+    .manual-modal-dialog input,
+    .manual-modal-dialog select,
+    .manual-modal-dialog textarea { padding: 0.38rem 0.6rem; font-size: 0.88rem; }
+    .manual-modal-dialog .grid { gap: 0.4rem; }
+
+    /* Reduce default button size inside the modal to save vertical space */
+    .manual-modal-dialog button { padding: 0.4rem 0.6rem; font-size: 0.9rem; }
+
+    @media (max-width: 640px) {
+      .manual-modal-dialog { max-width: calc(100% - 2rem); padding: 0.5rem; border-radius: 0.5rem; }
+      .manual-modal-dialog input, .manual-modal-dialog select, .manual-modal-dialog textarea { padding: 0.35rem 0.45rem; font-size: 0.85rem; }
+      .manual-modal-dialog h3 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+      .manual-modal-dialog .flex.space-x-3 { gap: 0.4rem; }
+      .manual-modal-dialog button { padding: 0.35rem 0.5rem; font-size: 0.88rem; }
+    }
+    /* Two-column form grid inside modal (desktop), collapses to one column on small screens */
+    .manual-modal-dialog .two-col-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+      align-items: start;
+    }
+    .manual-modal-dialog .col-span-2 { grid-column: 1 / -1; }
+    @media (max-width: 640px) {
+      .manual-modal-dialog .two-col-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+    }
+  </style>
+
 <!-- Mobile Menu Button -->
 <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" id="mobileMenuBtn" title="Menüyü aç veya kapat" aria-label="Menüyü aç veya kapat">
   <i class="fas fa-bars" id="menuIcon" aria-hidden="true"></i>
@@ -1319,10 +1362,8 @@ try {
 
                 tbody.innerHTML = '';
                 
-                rows.forEach(r => {
-                  const tr = document.createElement('tr');
-                  tr.className = 'hover:bg-gray-50';
-                  
+                // Optimize: Build all rows in HTML string, then set once
+                const rowsHTML = rows.map(r => {
                   const statusBadge = (() => {
                     switch((r.status || '').toLowerCase()) {
                       case 'confirmed': return '<span class="status-confirmed px-2 py-1 rounded-full text-xs">Onaylandı</span>';
@@ -1345,7 +1386,7 @@ try {
                        <button data-id="${r.id}" class="rejectBtn text-red-600 hover:text-red-900" title="Rezervasyonu reddet">Reddet</button>`
                     : `<button data-id="${r.id}" class="viewBtn text-blue-600 hover:text-blue-900" title="Rezervasyon detayı">Detay</button>`;
 
-                  tr.innerHTML = `
+                  return `<tr class="hover:bg-gray-50">
                     <td class="px-6 py-4">
                       <div>
                         <div class="font-medium">${escapeHtml(r.user_name || r.customer_name || 'Bilinmiyor')}</div>
@@ -1358,10 +1399,11 @@ try {
                     <td class="px-6 py-4">${statusBadge}</td>
                     <td class="px-6 py-4 font-medium">${price}</td>
                     <td class="px-6 py-4 text-sm">${actions}</td>
-                  `;
-
-                  tbody.appendChild(tr);
-                });
+                  </tr>`;
+                }).join('');
+                
+                // Single DOM update
+                tbody.innerHTML = rowsHTML;
 
                 // Attach event handlers
                 tbody.querySelectorAll('.approveBtn').forEach(btn => {
@@ -2801,39 +2843,39 @@ try {
     <!-- Farsça: مودال رزرو دستی. -->
     <!-- Türkçe: Manuel Rezervasyon Modalı. -->
     <!-- English: Manual Reservation Modal. -->
-    <div id="manualReservationModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
-      <div class="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
+    <div id="manualReservationModal" class="fixed left-0 right-0 z-50 hidden" style="top:calc(var(--header-height)); bottom:0; background: rgba(0,0,0,0.5); display:flex; align-items:flex-start; justify-content:center; box-sizing:border-box; padding:1rem;">
+      <div class="manual-modal-dialog" style="height:calc(100vh - var(--header-height) - 2rem);">
         <h3 class="text-xl font-bold mb-4">Yeni Rezervasyon Oluştur</h3>
         <form id="manualReservationForm" class="space-y-4">
           <input type="hidden" name="carwash_id" id="manual_carwash_id" value="<?php echo htmlspecialchars($_SESSION['carwash_id'] ?? ''); ?>">
           <input type="hidden" name="csrf_token" id="manual_csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
 
-          <div>
-            <label for="manualCustomerName" class="block text-sm font-bold text-gray-700 mb-2">Müşteri Adı</label>
-            <input type="text" id="manualCustomerName" name="customer_name" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            <p id="manualCustomerNameError" class="text-sm text-red-500 mt-1 hidden"></p>
-          </div>
+          <div class="two-col-grid">
+            <div>
+              <label for="manualCustomerName" class="block text-sm font-bold text-gray-700 mb-2">Müşteri Adı</label>
+              <input type="text" id="manualCustomerName" name="customer_name" placeholder="Müşteri adını girin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <p id="manualCustomerNameError" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
 
-          <div>
-            <label for="manualCustomerPhone" class="block text-sm font-bold text-gray-700 mb-2">Müşteri Telefonu</label>
-            <input type="tel" id="manualCustomerPhone" name="customer_phone" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-            <p id="manualCustomerPhoneError" class="text-sm text-red-500 mt-1 hidden"></p>
-          </div>
+            <div>
+              <label for="manualCustomerPhone" class="block text-sm font-bold text-gray-700 mb-2">Müşteri Telefonu</label>
+              <input type="tel" id="manualCustomerPhone" name="customer_phone" placeholder="05XX XXX XX XX" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <p id="manualCustomerPhoneError" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
 
-          <div>
-            <label for="manualServiceSelect" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
-            <select id="manualServiceSelect" name="service_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Hizmet seçin" aria-label="Hizmet seçin">
-              <option value="">Hizmet Seçiniz</option>
-            </select>
-            <p id="manualServiceError" class="text-sm text-red-500 mt-1 hidden"></p>
-          </div>
+            <div>
+              <label for="manualServiceSelect" class="block text-sm font-bold text-gray-700 mb-2">Hizmet Seçin</label>
+              <select id="manualServiceSelect" name="service_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Hizmet seçin" aria-label="Hizmet seçin">
+                <option value="">Hizmet Seçiniz</option>
+              </select>
+              <p id="manualServiceError" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
 
-          <div>
-            <label for="manualVehicleSelect" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
-            <select id="manualVehicleSelect" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-              <option value="">Araç Seçiniz</option>
-            </select>
-            <p id="manualVehicleError" class="text-sm text-red-500 mt-1 hidden"></p>
+            <div>
+              <label for="manualPlateNumber" class="block text-sm font-bold text-gray-700 mb-2">Plaka Numarası</label>
+              <input type="text" id="manualPlateNumber" name="vehicle_plate" placeholder="34 ABC 123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+              <p id="manualPlateError" class="text-sm text-red-500 mt-1 hidden"></p>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2849,12 +2891,12 @@ try {
             </div>
           </div>
 
-          <div>
+          <div class="col-span-2">
             <label for="manualLocation" class="block text-sm font-bold text-gray-700 mb-2">Konum</label>
             <input type="text" id="manualLocation" name="location" value="<?php echo htmlspecialchars($_SESSION['address'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Konumu girin">
           </div>
 
-          <div>
+          <div class="col-span-2">
             <label for="manualNotes" class="block text-sm font-bold text-gray-700 mb-2">Ek Notlar (İsteğe Bağlı)</label>
             <textarea rows="2" id="manualNotes" name="notes" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Notlar..."></textarea>
           </div>
@@ -2981,11 +3023,12 @@ try {
         if (sidebar.classList.contains('active')) {
           closeMobileSidebar();
         } else {
-          sidebar.classList.add('active');
-          overlay.classList.add('active');
-          menuBtn.classList.add('active');
+          // Batch DOM operations to prevent multiple reflows
+          sidebar.className = sidebar.className + ' active';
+          overlay.className = overlay.className + ' active';
+          menuBtn.className = menuBtn.className + ' active';
           menuIcon.className = 'fas fa-times';
-          document.body.style.overflow = 'hidden'; // Prevent background scrolling
+          document.body.style.overflow = 'hidden';
         }
       }
 
@@ -2995,30 +3038,46 @@ try {
         const menuBtn = document.getElementById('mobileMenuBtn');
         const menuIcon = document.getElementById('menuIcon');
 
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-        menuBtn.classList.remove('active');
+        // Batch DOM operations
+        sidebar.className = sidebar.className.replace(' active', '');
+        overlay.className = overlay.className.replace(' active', '');
+        menuBtn.className = menuBtn.className.replace(' active', '');
         menuIcon.className = 'fas fa-bars';
-        document.body.style.overflow = ''; // Restore scrolling
+        document.body.style.overflow = '';
       }
 
       // Farsça: تابع برای نمایش بخش‌های مختلف داشبورد.
       // Türkçe: Kontrol panelinin farklı bölümlerini göstermek için fonksiyon.
       // English: Function to show different sections of the dashboard.
       function showSection(sectionId) {
-        // Hide all sections
+        // Batch hide all sections using single className assignment per element
         document.querySelectorAll('.section-content').forEach(section => {
-          section.classList.add('hidden');
+          if (!section.className.includes('hidden')) {
+            section.className = section.className + ' hidden';
+          }
         });
 
         // Show selected section
-        document.getElementById(sectionId).classList.remove('hidden');
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+          targetSection.className = targetSection.className.replace('hidden', '').trim();
+        }
 
-        // Update sidebar active state for both mobile and desktop
-        document.querySelectorAll('aside a').forEach(link => {
-          link.classList.remove('bg-white', 'bg-opacity-20');
+        // Batch update sidebar links - collect active link, update all at once
+        let activeLink = null;
+        const links = document.querySelectorAll('aside a');
+        links.forEach(link => {
           if (link.getAttribute('href') === '#' + sectionId) {
-            link.classList.add('bg-white', 'bg-opacity-20');
+            activeLink = link;
+          }
+        });
+        
+        // Single pass: remove from all, add to active
+        links.forEach(link => {
+          if (link === activeLink) {
+            link.className = link.className.replace(/bg-white|bg-opacity-20/g, '').trim() + ' bg-white bg-opacity-20';
+          } else {
+            link.className = link.className.replace(/bg-white|bg-opacity-20/g, '').trim();
           }
         });
 
@@ -3111,22 +3170,23 @@ try {
           form.reset();
           document.getElementById('service_id').value = '';
         }
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        // Batch class and style operations
+        modal.className = modal.className.replace('hidden', 'flex');
         document.body.style.overflow = 'hidden';
         setTimeout(() => document.getElementById('auto_160').focus(), 100);
       }
 
       function closeServiceModal() {
         const modal = document.getElementById('serviceModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        // Batch class and style operations
+        modal.className = modal.className.replace('flex', 'hidden');
         document.body.style.overflow = '';
         const form = document.getElementById('serviceForm');
         form.reset();
-        document.getElementById('service_id').value = '';
         const err = document.getElementById('serviceFormError');
-        err.classList.add('hidden'); err.textContent = '';
+        // Batch class and text updates
+        err.className = err.className + ' hidden';
+        err.textContent = '';
       }
 
       // Helper: clear inline errors for the service form
@@ -3135,10 +3195,15 @@ try {
         ['auto_160','auto_161','auto_162','auto_163'].forEach(id => {
           const el = document.getElementById(id);
           if (!el) return;
-          el.classList.remove('border','border-red-600','ring-1','ring-red-600');
+          // Batch remove error classes
+          el.className = el.className.replace(/border|border-red-600|ring-1|ring-red-600/g, '').trim();
           el.removeAttribute('aria-invalid');
         });
-        const topErr = document.getElementById('serviceFormError'); if (topErr) { topErr.classList.add('hidden'); topErr.textContent = ''; }
+        const topErr = document.getElementById('serviceFormError'); 
+        if (topErr) { 
+          topErr.className = topErr.className + ' hidden'; 
+          topErr.textContent = ''; 
+        }
       }
 
       // Helper: show inline error for a specific field name returned by server
@@ -3146,12 +3211,24 @@ try {
         const map = { name: 'auto_160', description: 'auto_161', duration: 'auto_162', price: 'auto_163' };
         const id = map[fieldName] || map[String(fieldName).toLowerCase()];
         if (!id) {
-          const topErr = document.getElementById('serviceFormError'); if (topErr) { topErr.classList.remove('hidden'); topErr.textContent = message || 'Hata'; }
+          const topErr = document.getElementById('serviceFormError'); 
+          if (topErr) { 
+            topErr.className = topErr.className.replace('hidden', '').trim(); 
+            topErr.textContent = message || 'Hata'; 
+          }
           return;
         }
         const el = document.getElementById(id);
-        if (!el) { const topErr = document.getElementById('serviceFormError'); if (topErr) { topErr.classList.remove('hidden'); topErr.textContent = message || 'Hata'; } return; }
-        el.classList.add('border','border-red-600','ring-1','ring-red-600');
+        if (!el) { 
+          const topErr = document.getElementById('serviceFormError'); 
+          if (topErr) { 
+            topErr.className = topErr.className.replace('hidden', '').trim(); 
+            topErr.textContent = message || 'Hata'; 
+          } 
+          return; 
+        }
+        // Batch add error classes
+        el.className = el.className + ' border border-red-600 ring-1 ring-red-600';
         el.setAttribute('aria-invalid','true');
         if (!el.nextElementSibling || !el.nextElementSibling.classList || !el.nextElementSibling.classList.contains('service-field-error')) {
           const msg = document.createElement('div');
@@ -3190,13 +3267,11 @@ try {
             console.warn('[loadServices] No services found');
             return;
           }
-          list.innerHTML = '';
+          
+          // Optimize: Build all HTML in one string, then set once (prevents multiple reflows)
           console.log('[loadServices] Rendering', services.length, 'services...');
-          services.forEach(s => {
-            const item = document.createElement('div');
-            item.className = 'flex items-center justify-between p-4 border rounded-lg';
-            item.dataset.id = s.id;
-            item.innerHTML = `
+          const servicesHTML = services.map(s => `
+            <div class="flex items-center justify-between p-4 border rounded-lg" data-id="${s.id}">
               <div class="flex items-center space-x-4">
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                   <i class="fas fa-concierge-bell text-blue-600"></i>
@@ -3218,9 +3293,12 @@ try {
                     <span class="sr-only">Sil</span>
                   </button>
                 </div>
-              </div>`;
-            list.appendChild(item);
-          });
+              </div>
+            </div>
+          `).join('');
+          
+          // Single DOM update (triggers only one reflow)
+          list.innerHTML = servicesHTML;
         } catch (e) {
           console.error('[loadServices] Exception caught:', e);
           list.innerHTML = '<div class="text-sm text-red-600">Hizmetler yüklenirken hata oluştu: ' + e.message + '</div>';
@@ -3233,7 +3311,8 @@ try {
         const err = document.getElementById('serviceFormError');
         // clear previous inline field errors
         clearServiceFormErrors();
-        err.classList.add('hidden'); err.textContent = '';
+        err.className = err.className + ' hidden'; 
+        err.textContent = '';
 
         const id = document.getElementById('service_id').value || '';
         const name = document.getElementById('auto_160').value.trim();
@@ -3242,10 +3321,20 @@ try {
         const price = document.getElementById('auto_163').value;
 
         if (!name) {
-          err.textContent = 'Hizmet adı gereklidir.'; err.classList.remove('hidden'); return;
+          err.className = err.className.replace('hidden', '').trim(); 
+          err.textContent = 'Hizmet adı gereklidir.'; 
+          return;
         }
-        if (price !== '' && isNaN(Number(price))) { err.textContent = 'Fiyat geçerli bir sayı olmalıdır.'; err.classList.remove('hidden'); return; }
-        if (duration !== '' && isNaN(Number(duration))) { err.textContent = 'Süre geçerli bir sayı olmalıdır.'; err.classList.remove('hidden'); return; }
+        if (price !== '' && isNaN(Number(price))) { 
+          err.className = err.className.replace('hidden', '').trim(); 
+          err.textContent = 'Fiyat geçerli bir sayı olmalıdır.'; 
+          return; 
+        }
+        if (duration !== '' && isNaN(Number(duration))) { 
+          err.className = err.className.replace('hidden', '').trim(); 
+          err.textContent = 'Süre geçerli bir sayı olmalıdır.'; 
+          return; 
+        }
 
         const fd = new FormData();
         if (id) fd.append('id', id);
@@ -3260,7 +3349,8 @@ try {
           const resp = await fetch('/carwash_project/backend/api/services/save_service.php', { method: 'POST', credentials: 'same-origin', body: fd });
           const json = await resp.json().catch(() => null);
           if (!resp.ok || !json) {
-            err.textContent = 'Sunucu hatası: hizmet kaydedilemedi.'; err.classList.remove('hidden');
+            err.className = err.className.replace('hidden', '').trim();
+            err.textContent = 'Sunucu hatası: hizmet kaydedilemedi.';
             return;
           }
           if (json.success !== true) {
@@ -3270,7 +3360,8 @@ try {
             if (fieldKey) {
               showServiceFieldError(fieldKey, msg);
             } else {
-              err.textContent = msg; err.classList.remove('hidden');
+              err.className = err.className.replace('hidden', '').trim();
+              err.textContent = msg;
             }
             return;
           }
@@ -3281,7 +3372,8 @@ try {
           showNotification(json.message || 'İşlem başarılı', 'success');
         } catch (e) {
           console.error('submitServiceForm', e);
-          err.textContent = 'Ağ hatası: kaydedilemedi.'; err.classList.remove('hidden');
+          err.className = err.className.replace('hidden', '').trim();
+          err.textContent = 'Ağ hatası: kaydedilemedi.';
         }
       }
 
@@ -3413,18 +3505,21 @@ try {
       // Türkçe: Manuel Rezervasyon Modalı fonksiyonları.
       // English: Manual Reservation Modal functions.
       function openManualReservationModal() {
-        document.getElementById('manualReservationModal').classList.remove('hidden');
-        // Load services and vehicles when modal opens
+        const modal = document.getElementById('manualReservationModal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        // Load services when modal opens
         if (typeof window.loadManualServices === 'function') {
           window.loadManualServices();
-        }
-        if (typeof window.loadManualVehicles === 'function') {
-          window.loadManualVehicles();
         }
       }
 
       function closeManualReservationModal() {
-        document.getElementById('manualReservationModal').classList.add('hidden');
+        const modal = document.getElementById('manualReservationModal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
       }
 
       // Farsça: توابع مودال افزودن مشتری.
@@ -3795,7 +3890,7 @@ try {
         }
       });
       
-      // Notification System
+      // Notification System (Optimized to reduce reflows)
       function showNotification(message, type = 'success') {
         // Remove existing notification if any
         const existingNotification = document.getElementById('notification');
@@ -3803,54 +3898,39 @@ try {
           existingNotification.remove();
         }
         
-          // Create notification element and position it below the header
+          // Build notification HTML based on type
+          const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+          const bgClass = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+          const title = type === 'success' ? 'Başarılı!' : 'Hata!';
+          
+          // Create notification element with all styles set at once (batch operation)
           const notification = document.createElement('div');
           notification.id = 'notification';
-          notification.className = 'fixed right-4 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full';
-          // Position under header using CSS var --header-height and ensure it appears above header
-          notification.style.top = 'calc(var(--header-height) + 1rem)';
-          notification.style.zIndex = '1250';
-
-          // Set style based on type
-          if (type === 'success') {
-            notification.classList.add('bg-green-500', 'text-white');
-            notification.innerHTML = `
-              <div class="flex items-center space-x-3">
-                <i class="fas fa-check-circle text-2xl"></i>
-                <div>
-                  <p class="font-bold">Başarılı!</p>
-                  <p class="text-sm">${message}</p>
-                </div>
+          notification.className = `fixed right-4 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${bgClass} text-white`;
+          
+          // Set CSS properties in one batch using cssText
+          notification.style.cssText = 'top: calc(var(--header-height) + 1rem); z-index: 1250;';
+          
+          // Set innerHTML once
+          notification.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <i class="fas ${iconClass} text-2xl"></i>
+              <div>
+                <p class="font-bold">${title}</p>
+                <p class="text-sm">${message}</p>
               </div>
-            `;
-          } else if (type === 'error') {
-            notification.classList.add('bg-red-500', 'text-white');
-            notification.innerHTML = `
-              <div class="flex items-center space-x-3">
-                <i class="fas fa-exclamation-circle text-2xl"></i>
-                <div>
-                  <p class="font-bold">Hata!</p>
-                  <p class="text-sm">${message}</p>
-                </div>
-              </div>
-            `;
-          }
+            </div>
+          `;
 
-          // Add to document
+          // Add to document (triggers layout)
           document.body.appendChild(notification);
 
-          // Animate in: use requestAnimationFrame to schedule the class removal
-          // Two rAFs ensure the element is inserted and styles are applied before transition begins.
-          if (typeof requestAnimationFrame === 'function') {
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                notification.classList.remove('translate-x-full');
-              });
-            });
-          } else {
-            // Fallback to small timeout if rAF unavailable
-            setTimeout(() => { notification.classList.remove('translate-x-full'); }, 10);
-          }
+          // Use single rAF for animation (more efficient)
+          requestAnimationFrame(() => {
+            // Force a reflow to ensure transition works (intentional, but optimized)
+            notification.offsetHeight;
+            notification.classList.remove('translate-x-full');
+          });
 
           // Auto remove after 4 seconds
           setTimeout(() => {
@@ -3884,6 +3964,7 @@ try {
         }
         if (event.target == manualReservationModal) {
           manualReservationModal.classList.add('hidden');
+          manualReservationModal.style.display = 'none';
         }
         if (event.target == customerModal) {
           customerModal.classList.add('hidden');
@@ -3894,7 +3975,7 @@ try {
       // Manual reservation: load services & vehicles, validate and submit
       document.addEventListener('DOMContentLoaded', function() {
         const serviceSel = document.getElementById('manualServiceSelect');
-        const vehicleSel = document.getElementById('manualVehicleSelect');
+        const plateInput = document.getElementById('manualPlateNumber');
         const form = document.getElementById('manualReservationForm');
 
         async function loadManualServices() {
@@ -3941,24 +4022,7 @@ try {
           }
         }
 
-        async function loadManualVehicles() {
-          try {
-            const res = await fetch('/carwash_project/backend/dashboard/vehicle_api.php?action=list', { credentials: 'same-origin' });
-            const json = await res.json();
-            const vehicles = (json && json.data && Array.isArray(json.data.vehicles)) ? json.data.vehicles : (json.vehicles || []);
-            if (!vehicleSel) return;
-            vehicleSel.innerHTML = '<option value="">Araç Seçiniz</option>';
-            vehicles.forEach(v => {
-              const opt = document.createElement('option');
-              opt.value = v.id;
-              const label = ((v.brand || '') + ' ' + (v.model || '')).trim();
-              opt.textContent = label + (v.license_plate ? (' (' + v.license_plate + ')') : '');
-              vehicleSel.appendChild(opt);
-            });
-          } catch (e) {
-            console.warn('Failed to load vehicles for manual reservation', e);
-          }
-        }
+        // Vehicle selection removed; use license plate input instead.
 
         // Validate date not in past
         function validateDateNotPast(value) {
@@ -3978,25 +4042,23 @@ try {
           return hh >= 0 && hh < 24 && mm >= 0 && mm < 60;
         }
 
-        // Expose load functions globally so openManualReservationModal can call them
+        // Expose service loader globally so openManualReservationModal can call it
         window.loadManualServices = loadManualServices;
-        window.loadManualVehicles = loadManualVehicles;
 
         if (form) {
-          // Load immediately on page load for faster UX
+          // Load services on page load for faster UX
           loadManualServices();
-          loadManualVehicles();
           console.log('[Manual Reservation] Initial load triggered');
 
           form.addEventListener('submit', async function(e) {
             e.preventDefault();
             // clear errors
-            ['manualServiceError','manualVehicleError','manualDateError','manualTimeError','manualCustomerNameError','manualCustomerPhoneError'].forEach(id => {
+            ['manualServiceError','manualPlateError','manualDateError','manualTimeError','manualCustomerNameError','manualCustomerPhoneError'].forEach(id => {
               const el = document.getElementById(id); if (el) el.classList.add('hidden');
             });
 
             const serviceId = (form.querySelector('[name="service_id"]')?.value || '').trim();
-            const vehicleId = (form.querySelector('[name="vehicle_id"]')?.value || '').trim();
+            const plate = (form.querySelector('[name="vehicle_plate"]')?.value || '').trim();
             const date = (form.querySelector('[name="date"]')?.value || '').trim();
             const time = (form.querySelector('[name="time"]')?.value || '').trim();
             const customerName = (form.querySelector('[name="customer_name"]')?.value || '').trim();
@@ -4004,7 +4066,7 @@ try {
 
             let valid = true;
             if (!serviceId) { document.getElementById('manualServiceError').textContent = 'Lütfen bir hizmet seçin'; document.getElementById('manualServiceError').classList.remove('hidden'); valid = false; }
-            if (!vehicleId) { document.getElementById('manualVehicleError').textContent = 'Lütfen bir araç seçin'; document.getElementById('manualVehicleError').classList.remove('hidden'); valid = false; }
+            if (!plate) { document.getElementById('manualPlateError').textContent = 'Lütfen plaka girin'; document.getElementById('manualPlateError').classList.remove('hidden'); valid = false; }
             if (!date || !validateDateNotPast(date)) { document.getElementById('manualDateError').textContent = 'Geçerli bir tarih seçin (bugün veya sonrası)'; document.getElementById('manualDateError').classList.remove('hidden'); valid = false; }
             if (!time || !validateTime24h(time)) { document.getElementById('manualTimeError').textContent = 'Lütfen 24 saat formatında bir saat girin (ör. 08:30)'; document.getElementById('manualTimeError').classList.remove('hidden'); valid = false; }
             if (!customerName) { document.getElementById('manualCustomerNameError').textContent = 'Müşteri adı gerekli'; document.getElementById('manualCustomerNameError').classList.remove('hidden'); valid = false; }
@@ -4022,7 +4084,25 @@ try {
 
             try {
               const resp = await fetch('/carwash_project/backend/api/bookings/create.php', { method: 'POST', credentials: 'same-origin', body: formData });
-              const json = await resp.json();
+              const contentType = (resp.headers.get('content-type') || '').toLowerCase();
+              let json = null;
+              if (contentType.includes('application/json')) {
+                try {
+                  json = await resp.json();
+                } catch (parseErr) {
+                  const text = await resp.text();
+                  console.error('Reservation create returned invalid JSON:', parseErr, text);
+                  showNotification('Sunucu hatası: beklenmeyen yanıt', 'error');
+                  return;
+                }
+              } else {
+                // Non-JSON response (often HTML error page) - capture for debugging
+                const text = await resp.text();
+                console.error('Reservation create non-JSON response:', resp.status, resp.statusText, text);
+                showNotification('Sunucu hatası: ' + (resp.statusText || resp.status), 'error');
+                return;
+              }
+
               if (json && json.success === true) {
                 showNotification(json.message || 'Rezervasyon oluşturuldu', 'success');
                 // close modal
@@ -4034,7 +4114,7 @@ try {
                 const errors = json.data.errors;
                 const fieldMap = {
                   'service_id': 'manualServiceError',
-                  'vehicle_id': 'manualVehicleError',
+                  'vehicle_plate': 'manualPlateError',
                   'date': 'manualDateError',
                   'time': 'manualTimeError',
                   'customer_name': 'manualCustomerNameError',

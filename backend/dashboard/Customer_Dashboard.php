@@ -3970,7 +3970,7 @@ if (!isset($base_url)) {
 
                         <!-- New Reservation Form -->
                         <div id="reservationFormRestorePoint"></div>
-                        <div id="newReservationForm" class="p-6 hidden">
+                        <div id="newReservationForm" class="p-6 hidden max-w-full">
                             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
                             <form id="newReservationFormElement" class="space-y-6">
                                 <div>
@@ -4012,40 +4012,7 @@ if (!isset($base_url)) {
                                     </p>
                                 </div>
 
-                                <div>
-                                    <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
-                                    <select id="vehicle" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
-                                        <option value="">Araç Seçiniz</option>
-                                        <?php
-                                        // Load user's vehicles from database
-                                        $userVehicles = [];
-                                        try {
-                                            if (isset($db) && is_object($db)) {
-                                                $userVehicles = $db->fetchAll(
-                                                    "SELECT id, brand, model, license_plate, year FROM user_vehicles WHERE user_id = :user_id ORDER BY brand, model",
-                                                    ['user_id' => $_SESSION['user_id']]
-                                                );
-                                            }
-                                        } catch (Exception $e) {
-                                            error_log('Error loading user vehicles: ' . $e->getMessage());
-                                        }
-                                        
-                                        foreach ($userVehicles as $vehicle): 
-                                            $displayName = trim($vehicle['brand'] . ' ' . $vehicle['model']);
-                                            if (!empty($vehicle['year'])) {
-                                                $displayName .= ' (' . $vehicle['year'] . ')';
-                                            }
-                                            $displayName .= ' - ' . $vehicle['license_plate'];
-                                        ?>
-                                            <option value="<?php echo htmlspecialchars($vehicle['id'], ENT_QUOTES, 'UTF-8'); ?>">
-                                                <?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <?php if (empty($userVehicles)): ?>
-                                        <p class="text-sm text-gray-500 mt-1">Kayıtlı aracınız bulunmuyor. Lütfen önce araç ekleyin.</p>
-                                    <?php endif; ?>
-                                </div>
+                                <!-- Vehicle selection removed to simplify form and improve layout -->
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
@@ -4322,7 +4289,6 @@ if (!isset($base_url)) {
                         }
 
                         const service = (form.querySelector('#service_id') || form.querySelector('[name="service_id"]') || form.querySelector('#service') || form.querySelector('[name="service"]'))?.value || '';
-                        const vehicle = (form.querySelector('#vehicle') || form.querySelector('[name="vehicle"]'))?.value || '';
                         const rawDate = (form.querySelector('#reservationDate') || form.querySelector('[name="reservationDate"]'))?.value || '';
                         const date = parseDashToISO(rawDate) || rawDate; // convert DD.MM.YYYY to ISO for backend
                         let time = (form.querySelector('#reservationTime') || form.querySelector('[name="reservationTime"]'))?.value || '';
@@ -4331,7 +4297,7 @@ if (!isset($base_url)) {
                         const location_id = (form.querySelector('#location_id') || form.querySelector('[name="location_id"]'))?.value || '';
                         const notes = (form.querySelector('#notes') || form.querySelector('[name="notes"]'))?.value || '';
 
-                        if (!service || !vehicle || !date || !time || !location) {
+                        if (!service || !date || !time || !location) {
                             const msg = 'Lütfen tüm zorunlu alanları doldurun.';
                             if (window.showError) showError(msg);
                             else if (window.showToast) showToast(msg, 'error');
@@ -4342,7 +4308,6 @@ if (!isset($base_url)) {
                         // Build FormData for POST
                         const fd = new FormData();
                         fd.append('service_id', service);
-                        fd.append('vehicle', vehicle);
                         fd.append('reservationDate', date);
                         fd.append('reservationTime', time);
                         fd.append('location', location);

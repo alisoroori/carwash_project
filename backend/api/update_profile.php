@@ -158,17 +158,21 @@ try {
             WHERE u.id = :id
         ", ['id' => $userId]);
 
-        if ($fresh) {
+        if ($fresh && is_array($fresh)) {
             $_SESSION['user'] = $fresh;
-            $_SESSION['profile_image'] = $fresh['profile_img_extended'] ?? $fresh['profile_image'] ?? '';
+            $_SESSION['profile_image'] = isset($fresh['profile_img_extended']) ? $fresh['profile_img_extended'] : (isset($fresh['profile_image']) ? $fresh['profile_image'] : '');
             $_SESSION['profile_image_ts'] = time();
-            $_SESSION['name'] = $fresh['full_name'] ?? '';
-            $_SESSION['email'] = $fresh['email'] ?? '';
-            $_SESSION['username'] = $fresh['username'] ?? '';
+            $_SESSION['name'] = isset($fresh['full_name']) ? $fresh['full_name'] : '';
+            $_SESSION['email'] = isset($fresh['email']) ? $fresh['email'] : '';
+            $_SESSION['username'] = isset($fresh['username']) ? $fresh['username'] : '';
         }
 
         // Return merged profile in response - normalize profile_image to absolute URL
-        $rawProfileImage = $fresh['profile_img_extended'] ?? $fresh['profile_image'] ?? '';
+        // Defensive: ensure $fresh is valid before accessing
+        if (!$fresh || !is_array($fresh)) {
+            Response::error('Failed to refresh profile data', 500);
+        }
+        $rawProfileImage = isset($fresh['profile_img_extended']) ? $fresh['profile_img_extended'] : (isset($fresh['profile_image']) ? $fresh['profile_image'] : '');
         $absoluteProfileImage = normalizeProfileImageUrl($rawProfileImage);
         
         $profile = [

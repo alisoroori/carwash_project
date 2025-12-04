@@ -28,13 +28,14 @@ try {
 
     $result = [];
     foreach ($rows as $r) {
+        if (!is_array($r)) continue; // Skip invalid rows
         $result[] = [
-            'id' => (int)$r['id'],
-            'name' => $r['name'] ?? '',
-            'address' => $r['address'] ?? '',
-            'city' => $r['city'] ?? '',
-            'district' => $r['district'] ?? '',
-            'phone' => $r['phone'] ?? '',
+            'id' => isset($r['id']) ? (int)$r['id'] : 0,
+            'name' => isset($r['name']) ? $r['name'] : '',
+            'address' => isset($r['address']) ? $r['address'] : '',
+            'city' => isset($r['city']) ? $r['city'] : '',
+            'district' => isset($r['district']) ? $r['district'] : '',
+            'phone' => isset($r['phone']) ? $r['phone'] : '',
             'rating' => isset($r['rating']) ? (float)$r['rating'] : null,
             'verified' => !empty($r['verified']) ? true : false,
             'logo' => !empty($r['logo']) ? $r['logo'] : null

@@ -39,7 +39,7 @@ try {
         $stmt = $pdo->prepare('SELECT id FROM carwashes WHERE user_id = :uid LIMIT 1');
         $stmt->execute(['uid' => (int)$_SESSION['user_id']]);
         $cw = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$cw) {
+        if (!$cw || !is_array($cw)) {
             echo json_encode(['success' => false, 'error' => 'NOT_AUTHENTICATED'], JSON_UNESCAPED_UNICODE);
             exit;
         }

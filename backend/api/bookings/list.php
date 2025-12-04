@@ -49,7 +49,8 @@ try {
     try {
         $tblCheck = $pdo->prepare("SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = :tbl");
         $tblCheck->execute(['tbl' => 'carwashes']);
-        $hasCarwashes = (int)$tblCheck->fetch(PDO::FETCH_ASSOC)['cnt'] > 0;
+        $tblRes = $tblCheck->fetch(PDO::FETCH_ASSOC);
+        $hasCarwashes = ($tblRes && is_array($tblRes)) ? ((int)($tblRes['cnt'] ?? 0) > 0) : false;
     } catch (Exception $e) {
         // On any error, assume table absent and fall back
         $hasCarwashes = false;
@@ -62,7 +63,8 @@ try {
         // Try business_profiles as a secondary source; if not present, return null carwash name
         try {
             $tblCheck->execute(['tbl' => 'business_profiles']);
-            $hasBusinessProfiles = (int)$tblCheck->fetch(PDO::FETCH_ASSOC)['cnt'] > 0;
+            $tblRes = $tblCheck->fetch(PDO::FETCH_ASSOC);
+            $hasBusinessProfiles = ($tblRes && is_array($tblRes)) ? ((int)($tblRes['cnt'] ?? 0) > 0) : false;
         } catch (Exception $e) {
             $hasBusinessProfiles = false;
         }

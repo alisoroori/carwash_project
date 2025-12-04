@@ -31,7 +31,7 @@ try {
     $stmt = $pdo->prepare('SELECT id FROM carwashes WHERE user_id = :uid LIMIT 1');
     $stmt->execute(['uid' => $userId]);
     $cw = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$cw) {
+    if (!$cw || !is_array($cw)) {
         Response::error('Carwash not found for current user', 404);
         exit;
     }

@@ -1,7 +1,7 @@
 <?php
 
 
-require_once '../includes/api_bootstrap.php';
+require_once __DIR__ . '/../../includes/api_bootstrap.php';
 
 
 if (session_status() === PHP_SESSION_NONE) session_start();
@@ -86,7 +86,7 @@ try {
         $stmt->execute([$service_id]);
         $service = $stmt->fetch();
 
-        if (!$service) {
+        if (!$service || !is_array($service)) {
             throw new Exception('Service not found or inactive');
         }
 
