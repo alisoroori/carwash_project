@@ -20,34 +20,8 @@ $dashboard_type = 'admin';  // Specify this is the admin dashboard
 $page_title = 'Yönetici Paneli - CarWash';
 $current_page = 'dashboard';
 
-// Provide language attributes for the header and include the universal dashboard header
-if (file_exists(__DIR__ . '/../includes/lang_helper.php')) {
-    require_once __DIR__ . '/../includes/lang_helper.php';
-    $html_lang_attrs = get_lang_dir_attrs_for_file(__FILE__);
-}
-// Include Admin Header (standardized)
-include '../includes/admin_header.php';
-
-// Setup profile image paths (matching customer dashboard)
-$default_avatar = $base_url . '/frontend/images/default-avatar.svg';
-$ts = time();
-if (!empty($user_id)) {
-    $header_profile_src = rtrim($base_url, '\/') . '/backend/profile_image_handler.php?user_id=' . intval($user_id) . '&ts=' . $ts;
-} else {
-    $header_profile_src = $default_avatar;
-}
-
-// Get user role display name
-$role_display = ucfirst($user_role ?? 'Admin');
-if ($user_role === 'admin') {
-    $role_display = 'Yönetici';
-} elseif ($user_role === 'carwash') {
-    $role_display = 'İşletme Sahibi';
-}
-?>
-<!-- Lazy-section loader (loads dashboard fragments when they come into view) -->
-<script defer src="<?php echo $base_url; ?>/frontend/js/section-loader.js"></script>
-<?php
+// Include the universal dashboard header
+include '../includes/dashboard_header.php';
 ?>
 
 <!-- Dashboard Specific Styles -->
@@ -69,11 +43,8 @@ if ($user_role === 'admin') {
     body {
         margin: 0 !important;
         padding: 0 !important;
-        padding-top: 0 !important; /* override global body padding; wrapper will reserve header space */
         overflow-x: hidden;
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
     }
     
     /* Dashboard-specific overrides only - Universal fixes included via header */
@@ -92,19 +63,12 @@ if ($user_role === 'admin') {
         /* Dashboard Container - Full height, connected to header and footer seamlessly */
         .dashboard-wrapper {
             display: flex;
-            width: 100%;
-            max-width: 100vw;
-            flex: 1;
-            min-height: calc(100vh - var(--header-height));
-            height: auto; /* Allow dynamic height growth */
+            min-height: 100vh;
             margin-top: 0 !important;
             margin-bottom: 0 !important;
-            padding-top: var(--header-height); /* ensure content starts below fixed header */
+            padding-top: 70px;
             background: #f8fafc;
             position: relative;
-            align-items: stretch; /* Force both columns to equal height */
-            overflow-x: hidden !important;
-            box-sizing: border-box;
         }
         
         /* Mobile Menu Toggle Button */
@@ -165,25 +129,21 @@ if ($user_role === 'admin') {
         }
         
         /* Sidebar Styles */
-        /* Farsça: Ø§Ø³ØªØ§ÛŒÙ„"ŒÙ‡Ø§ÛŒ Ù†ÙˆØ§Ø± Ú©Ù†Ø§Ø±ÛŒ. */
+        /* Farsça: استایل‌های نوار کناری. */
         /* Türkçe: Kenar Çubuğu Stilleri. */
         /* English: Sidebar Styles. */
         .sidebar {
-            width: var(--sidebar-width);
+            width: 280px;
             background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
             box-shadow: 4px 0 15px rgba(0,0,0,0.1);
             position: relative;
             left: 0;
-            overflow: visible; /* Allow sidebar to expand naturally; no internal scroll */
-            flex: 0 0 var(--sidebar-width); /* fixed width in flex layout */
+            overflow-y: auto;
             flex-shrink: 0;
-            min-height: 100%; /* Ensure it stretches to wrapper height */
-            height: auto; /* Allow natural content growth */
             z-index: 30;
             transition: transform 0.3s ease;
             display: flex;
             flex-direction: column;
-            box-sizing: border-box;
         }
         
         /* Mobile Sidebar - Slide from left */
@@ -195,10 +155,28 @@ if ($user_role === 'admin') {
             transform: translateX(0);
         }
         
-        /* Removed internal sidebar scrollbar styling (sidebar should not scroll itself) */
+        /* Smooth scrollbar for sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
 
         .nav-menu {
-            flex: 0 0 auto; /* don't force vertical scrolling within the menu */
+            flex: 1;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
@@ -275,91 +253,25 @@ if ($user_role === 'admin') {
             text-overflow: ellipsis;
         }
 
-        /* Nav item sizing for compact sidebar */
-        .nav-item {
-            padding: 0.625rem 1.25rem;
-            font-size: x-small;
-        }
-
-        /* Sidebar (by id) - natural height, sticky under header, no internal scroll */
-        #sidebar {
-            position: -webkit-sticky;
-            position: sticky;
-            top: var(--header-height);
-            left: 0;
-            height: auto; /* allow natural expansion */
-            width: var(--sidebar-width);
-            z-index: 50;
-            overflow: visible !important; /* prevent internal scrolling */
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
-
         /* Main Content - Seamlessly connected and full height */
         .main-content {
-            flex: 1 1 auto; /* Take remaining width and stretch height */
+            flex: 1;
             padding: 2rem;
             background: #f8fafc;
             margin-bottom: 0 !important;
             display: flex;
             flex-direction: column;
-            min-width: 0; /* Allow flex item to shrink below content size */
-            min-height: 100%; /* Match parent height */
-            height: auto; /* Allow dynamic growth */
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow-x: hidden !important;
         }
 
-        /* Ensure all child elements respect main content width */
-        .main-content * {
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        /* Responsive media elements */
-        .main-content img,
-        .main-content video,
-        .main-content iframe {
-            max-width: 100%;
-            height: auto;
-        }
-
-        /* Responsive tables and wide content */
-        .main-content table {
-            width: 100%;
-            max-width: 100%;
-            table-layout: auto;
-        }
-
-        .main-content .table-container {
-            overflow-x: auto;
-            width: 100%;
-            max-width: 100%;
-        }
-
-        /* Responsive text and content blocks */
-        .main-content pre,
-        .main-content code {
-            max-width: 100%;
-            overflow-x: auto;
-            word-wrap: break-word;
-        }
-
-        /* Footer positioning and styling */
+        /* Remove footer top margin for seamless connection */
         footer {
-            margin-top: auto !important; /* Push footer to bottom of flex container */
+            margin-top: 0 !important;
             margin-bottom: 0 !important;
-            flex-shrink: 0;
-            width: 100%;
-            clear: both;
         }
         
         /* Ensure footer parent wrapper has no gap */
         body > footer,
-        .dashboard-wrapper + footer {
+        main + footer {
             margin-top: 0 !important;
         }
         
@@ -376,49 +288,6 @@ if ($user_role === 'admin') {
         /* Content Section */
         .content-section {
             display: none;
-        }
-
-        /* Desktop-only sidebar behavior: sticky, natural height, and no internal scroll.
-           Keep mobile rules (fixed overlay) intact for small screens. */
-        @media (min-width: 1024px) {
-            #sidebar,
-            .sidebar {
-                position: sticky !important;
-                position: -webkit-sticky !important;
-                top: var(--header-height) !important;
-                height: auto !important;
-                min-height: 100% !important; /* Match wrapper height */
-                max-height: none !important;
-                overflow: visible !important;
-                flex: 0 0 var(--sidebar-width) !important;
-            }
-
-            /* Ensure the wrapper uses a responsive flex row and prevents overflow */
-            .dashboard-wrapper {
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: stretch !important; /* Force equal height columns */
-                min-height: calc(100vh - var(--header-height));
-                height: auto !important; /* Allow dynamic growth */
-            }
-
-            /* Main content should take remaining width and match sidebar height */
-            .main-content {
-                flex: 1 1 auto !important;
-                min-width: 0 !important; /* allows flex children to shrink to prevent overflow */
-                min-height: 100% !important; /* Match sidebar height */
-                height: auto !important; /* Allow dynamic growth */
-                max-width: calc(100% - var(--sidebar-width)) !important; /* exact remaining width */
-                overflow-x: hidden !important;
-                overflow-y: visible !important;
-                word-wrap: break-word;
-            }
-
-            /* Ensure wrapper doesn't allow horizontal scroll */
-            .dashboard-wrapper {
-                overflow-x: hidden !important;
-                max-width: 100vw !important;
-            }
         }
 
         .content-section.active {
@@ -481,8 +350,8 @@ if ($user_role === 'admin') {
         }
 
         /* Stats Grid */
-        /* Farsça: Ú¯Ø±ÛŒØ¯ Ø¢Ù…Ø§Ø±. */
-        /* Türkçe: Ğ°statistik Izgarası. */
+        /* Farsça: گرید آمار. */
+        /* Türkçe: İstatistik Izgarası. */
         /* English: Stats Grid. */
         .stats-grid {
             display: grid;
@@ -538,7 +407,7 @@ if ($user_role === 'admin') {
         }
 
         /* Activity Section */
-        /* Farsça: Ø¨Ø®Ø´ ÙØ¹Ø§Ù„ÛŒØª. */
+        /* Farsça: بخش فعالیت. */
         /* Türkçe: Aktivite Bölümü. */
         /* English: Activity Section. */
         .activity-section {
@@ -587,7 +456,7 @@ if ($user_role === 'admin') {
         }
 
         /* Filters */
-        /* Farsça: ÙÛŒÙ„ØªØ±Ù‡Ø§. */
+        /* Farsça: فیلترها. */
         /* Türkçe: Filtreler. */
         /* English: Filters. */
         .filters {
@@ -624,7 +493,7 @@ if ($user_role === 'admin') {
         }
 
         /* Table Styles */
-        /* Farsça: Ø§Ø³ØªØ§ÛŒÙ„"ŒÙ‡Ø§ÛŒ Ø¬Ø¯ÙˆÙ„. */
+        /* Farsça: استایل‌های جدول. */
         /* Türkçe: Tablo Stilleri. */
         /* English: Table Styles. */
         .table-container {
@@ -662,7 +531,7 @@ if ($user_role === 'admin') {
         }
 
         /* Status Badges */
-        /* Farsça: Ù†Ø´Ø§Ù†"ŒÙ‡Ø§ÛŒ ÙˆØ¶Ø¹ÛŒØª. */
+        /* Farsça: نشان‌های وضعیت. */
         /* Türkçe: Durum Rozetleri. */
         /* English: Status Badges. */
         .status-badge, .type-badge {
@@ -705,8 +574,8 @@ if ($user_role === 'admin') {
         }
 
         /* Action Buttons */
-        /* Farsça: Ø¯Ú©Ù…Ù‡"ŒÙ‡Ø§ÛŒ Ø¹Ù…Ù„ÛŒØ§Øª. */
-        /* Türkçe: Eylem DüĞŸmeleri. */
+        /* Farsça: دکمه‌های عملیات. */
+        /* Türkçe: Eylem Düğmeleri. */
         /* English: Action Buttons. */
         .action-btn {
             background: none;
@@ -744,7 +613,7 @@ if ($user_role === 'admin') {
         }
 
         /* Reports Grid */
-        /* Farsça: Ú¯Ø±ÛŒØ¯ Ú¯Ø²Ø§Ø±Ø´Ø§Øª. */
+        /* Farsça: گرید گزارشات. */
         /* Türkçe: Rapor Izgarası. */
         /* English: Reports Grid. */
         .reports-grid {
@@ -788,7 +657,7 @@ if ($user_role === 'admin') {
         }
 
         /* Settings Form */
-        /* Farsça: ÙØ±Ù… ØªÙ†Ø¸ÛŒÙ…Ø§Øª. */
+        /* Farsça: فرم تنظیمات. */
         /* Türkçe: Ayarlar Formu. */
         /* English: Settings Form. */
         .settings-form {
@@ -840,7 +709,7 @@ if ($user_role === 'admin') {
         }
 
         /* Modal Styles */
-        /* Farsça: Ø§Ø³ØªØ§ÛŒÙ„"ŒÙ‡Ø§ÛŒ Ù…ÙˆØ¯Ø§Ù„. */
+        /* Farsça: استایل‌های مودال. */
         /* Türkçe: Modal Stilleri. */
         /* English: Modal Styles. */
         .modal {
@@ -1295,10 +1164,9 @@ if ($user_role === 'admin') {
             }
             
             .sidebar {
-                width: var(--sidebar-width);
+                width: 280px;
                 position: relative;
                 transform: translateX(0) !important;
-                min-width: var(--sidebar-width);
             }
             
             .sidebar.mobile-hidden,
@@ -1411,7 +1279,7 @@ if ($user_role === 'admin') {
         }
         
         /* Payment Management Responsive Styles */
-        /* Farsça: Ø§Ø³ØªØ§ÛŒÙ„"ŒÙ‡Ø§ÛŒ Ø±ÛŒØ³Ù¾Ø§Ù†Ø³ÛŒÙˆ Ù…Ø¯ÛŒØ±ÛŒØª Ù¾Ø±Ø¯Ø§Ø®Øª. */
+        /* Farsça: استایل‌های ریسپانسیو مدیریت پرداخت. */
         /* Türkçe: Ödeme Yönetimi Duyarlı Stilleri. */
         /* English: Payment Management Responsive Styles. */
         
@@ -1640,110 +1508,9 @@ if ($user_role === 'admin') {
             background: #fef3c7;
             color: #d97706;
         }
-
-        /* Toast Manager Styles */
-        :root {
-            --toast-top: 1rem;
-            --toast-right: 1rem;
-            --toast-gap: 0.5rem;
-            --toast-min-width: 240px;
-            --toast-max-width: 420px;
-            --toast-padding: 0.75rem 1rem;
-            --toast-radius: 8px;
-            --toast-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            --toast-duration: 220ms;
-            --toast-success-start: #10b981;
-            --toast-success-end: #059669;
-            --toast-error-start: #ef4444;
-            --toast-error-end: #dc2626;
-            --toast-info-start: #3b82f6;
-            --toast-info-end: #2563eb;
-        }
-
-        #toastContainer {
-            position: fixed;
-            top: var(--toast-top);
-            right: var(--toast-right);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: var(--toast-gap);
-            pointer-events: none;
-        }
-
-        .toast {
-            min-width: var(--toast-min-width);
-            max-width: var(--toast-max-width);
-            background: rgba(0,0,0,0.85);
-            color: white;
-            padding: var(--toast-padding);
-            border-radius: var(--toast-radius);
-            box-shadow: var(--toast-shadow);
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            font-size: 0.95rem;
-            opacity: 0;
-            transform: translateY(-6px) scale(0.995);
-            transition: opacity var(--toast-duration) ease, transform var(--toast-duration) ease;
-            pointer-events: auto;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        .toast.success { background: linear-gradient(90deg,var(--toast-success-start),var(--toast-success-end)); }
-        .toast.error { background: linear-gradient(90deg,var(--toast-error-start),var(--toast-error-end)); }
-        .toast.info { background: linear-gradient(90deg,var(--toast-info-start),var(--toast-info-end)); }
-
-        .toast .toast-icon { font-size: 1.05rem; }
-
-        .toast .toast-close {
-            margin-left: 8px;
-            background: transparent;
-            border: none;
-            color: rgba(255,255,255,0.9);
-            font-size: 0.95rem;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-        }
-        .toast .toast-close:focus { outline: 2px solid rgba(255,255,255,0.2); }
-
-        /* Confirm Modal Styles */
-        .confirm-modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            z-index: 2100;
-            display: none;
-        }
-
-        .confirm-modal-dialog {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #fff;
-            color: #111827;
-            border-radius: 8px;
-            padding: 1rem;
-            z-index: 2200;
-            min-width: 320px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-            display: none;
-        }
-
-        .confirm-modal-title { font-weight: 600; margin-bottom: 0.5rem; }
-        .confirm-modal-body { margin-bottom: 0.75rem; }
-        .confirm-modal-actions { display:flex; gap:0.5rem; justify-content:flex-end; }
-        .confirm-modal .btn-cancel { background:#f3f4f6; border: none; padding:0.5rem 0.75rem; border-radius:6px; cursor:pointer; }
-        .confirm-modal .btn-confirm { background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border:none; padding:0.5rem 0.75rem; border-radius:6px; cursor:pointer; }
     </style>
-
-
+</head>
+<body>
 
 <!-- Mobile Menu Toggle Button -->
 <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()">
@@ -1753,46 +1520,14 @@ if ($user_role === 'admin') {
 <!-- Mobile Overlay -->
 <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
 
-<!-- Toast container + Confirm modal -->
-<div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
-
-<div id="confirmModal" class="confirm-modal" aria-hidden="true">
-    <div class="confirm-modal-backdrop" id="confirmBackdrop"></div>
-    <div class="confirm-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" id="confirmDialog" tabindex="-1">
-        <div id="confirmTitle" class="confirm-modal-title">Onay</div>
-        <div id="confirmBody" class="confirm-modal-body">Are you sure?</div>
-        <div class="confirm-modal-actions">
-            <button id="confirmCancelBtn" class="btn-cancel">Ğ°ptal</button>
-            <button id="confirmOkBtn" class="btn-confirm">Tamam</button>
-        </div>
-    </div>
-</div>
-
 <!-- Dashboard Wrapper Container -->
 <div class="dashboard-wrapper">
     <!-- Sidebar Navigation - Sticky Position -->
-    <!-- Farsça: Ù†ÙˆØ§Ø± Ú©Ù†Ø§Ø±ÛŒ Ù†Ø§ÙˆØ¨Ø±ÛŒ - Ù…ÙˆÙ‚Ø¹ÛŒØª Ú†Ø³Ø¨Ù†Ø¯Ù‡. -->
+    <!-- Farsça: نوار کناری ناوبری - موقعیت چسبنده. -->
     <!-- Türkçe: Kenar çubuğu navigasyonu - Yapışkan Konum. -->
     <!-- English: Sidebar Navigation - Sticky Position. -->
-    <aside id="sidebar" class="sidebar-fixed fixed bottom-0 left-0 w-72 bg-white/5 backdrop-blur-sm text-white z-40 shadow-xl">
-        <div class="flex flex-col h-full">
-            <!-- User Profile Section (matching customer dashboard) -->
-            <div class="flex-shrink-0 p-4 border-b border-white border-opacity-20 bg-blue-800 bg-opacity-30">
-                <div class="text-center">
-                    <div class="sidebar-profile-container mx-auto mb-2" style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; display: block; box-shadow: 0 4px 6px rgba(0,0,0,0.08); margin: 0 auto;">
-                        <img 
-                            id="sidebarProfileImage" 
-                            src="<?php echo htmlspecialchars($header_profile_src); ?>" 
-                            alt="<?php echo htmlspecialchars($user_name); ?>"
-                            style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; display: block;"
-                            onerror="this.src='<?php echo $default_avatar; ?>'"
-                        >
-                    </div>
-                    <h3 class="text-sm font-bold text-white truncate"><?php echo htmlspecialchars($user_name); ?></h3>
-                    <p class="text-xs text-blue-100 opacity-90 truncate mt-1"><?php echo htmlspecialchars($role_display); ?></p>
-                </div>
-            </div>
-            <nav class="nav-menu flex-1 overflow-auto px-2 py-3">
+    <aside class="sidebar" id="sidebar">
+            <nav class="nav-menu">
                 <ul>
                     <!-- Dashboard -->
                     <li class="nav-item active">
@@ -1854,7 +1589,7 @@ if ($user_role === 'admin') {
                     <li class="nav-item">
                         <a href="#reviews" class="nav-link" data-section="reviews">
                             <i class="fas fa-star"></i>
-                            <span>Yorumlar &amp; Puanlar</span>
+                            <span>Yorumlar & Puanlar</span>
                         </a>
                     </li>
                     
@@ -1878,7 +1613,7 @@ if ($user_role === 'admin') {
                     <li class="nav-item">
                         <a href="#cms" class="nav-link" data-section="cms">
                             <i class="fas fa-file-alt"></i>
-                            <span>Ğ°çerik Yönetimi</span>
+                            <span>İçerik Yönetimi</span>
                         </a>
                     </li>
                     
@@ -1886,50 +1621,40 @@ if ($user_role === 'admin') {
                     <li class="nav-item">
                         <a href="#security" class="nav-link" data-section="security">
                             <i class="fas fa-shield-alt"></i>
-                            <span>Güvenlik &amp; Loglar</span>
+                            <span>Güvenlik & Loglar</span>
                         </a>
                     </li>
                     
+                    <!-- Settings -->
+                    <li class="nav-item">
+                        <a href="#settings" class="nav-link" data-section="settings">
+                            <i class="fas fa-cog"></i>
+                            <span>Ayarlar</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
-
-            <!-- Settings pinned at bottom -->
-            <div class="p-4 border-t border-white/20">
-                <a href="#settings" class="flex items-center px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors">
-                    <i class="fas fa-cog mr-3"></i>
-                    <span>Ayarlar</span>
-                </a>
-            </div>
-        </div>
     </aside>
 
     <!-- Main Content -->
-    <!-- Farsça: Ù…Ø­ØªÙˆØ§ÛŒ Ø§ØµÙ„ÛŒ. -->
-    <!-- Türkçe: Ana Ğ°çerik. -->
+    <!-- Farsça: محتوای اصلی. -->
+    <!-- Türkçe: Ana İçerik. -->
     <!-- English: Main Content. -->
     <main class="main-content">
             <!-- Dashboard Section -->
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
                     <div>
-                        <h2><i class="fas fa-tachometer-alt icon-blue-mr"></i>Dashboard</h2>
+                        <h2><i class="fas fa-tachometer-alt" style="color: #667eea; margin-right: 12px;"></i>Dashboard</h2>
                         <p>Sistem genel bakış ve istatistikler</p>
                     </div>
                 </div>
                 
-                <!-- Key Stats Cards (lazy-loaded fragment) -->
-                <div class="deferred-section" data-load-url="<?php echo $base_url; ?>/backend/dashboard/sections/analytics_section.php" id="analytics-deferred" aria-label="Analytics" role="region">
-                    <div class="p-6 bg-white rounded-md shadow-sm text-sm text-gray-500">Grafikler yükleniyor…</div>
-                </div>
-                <noscript>
-                    <?php if (file_exists(__DIR__ . '/sections/analytics_section.php')) include __DIR__ . '/sections/analytics_section.php'; ?>
-                </noscript>
-
                 <!-- Key Stats Cards -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon stat-icon-grad-1">
-                            <i class="fas fa-clipboard-list icon-blue"></i>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea20, #764ba220);">
+                            <i class="fas fa-clipboard-list" style="color: #667eea;"></i>
                         </div>
                         <div class="stat-info">
                             <h3>156</h3>
@@ -1939,8 +1664,8 @@ if ($user_role === 'admin') {
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-icon stat-icon-grad-2">
-                            <i class="fas fa-hourglass-half icon-green"></i>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a74520, #20c99720);">
+                            <i class="fas fa-hourglass-half" style="color: #28a745;"></i>
                         </div>
                         <div class="stat-info">
                             <h3>24</h3>
@@ -1950,19 +1675,19 @@ if ($user_role === 'admin') {
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-icon stat-icon-grad-3">
-                            <i class="fas fa-times-circle icon-red"></i>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #dc354520, #c8233320);">
+                            <i class="fas fa-times-circle" style="color: #dc3545;"></i>
                         </div>
                         <div class="stat-info">
                             <h3>8</h3>
-                            <p>Ğ°ptal Edilen</p>
+                            <p>İptal Edilen</p>
                             <small class="text-red-600"><i class="fas fa-arrow-down"></i> -3% bu ay</small>
                         </div>
                     </div>
                     
                     <div class="stat-card">
-                        <div class="stat-icon stat-icon-grad-4">
-                            <i class="fas fa-lira-sign icon-amber"></i>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc10720, #ff663320);">
+                            <i class="fas fa-lira-sign" style="color: #ffc107;"></i>
                         </div>
                         <div class="stat-info">
                             <h3>₺45,680</h3>
@@ -1976,12 +1701,12 @@ if ($user_role === 'admin') {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div class="activity-section">
                         <h3><i class="fas fa-chart-line mr-2"></i>Gelir Trendi (Son 7 Gün)</h3>
-                        <canvas id="revenueChart" class="canvas-max-300"></canvas>
+                        <canvas id="revenueChart" style="max-height: 300px;"></canvas>
                     </div>
                     
                     <div class="activity-section">
                         <h3><i class="fas fa-users mr-2"></i>Aktif Kullanıcılar</h3>
-                        <canvas id="usersChart" class="canvas-max-300"></canvas>
+                        <canvas id="usersChart" style="max-height: 300px;"></canvas>
                     </div>
                 </div>
 
@@ -1989,23 +1714,23 @@ if ($user_role === 'admin') {
                 <div class="activity-section">
                     <h3><i class="fas fa-bell mr-2"></i>Son Bildirimler</h3>
                     <div class="activity-list">
-                        <div class="activity-item status-border-left-green">
-                            <i class="fas fa-shopping-cart icon-green"></i>
+                        <div class="activity-item" style="border-left-color: #28a745;">
+                            <i class="fas fa-shopping-cart" style="color: #28a745;"></i>
                             <span><strong>Yeni Sipariş:</strong> Ahmet Yılmaz - Tam Detaylandırma</span>
                             <time>5 dakika önce</time>
                         </div>
-                        <div class="activity-item status-border-left-red">
-                            <i class="fas fa-exclamation-triangle icon-red"></i>
+                        <div class="activity-item" style="border-left-color: #dc3545;">
+                            <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
                             <span><strong>Ödeme Hatası:</strong> Kart işlemi başarısız - Sipariş #1245</span>
                             <time>15 dakika önce</time>
                         </div>
-                        <div class="activity-item status-border-left-blue">
-                            <i class="fas fa-headset icon-blue"></i>
+                        <div class="activity-item" style="border-left-color: #667eea;">
+                            <i class="fas fa-headset" style="color: #667eea;"></i>
                             <span><strong>Destek Talebi:</strong> Elif Kara - Sipariş takibi sorunu</span>
                             <time>1 saat önce</time>
                         </div>
-                        <div class="activity-item status-border-left-amber">
-                            <i class="fas fa-star icon-amber"></i>
+                        <div class="activity-item" style="border-left-color: #ffc107;">
+                            <i class="fas fa-star" style="color: #ffc107;"></i>
                             <span><strong>Yeni Yorum:</strong> 5 yıldız - "Harika hizmet!"</span>
                             <time>2 saat önce</time>
                         </div>
@@ -2014,7 +1739,7 @@ if ($user_role === 'admin') {
             </section>
 
             <!-- Car Washes Management Section -->
-            <!-- Farsça: Ø¨Ø®Ø´ Ù…Ø¯ÛŒØ±ÛŒØª Ú©Ø§Ø±ÙˆØ§Ø´"ŒÙ‡Ø§. -->
+            <!-- Farsça: بخش مدیریت کارواش‌ها. -->
             <!-- Türkçe: Otopark Yönetimi Bölümü. -->
             <!-- English: Car Washes Management Section. -->
             <section id="carwashes" class="content-section">
@@ -2033,12 +1758,12 @@ if ($user_role === 'admin') {
                 </div>
 
                 <!-- Car Wash Filters -->
-                <!-- Farsça: ÙÛŒÙ„ØªØ±Ù‡Ø§ÛŒ Ú©Ø§Ø±ÙˆØ§Ø´. -->
+                <!-- Farsça: فیلترهای کارواش. -->
                 <!-- Türkçe: Otopark Filtreleri. -->
                 <!-- English: Car Wash Filters. -->
                 <div class="filters">
-                    <label for="carwashSearch" class="sr-only">Otopark ara...</label><input type="text" id="carwashSearch" placeholder="Otopark ara..." class="search-input">
-                    <label for="statusFilter" class="sr-only">Input</label><select id="statusFilter" class="filter-select">
+                    <input type="text" id="carwashSearch" placeholder="Otopark ara..." class="search-input">
+                    <select id="statusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="active">Aktif</option>
                         <option value="inactive">Pasif</option>
@@ -2047,7 +1772,7 @@ if ($user_role === 'admin') {
                 </div>
 
                 <!-- Car Washes Table -->
-                <!-- Farsça: Ø¬Ø¯ÙˆÙ„ Ú©Ø§Ø±ÙˆØ§Ø´"ŒÙ‡Ø§. -->
+                <!-- Farsça: جدول کارواش‌ها. -->
                 <!-- Türkçe: Otopark Tablosu. -->
                 <!-- English: Car Washes Table. -->
                 <div class="table-container">
@@ -2060,7 +1785,7 @@ if ($user_role === 'admin') {
                                 <th><i class="fas fa-car mr-1"></i>Kapasite</th>
                                 <th><i class="fas fa-money-bill-wave mr-1"></i>Fiyat</th>
                                 <th><i class="fas fa-toggle-on mr-1"></i>Durum</th>
-                                <th><i class="fas fa-cogs mr-1"></i>Ğ°şlemler</th>
+                                <th><i class="fas fa-cogs mr-1"></i>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2077,7 +1802,7 @@ if ($user_role === 'admin') {
                                 </td>
                                 <td>
                                     <i class="fas fa-map-marker-alt" style="color: #dc3545; margin-right: 6px;"></i>
-                                    Taksim, Ğ°stanbul
+                                    Taksim, İstanbul
                                 </td>
                                 <td>
                                     <span style="display: flex; align-items: center; gap: 6px;">
@@ -2114,7 +1839,7 @@ if ($user_role === 'admin') {
                                 </td>
                                 <td>
                                     <i class="fas fa-map-marker-alt" style="color: #dc3545; margin-right: 6px;"></i>
-                                    Kadıköy, Ğ°stanbul
+                                    Kadıköy, İstanbul
                                 </td>
                                 <td>
                                     <span style="display: flex; align-items: center; gap: 6px;">
@@ -2151,7 +1876,7 @@ if ($user_role === 'admin') {
                                 </td>
                                 <td>
                                     <i class="fas fa-map-marker-alt" style="color: #dc3545; margin-right: 6px;"></i>
-                                    Beşiktaş, Ğ°stanbul
+                                    Beşiktaş, İstanbul
                                 </td>
                                 <td>
                                     <span style="display: flex; align-items: center; gap: 6px;">
@@ -2195,26 +1920,26 @@ if ($user_role === 'admin') {
 
                 <!-- Order Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <label for="orderSearch" class="sr-only">Sipariş No, Müşteri Ara...</label><input type="text" id="orderSearch" placeholder="Sipariş No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <input type="text" id="orderSearch" placeholder="Sipariş No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <label for="orderStatusFilter" class="sr-only">Input</label><select id="orderStatusFilter" class="filter-select">
+                    <select id="orderStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="pending">Beklemede</option>
                         <option value="in-progress">Devam Ediyor</option>
                         <option value="completed">Tamamlandı</option>
-                        <option value="cancelled">Ğ°ptal Edildi</option>
+                        <option value="cancelled">İptal Edildi</option>
                     </select>
                     
-                    <label for="orderServiceFilter" class="sr-only">Input</label><select id="orderServiceFilter" class="filter-select">
+                    <select id="orderServiceFilter" class="filter-select">
                         <option value="">Tüm Hizmetler</option>
                         <option value="wash">Dış Yıkama</option>
-                        <option value="interior">Ğ°ç Temizlik</option>
+                        <option value="interior">İç Temizlik</option>
                         <option value="detail">Tam Detaylandırma</option>
                         <option value="wax">Cilalama</option>
                     </select>
                     
-                    <label for="orderDateFrom" class="sr-only">Başlangıç Tarihi</label><input type="date" id="orderDateFrom" class="filter-select" placeholder="Başlangıç Tarihi">
-                    <label for="orderDateTo" class="sr-only">Bitiş Tarihi</label><input type="date" id="orderDateTo" class="filter-select" placeholder="Bitiş Tarihi">
+                    <input type="date" id="orderDateFrom" class="filter-select" placeholder="Başlangıç Tarihi">
+                    <input type="date" id="orderDateTo" class="filter-select" placeholder="Bitiş Tarihi">
                     
                     <button class="add-btn" style="padding: 10px 20px;">
                         <i class="fas fa-filter"></i> Filtrele
@@ -2233,7 +1958,7 @@ if ($user_role === 'admin') {
                                 <th>Tutar</th>
                                 <th>Durum</th>
                                 <th>Tarih</th>
-                                <th>Ğ°şlemler</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2277,7 +2002,7 @@ if ($user_role === 'admin') {
                                     </div>
                                 </td>
                                 <td>Kadıköy Otopark</td>
-                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;">Ğ°ç Temizlik</span></td>
+                                <td><span class="type-badge" style="background: #667eea20; color: #667eea;">İç Temizlik</span></td>
                                 <td><strong>₺200</strong></td>
                                 <td><span class="status-badge active">Tamamlandı</span></td>
                                 <td>17 Eki 2025, 12:15</td>
@@ -2307,7 +2032,7 @@ if ($user_role === 'admin') {
                                 <td>Beşiktaş Otopark</td>
                                 <td><span class="type-badge" style="background: #dc354520; color: #dc3545;">Dış Yıkama</span></td>
                                 <td><strong>₺150</strong></td>
-                                <td><span class="status-badge inactive">Ğ°ptal Edildi</span></td>
+                                <td><span class="status-badge inactive">İptal Edildi</span></td>
                                 <td>16 Eki 2025, 18:45</td>
                                 <td>
                                     <button class="action-btn view-btn" onclick="viewOrder('1243')">
@@ -2438,25 +2163,25 @@ if ($user_role === 'admin') {
 
                 <!-- Payment Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <label for="paymentSearch" class="sr-only">İşlem No, Müşteri Ara...</label><input type="text" id="paymentSearch" placeholder="İşlem No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <input type="text" id="paymentSearch" placeholder="İşlem No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <label for="paymentTypeFilter" class="sr-only">Input</label><select id="paymentTypeFilter" class="filter-select">
+                    <select id="paymentTypeFilter" class="filter-select">
                         <option value="">Tüm Ödeme Tipleri</option>
                         <option value="online">Online (Kart)</option>
                         <option value="cash">Nakit</option>
                         <option value="bank">Banka Transferi</option>
                     </select>
                     
-                    <label for="paymentStatusFilter" class="sr-only">Input</label><select id="paymentStatusFilter" class="filter-select">
+                    <select id="paymentStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="success">Başarılı</option>
                         <option value="pending">Beklemede</option>
                         <option value="failed">Başarısız</option>
-                        <option value="refunded">Ğ°ade Edildi</option>
+                        <option value="refunded">İade Edildi</option>
                     </select>
                     
-                    <label for="paymentDateFrom" class="sr-only">Date</label><input type="date" id="paymentDateFrom" class="filter-select">
-                    <label for="paymentDateTo" class="sr-only">Date</label><input type="date" id="paymentDateTo" class="filter-select">
+                    <input type="date" id="paymentDateFrom" class="filter-select">
+                    <input type="date" id="paymentDateTo" class="filter-select">
                     
                     <button class="add-btn">
                         <i class="fas fa-filter"></i> Filtrele
@@ -2468,14 +2193,14 @@ if ($user_role === 'admin') {
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Ğ°şlem No</th>
+                                <th>İşlem No</th>
                                 <th>Sipariş</th>
                                 <th>Müşteri</th>
                                 <th>Tutar</th>
                                 <th>Ödeme Tipi</th>
                                 <th>Durum</th>
                                 <th>Tarih</th>
-                                <th>Ğ°şlemler</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2583,7 +2308,7 @@ if ($user_role === 'admin') {
                                     <th>Komisyon (%15)</th>
                                     <th>Ödenecek Tutar</th>
                                     <th>Durum</th>
-                                    <th>Ğ°şlemler</th>
+                                    <th>İşlemler</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2618,7 +2343,7 @@ if ($user_role === 'admin') {
             </section>
 
             <!-- Users Management Section -->
-            <!-- Farsça: Ø¨Ø®Ø´ Ù…Ø¯ÛŒØ±ÛŒØª Ú©Ø§Ø±Ø¨Ø±Ø§Ù†. -->
+            <!-- Farsça: بخش مدیریت کاربران. -->
             <!-- Türkçe: Kullanıcı Yönetimi Bölümü. -->
             <!-- English: Users Management Section. -->
             <section id="users" class="content-section">
@@ -2631,12 +2356,12 @@ if ($user_role === 'admin') {
                 </div>
 
                 <!-- User Filters -->
-                <!-- Farsça: ÙÛŒÙ„ØªØ±Ù‡Ø§ÛŒ Ú©Ø§Ø±Ø¨Ø±. -->
+                <!-- Farsça: فیلترهای کاربر. -->
                 <!-- Türkçe: Kullanıcı Filtreleri. -->
                 <!-- English: User Filters. -->
                 <div class="filters">
-                    <label for="userSearch" class="sr-only">Kullanıcı ara...</label><input type="text" id="userSearch" placeholder="Kullanıcı ara..." class="search-input">
-                    <label for="userTypeFilter" class="sr-only">Input</label><select id="userTypeFilter" class="filter-select">
+                    <input type="text" id="userSearch" placeholder="Kullanıcı ara..." class="search-input">
+                    <select id="userTypeFilter" class="filter-select">
                         <option value="">Tüm Tipler</option>
                         <option value="admin">Yönetici</option>
                         <option value="user">Kullanıcı</option>
@@ -2645,7 +2370,7 @@ if ($user_role === 'admin') {
                 </div>
 
                 <!-- Users Table -->
-                <!-- Farsça: Ø¬Ø¯ÙˆÙ„ Ú©Ø§Ø±Ø¨Ø±Ø§Ù†. -->
+                <!-- Farsça: جدول کاربران. -->
                 <!-- Türkçe: Kullanıcı Tablosu. -->
                 <!-- English: Users Table. -->
                 <div class="table-container">
@@ -2659,7 +2384,7 @@ if ($user_role === 'admin') {
                                 <th>Tip</th>
                                 <th>Kayıt Tarihi</th>
                                 <th>Durum</th>
-                                <th>Ğ°şlemler</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2743,17 +2468,17 @@ if ($user_role === 'admin') {
 
                 <!-- Service Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <label for="serviceSearch" class="sr-only">Hizmet Ara...</label><input type="text" id="serviceSearch" placeholder="Hizmet Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <input type="text" id="serviceSearch" placeholder="Hizmet Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <label for="serviceCategoryFilter" class="sr-only">Input</label><select id="serviceCategoryFilter" class="filter-select">
+                    <select id="serviceCategoryFilter" class="filter-select">
                         <option value="">Tüm Kategoriler</option>
                         <option value="wash">Yıkama</option>
                         <option value="detail">Detaylı Bakım</option>
-                        <option value="polish">Cilalama &amp; Koruma</option>
-                        <option value="interior">Ğ°ç Temizlik</option>
+                        <option value="polish">Cilalama & Koruma</option>
+                        <option value="interior">İç Temizlik</option>
                     </select>
                     
-                    <label for="serviceStatusFilter" class="sr-only">Input</label><select id="serviceStatusFilter" class="filter-select">
+                    <select id="serviceStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="active">Aktif</option>
                         <option value="inactive">Pasif</option>
@@ -2777,7 +2502,7 @@ if ($user_role === 'admin') {
                                 <th>Araç Tipleri</th>
                                 <th>Durum</th>
                                 <th>Sıralama</th>
-                                <th>Ğ°şlemler</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2818,12 +2543,12 @@ if ($user_role === 'admin') {
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <i class="fas fa-broom" style="color: #28a745; font-size: 20px;"></i>
                                         <div>
-                                            <strong>Ğ°ç Temizlik</strong><br>
+                                            <strong>İç Temizlik</strong><br>
                                             <small style="color: #64748b;">Detaylı iç temizlik</small>
                                         </div>
                                     </div>
                                 </td>
-                                <td><span class="type-badge" style="background: #28a74520; color: #28a745;">Ğ°ç Temizlik</span></td>
+                                <td><span class="type-badge" style="background: #28a74520; color: #28a745;">İç Temizlik</span></td>
                                 <td><strong>₺200</strong></td>
                                 <td>45 dk</td>
                                 <td>
@@ -2885,7 +2610,7 @@ if ($user_role === 'admin') {
                                         </div>
                                     </div>
                                 </td>
-                                <td><span class="type-badge" style="background: #dc354520; color: #dc3545;">Cilalama &amp; Koruma</span></td>
+                                <td><span class="type-badge" style="background: #dc354520; color: #dc3545;">Cilalama & Koruma</span></td>
                                 <td><strong>₺850</strong></td>
                                 <td>180 dk</td>
                                 <td>
@@ -2943,7 +2668,7 @@ if ($user_role === 'admin') {
                         <div class="stat-info">
                             <h3>15</h3>
                             <p>Devam Eden</p>
-                            <small class="text-yellow-600">Ğ°şlemde</small>
+                            <small class="text-yellow-600">İşlemde</small>
                         </div>
                     </div>
                     
@@ -2972,9 +2697,9 @@ if ($user_role === 'admin') {
 
                 <!-- Ticket Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <label for="ticketSearch" class="sr-only">Talep No, Müşteri Ara...</label><input type="text" id="ticketSearch" placeholder="Talep No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <input type="text" id="ticketSearch" placeholder="Talep No, Müşteri Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <label for="ticketStatusFilter" class="sr-only">Input</label><select id="ticketStatusFilter" class="filter-select">
+                    <select id="ticketStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="new">Yeni</option>
                         <option value="open">Açık</option>
@@ -2984,7 +2709,7 @@ if ($user_role === 'admin') {
                         <option value="closed">Kapalı</option>
                     </select>
                     
-                    <label for="ticketPriorityFilter" class="sr-only">Input</label><select id="ticketPriorityFilter" class="filter-select">
+                    <select id="ticketPriorityFilter" class="filter-select">
                         <option value="">Tüm Öncelikler</option>
                         <option value="urgent">Acil</option>
                         <option value="high">Yüksek</option>
@@ -2992,7 +2717,7 @@ if ($user_role === 'admin') {
                         <option value="low">Düşük</option>
                     </select>
                     
-                    <label for="ticketCategoryFilter" class="sr-only">Input</label><select id="ticketCategoryFilter" class="filter-select">
+                    <select id="ticketCategoryFilter" class="filter-select">
                         <option value="">Tüm Kategoriler</option>
                         <option value="technical">Teknik</option>
                         <option value="billing">Fatura</option>
@@ -3018,7 +2743,7 @@ if ($user_role === 'admin') {
                                 <th>Durum</th>
                                 <th>Atanan</th>
                                 <th>Oluşturma</th>
-                                <th>Ğ°şlemler</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -3082,7 +2807,7 @@ if ($user_role === 'admin') {
                                         <small style="color: #64748b;">zeynep@email.com</small>
                                     </div>
                                 </td>
-                                <td>Randevu deĞŸişikliĞŸi talebi</td>
+                                <td>Randevu değişikliği talebi</td>
                                 <td><span class="type-badge" style="background: #28a74520; color: #28a745;">Hizmet</span></td>
                                 <td><span class="status-badge" style="background: #6c757d20; color: #6c757d;">Orta</span></td>
                                 <td><span class="status-badge active">Çözüldü</span></td>
@@ -3106,7 +2831,7 @@ if ($user_role === 'admin') {
             <section id="reviews" class="content-section">
                 <div class="section-header">
                     <div>
-                        <h2><i class="fas fa-star" style="color: #ffc107; margin-right: 12px;"></i>Yorumlar &amp; Puanlar</h2>
+                        <h2><i class="fas fa-star" style="color: #ffc107; margin-right: 12px;"></i>Yorumlar & Puanlar</h2>
                         <p>Müşteri yorumlarını yönet ve denetle</p>
                     </div>
                     <button class="add-btn" style="background: linear-gradient(135deg, #ffc107, #ff9800);">
@@ -3124,7 +2849,7 @@ if ($user_role === 'admin') {
                         <div class="stat-info">
                             <h3>4.8</h3>
                             <p>Ortalama Puan</p>
-                            <small class="text-yellow-600">248 deĞŸerlendirme</small>
+                            <small class="text-yellow-600">248 değerlendirme</small>
                         </div>
                     </div>
                     
@@ -3157,16 +2882,16 @@ if ($user_role === 'admin') {
                         <div class="stat-info">
                             <h3>5</h3>
                             <p>Raporlanan</p>
-                            <small class="text-red-600">Ğ°nceleme gerekli</small>
+                            <small class="text-red-600">İnceleme gerekli</small>
                         </div>
                     </div>
                 </div>
 
                 <!-- Review Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <label for="reviewSearch" class="sr-only">Müşteri, Sipariş Ara...</label><input type="text" id="reviewSearch" placeholder="Müşteri, Sipariş Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <input type="text" id="reviewSearch" placeholder="Müşteri, Sipariş Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <label for="reviewStatusFilter" class="sr-only">Input</label><select id="reviewStatusFilter" class="filter-select">
+                    <select id="reviewStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="pending">Beklemede</option>
                         <option value="approved">Onaylandı</option>
@@ -3174,7 +2899,7 @@ if ($user_role === 'admin') {
                         <option value="flagged">Raporlandı</option>
                     </select>
                     
-                    <label for="reviewRatingFilter" class="sr-only">Input</label><select id="reviewRatingFilter" class="filter-select">
+                    <select id="reviewRatingFilter" class="filter-select">
                         <option value="">Tüm Puanlar</option>
                         <option value="5">5 Yıldız</option>
                         <option value="4">4 Yıldız</option>
@@ -3183,7 +2908,7 @@ if ($user_role === 'admin') {
                         <option value="1">1 Yıldız</option>
                     </select>
                     
-                    <label for="reviewDateFrom" class="sr-only">Date</label><input type="date" id="reviewDateFrom" class="filter-select">
+                    <input type="date" id="reviewDateFrom" class="filter-select">
                     
                     <button class="add-btn">
                         <i class="fas fa-filter"></i> Filtrele
@@ -3202,7 +2927,7 @@ if ($user_role === 'admin') {
                                 <th>Yorum</th>
                                 <th>Durum</th>
                                 <th>Tarih</th>
-                                <th>Ğ°şlemler</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -3262,7 +2987,7 @@ if ($user_role === 'admin') {
                                     </div>
                                 </td>
                                 <td style="max-width: 300px;">
-                                    <small>"Ğ°yi hizmet ama biraz pahalı buldum."</small>
+                                    <small>"İyi hizmet ama biraz pahalı buldum."</small>
                                 </td>
                                 <td><span class="status-badge active">Onaylandı</span></td>
                                 <td>17 Eki 2025</td>
@@ -3314,7 +3039,7 @@ if ($user_role === 'admin') {
             </section>
 
             <!-- Reports Section -->
-            <!-- Farsça: Ø¨Ø®Ø´ Ú¯Ø²Ø§Ø±Ø´Ø§Øª. -->
+            <!-- Farsça: بخش گزارشات. -->
             <!-- Türkçe: Raporlar Bölümü. -->
             <!-- English: Reports Section. -->
             <section id="reports" class="content-section">
@@ -3344,7 +3069,7 @@ if ($user_role === 'admin') {
                         </div>
                         <div class="stat-info">
                             <h3>1,234</h3>
-                            <p>Ğ°ndirilen Raporlar</p>
+                            <p>İndirilen Raporlar</p>
                             <small style="color: #666;"><i class="fas fa-calendar"></i> Son 30 gün</small>
                         </div>
                     </div>
@@ -3421,7 +3146,7 @@ if ($user_role === 'admin') {
                                         <strong style="color: #667eea; font-size: 1.1rem;">₺198,340</strong>
                                     </div>
                                     <div>
-                                        <small style="color: #666; display: block; margin-bottom: 4px;">Ğ°şlemler</small>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">İşlemler</small>
                                         <strong style="color: #333;">1,234</strong>
                                     </div>
                                     <div>
@@ -3432,10 +3157,8 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_2" class="sr-only">Date</label>
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_2">
-                                <label for="auto_3" class="sr-only">Date</label>
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_3">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3485,7 +3208,7 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_4" class="sr-only">Input</label><select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_4">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
                                     <option>Son 7 Gün</option>
                                     <option>Son 30 Gün</option>
                                     <option>Son 3 Ay</option>
@@ -3540,8 +3263,7 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_5" class="sr-only">Input</label>
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_5">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
                                     <option>Q3 2025</option>
                                     <option>Q2 2025</option>
                                     <option>Q1 2025</option>
@@ -3593,8 +3315,7 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_6" class="sr-only">Input</label>
-                                <input type="month" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10" id="auto_6">
+                                <input type="month" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3640,7 +3361,7 @@ if ($user_role === 'admin') {
                                         <strong style="color: #28a745; font-size: 1.1rem;">1,368</strong>
                                     </div>
                                     <div>
-                                        <small style="color: #666; display: block; margin-bottom: 4px;">Ğ°ptal Edilen</small>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">İptal Edilen</small>
                                         <strong style="color: #dc3545;">64</strong>
                                     </div>
                                     <div>
@@ -3651,10 +3372,8 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_7" class="sr-only">Date From</label>
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_7">
-                                <label for="auto_8" class="sr-only">Date To</label>
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_8">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3701,8 +3420,7 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_9" class="sr-only">Input</label>
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_9">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
                                     <option>Bu Ay</option>
                                     <option>Son 3 Ay</option>
                                     <option>Bu Yıl</option>
@@ -3753,10 +3471,9 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_10" class="sr-only">Input</label>
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_10">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
                                     <option>Tüm Otoparklar</option>
-                                    <option>En Ğ°yi 10</option>
+                                    <option>En İyi 10</option>
                                     <option>En Düşük 10</option>
                                 </select>
                             </div>
@@ -3815,8 +3532,7 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_11" class="sr-only">Input</label>
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_11">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
                                     <option>Tüm Müşteriler</option>
                                     <option>Premium</option>
                                     <option>Standart</option>
@@ -3841,7 +3557,7 @@ if ($user_role === 'admin') {
                                     <i class="fas fa-star" style="color: #ffc107; font-size: 1.3rem;"></i>
                                 </div>
                                 <div style="flex: 1;">
-                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">DeĞŸerlendirme Raporu</h3>
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Değerlendirme Raporu</h3>
                                     <p style="margin: 0; font-size: 0.85rem; color: #666;">Müşteri memnuniyeti ve geri bildirim analizi</p>
                                 </div>
                             </div>
@@ -3868,10 +3584,8 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_12" class="sr-only">Date From</label>
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01" id="auto_12">
-                                <label for="auto_13" class="sr-only">Date To</label>
-                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19" id="auto_13">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-01">
+                                <input type="date" class="filter-select" style="flex: 1; font-size: 0.85rem;" value="2025-10-19">
                             </div>
                             
                             <div style="display: flex; gap: 8px;">
@@ -3928,8 +3642,7 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_14" class="sr-only">Input</label>
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_14">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
                                     <option>Son 12 Ay</option>
                                     <option>Bu Yıl</option>
                                     <option>Geçen Yıl</option>
@@ -3961,23 +3674,22 @@ if ($user_role === 'admin') {
                             <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
                                 <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
                                     <div style="padding: 8px; background: white; border-radius: 6px;">
-                                        <small style="color: #666; display: block;">ðŸ“Š Toplam Gelir</small>
+                                        <small style="color: #666; display: block;">📊 Toplam Gelir</small>
                                         <strong style="color: #28a745;">₺245,890 (+18%)</strong>
                                     </div>
                                     <div style="padding: 8px; background: white; border-radius: 6px;">
-                                        <small style="color: #666; display: block;">ðŸ‘¥ Yeni Müşteriler</small>
+                                        <small style="color: #666; display: block;">👥 Yeni Müşteriler</small>
                                         <strong style="color: #17a2b8;">287 (+24%)</strong>
                                     </div>
                                     <div style="padding: 8px; background: white; border-radius: 6px;">
-                                        <small style="color: #666; display: block;">⭐ Müşteri Memnuniyeti</small>
+                                        <small style="color: #666; display: block;">⭐ Müşteri Memnuniyeti</small>
                                         <strong style="color: #ffc107;">4.6/5.0</strong>
                                     </div>
                                 </div>
                             </div>
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                <label for="auto_15" class="sr-only">Input</label>
-                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;" id="auto_15">
+                                <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
                                     <option>Bu Çeyrek</option>
                                     <option>Geçen Çeyrek</option>
                                     <option>Yıllık</option>
@@ -4014,7 +3726,7 @@ if ($user_role === 'admin') {
                                     <th>Format</th>
                                     <th>Son Çalışma</th>
                                     <th>Durum</th>
-                                    <th>Ğ°şlemler</th>
+                                    <th>İşlemler</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4079,7 +3791,7 @@ if ($user_role === 'admin') {
             </section>
 
             <!-- Notifications Section -->
-            <!-- Farsça: Ø¨Ø®Ø´ Ø§Ø¹Ù„Ø§Ù†"ŒÙ‡Ø§. -->
+            <!-- Farsça: بخش اعلان‌ها. -->
             <!-- Türkçe: Bildirimler Bölümü. -->
             <!-- English: Notifications Section. -->
             <section id="notifications" class="content-section">
@@ -4143,9 +3855,9 @@ if ($user_role === 'admin') {
 
                 <!-- Notification Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <label for="notificationSearch" class="sr-only">Konu, Mesaj Ara...</label><input type="text" id="notificationSearch" placeholder="Konu, Mesaj Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <input type="text" id="notificationSearch" placeholder="Konu, Mesaj Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <label for="notificationTypeFilter" class="sr-only">Input</label><select id="notificationTypeFilter" class="filter-select">
+                    <select id="notificationTypeFilter" class="filter-select">
                         <option value="">Tüm Tipler</option>
                         <option value="email">Email</option>
                         <option value="sms">SMS</option>
@@ -4153,7 +3865,7 @@ if ($user_role === 'admin') {
                         <option value="in_app">In-App</option>
                     </select>
                     
-                    <label for="notificationStatusFilter" class="sr-only">Input</label><select id="notificationStatusFilter" class="filter-select">
+                    <select id="notificationStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="sent">Gönderildi</option>
                         <option value="pending">Bekliyor</option>
@@ -4161,7 +3873,7 @@ if ($user_role === 'admin') {
                         <option value="scheduled">Zamanlanmış</option>
                     </select>
                     
-                    <label for="notificationDateFrom" class="sr-only">Date</label><input type="date" id="notificationDateFrom" class="filter-select">
+                    <input type="date" id="notificationDateFrom" class="filter-select">
                     
                     <button class="add-btn">
                         <i class="fas fa-filter"></i> Filtrele
@@ -4180,13 +3892,13 @@ if ($user_role === 'admin') {
                                 <th>Hedef</th>
                                 <th>Durum</th>
                                 <th>Gönderim Zamanı</th>
-                                <th>Ğ°şlemler</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><strong>#NOT-523</strong></td>
-                                <td>Özel Ğ°ndirim Kampanyası</td>
+                                <td>Özel İndirim Kampanyası</td>
                                 <td style="max-width: 300px;">
                                     <small>Tüm hizmetlerde %20 indirim! Bugün...</small>
                                 </td>
@@ -4248,7 +3960,7 @@ if ($user_role === 'admin') {
                                     <button class="action-btn view-btn">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="action-btn delete-btn" title="Ğ°ptal Et">
+                                    <button class="action-btn delete-btn" title="İptal Et">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </td>
@@ -4259,13 +3971,13 @@ if ($user_role === 'admin') {
             </section>
 
             <!-- CMS Section -->
-            <!-- Farsça: Ø¨Ø®Ø´ Ù…Ø¯ÛŒØ±ÛŒØª Ù…Ø­ØªÙˆØ§. -->
-            <!-- Türkçe: Ğ°çerik Yönetimi Bölümü. -->
+            <!-- Farsça: بخش مدیریت محتوا. -->
+            <!-- Türkçe: İçerik Yönetimi Bölümü. -->
             <!-- English: CMS Section. -->
             <section id="cms" class="content-section">
                 <div class="section-header">
                     <div>
-                        <h2><i class="fas fa-file-alt" style="color: #764ba2; margin-right: 12px;"></i>Ğ°çerik Yönetimi (CMS)</h2>
+                        <h2><i class="fas fa-file-alt" style="color: #764ba2; margin-right: 12px;"></i>İçerik Yönetimi (CMS)</h2>
                         <p>Web sitesi sayfalarını ve içeriklerini yönet</p>
                     </div>
                     <button class="add-btn" id="addCmsPageBtn" style="background: linear-gradient(135deg, #764ba2, #667eea);">
@@ -4323,16 +4035,16 @@ if ($user_role === 'admin') {
 
                 <!-- CMS Filters -->
                 <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <label for="cmsSearch" class="sr-only">Sayfa Ara...</label><input type="text" id="cmsSearch" placeholder="Sayfa Ara..." class="search-input" style="grid-column: 1 / -1;">
+                    <input type="text" id="cmsSearch" placeholder="Sayfa Ara..." class="search-input" style="grid-column: 1 / -1;">
                     
-                    <label for="cmsStatusFilter" class="sr-only">Input</label><select id="cmsStatusFilter" class="filter-select">
+                    <select id="cmsStatusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="published">Yayında</option>
                         <option value="draft">Taslak</option>
                         <option value="scheduled">Zamanlanmış</option>
                     </select>
                     
-                    <label for="cmsTypeFilter" class="sr-only">Input</label><select id="cmsTypeFilter" class="filter-select">
+                    <select id="cmsTypeFilter" class="filter-select">
                         <option value="">Tüm Tipler</option>
                         <option value="page">Sayfa</option>
                         <option value="post">Blog Yazısı</option>
@@ -4350,13 +4062,13 @@ if ($user_role === 'admin') {
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Sayfa BaşlıĞŸı</th>
+                                <th>Sayfa Başlığı</th>
                                 <th>URL</th>
                                 <th>Tip</th>
                                 <th>Durum</th>
                                 <th>Son Güncelleme</th>
                                 <th>Görüntülenme</th>
-                                <th>Ğ°şlemler</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -4389,8 +4101,8 @@ if ($user_role === 'admin') {
                                 <td><strong>#2</strong></td>
                                 <td>
                                     <div>
-                                        <strong>Ğ°letişim</strong><br>
-                                        <small style="color: #64748b;">Ğ°letişim formu ve bilgiler</small>
+                                        <strong>İletişim</strong><br>
+                                        <small style="color: #64748b;">İletişim formu ve bilgiler</small>
                                     </div>
                                 </td>
                                 <td><code>/iletisim</code></td>
@@ -4474,14 +4186,14 @@ if ($user_role === 'admin') {
             </section>
 
             <!-- Security & Logs Section -->
-            <!-- Farsça: Ø¨Ø®Ø´ Ø§Ù…Ù†ÛŒØª Ùˆ Ù„Ø§Ú¯"ŒÙ‡Ø§. -->
+            <!-- Farsça: بخش امنیت و لاگ‌ها. -->
             <!-- Türkçe: Güvenlik & Loglar Bölümü. -->
             <!-- English: Security & Logs Section. -->
             <section id="security" class="content-section">
                 <div class="section-header">
                     <div>
-                        <h2><i class="fas fa-shield-alt" style="color: #28a745; margin-right: 12px;"></i>Güvenlik &amp; Sistem Logları</h2>
-                        <p>Sistem güvenliĞŸini izle ve denetim kayıtlarını incele</p>
+                        <h2><i class="fas fa-shield-alt" style="color: #28a745; margin-right: 12px;"></i>Güvenlik & Sistem Logları</h2>
+                        <p>Sistem güvenliğini izle ve denetim kayıtlarını incele</p>
                     </div>
                     <button class="add-btn" style="background: linear-gradient(135deg, #28a745, #20c997);">
                         <i class="fas fa-download"></i>
@@ -4558,9 +4270,9 @@ if ($user_role === 'admin') {
                 <div id="audit-logs" class="tab-content active">
                     <!-- Audit Log Filters -->
                     <div class="filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                        <label for="auditSearch" class="sr-only">Kullanıcı, Aksiyon Ara...</label><input type="text" id="auditSearch" placeholder="Kullanıcı, Aksiyon Ara..." class="search-input" style="grid-column: 1 / -1;">
+                        <input type="text" id="auditSearch" placeholder="Kullanıcı, Aksiyon Ara..." class="search-input" style="grid-column: 1 / -1;">
                         
-                        <label for="auditActionFilter" class="sr-only">Input</label><select id="auditActionFilter" class="filter-select">
+                        <select id="auditActionFilter" class="filter-select">
                             <option value="">Tüm Aksiyonlar</option>
                             <option value="create">Oluşturma</option>
                             <option value="update">Güncelleme</option>
@@ -4569,7 +4281,7 @@ if ($user_role === 'admin') {
                             <option value="logout">Çıkış</option>
                         </select>
                         
-                        <label for="auditEntityFilter" class="sr-only">Input</label><select id="auditEntityFilter" class="filter-select">
+                        <select id="auditEntityFilter" class="filter-select">
                             <option value="">Tüm Varlıklar</option>
                             <option value="user">Kullanıcı</option>
                             <option value="order">Sipariş</option>
@@ -4577,7 +4289,7 @@ if ($user_role === 'admin') {
                             <option value="service">Hizmet</option>
                         </select>
                         
-                        <label for="auditDateFrom" class="sr-only">Date</label><input type="date" id="auditDateFrom" class="filter-select">
+                        <input type="date" id="auditDateFrom" class="filter-select">
                         
                         <button class="add-btn">
                             <i class="fas fa-filter"></i> Filtrele
@@ -4681,7 +4393,7 @@ if ($user_role === 'admin') {
                                     <td><span class="status-badge active">Başarılı</span></td>
                                     <td><code>192.168.1.100</code></td>
                                     <td>Chrome 119.0</td>
-                                    <td>Ğ°stanbul, Türkiye</td>
+                                    <td>İstanbul, Türkiye</td>
                                     <td>18 Eki 2025, 09:30</td>
                                 </tr>
                                 <tr>
@@ -4718,7 +4430,7 @@ if ($user_role === 'admin') {
                                     <th>Tarayıcı</th>
                                     <th>Son Aktivite</th>
                                     <th>Oturum Süresi</th>
-                                    <th>Ğ°şlemler</th>
+                                    <th>İşlemler</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4773,7 +4485,7 @@ if ($user_role === 'admin') {
                                     <th>Boyut</th>
                                     <th>Tip</th>
                                     <th>Oluşturulma</th>
-                                    <th>Ğ°şlemler</th>
+                                    <th>İşlemler</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4784,7 +4496,7 @@ if ($user_role === 'admin') {
                                     <td><span class="type-badge" style="background: #28a74520; color: #28a745;">Otomatik</span></td>
                                     <td>18 Eki 2025, 12:00</td>
                                     <td>
-                                        <button class="action-btn view-btn" title="Ğ°ndir">
+                                        <button class="action-btn view-btn" title="İndir">
                                             <i class="fas fa-download"></i>
                                         </button>
                                         <button class="action-btn edit-btn" title="Geri Yükle">
@@ -4838,7 +4550,7 @@ if ($user_role === 'admin') {
             </section>
 
             <!-- Settings Section -->
-            <!-- Farsça: Ø¨Ø®Ø´ ØªÙ†Ø¸ÛŒÙ…Ø§Øª. -->
+            <!-- Farsça: بخش تنظیمات. -->
             <!-- Türkçe: Ayarlar Bölümü. -->
             <!-- English: Settings Section. -->
             <section id="settings" class="content-section">
@@ -4885,53 +4597,47 @@ if ($user_role === 'admin') {
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-globe"></i> Genel Ayarlar
                     </h3>
-
                     <div class="form-group">
-                        <label for="auto_16" class="sr-only">Site adını girin</label>
-                        <input type="text" value="CarWash Yönetim Sistemi" placeholder="Site adını girin" id="auto_16">
+                        <label>Site Adı *</label>
+                        <input type="text" value="CarWash Yönetim Sistemi" placeholder="Site adını girin">
                         <small style="color: #64748b;">Web sitesinde görünecek isim</small>
                     </div>
-
                     <div class="form-group">
-                        <label for="auto_17" class="sr-only">admin@example.com</label>
-                        <input type="email" value="admin@otoparkdemotime.com" placeholder="admin@example.com" id="auto_17">
+                        <label>Admin Email *</label>
+                        <input type="email" value="admin@otoparkdemotime.com" placeholder="admin@example.com">
                         <small style="color: #64748b;">Sistem bildirimleri bu adrese gönderilecek</small>
                     </div>
-
                     <div class="form-group">
-                        <label for="auto_18">Saat Dilimi</label>
-                        <select id="auto_18">
+                        <label>Saat Dilimi</label>
+                        <select>
                             <option value="Europe/Istanbul" selected>Europe/Istanbul (GMT+3)</option>
                             <option value="UTC">UTC (GMT+0)</option>
                             <option value="Europe/London">Europe/London (GMT+0)</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="auto_21">Dil</label>
-                        <select id="auto_21">
+                        <label>Dil</label>
+                        <select>
                             <option value="tr" selected>Türkçe</option>
                             <option value="en">English</option>
-                            <option value="fa">ÙØ§Ø±Ø³ÛŒ</option>
+                            <option value="fa">فارسی</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="auto_23">Para Birimi</label>
-                        <select id="auto_23">
+                        <label>Para Birimi</label>
+                        <select>
                             <option value="TRY" selected>₺ Türk Lirası (TRY)</option>
                             <option value="USD">$ US Dollar (USD)</option>
                             <option value="EUR">€ Euro (EUR)</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="auto_24" class="sr-only">Bakım Modu</label>
-                        <input type="checkbox" id="auto_24" checked style="width: auto; margin: 0;">
-                        <span style="margin-left: 8px;">Bakım Modu</span>
-                        <small style="display: block; color: #64748b; margin-top: 6px;">Aktif olduĞŸunda site ziyaretçilere kapalı olacak</small>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>Bakım Modu</span>
+                        </label>
+                        <small style="color: #64748b;">Aktif olduğunda site ziyaretçilere kapalı olacak</small>
                     </div>
-
                     <button class="save-btn" style="margin-top: 1rem;">
                         <i class="fas fa-save"></i> Kaydet
                     </button>
@@ -4939,73 +4645,46 @@ if ($user_role === 'admin') {
 
                 <!-- Payment Settings Tab -->
                 <div id="payment" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
-                    <form method="POST" id="paymentSettingsForm" class="settings-form">
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-credit-card"></i> Ödeme Ayarları
                     </h3>
                     <div class="form-group">
-                        <label for="auto_26" class="sr-only">Platform Komisyon (%)</label>
-                        <input type="number" value="15" min="0" max="100" step="0.1" id="auto_26">
+                        <label>Komisyon Oranı (%)</label>
+                        <input type="number" value="15" min="0" max="100" step="0.1">
                         <small style="color: #64748b;">Platform komisyon yüzdesi</small>
                     </div>
                     <div class="form-group">
-                        <label for="auto_27" class="sr-only">Platform Komisyon (görsel)</label>
-                        <input type="number" value="15" min="0" max="100" step="0.1" id="auto_27">
-                    </div>
-                    <div class="form-group">
-                        <label for="auto_28" class="sr-only">Minimum Ödeme Tutarı</label>
-                        <input type="number" value="50" min="0" id="auto_28">
+                        <label>Minimum Ödeme Tutarı (₺)</label>
+                        <input type="number" value="50" min="0">
                         <small style="color: #64748b;">Tasfiye için minimum tutar</small>
                     </div>
-                    <div class="form-group">
-                        <label for="auto_29" class="sr-only">Minimum Ödeme (görsel)</label>
-                        <input type="number" value="50" min="0" id="auto_29">
-                    </div>
                     
-                    <button class="save-btn" style="margin-top: 1rem;">
-                        <i class="fas fa-save"></i> Kaydet
-                    </button>
-                    </form>
-
-                    <h4 style="margin: 2rem 0 1rem 0; color: #333;">Ödeme AĞŸ Geçitleri</h4>
+                    <h4 style="margin: 2rem 0 1rem 0; color: #333;">Ödeme Ağ Geçitleri</h4>
                     
                     <!-- Stripe -->
-                    <form method="POST" id="stripeSettingsForm" class="settings-form">
                     <div style="border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem;">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
                             <i class="fab fa-stripe" style="font-size: 2rem; color: #635bff;"></i>
                             <div style="flex: 1;">
                                 <h5 style="margin: 0;">Stripe</h5>
                                 <small style="color: #64748b;">Kredi kartı ödemeleri</small>
                             </div>
-                            <label for="auto_30" class="sr-only">Live Mode</label>
-                            <input type="checkbox" checked style="width: auto; margin: 0;" id="auto_30">
-                            <label for="auto_31" class="sr-only">Test Mode</label>
-                            <input type="checkbox" checked style="width: auto; margin: 0;" id="auto_31">
-                            <span>Aktif</span>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                                <input type="checkbox" checked style="width: auto; margin: 0;">
+                                <span>Aktif</span>
+                            </label>
                         </div>
-                        <div class="form-group">
-                            <label for="auto_32">Publishable Key</label>
-                            <input type="text" placeholder="pk_live_..." id="auto_32" autocomplete="off">
-                                <label for="auto_33" class="sr-only">Publishable Key (alt)</label>
-                                <input type="text" placeholder="pk_live_..." id="auto_33" autocomplete="off">
-                            </div>
-                            <div class="form-group">
-                                <label for="auto_34">Secret Key</label>
-                                <input type="password" placeholder="sk_live_..." id="auto_34" autocomplete="off">
-                            </div>
-                            <div class="form-group">
-                                <label for="auto_35">Secret Key (alt)</label>
-                                <input type="password" placeholder="sk_live_..." id="auto_35" autocomplete="off">
-                            </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label>Publishable Key</label>
+                            <input type="text" placeholder="pk_live_...">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Secret Key</label>
+                            <input type="password" placeholder="sk_live_...">
+                        </div>
                     </div>
-                    <button class="save-btn" style="margin-top: 1rem;">
-                        <i class="fas fa-save"></i> Kaydet
-                    </button>
-                    </form>
 
                     <!-- PayPal -->
-                    <form method="POST" id="paypalSettingsForm" class="settings-form">
                     <div style="border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem;">
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
                             <i class="fab fa-paypal" style="font-size: 2rem; color: #00457c;"></i>
@@ -5013,36 +4692,22 @@ if ($user_role === 'admin') {
                                 <h5 style="margin: 0;">PayPal</h5>
                                 <small style="color: #64748b;">PayPal ödemeleri</small>
                             </div>
-                            <label for="auto_36" class="sr-only">Enable PayPal</label>
-                            <input type="checkbox" style="width: auto; margin: 0;" id="auto_36">
-                            <label for="auto_37" class="sr-only">Sandbox Mode</label>
-                            <input type="checkbox" style="width: auto; margin: 0;" id="auto_37">
-                            <span>Aktif</span>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                                <input type="checkbox" style="width: auto; margin: 0;">
+                                <span>Aktif</span>
+                            </label>
                         </div>
-                        <div class="form-group">
-                            <label for="auto_38">Client ID</label>
-                            <input type="text" placeholder="AXxxx..." id="auto_38" autocomplete="off">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label>Client ID</label>
+                            <input type="text" placeholder="AXxxx...">
                         </div>
-                        <div class="form-group">
-                            <label for="auto_39">Client ID (alt)</label>
-                            <input type="text" placeholder="AXxxx..." id="auto_39" autocomplete="off">
-                        </div>
-                        <div class="form-group">
-                            <label for="auto_40">Secret Key</label>
-                            <input type="password" placeholder="ECxxx..." id="auto_40" autocomplete="off">
-                        </div>
-                        <div class="form-group">
-                            <label for="auto_41">Secret Key (alt)</label>
-                            <input type="password" placeholder="ECxxx..." id="auto_41" autocomplete="off">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Secret Key</label>
+                            <input type="password" placeholder="ECxxx...">
                         </div>
                     </div>
-                    <button class="save-btn" style="margin-top: 1rem;">
-                        <i class="fas fa-save"></i> Kaydet
-                    </button>
-                    </form>
 
                     <!-- iyzico -->
-                    <form method="POST" id="iyzicoSettingsForm" class="settings-form">
                     <div style="border: 2px solid #e9ecef; border-radius: 8px; padding: 1.5rem;">
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
                             <i class="fas fa-credit-card" style="font-size: 2rem; color: #ff6600;"></i>
@@ -5050,34 +4715,24 @@ if ($user_role === 'admin') {
                                 <h5 style="margin: 0;">iyzico</h5>
                                 <small style="color: #64748b;">Türkiye kredi kartı ödemeleri</small>
                             </div>
-                            <label for="auto_42" class="sr-only">Enable</label>
-                            <input type="checkbox" checked style="width: auto; margin: 0;" id="auto_42">
-                            <label for="auto_43" class="sr-only">Test Mode</label>
-                            <input type="checkbox" checked style="width: auto; margin: 0;" id="auto_43">
-                            <span>Aktif</span>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                                <input type="checkbox" checked style="width: auto; margin: 0;">
+                                <span>Aktif</span>
+                            </label>
                         </div>
-                        <div class="form-group">
-                            <label for="auto_44">API Key</label>
-                            <input type="text" placeholder="sandbox-xxx..." id="auto_44" autocomplete="off">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label>API Key</label>
+                            <input type="text" placeholder="sandbox-xxx...">
                         </div>
-                        <div class="form-group">
-                            <label for="auto_45">API Key (alt)</label>
-                            <input type="text" placeholder="sandbox-xxx..." id="auto_45" autocomplete="off">
-                        </div>
-                        <div class="form-group">
-                            <label for="auto_46">Secret Key</label>
-                            <input type="password" placeholder="sandbox-xxx..." id="auto_46" autocomplete="off">
-                        </div>
-                        <div class="form-group">
-                            <label for="auto_47">Secret Key (alt)</label>
-                            <input type="password" placeholder="sandbox-xxx..." id="auto_47" autocomplete="off">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Secret Key</label>
+                            <input type="password" placeholder="sandbox-xxx...">
                         </div>
                     </div>
-                    
+
                     <button class="save-btn" style="margin-top: 1.5rem;">
                         <i class="fas fa-save"></i> Kaydet
                     </button>
-                    </form>
                 </div>
 
                 <!-- Notifications Settings Tab -->
@@ -5085,93 +4740,79 @@ if ($user_role === 'admin') {
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-bell"></i> Bildirim Ayarları
                     </h3>
-
+                    
                     <!-- Email Notifications -->
-                    <form method="POST" id="emailNotificationForm" class="settings-form">
+                    <h4 style="margin: 1.5rem 0 1rem 0;">Email Bildirimleri (SMTP)</h4>
                     <div class="form-group">
-                        <label for="auto_48">SMTP Host</label>
-                        <input type="text" value="smtp.gmail.com" placeholder="smtp.example.com" id="auto_48">
+                        <label>SMTP Host</label>
+                        <input type="text" value="smtp.gmail.com" placeholder="smtp.example.com">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>SMTP Port</label>
+                            <input type="number" value="587">
+                        </div>
+                        <div class="form-group">
+                            <label>Encryption</label>
+                            <select>
+                                <option value="tls" selected>TLS</option>
+                                <option value="ssl">SSL</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="auto_51">SMTP Port</label>
-                        <input type="number" value="587" id="auto_51">
+                        <label>SMTP Username</label>
+                        <input type="text" value="no-reply@otoparkdemotime.com">
                     </div>
                     <div class="form-group">
-                        <label for="auto_52">Encryption</label>
-                        <select id="auto_52">
-                            <option value="tls" selected>TLS</option>
-                            <option value="ssl">SSL</option>
-                            <option value="none">None</option>
-                        </select>
+                        <label>SMTP Password</label>
+                        <input type="password" placeholder="••••••••">
                     </div>
-                    <div class="form-group">
-                        <label for="auto_54">From Email</label>
-                        <input type="text" value="no-reply@otoparkdemotime.com" id="auto_54">
-                    </div>
-                    <div class="form-group">
-                        <label for="auto_55">SMTP Username</label>
-                        <input type="text" placeholder=""¢"¢"¢"¢"¢"¢"¢"¢" id="auto_55" autocomplete="username">
-                    </div>
-                    <div class="form-group">
-                        <label for="auto_56">SMTP Password</label>
-                        <input type="password" placeholder=""¢"¢"¢"¢"¢"¢"¢"¢" id="auto_56" autocomplete="current-password">
-                    </div>
-                    <button class="save-btn" style="margin-top: 1rem;">
-                        <i class="fas fa-save"></i> Kaydet
-                    </button>
-                    </form>
-
+                    
                     <!-- SMS Notifications -->
-                    <form method="POST" id="smsNotificationForm" class="settings-form">
-                    <h4 style="margin: 2rem 0 1rem 0; color: #333; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-sms"></i> SMS Bildirimleri
-                    </h4>
-                    <div class="form-group">
-                        <label for="auto_57" class="sr-only">Enable SMS</label>
-                        <input type="checkbox" id="auto_57" checked style="width: auto; margin: 0;">
-                    </div>
-                    <div class="form-group" style="display:flex; gap:8px; align-items:center;">
-                        <label for="auto_59" class="sr-only">Twilio Account SID</label>
-                        <input type="text" placeholder="ACxxxxxxxxxx" id="auto_59" autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label for="auto_60">Twilio Auth Token</label>
-                        <input type="password" placeholder=""¢"¢"¢"¢"¢"¢"¢"¢" id="auto_60" autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label for="auto_61">Gönderen Numara</label>
-                        <input type="tel" value="+905551234567" id="auto_61">
-                    </div>
-                    <button class="save-btn" style="margin-top: 1rem;">
-                        <i class="fas fa-save"></i> Kaydet
-                    </button>
-                    </form>
-
-                    <!-- Push Notifications -->
-                    <form method="POST" id="pushNotificationForm" class="settings-form">
-                    <h4 style="margin: 2rem 0 1rem 0; color: #333; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-bell"></i> Push Bildirimleri (Firebase)
-                    </h4>
+                    <h4 style="margin: 2rem 0 1rem 0;">SMS Bildirimleri (Twilio)</h4>
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" id="auto_63" style="width: auto; margin: 0;">
-                            <span>Aktif Et</span>
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>SMS Bildirimlerini Aktif Et</span>
                         </label>
                     </div>
                     <div class="form-group">
-                        <label for="auto_65">Firebase Server Key</label>
-                        <input type="password" placeholder=""¢"¢"¢"¢"¢"¢"¢"¢" id="auto_65" autocomplete="off">
+                        <label>Twilio Account SID</label>
+                        <input type="text" placeholder="ACxxxxxxxxxx">
                     </div>
+                    <div class="form-group">
+                        <label>Twilio Auth Token</label>
+                        <input type="password" placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Gönderen Numara</label>
+                        <input type="tel" value="+905551234567">
+                    </div>
+                    
+                    <!-- Push Notifications -->
+                    <h4 style="margin: 2rem 0 1rem 0;">Push Notifications (Firebase)</h4>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" style="width: auto; margin: 0;">
+                            <span>Push Notification'ları Aktif Et</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Firebase Server Key</label>
+                        <input type="password" placeholder="••••••••">
+                    </div>
+                    
                     <button class="save-btn" style="margin-top: 1rem;">
                         <i class="fas fa-save"></i> Kaydet
                     </button>
-                    </form>
                 </div>
 
                 <!-- RBAC Settings Tab -->
                 <div id="rbac" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-user-shield"></i> Rol ve Ğ°zin Yönetimi (RBAC)
+                        <i class="fas fa-user-shield"></i> Rol ve İzin Yönetimi (RBAC)
                     </h3>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
@@ -5243,12 +4884,12 @@ if ($user_role === 'admin') {
                         
                         <!-- Permissions -->
                         <div>
-                            <h4 style="margin-bottom: 1rem;">Ğ°zin Kategorileri</h4>
+                            <h4 style="margin-bottom: 1rem;">İzin Kategorileri</h4>
                             <div style="display: flex; flex-direction: column; gap: 1rem;">
                                 <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
                                     <h5 style="margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 8px;">
                                         <i class="fas fa-users" style="color: #667eea;"></i>
-                                        Kullanıcı Ğ°zinleri
+                                        Kullanıcı İzinleri
                                     </h5>
                                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem;">
                                         <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">users.view</span>
@@ -5261,7 +4902,7 @@ if ($user_role === 'admin') {
                                 <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
                                     <h5 style="margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 8px;">
                                         <i class="fas fa-shopping-cart" style="color: #28a745;"></i>
-                                        Sipariş Ğ°zinleri
+                                        Sipariş İzinleri
                                     </h5>
                                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem;">
                                         <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">orders.view</span>
@@ -5273,7 +4914,7 @@ if ($user_role === 'admin') {
                                 <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
                                     <h5 style="margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 8px;">
                                         <i class="fas fa-credit-card" style="color: #ffc107;"></i>
-                                        Ödeme Ğ°zinleri
+                                        Ödeme İzinleri
                                     </h5>
                                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem;">
                                         <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">payments.view</span>
@@ -5285,7 +4926,7 @@ if ($user_role === 'admin') {
                                 <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
                                     <h5 style="margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 8px;">
                                         <i class="fas fa-cog" style="color: #dc3545;"></i>
-                                        Sistem Ğ°zinleri
+                                        Sistem İzinleri
                                     </h5>
                                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem;">
                                         <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">settings.view</span>
@@ -5305,86 +4946,65 @@ if ($user_role === 'admin') {
                 <!-- Security Settings Tab -->
                 <div id="securitytab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
-                        <i for="auto_66" class="sr-only">Input<input type="checkbox" checked style="width: auto; margin: 0;" id="auto_66">         </i></h3>
+                        <i class="fas fa-shield-alt"></i> Güvenlik Ayarları
+                    </h3>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <label for="auto_67" class="sr-only">Input</label><input type="checkbox" checked style="width: auto; margin: 0;" id="auto_67">
-                            <span>Ğ°ki Faktörlü Kimlik DoĞŸrulama (2FA) Zorunlu</span>
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>İki Faktörlü Kimlik Doğrulama (2FA) Zorunlu</span>
                         </label>
-                    <label for="auto_68" class="sr-only">Input</label><input type="number" value="60" min="5" max="1440" id="auto_68">nıcıları için 2FA zorunlu olacak
+                        <small style="color: #64748b;">Tüm admin kullanıcıları için 2FA zorunlu olacak</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="auto_69">Oturum Zaman Aşımı (dakika)</label>
-                        <input type="number" value="60" min="5" max="1440" id="auto_69">
-                        <small style="color: #64748b; display:block;">Kullanıcı etkin deĞŸilse otomatik çıkış süresi</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="auto_70">Boşta Kalma (dakika)</label>
-                        <input type="number" value="5" min="3" max="10" id="auto_70">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="auto_71">Maksimum Başarısız Giriş Denemesi</label>
-                        <input type="number" value="5" min="1" max="100" id="auto_71">
-                        <small style="color: #64748b; display:block;">Bu sayıda başarısız girişten sonra hesap kilitlenecek</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="auto_72">Hesap Kilitlenme Süresi (dakika)</label>
-                        <input type="number" value="30" min="1" max="1440" id="auto_72">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="auto_73">Minimum Şifre UzunluĞŸu</label>
-                        <input type="number" value="8" min="6" max="128" id="auto_73">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="auto_74">Şifre Geçerlilik Süresi (gün)</label>
-                        <input type="number" value="30" min="1" max="3650" id="auto_74">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="auto_75">Minimum Şifre Kuralları</label>
-                        <input type="checkbox" checked style="width: auto; margin: 0;" id="auto_75">
-                        <small style="color: #64748b; display:block; margin-top:6px;">Zorunlu minimum karakter kuralları uygulanacak</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="auto_76">Şifre Karmaşıklık Kuralları</label>
-                        <input type="checkbox" checked style="width: auto; margin: 0;" id="auto_76">
-                        <small style="color: #64748b; display:block; margin-top:6px;">Büyük/küçük harf, rakam ve özel karakter gerektirir</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="auto_77">Şifre Yenileme ZorunluluĞŸu (gün)</label>
-                        <input type="number" value="90" min="0" max="3650" id="auto_77">
+                        <label>Oturum Zaman Aşımı (dakika)</label>
+                        <input type="number" value="60" min="5" max="1440">
+                        <small style="color: #64748b;">İşlem yapılmadığında otomatik çıkış süresi</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="auto_78">Şifre Değiştirme Periyodu (gün)</label>
-                        <label for="auto_78" class="sr-only">Input</label><input type="number" value="90" min="0" max="365" id="auto_78">
-                        <small style="color: #64748b;">0 girerek devre<label for="auto_79" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_79"> </small></div>
+                        <label>Maksimum Başarısız Giriş Denemesi</label>
+                        <input type="number" value="5" min="3" max="10">
+                        <small style="color: #64748b;">Bu sayıda başarısız girişten sonra hesap kilitlenecek</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Hesap Kilitleme Süresi (dakika)</label>
+                        <input type="number" value="30" min="5" max="1440">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Minimum Şifre Uzunluğu</label>
+                        <input type="number" value="8" min="6" max="20">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
+                            <span>Şifre Karmaşıklık Kuralları</span>
+                        </label>
+                        <small style="color: #64748b;">Büyük/küçük harf, rakam ve özel karakter gerektirir</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Şifre Değiştirme Periyodu (gün)</label>
+                        <input type="number" value="90" min="0" max="365">
+                        <small style="color: #64748b;">0 girerek devre dışı bırakabilirsiniz</small>
+                    </div>
                     
                     <h4 style="margin: 2rem 0 1rem 0;">IP Beyaz Listesi</h4>
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <label for="auto_80" class="sr-only">Input</label><input type="checkbox" style="width: auto; margin: 0;" id="auto_80">
+                            <input type="checkbox" style="width: auto; margin: 0;">
                             <span>IP Kısıtlaması Aktif</span>
                         </label>
                         <small style="color: #64748b;">Sadece belirlenen IP adreslerinden erişime izin ver</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="auto_81">ğ°zin Verilen IP Adresleri (her satırda bir IP)</label>
-                        <label for="auto_81" class="sr-only">192.168.1.1
-192.168.1.2
-10.0.0.1</label><textarea rows="5" placeholder="192.168.1.1
-192.168.1.2
-10.0.0.1" id="auto_81"></textarea>
+                        <label>İzin Verilen IP Adresleri (her satırda bir IP)</label>
+                        <textarea rows="5" placeholder="192.168.1.1&#10;192.168.1.2&#10;10.0.0.1"></textarea>
                     </div>
                     
                     <button class="save-btn" style="margin-top: 1rem;">
@@ -5394,93 +5014,85 @@ if ($user_role === 'admin') {
 
                 <!-- Backup Settings Tab -->
                 <div id="backuptab" class="settings-tab-content" style="display: none; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
-                    <form method="POST" id="backupSettingsForm" class="settings-form">
                     <h3 style="margin-bottom: 1.5rem; color: #333; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-database"></i> Yedekleme Ayarları
                     </h3>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" checked id="auto_83" style="width: auto; margin: 0;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
                             <span>Otomatik Yedekleme Aktif</span>
                         </label>
                         <small style="color: #64748b;">Belirlenen zamanlarda otomatik yedek alınacak</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="auto_85">Yedekleme SıklıĞŸı</label>
-                        <select id="auto_85">
+                        <label>Yedekleme Sıklığı</label>
+                        <select>
                             <option value="hourly">Saatlik</option>
                             <option value="daily" selected>Günlük</option>
                             <option value="weekly">Haftalık</option>
                             <option value="monthly">Aylık</option>
                         </select>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="auto_86">Yedekleme Saati</label>
-                        <input type="time" value="02:00" id="auto_86">
-                        <small style="color: #64748b;">Yedekleme işleminin yapılacaĞŸı saat</small>
+                        <label>Yedekleme Saati</label>
+                        <input type="time" value="02:00">
+                        <small style="color: #64748b;">Yedekleme işleminin yapılacağı saat</small>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="auto_87">Yedek Saklama Süresi (gün)</label>
-                        <input type="number" value="30" min="1" max="365" id="auto_87">
+                        <label>Yedek Saklama Süresi (gün)</label>
+                        <input type="number" value="30" min="1" max="365">
                         <small style="color: #64748b;">Bu süreden eski yedekler otomatik silinecek</small>
                     </div>
-
-                    <div class="form-group">
-                        <label for="auto_88">Yedek Saklama Azami (gün)</label>
-                        <input type="number" value="10" min="1" max="100" id="auto_88">
-                    </div>
                     
                     <div class="form-group">
-                        <label for="auto_89">Maksimum Yedek Sayısı</label>
-                        <div>
-                            <label for="auto_89" class="sr-only">Input</label>
-                            <input type="checkbox" checked style="width: auto; margin: 0;" id="auto_89">
-                        </div>
+                        <label>Maksimum Yedek Sayısı</label>
+                        <input type="number" value="10" min="1" max="100">
                     </div>
-
+                    
                     <h4 style="margin: 2rem 0 1rem 0;">Yedek Depolama</h4>
-
+                    
                     <div class="form-group">
-                        <label for="auto_90" class="block">Yedek Klasörü</label>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <label for="auto_90" class="sr-only">Backup path</label>
-                            <input type="text" value="/var/backups/carwash" id="auto_90" class="w-full px-3 py-2 border rounded-lg">
-                            <label for="auto_91" class="sr-only">Use local storage</label>
-                            <input type="checkbox" checked id="auto_91" style="width: auto; margin: 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked style="width: auto; margin: 0;">
                             <span>Yerel Sunucuda Sakla</span>
-                        </div>
+                        </label>
                     </div>
                     
                     <div class="form-group">
-                        <label for="auto_94">FTP Host</label>
-                        <input type="text" placeholder="ftp.example.com" id="auto_94">
-                        <label for="auto_95" class="sr-only">Enable FTP</label>
-                        <input type="checkbox" style="width: auto; margin: 0;" id="auto_95">
-                        <span>Uzak Sunucuya Yükle (FTP/SFTP)</span>
+                        <label>Yerel Yedek Klasörü</label>
+                        <input type="text" value="/var/backups/carwash">
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="auto_97">FTP Host (alt)</label>
-                        <input type="text" placeholder="ftp.example.com" id="auto_97">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" style="width: auto; margin: 0;">
+                            <span>Uzak Sunucuya Yükle (FTP/SFTP)</span>
+                        </label>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="auto_99">FTP Username</label>
-                        <input type="text" placeholder="username" id="auto_99" autocomplete="username">
+                        <label>FTP Host</label>
+                        <input type="text" placeholder="ftp.example.com">
                     </div>
-                    <div class="form-group">
-                        <label for="auto_100">FTP Password</label>
-                        <input type="password" placeholder=""¢"¢"¢"¢"¢"¢"¢"¢" id="auto_100" autocomplete="off">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>FTP Username</label>
+                            <input type="text" placeholder="username">
+                        </div>
+                        <div class="form-group">
+                            <label>FTP Password</label>
+                            <input type="password" placeholder="••••••••">
+                        </div>
                     </div>
                     
                     <button class="save-btn" style="margin-top: 1rem;">
                         <i class="fas fa-save"></i> Kaydet
                     </button>
-                    </form>
                 </div>
 
                 <!-- Email Templates Tab -->
@@ -5495,17 +5107,19 @@ if ($user_role === 'admin') {
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div>
                                     <h5 style="margin: 0;">Hoş Geldin Emaili</h5>
-                                    <small style="color: #64748b;">Yeni kullanıcı kaydında gönderilen email<label for="auto_101" class="sr-only">Input</label><input type="text" value="CarWash'a Hoş Geldiniz!" id="auto_101">                            <button class="action-btn edit-btn">
+                                    <small style="color: #64748b;">Yeni kullanıcı kaydında gönderilen email</small>
+                                </div>
+                                <button class="action-btn edit-btn">
                                     <i class="fas fa-edit"></i> Düzenle
                                 </button>
-                            </small></div>
+                            </div>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
-                                <label for="auto_102">Konu</label>
-                                <label for="auto_102" class="sr-only">Input</label><input type="text" value="CarWash'a Hoş Geldiniz!" id="auto_102">
+                                <label>Konu</label>
+                                <input type="text" value="CarWash'a Hoş Geldiniz!">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label for="auto_103">Gövde</label>
-                                <label for="auto_103" class="sr-only">Input</label><textarea rows="3" readonly id="auto_103">Merhaba {{user_name}}, CarWash ailesine hoş geldiniz!</textarea>
+                                <label>Gövde</label>
+                                <textarea rows="3" readonly>Merhaba {{user_name}}, CarWash ailesine hoş geldiniz!</textarea>
                             </div>
                         </div>
                         
@@ -5514,17 +5128,19 @@ if ($user_role === 'admin') {
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div>
                                     <h5 style="margin: 0;">Sipariş Onayı</h5>
-                                    <small style="color: #64748b;">Sipariş oluşturulduğŸunda gönderile<label for="auto_104" class="sr-only">Input</label><input type="text" value="Siparişiniz Alındı - #{{order_id}}" id="auto_104">                        <button class="action-btn edit-btn">
+                                    <small style="color: #64748b;">Sipariş oluşturulduğunda gönderilen email</small>
+                                </div>
+                                <button class="action-btn edit-btn">
                                     <i class="fas fa-edit"></i> Düzenle
                                 </button>
-                            </small></div>
+                            </div>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
-                                <label for="auto_105">Konu</label>
-                                <label for="auto_105" class="sr-only">Input</label><input type="text" value="Siparişiniz Alındı - #{{order_id}}" id="auto_105">
+                                <label>Konu</label>
+                                <input type="text" value="Siparişiniz Alındı - #{{order_id}}">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label for="auto_106">Gövde</label>
-              <label for="auto_106" class="sr-only">Input</label><textarea rows="3" readonly id="auto_106">Siparişiniz başarıyla alındı. Sipariş No: {{order_id}}</textarea>
+                                <label>Gövde</label>
+                                <textarea rows="3" readonly>Siparişiniz başarıyla alındı. Sipariş No: {{order_id}}</textarea>
                             </div>
                         </div>
                         
@@ -5533,18 +5149,19 @@ if ($user_role === 'admin') {
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div>
                                     <h5 style="margin: 0;">Şifre Sıfırlama</h5>
-                                    <small style="color: #64748b;">Şifre sıfırlama ta<label for="auto_107" class="sr-only">Input</label><input type="text" value="Şifre Sıfırlama Talebi" id="auto_107">     </small></div>
+                                    <small style="color: #64748b;">Şifre sıfırlama talebi için email</small>
+                                </div>
                                 <button class="action-btn edit-btn">
                                     <i class="fas fa-edit"></i> Düzenle
                                 </button>
                             </div>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
-                                <label for="auto_108">Konu</label>
-                                <label for="auto_108" class="sr-only">Input</label><input type="text" value="Şifre Sıfırlama Talebi" id="auto_108">
+                                <label>Konu</label>
+                                <input type="text" value="Şifre Sıfırlama Talebi">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label for="auto_109">Gövde</label>
-    <label for="auto_109" class="sr-only">Input</label><textarea rows="3" readonly id="auto_109">Şifrenizi sıfırlamak için aşaĞŸıdaki linke tıklayın: {{reset_link}}</textarea>
+                                <label>Gövde</label>
+                                <textarea rows="3" readonly>Şifrenizi sıfırlamak için aşağıdaki linke tıklayın: {{reset_link}}</textarea>
                             </div>
                         </div>
                     </div>
@@ -5557,42 +5174,41 @@ if ($user_role === 'admin') {
                     </div>
                 </div>
             </section>
-            
-    
+    </main>
 </div>
 
 <!-- Modals -->
 <!-- Add Car Wash Modal -->
-    <!-- Farsça: Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„ Ã˜Â§Ã™ÂÃ˜Â²Ã™ÂˆÃ˜Â¯Ã™Â† ÃšÂ©Ã˜Â§Ã˜Â±Ã™ÂˆÃ˜Â§Ã˜Â´. -->
+    <!-- Farsça: مودال افزودن کارواش. -->
     <!-- Türkçe: Otopark Ekle Modalı. -->
     <!-- English: Add Car Wash Modal. -->
     <div id="carwashModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Yeni Otopark Ekle</h3>
-                <span class="close" id="closeCarwashModal">Ã—</span>
+                <span class="close" id="closeCarwashModal">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="carwashForm">
                     <div class="form-group">
-                        <label for="carwashName">Otopark Adı</label>
-                        <label for="carwashName" class="sr-only">Input</label><input type="text" id="carwashName" required>
+                        <label>Otopark Adı</label>
+                        <input type="text" id="carwashName" required>
                     </div>
                     <div class="form-group">
-                        <label for="carwashAddress">Adres</label>
-                        <label for="carwashAddress" class="sr-only">Input</label><textarea id="carwashAddress" required></textarea>
+                        <label>Adres</label>
+                        <textarea id="carwashAddress" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="carwashCapacity">Kapasite</label>
-                        <label for="carwashCapacity" class="sr-only">Input</label><input type="number" id="carwashCapacity" required>
+                        <label>Kapasite</label>
+                        <input type="number" id="carwashCapacity" required>
                     </div>
                     <div class="form-group">
-                        <label for="carwashPrice">Saat Ücreti (₺)</label>
-                        <label for="carwashPrice" class="sr-only">Input</label><input type="number" id="carwashPrice" required>
+                        <label>Saat Ücreti (₺)</label>
+                        <input type="number" id="carwashPrice" required>
                     </div>
                     <div class="form-group">
-                        <label for="carwashStatus">Durum</label>
-                        <select id="carwashStatus" required title="Durum">
+                        <label>Durum</label>
+                        <select id="carwashStatus" required>
                             <option value="active">Aktif</option>
                             <option value="inactive">Pasif</option>
                             <option value="maintenance">Bakımda</option>
@@ -5605,60 +5221,60 @@ if ($user_role === 'admin') {
     </div>
 
 <!-- Add Service Modal -->
-    <!-- Farsça: Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„ Ã˜Â§Ã™ÂÃ˜Â²Ã™ÂˆÃ˜Â¯Ã™Â† Ã˜Â®Ã˜Â¯Ã™Â…Ã˜Â§Ã˜Âª. -->
+    <!-- Farsça: مودال افزودن خدمات. -->
     <!-- Türkçe: Hizmet Ekle Modalı. -->
     <!-- English: Add Service Modal. -->
     <div id="serviceModal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
                 <h3><i class="fas fa-concierge-bell mr-2"></i>Yeni Hizmet Ekle</h3>
-                <span class="close" id="closeServiceModal">Ã—</span>
+                <span class="close" id="closeServiceModal">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="serviceForm">
                     <div class="form-group">
-                        <label for="serviceName"><i class="fas fa-tag mr-1"></i>Hizmet Adı *</label>
-                        <label for="serviceName" class="sr-only">Service name</label><input type="text" id="serviceName" name="service_name" placeholder="Örn: Dış Yıkama" required>
+                        <label><i class="fas fa-tag mr-1"></i>Hizmet Adı *</label>
+                        <input type="text" id="serviceName" name="service_name" placeholder="Örn: Dış Yıkama" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="serviceDescription"><i class="fas fa-align-left mr-1"></i>Açıklama</label>
-                        <label for="serviceDescription" class="sr-only">Description</label><textarea id="serviceDescription" name="description" rows="3" placeholder="Hizmet açıklaması..."></textarea>
+                        <label><i class="fas fa-align-left mr-1"></i>Açıklama</label>
+                        <textarea id="serviceDescription" name="description" rows="3" placeholder="Hizmet açıklaması..."></textarea>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label for="serviceCategory"><i class="fas fa-layer-group mr-1"></i>Kategori *</label>
-                            <label for="serviceCategory" class="sr-only">Category</label><select id="serviceCategory" name="category" required>
+                            <label><i class="fas fa-layer-group mr-1"></i>Kategori *</label>
+                            <select id="serviceCategory" name="category" required>
                                 <option value="">Kategori Seçin</option>
                                 <option value="wash">Yıkama</option>
                                 <option value="detail">Detaylı Bakım</option>
-                                <option value="polish">Cilalama &amp; Koruma</option>
-                                <option value="interior">ğ°ç Temizlik</option>
+                                <option value="polish">Cilalama & Koruma</option>
+                                <option value="interior">İç Temizlik</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label for="serviceDuration"><i class="fas fa-clock mr-1"></i>Süre (dakika) *</label>
-                            <label for="serviceDuration" class="sr-only">Duration</label><input type="number" id="serviceDuration" name="duration" min="1" placeholder="30" required>
+                            <label><i class="fas fa-clock mr-1"></i>Süre (dakika) *</label>
+                            <input type="number" id="serviceDuration" name="duration" min="1" placeholder="30" required>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="priceSedan"><i class="fas fa-car mr-1"></i>Araç Tipi Fiyatlandırması *</label>
+                        <label><i class="fas fa-car mr-1"></i>Araç Tipi Fiyatlandırması *</label>
                         <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
                                 <div>
-                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;" for="priceSedan">Sedan (₺) *</label>
-                                    <label for="priceSedan" class="sr-only">Price sedan</label><input type="number" id="priceSedan" name="price_sedan" min="0" step="0.01" placeholder="150" required style="margin-top: 0.25rem;">
+                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;">Sedan (₺) *</label>
+                                    <input type="number" id="priceSedan" name="price_sedan" min="0" step="0.01" placeholder="150" required style="margin-top: 0.25rem;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;" for="priceSUV">SUV (₺) *</label>
-                                    <label for="priceSUV" class="sr-only">Price suv</label><input type="number" id="priceSUV" name="price_suv" min="0" step="0.01" placeholder="180" required style="margin-top: 0.25rem;">
+                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;">SUV (₺) *</label>
+                                    <input type="number" id="priceSUV" name="price_suv" min="0" step="0.01" placeholder="180" required style="margin-top: 0.25rem;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;" for="priceTruck">Kamyonet (₺) *</label>
-                                    <label for="priceTruck" class="sr-only">Price truck</label><input type="number" id="priceTruck" name="price_truck" min="0" step="0.01" placeholder="200" required style="margin-top: 0.25rem;">
+                                    <label style="font-size: 0.85rem; color: #666; font-weight: normal;">Kamyonet (₺) *</label>
+                                    <input type="number" id="priceTruck" name="price_truck" min="0" step="0.01" placeholder="200" required style="margin-top: 0.25rem;">
                                 </div>
                             </div>
                             <small style="color: #666; font-size: 0.8rem;">
@@ -5669,13 +5285,13 @@ if ($user_role === 'admin') {
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label for="serviceOrder"><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
-                            <label for="serviceOrder" class="sr-only">Sort order</label><input type="number" id="serviceOrder" name="sort_order" min="1" placeholder="1" value="1">
+                            <label><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
+                            <input type="number" id="serviceOrder" name="sort_order" min="1" placeholder="1" value="1">
                         </div>
                         
                         <div class="form-group">
-                            <label for="serviceStatus"><i class="fas fa-toggle-on mr-1"></i>Durum *</label>
-                            <label for="serviceStatus" class="sr-only">Status</label><select id="serviceStatus" name="status" required>
+                            <label><i class="fas fa-toggle-on mr-1"></i>Durum *</label>
+                            <select id="serviceStatus" name="status" required>
                                 <option value="active">Aktif</option>
                                 <option value="inactive">Pasif</option>
                             </select>
@@ -5683,8 +5299,8 @@ if ($user_role === 'admin') {
                     </div>
                     
                     <div class="form-group">
-                        <label for="serviceIcon"><i class="fas fa-icons mr-1"></i>ğ°kon (Font Awesome sınıfı)</label>
-                        <label for="serviceIcon" class="sr-only">Icon</label><input type="text" id="serviceIcon" name="icon" placeholder="fas fa-car" value="fas fa-car">
+                        <label><i class="fas fa-icons mr-1"></i>İkon (Font Awesome sınıfı)</label>
+                        <input type="text" id="serviceIcon" name="icon" placeholder="fas fa-car" value="fas fa-car">
                         <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 0.25rem;">
                             <i class="fas fa-lightbulb"></i> Örnek: fas fa-car, fas fa-broom, fas fa-star, fas fa-shield-alt
                         </small>
@@ -5699,20 +5315,20 @@ if ($user_role === 'admin') {
     </div>
 
 <!-- Add Ticket Modal -->
-    <!-- Farsça: Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„ Ã˜Â§Ã™ÂÃ˜Â²Ã™ÂˆÃ˜Â¯Ã™Â† Ã˜ÂªÃ›ÂŒÃšÂ©Ã˜Âª. -->
+    <!-- Farsça: مودال افزودن تیکت. -->
     <!-- Türkçe: Destek Talebi Ekle Modalı. -->
     <!-- English: Add Ticket Modal. -->
     <div id="ticketModal" class="modal">
         <div class="modal-content" style="max-width: 650px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #fd7e14, #dc3545);">
                 <h3><i class="fas fa-ticket-alt mr-2"></i>Yeni Destek Talebi Oluştur</h3>
-                <span class="close" id="closeTicketModal">Ã—</span>
+                <span class="close" id="closeTicketModal">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="ticketForm">
                     <div class="form-group">
-                        <label for="ticketCustomer"><i class="fas fa-user mr-1"></i>Müşteri Seçin *</label>
-                        <label for="ticketCustomer" class="sr-only">Customer id</label><select id="ticketCustomer" name="customer_id" required>
+                        <label><i class="fas fa-user mr-1"></i>Müşteri Seçin *</label>
+                        <select id="ticketCustomer" name="customer_id" required>
                             <option value="">Müşteri Seçin</option>
                             <option value="1">Ahmet Yılmaz - ahmet@email.com</option>
                             <option value="2">Elif Kara - elif@email.com</option>
@@ -5722,26 +5338,26 @@ if ($user_role === 'admin') {
                     </div>
                     
                     <div class="form-group">
-                        <label for="ticketSubject"><i class="fas fa-heading mr-1"></i>Konu *</label>
-                        <label for="ticketSubject" class="sr-only">Subject</label><input type="text" id="ticketSubject" name="subject" placeholder="Talep konusu..." required>
+                        <label><i class="fas fa-heading mr-1"></i>Konu *</label>
+                        <input type="text" id="ticketSubject" name="subject" placeholder="Talep konusu..." required>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label for="ticketCategory"><i class="fas fa-tag mr-1"></i>Kategori *</label>
-                            <label for="ticketCategory" class="sr-only">Category</label><select id="ticketCategory" name="category" required>
+                            <label><i class="fas fa-tag mr-1"></i>Kategori *</label>
+                            <select id="ticketCategory" name="category" required>
                                 <option value="">Kategori Seçin</option>
                                 <option value="technical">Teknik Destek</option>
-                                <option value="billing">Ödeme &amp; Fatura</option>
+                                <option value="billing">Ödeme & Fatura</option>
                                 <option value="service">Hizmet Soruları</option>
                                 <option value="complaint">Şikayet</option>
-                                <option value="other">DiğŸer</option>
+                                <option value="other">Diğer</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label for="ticketPriority"><i class="fas fa-exclamation-circle mr-1"></i>Öncelik *</label>
-                            <label for="ticketPriority" class="sr-only">Priority</label><select id="ticketPriority" name="priority" required>
+                            <label><i class="fas fa-exclamation-circle mr-1"></i>Öncelik *</label>
+                            <select id="ticketPriority" name="priority" required>
                                 <option value="">Öncelik Seçin</option>
                                 <option value="low">Düşük</option>
                                 <option value="medium" selected>Orta</option>
@@ -5752,14 +5368,14 @@ if ($user_role === 'admin') {
                     </div>
                     
                     <div class="form-group">
-                        <label for="ticketMessage"><i class="fas fa-align-left mr-1"></i>Mesaj *</label>
-                        <label for="ticketMessage" class="sr-only">Message</label><textarea id="ticketMessage" name="message" rows="5" placeholder="Talep detaylarını yazın..." required></textarea>
+                        <label><i class="fas fa-align-left mr-1"></i>Mesaj *</label>
+                        <textarea id="ticketMessage" name="message" rows="5" placeholder="Talep detaylarını yazın..." required></textarea>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label for="ticketAssignedTo"><i class="fas fa-user-tag mr-1"></i>Atanan Kişi</label>
-                            <label for="ticketAssignedTo" class="sr-only">Assigned to</label><select id="ticketAssignedTo" name="assigned_to">
+                            <label><i class="fas fa-user-tag mr-1"></i>Atanan Kişi</label>
+                            <select id="ticketAssignedTo" name="assigned_to">
                                 <option value="">Atama Yapılmadı</option>
                                 <option value="1">Destek Ekibi - Ahmet</option>
                                 <option value="2">Destek Ekibi - Ayşe</option>
@@ -5768,8 +5384,8 @@ if ($user_role === 'admin') {
                         </div>
                         
                         <div class="form-group">
-                            <label for="ticketStatus"><i class="fas fa-flag mr-1"></i>Durum</label>
-                            <label for="ticketStatus" class="sr-only">Status</label><select id="ticketStatus" name="status">
+                            <label><i class="fas fa-flag mr-1"></i>Durum</label>
+                            <select id="ticketStatus" name="status">
                                 <option value="new" selected>Yeni</option>
                                 <option value="open">Açık</option>
                                 <option value="in_progress">Devam Ediyor</option>
@@ -5778,8 +5394,8 @@ if ($user_role === 'admin') {
                     </div>
                     
                     <div class="form-group">
-                        <label for="ticketAttachment"><i class="fas fa-paperclip mr-1"></i>Dosya Ekle (Opsiyonel)</label>
-                        <label for="ticketAttachment" class="sr-only">Attachment</label><input type="file" id="ticketAttachment" name="attachment" accept="image/*,.pdf,.doc,.docx" style="padding: 8px;">
+                        <label><i class="fas fa-paperclip mr-1"></i>Dosya Ekle (Opsiyonel)</label>
+                        <input type="file" id="ticketAttachment" name="attachment" accept="image/*,.pdf,.doc,.docx" style="padding: 8px;">
                         <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 0.25rem;">
                             <i class="fas fa-info-circle"></i> Maksimum dosya boyutu: 5MB
                         </small>
@@ -5794,54 +5410,52 @@ if ($user_role === 'admin') {
     </div>
 
 <!-- Add User Modal -->
-    <!-- Farsça: Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„ Ã˜Â§Ã™ÂÃ˜Â²Ã™ÂˆÃ˜Â¯Ã™Â† ÃšÂ©Ã˜Â§Ã˜Â±Ã˜Â¨Ã˜Â±. -->
+    <!-- Farsça: مودال افزودن کاربر. -->
     <!-- Türkçe: Kullanıcı Ekle Modalı. -->
     <!-- English: Add User Modal. -->
     <div id="userModal" class="modal">
         <div class="modal-content" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
                 <h3>Yeni Kullanıcı Ekle</h3>
-                <span class="close" id="closeUserModal">Ã—</span>
+                <span class="close" id="closeUserModal">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="userForm">
                     <div class="form-group">
-                        <label for="userName">Kullanıcı Adı *</label>
-                        <label for="userName" class="sr-only">Username</label><input type="text" name="username" id="userName" required placeholder="kullanici_adi" autocomplete="username">
+                        <label>Kullanıcı Adı *</label>
+                        <input type="text" name="username" id="userName" required placeholder="kullanici_adi">
                         <small style="color: #64748b;">Benzersiz kullanıcı adı</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="userEmail">Email Adresi *</label>
-                        <label for="userEmail" class="sr-only">Email</label><input type="email" name="email" id="userEmail" required placeholder="ornek@email.com">
+                        <label>Email Adresi *</label>
+                        <input type="email" name="email" id="userEmail" required placeholder="ornek@email.com">
                     </div>
                     
                     <div class="form-group">
-                        <label for="userPassword">Şifre *</label>
-                        <label for="userPassword" class="sr-only">Password</label>
-                        <input type="password" name="password" id="userPassword" required placeholder="Güçlü şifre" autocomplete="new-password">
+                        <label>Şifre *</label>
+                        <input type="password" name="password" id="userPassword" required placeholder="Güçlü şifre">
                         <small style="color: #64748b;">En az 8 karakter, büyük/küçük harf ve rakam içermeli</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="userPasswordConfirm">Şifre Tekrar *</label>
-                        <label for="userPasswordConfirm" class="sr-only">Password confirm</label>
-                        <input type="password" name="password_confirm" id="userPasswordConfirm" required placeholder="Şifreyi tekrar girin" autocomplete="new-password">
+                        <label>Şifre Tekrar *</label>
+                        <input type="password" name="password_confirm" id="userPasswordConfirm" required placeholder="Şifreyi tekrar girin">
                     </div>
                     
                     <div class="form-group">
-                        <label for="userFullName">Tam Adı *</label>
-                        <label for="userFullName" class="sr-only">Full name</label><input type="text" name="full_name" id="userFullName" required placeholder="Ad Soyad">
+                        <label>Tam Adı *</label>
+                        <input type="text" name="full_name" id="userFullName" required placeholder="Ad Soyad">
                     </div>
                     
                     <div class="form-group">
-                        <label for="userPhone">Telefon</label>
-                        <label for="userPhone" class="sr-only">Phone</label><input type="tel" name="phone" id="userPhone" placeholder="+90 555 123 4567">
+                        <label>Telefon</label>
+                        <input type="tel" name="phone" id="userPhone" placeholder="+90 555 123 4567">
                     </div>
                     
                     <div class="form-group">
-                        <label for="userRole">Rol *</label>
-                        <select name="role_id" id="userRole" required title="Rol">
+                        <label>Rol *</label>
+                        <select name="role_id" id="userRole" required>
                             <option value="">Rol Seçin</option>
                             <option value="1">SuperAdmin - Tam Yetki</option>
                             <option value="2">Admin - Yönetici</option>
@@ -5853,8 +5467,8 @@ if ($user_role === 'admin') {
                     </div>
                     
                     <div class="form-group">
-                        <label for="userStatus">Durum</label>
-                        <select name="status" id="userStatus" title="Durum">
+                        <label>Durum</label>
+                        <select name="status" id="userStatus">
                             <option value="active">Aktif</option>
                             <option value="inactive">Pasif</option>
                             <option value="suspended">Askıya Alınmış</option>
@@ -5863,16 +5477,16 @@ if ($user_role === 'admin') {
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <label for="userRequire2FA" class="sr-only">Require 2fa</label><input type="checkbox" name="require_2fa" id="userRequire2FA" style="width: auto; margin: 0;">
-                            <span>ğ°ki Faktörlü Kimlik DoğŸrulama Zorunlu</span>
+                            <input type="checkbox" name="require_2fa" id="userRequire2FA" style="width: auto; margin: 0;">
+                            <span>İki Faktörlü Kimlik Doğrulama Zorunlu</span>
                         </label>
                         <small style="color: #64748b;">Kullanıcı ilk girişte 2FA kurulumu yapacak</small>
                     </div>
                     
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <label for="userEmailVerified" class="sr-only">Email verified</label><input type="checkbox" name="email_verified" id="userEmailVerified" checked style="width: auto; margin: 0;">
-                            <span>Email DoğŸrulanmış Olarak ğ°şaretle</span>
+                            <input type="checkbox" name="email_verified" id="userEmailVerified" checked style="width: auto; margin: 0;">
+                            <span>Email Doğrulanmış Olarak İşaretle</span>
                         </label>
                     </div>
                     
@@ -5886,14 +5500,14 @@ if ($user_role === 'admin') {
     </div>
 
 <!-- Add CMS Page Modal -->
-    <!-- Farsça: Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„ Ã˜Â§Ã™ÂÃ˜Â²Ã™ÂˆÃ˜Â¯Ã™Â† Ã˜ÂµÃ™ÂÃ˜Â­Ã™Â‡ CMS. -->
+    <!-- Farsça: مودال افزودن صفحه CMS. -->
     <!-- Türkçe: CMS Sayfası Ekle Modalı. -->
     <!-- English: Add CMS Page Modal. -->
     <div id="cmsPageModal" class="modal">
         <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header" style="background: linear-gradient(135deg, #764ba2, #667eea);">
                 <h3><i class="fas fa-file-alt mr-2"></i>Yeni Sayfa Oluştur</h3>
-                <span class="close" id="closeCmsPageModal">Ã—</span>
+                <span class="close" id="closeCmsPageModal">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="cmsPageForm">
@@ -5906,21 +5520,21 @@ if ($user_role === 'admin') {
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label for="pageTitle"><i class="fas fa-heading mr-1"></i>Sayfa BaşlığŸı *</label>
-                                <label for="pageTitle" class="sr-only">Page title</label><input type="text" name="page_title" id="pageTitle" required placeholder="Örn: Hakkımızda">
-                                <small style="color: #64748b;">Sayfa başlığŸı (meta title)</small>
+                                <label><i class="fas fa-heading mr-1"></i>Sayfa Başlığı *</label>
+                                <input type="text" name="page_title" id="pageTitle" required placeholder="Örn: Hakkımızda">
+                                <small style="color: #64748b;">Sayfa başlığı (meta title)</small>
                             </div>
                             
                             <div class="form-group">
-                                <label for="pageSlug"><i class="fas fa-link mr-1"></i>URL Slug *</label>
-                                <label for="pageSlug" class="sr-only">Page slug</label><input type="text" name="page_slug" id="pageSlug" required placeholder="Örn: hakkimizda">
+                                <label><i class="fas fa-link mr-1"></i>URL Slug *</label>
+                                <input type="text" name="page_slug" id="pageSlug" required placeholder="Örn: hakkimizda">
                                 <small style="color: #64748b;">URL dostu metin (otomatik oluşturulur)</small>
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="pageDescription"><i class="fas fa-align-left mr-1"></i>Kısa Açıklama</label>
-                            <label for="pageDescription" class="sr-only">Page description</label><textarea name="page_description" id="pageDescription" rows="2" placeholder="Sayfa meta açıklaması (SEO için önemli)"></textarea>
+                            <label><i class="fas fa-align-left mr-1"></i>Kısa Açıklama</label>
+                            <textarea name="page_description" id="pageDescription" rows="2" placeholder="Sayfa meta açıklaması (SEO için önemli)"></textarea>
                             <small style="color: #64748b;">150-160 karakter önerilir</small>
                         </div>
                     </div>
@@ -5929,12 +5543,12 @@ if ($user_role === 'admin') {
                     <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #667eea;">
                         <h4 style="margin: 0 0 16px 0; color: #667eea; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-file-code"></i>
-                            Sayfa ğ°çeriğŸi
+                            Sayfa İçeriği
                         </h4>
                         
                         <div class="form-group">
-                            <label for="pageContent"><i class="fas fa-paragraph mr-1"></i>Ana ğ°çerik *</label>
-                            <label for="pageContent" class="sr-only">Page content</label><textarea name="page_content" id="pageContent" rows="10" required placeholder="Sayfa içeriğŸini buraya yazın... HTML etiketleri kullanabilirsiniz."></textarea>
+                            <label><i class="fas fa-paragraph mr-1"></i>Ana İçerik *</label>
+                            <textarea name="page_content" id="pageContent" rows="10" required placeholder="Sayfa içeriğini buraya yazın... HTML etiketleri kullanabilirsiniz."></textarea>
                             <small style="color: #64748b;">
                                 <i class="fas fa-lightbulb"></i> 
                                 HTML etiketleri desteklenir: &lt;h1&gt;, &lt;p&gt;, &lt;div&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;a&gt;, &lt;img&gt;
@@ -5943,14 +5557,14 @@ if ($user_role === 'admin') {
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label for="featuredImage"><i class="fas fa-image mr-1"></i>Öne Çıkan Görsel (URL)</label>
-                                <label for="featuredImage" class="sr-only">Featured image</label><input type="url" name="featured_image" id="featuredImage" placeholder="https://example.com/image.jpg">
+                                <label><i class="fas fa-image mr-1"></i>Öne Çıkan Görsel (URL)</label>
+                                <input type="url" name="featured_image" id="featuredImage" placeholder="https://example.com/image.jpg">
                                 <small style="color: #64748b;">Sayfa görseli URL'si</small>
                             </div>
                             
                             <div class="form-group">
-                                <label for="backgroundColor"><i class="fas fa-palette mr-1"></i>Arka Plan Rengi</label>
-                                <label for="backgroundColor" class="sr-only">Background color</label><input type="color" name="background_color" id="backgroundColor" value="#ffffff" style="height: 45px; padding: 4px;">
+                                <label><i class="fas fa-palette mr-1"></i>Arka Plan Rengi</label>
+                                <input type="color" name="background_color" id="backgroundColor" value="#ffffff" style="height: 45px; padding: 4px;">
                                 <small style="color: #64748b;">Sayfa arka plan rengi</small>
                             </div>
                         </div>
@@ -5965,22 +5579,22 @@ if ($user_role === 'admin') {
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label for="pageCategory"><i class="fas fa-list-alt mr-1"></i>Kategori *</label>
-                                <label for="pageCategory" class="sr-only">Page category</label><select name="page_category" id="pageCategory" required>
+                                <label><i class="fas fa-list-alt mr-1"></i>Kategori *</label>
+                                <select name="page_category" id="pageCategory" required>
                                     <option value="">Kategori Seçin</option>
                                     <option value="about">Hakkımızda</option>
                                     <option value="services">Hizmetler</option>
-                                    <option value="contact">ğ°letişim</option>
-                                    <option value="help">Yardım &amp; SSS</option>
+                                    <option value="contact">İletişim</option>
+                                    <option value="help">Yardım & SSS</option>
                                     <option value="legal">Yasal</option>
                                     <option value="blog">Blog</option>
-                                    <option value="other">DiğŸer</option>
+                                    <option value="other">Diğer</option>
                                 </select>
                             </div>
                             
                             <div class="form-group">
-                                <label for="pageStatus"><i class="fas fa-flag mr-1"></i>Durum *</label>
-                                <label for="pageStatus" class="sr-only">Page status</label><select name="page_status" id="pageStatus" required>
+                                <label><i class="fas fa-flag mr-1"></i>Durum *</label>
+                                <select name="page_status" id="pageStatus" required>
                                     <option value="draft">Taslak</option>
                                     <option value="published" selected>Yayında</option>
                                     <option value="archived">Arşivlendi</option>
@@ -5988,26 +5602,26 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div class="form-group">
-                                <label for="pageLanguage"><i class="fas fa-language mr-1"></i>Dil *</label>
-                                <label for="pageLanguage" class="sr-only">Page language</label><select name="page_language" id="pageLanguage" required>
+                                <label><i class="fas fa-language mr-1"></i>Dil *</label>
+                                <select name="page_language" id="pageLanguage" required>
                                     <option value="tr" selected>Türkçe</option>
                                     <option value="en">English</option>
-                                    <option value="ar">Ã˜Â§Ã™Â„Ã˜Â¹Ã˜Â±Ã˜Â¨Ã™ÂŠÃ˜Â©</option>
-                                    <option value="fa">Ã™ÂÃ˜Â§Ã˜Â±Ã˜Â³Ã›ÂŒ</option>
+                                    <option value="ar">العربية</option>
+                                    <option value="fa">فارسی</option>
                                 </select>
                             </div>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
                             <div class="form-group">
-                                <label for="pageOrder"><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
-                                <label for="pageOrder" class="sr-only">Page order</label><input type="number" name="page_order" id="pageOrder" value="0" min="0" placeholder="0">
+                                <label><i class="fas fa-sort-numeric-up mr-1"></i>Sıralama</label>
+                                <input type="number" name="page_order" id="pageOrder" value="0" min="0" placeholder="0">
                                 <small style="color: #64748b;">Sayfa sıralama numarası (0 = en üstte)</small>
                             </div>
                             
                             <div class="form-group">
-                                <label for="pageAuthor"><i class="fas fa-user-tie mr-1"></i>Yazar</label>
-                                <label for="pageAuthor" class="sr-only">Page author</label><select name="page_author" id="pageAuthor">
+                                <label><i class="fas fa-user-tie mr-1"></i>Yazar</label>
+                                <select name="page_author" id="pageAuthor">
                                     <option value="1" selected>Admin</option>
                                     <option value="2">Editor</option>
                                     <option value="3">Content Manager</option>
@@ -6024,15 +5638,15 @@ if ($user_role === 'admin') {
                         </h4>
                         
                         <div class="form-group">
-                            <label for="metaKeywords"><i class="fas fa-tag mr-1"></i>Meta Anahtar Kelimeler</label>
-                            <label for="metaKeywords" class="sr-only">Meta keywords</label><input type="text" name="meta_keywords" id="metaKeywords" placeholder="otopark, araç yıkama, temizlik, bakım">
+                            <label><i class="fas fa-tag mr-1"></i>Meta Anahtar Kelimeler</label>
+                            <input type="text" name="meta_keywords" id="metaKeywords" placeholder="otopark, araç yıkama, temizlik, bakım">
                             <small style="color: #64748b;">Virgülle ayrılmış anahtar kelimeler</small>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label for="robotsMeta"><i class="fas fa-robot mr-1"></i>Robots Meta Tag</label>
-                                <label for="robotsMeta" class="sr-only">Robots meta</label><select name="robots_meta" id="robotsMeta">
+                                <label><i class="fas fa-robot mr-1"></i>Robots Meta Tag</label>
+                                <select name="robots_meta" id="robotsMeta">
                                     <option value="index,follow" selected>Index, Follow (Önerilen)</option>
                                     <option value="noindex,follow">No Index, Follow</option>
                                     <option value="index,nofollow">Index, No Follow</option>
@@ -6041,8 +5655,8 @@ if ($user_role === 'admin') {
                             </div>
                             
                             <div class="form-group">
-                                <label for="ogImage"><i class="fas fa-share-alt mr-1"></i>Open Graph Görseli</label>
-                                <label for="ogImage" class="sr-only">Og image</label><input type="url" name="og_image" id="ogImage" placeholder="https://example.com/og-image.jpg">
+                                <label><i class="fas fa-share-alt mr-1"></i>Open Graph Görseli</label>
+                                <input type="url" name="og_image" id="ogImage" placeholder="https://example.com/og-image.jpg">
                                 <small style="color: #64748b;">Sosyal medya paylaşım görseli</small>
                             </div>
                         </div>
@@ -6056,21 +5670,21 @@ if ($user_role === 'admin') {
                         </h4>
                         
                         <div class="form-group">
-                            <label for="customCss"><i class="fas fa-code mr-1"></i>Özel CSS</label>
-                            <label for="customCss" class="sr-only">Custom css</label><textarea name="custom_css" id="customCss" rows="4" placeholder=".my-class { color: blue; }"></textarea>
+                            <label><i class="fas fa-code mr-1"></i>Özel CSS</label>
+                            <textarea name="custom_css" id="customCss" rows="4" placeholder=".my-class { color: blue; }"></textarea>
                             <small style="color: #64748b;">Bu sayfa için özel CSS kodları</small>
                         </div>
                         
                         <div class="form-group">
-                            <label for="customJs"><i class="fas fa-file-code mr-1"></i>Özel JavaScript</label>
-                            <label for="customJs" class="sr-only">Custom js</label><textarea name="custom_js" id="customJs" rows="4" placeholder="console.log('Page loaded');"></textarea>
+                            <label><i class="fas fa-file-code mr-1"></i>Özel JavaScript</label>
+                            <textarea name="custom_js" id="customJs" rows="4" placeholder="console.log('Page loaded');"></textarea>
                             <small style="color: #64748b;">Bu sayfa için özel JavaScript kodları</small>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px;">
                             <div class="form-group">
                                 <label style="display: flex; align-items: center; cursor: pointer;">
-                                    <label for="showInMenu" class="sr-only">Show in menu</label><input type="checkbox" name="show_in_menu" id="showInMenu" checked style="margin-right: 8px;">
+                                    <input type="checkbox" name="show_in_menu" id="showInMenu" checked style="margin-right: 8px;">
                                     <i class="fas fa-bars mr-1"></i>
                                     Menüde Göster
                                 </label>
@@ -6078,7 +5692,7 @@ if ($user_role === 'admin') {
                             
                             <div class="form-group">
                                 <label style="display: flex; align-items: center; cursor: pointer;">
-                                    <label for="showInFooter" class="sr-only">Show in footer</label><input type="checkbox" name="show_in_footer" id="showInFooter" style="margin-right: 8px;">
+                                    <input type="checkbox" name="show_in_footer" id="showInFooter" style="margin-right: 8px;">
                                     <i class="fas fa-shoe-prints mr-1"></i>
                                     Footer'da Göster
                                 </label>
@@ -6086,7 +5700,7 @@ if ($user_role === 'admin') {
                             
                             <div class="form-group">
                                 <label style="display: flex; align-items: center; cursor: pointer;">
-                                    <label for="requireAuth" class="sr-only">Require auth</label><input type="checkbox" name="require_auth" id="requireAuth" style="margin-right: 8px;">
+                                    <input type="checkbox" name="require_auth" id="requireAuth" style="margin-right: 8px;">
                                     <i class="fas fa-lock mr-1"></i>
                                     Giriş Gerekli
                                 </label>
@@ -6098,7 +5712,7 @@ if ($user_role === 'admin') {
                     <div style="display: flex; gap: 12px; justify-content: flex-end;">
                         <button type="button" class="report-btn" onclick="document.getElementById('cmsPageModal').style.display='none'" style="background: #6c757d; padding: 12px 24px;">
                             <i class="fas fa-times"></i>
-                            ğ°ptal
+                            İptal
                         </button>
                         <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #764ba2, #667eea); display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-save"></i>
@@ -6110,165 +5724,9 @@ if ($user_role === 'admin') {
         </div>
     </div>
 
-    </main>
-    <!-- End Main Content -->
-
-</div>
-<!-- End Dashboard Wrapper -->
-
-<!-- Footer -->
-<?php include '../includes/footer.php'; ?>
-<!-- End Footer -->
-
     <script>
-        // Toast & Confirm helpers (non-blocking)
-        (function(){
-            function createToastContainer(){
-                window.__toastContainer = document.getElementById('toastContainer');
-                if(!window.__toastContainer){
-                    const c = document.createElement('div');
-                    c.id = 'toastContainer';
-                    document.body.appendChild(c);
-                    window.__toastContainer = c;
-                }
-            }
-
-            // requestIdleCallback polyfill (lightweight)
-            window.requestIdleCallback = window.requestIdleCallback || function(cb){ return setTimeout(cb, 16); };
-
-            function showToast(message, type = 'info', duration = 4000){
-                try { createToastContainer(); } catch(e){}
-                const el = document.createElement('div');
-                el.className = 'toast ' + (type || 'info');
-                el.setAttribute('role','alert');
-
-                const icon = document.createElement('span');
-                icon.className = 'toast-icon';
-                icon.textContent = (type==='success'? '✓“' : (type==='error'? '⚠ ' : 'ℹ'));
-
-                const body = document.createElement('div');
-                body.style.flex = '1';
-                body.style.marginLeft = '6px';
-                body.textContent = message;
-
-                const closeBtn = document.createElement('button');
-                closeBtn.className = 'toast-close';
-                closeBtn.setAttribute('aria-label','Close notification');
-                closeBtn.innerHTML = '&times;';
-                closeBtn.addEventListener('click', () => hide());
-
-                el.appendChild(icon);
-                el.appendChild(body);
-                el.appendChild(closeBtn);
-
-                window.__toastContainer.appendChild(el);
-                // animate in
-                requestAnimationFrame(()=> el.classList.add('show'));
-                const hide = ()=>{
-                    el.classList.remove('show');
-                    setTimeout(()=> { try { el.remove(); } catch(e){} }, 260);
-                };
-                if(duration>0) setTimeout(hide, duration);
-                return {
-                    dismiss: hide
-                };
-            }
-
-            function showConfirm(message, title){
-                return new Promise((resolve)=>{
-                    const backdrop = document.getElementById('confirmBackdrop');
-                    const dialog = document.getElementById('confirmDialog');
-                    const titleEl = document.getElementById('confirmTitle');
-                    const bodyEl = document.getElementById('confirmBody');
-                    const okBtn = document.getElementById('confirmOkBtn');
-                    const cancelBtn = document.getElementById('confirmCancelBtn');
-
-                    if(!dialog || !backdrop){
-                        // fallback to native confirm if modal not present
-                        resolve(window.confirm(message));
-                        return;
-                    }
-
-                    // Set accessible attributes and content
-                    titleEl.textContent = title || 'Onay';
-                    bodyEl.textContent = message || '';
-                    dialog.setAttribute('role','dialog');
-                    dialog.setAttribute('aria-modal','true');
-                    dialog.setAttribute('aria-labelledby','confirmTitle');
-                    dialog.setAttribute('aria-describedby','confirmBody');
-
-                    const previouslyFocused = document.activeElement;
-
-                    // show
-                    backdrop.style.display = 'block';
-                    dialog.style.display = 'block';
-                    dialog.setAttribute('aria-hidden','false');
-
-                    // collect all focusable elements inside the dialog
-                    const focusableSelector = 'a[href], area[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
-                    let focusable = Array.prototype.slice.call(dialog.querySelectorAll(focusableSelector));
-                    // ensure OK and Cancel are present and ordered
-                    if (!focusable.includes(okBtn)) focusable.unshift(okBtn);
-                    if (!focusable.includes(cancelBtn)) focusable.push(cancelBtn);
-
-                    // focus primary action (OK)
-                    try { okBtn.focus(); } catch(e){}
-
-                    function trapFocus(e){
-                        if (e.key === 'Tab'){
-                            if (focusable.length === 0) { e.preventDefault(); return; }
-                            const idx = focusable.indexOf(document.activeElement);
-                            let next = 0;
-                            if (e.shiftKey){
-                                next = (idx <= 0) ? focusable.length - 1 : idx - 1;
-                            } else {
-                                next = (idx === -1 || idx === focusable.length - 1) ? 0 : idx + 1;
-                            }
-                            focusable[next].focus();
-                            e.preventDefault();
-                        } else if (e.key === 'Escape'){
-                            onCancel();
-                        }
-                    }
-
-                    // If focus somehow moves outside, bring it back
-                    function enforceFocus(e){
-                        if (!dialog.contains(e.target)){
-                            // move focus to first focusable
-                            (focusable[0] || dialog).focus();
-                        }
-                    }
-
-                    function cleanup(){
-                        backdrop.style.display = 'none';
-                        dialog.style.display = 'none';
-                        dialog.setAttribute('aria-hidden','true');
-                        okBtn.removeEventListener('click', onOk);
-                        cancelBtn.removeEventListener('click', onCancel);
-                        dialog.removeEventListener('keydown', trapFocus);
-                        document.removeEventListener('focusin', enforceFocus);
-                        backdrop.removeEventListener('click', onCancel);
-                        // restore focus
-                        try { if (previouslyFocused && previouslyFocused.focus) previouslyFocused.focus(); } catch(e){}
-                    }
-
-                    function onOk(){ cleanup(); resolve(true); }
-                    function onCancel(){ cleanup(); resolve(false); }
-
-                    okBtn.addEventListener('click', onOk);
-                    cancelBtn.addEventListener('click', onCancel);
-                    backdrop.addEventListener('click', onCancel);
-                    dialog.addEventListener('keydown', trapFocus);
-                    document.addEventListener('focusin', enforceFocus);
-                });
-            }
-
-            window.showToast = showToast;
-            window.showConfirm = showConfirm;
-        })();
-
         // Mobile Menu Toggle Functions
-        // Farsça: Ã˜ÂªÃ™ÂˆÃ˜Â§Ã˜Â¨Ã˜Â¹ Ã˜ÂªÃ˜ÂºÃ›ÂŒÃ›ÂŒÃ˜Â± Ã™Â…Ã™Â†Ã™ÂˆÃ›ÂŒ Ã™Â…Ã™ÂˆÃ˜Â¨Ã˜Â§Ã›ÂŒÃ™Â„.
+        // Farsça: توابع تغییر منوی موبایل.
         // Türkçe: Mobil Menü Geçiş Fonksiyonları.
         // English: Mobile Menu Toggle Functions.
         function toggleMobileMenu() {
@@ -6333,38 +5791,43 @@ if ($user_role === 'admin') {
         window.addEventListener('resize', checkScreenSize);
         
         // Navigation functionality
-        // Farsça: Ã˜Â¹Ã™Â…Ã™Â„ÃšÂ©Ã˜Â±Ã˜Â¯ Ã™Â†Ã˜Â§Ã™ÂˆÃ˜Â¨Ã˜Â±Ã›ÂŒ.
-        // Türkçe: Navigasyon işlevselliğŸi.
+        // Farsça: عملکرد ناوبری.
+        // Türkçe: Navigasyon işlevselliği.
         // English: Navigation functionality.
-        // Defer attaching non-critical nav handlers to idle time to improve initial responsiveness
-        requestIdleCallback(function(){
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Remove active class from all nav items and sections
-                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-                    document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
-                    
-                    // Add active class to clicked nav item
-                    this.parentElement.classList.add('active');
-                    
-                    // Show corresponding section
-                    const sectionId = this.getAttribute('data-section');
-                    const sec = document.getElementById(sectionId);
-                    if (sec) sec.classList.add('active');
-                    
-                    // Close mobile menu after selection
-                    if (window.innerWidth < 1024) {
-                        closeMobileMenu();
-                    }
-                });
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all nav items and sections
+                // Farsça: حذف کلاس فعال از همه آیتم‌های ناوبری و بخش‌ها.
+                // Türkçe: Tüm navigasyon öğelerinden ve bölümlerden aktif sınıfını kaldır.
+                // English: Remove active class from all nav items and sections.
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+                
+                // Add active class to clicked nav item
+                // Farsça: اضافه کردن کلاس فعال به آیتم ناوبری کلیک شده.
+                // Türkçe: Tıklanan navigasyon öğesine aktif sınıfını ekle.
+                // English: Add active class to clicked nav item.
+                this.parentElement.classList.add('active');
+                
+                // Show corresponding section
+                // Farsça: نمایش بخش مربوطه.
+                // Türkçe: İlgili bölümü göster.
+                // English: Show corresponding section.
+                const sectionId = this.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+                
+                // Close mobile menu after selection
+                if (window.innerWidth < 1024) {
+                    closeMobileMenu();
+                }
             });
-        }, { timeout: 500 });
+        });
 
         // Modal functionality
-        // Farsça: Ã˜Â¹Ã™Â…Ã™Â„ÃšÂ©Ã˜Â±Ã˜Â¯ Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„.
-        // Türkçe: Modal işlevselliğŸi.
+        // Farsça: عملکرد مودال.
+        // Türkçe: Modal işlevselliği.
         // English: Modal functionality.
         const carwashModal = document.getElementById('carwashModal');
         const addCarwashBtn = document.getElementById('addCarwashBtn');
@@ -6385,21 +5848,21 @@ if ($user_role === 'admin') {
         });
 
         // Form submission
-        // Farsça: Ã˜Â§Ã˜Â±Ã˜Â³Ã˜Â§Ã™Â„ Ã™ÂÃ˜Â±Ã™Â….
+        // Farsça: ارسال فرم.
         // Türkçe: Form gönderimi.
         // English: Form submission.
         document.getElementById('carwashForm').addEventListener('submit', function(e) {
             e.preventDefault();
             // Here you would typically send data to PHP backend
-            // Farsça: Ã˜Â¯Ã˜Â± Ã˜Â§Ã›ÂŒÃ™Â†Ã˜Â¬Ã˜Â§ Ã˜Â´Ã™Â…Ã˜Â§ Ã™Â…Ã˜Â¹Ã™Â…Ã™ÂˆÃ™Â„Ã˜Â§Ã™Â‹ Ã˜Â¯Ã˜Â§Ã˜Â¯Ã™Â‡Ã¢Â€ÂŒÃ™Â‡Ã˜Â§ Ã˜Â±Ã˜Â§ Ã˜Â¨Ã™Â‡ Ã˜Â¨ÃšÂ©Ã¢Â€ÂŒÃ˜Â§Ã™Â†Ã˜Â¯ PHP Ã˜Â§Ã˜Â±Ã˜Â³Ã˜Â§Ã™Â„ Ã™Â…Ã›ÂŒÃ¢Â€ÂŒÃšÂ©Ã™Â†Ã›ÂŒÃ˜Â¯.
+            // Farsça: در اینجا شما معمولاً داده‌ها را به بک‌اند PHP ارسال می‌کنید.
             // Türkçe: Burada tipik olarak verileri PHP arka ucuna gönderirsiniz.
             // English: Here you would typically send data to PHP backend.
-            showToast('Otopark başarıyla eklendi!', 'success');
+            alert('Otopark başarıyla eklendi!');
             carwashModal.style.display = 'none';
         });
 
         // User Modal Functions
-        // Farsça: Ã˜ÂªÃ™ÂˆÃ˜Â§Ã˜Â¨Ã˜Â¹ Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„ ÃšÂ©Ã˜Â§Ã˜Â±Ã˜Â¨Ã˜Â±.
+        // Farsça: توابع مودال کاربر.
         // Türkçe: Kullanıcı Modal Fonksiyonları.
         // English: User Modal Functions.
         const userModal = document.getElementById('userModal');
@@ -6425,7 +5888,7 @@ if ($user_role === 'admin') {
         });
 
         // CMS Page Modal Functions
-        // Farsça: Ã˜ÂªÃ™ÂˆÃ˜Â§Ã˜Â¨Ã˜Â¹ Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„ Ã˜ÂµÃ™ÂÃ˜Â­Ã™Â‡ CMS.
+        // Farsça: توابع مودال صفحه CMS.
         // Türkçe: CMS Sayfası Modal Fonksiyonları.
         // English: CMS Page Modal Functions.
         const cmsPageModal = document.getElementById('cmsPageModal');
@@ -6451,8 +5914,8 @@ if ($user_role === 'admin') {
         });
 
         // Auto-generate URL slug from page title (Turkish character support)
-        // Farsça: Ã˜ÂªÃ™ÂˆÃ™Â„Ã›ÂŒÃ˜Â¯ Ã˜Â®Ã™ÂˆÃ˜Â¯ÃšÂ©Ã˜Â§Ã˜Â± URL Ã˜Â§Ã˜Â² Ã˜Â¹Ã™Â†Ã™ÂˆÃ˜Â§Ã™Â† Ã˜ÂµÃ™ÂÃ˜Â­Ã™Â‡ (Ã™Â¾Ã˜Â´Ã˜ÂªÃ›ÂŒÃ˜Â¨Ã˜Â§Ã™Â†Ã›ÂŒ Ã˜Â§Ã˜Â² ÃšÂ©Ã˜Â§Ã˜Â±Ã˜Â§ÃšÂ©Ã˜ÂªÃ˜Â±Ã™Â‡Ã˜Â§Ã›ÂŒ Ã˜ÂªÃ˜Â±ÃšÂ©Ã›ÂŒ).
-        // Türkçe: Sayfa başlığŸından otomatik URL slug üretimi (Türkçe karakter desteğŸi).
+        // Farsça: تولید خودکار URL از عنوان صفحه (پشتیبانی از کاراکترهای ترکی).
+        // Türkçe: Sayfa başlığından otomatik URL slug üretimi (Türkçe karakter desteği).
         // English: Auto-generate URL slug from page title (Turkish character support).
         const pageTitleInput = document.getElementById('pageTitle');
         const pageSlugInput = document.getElementById('pageSlug');
@@ -6462,7 +5925,7 @@ if ($user_role === 'admin') {
                 let slug = this.value
                     .toLowerCase()
                     // Turkish character replacements
-                    .replace(/ğŸ/g, 'g')
+                    .replace(/ğ/g, 'g')
                     .replace(/ü/g, 'u')
                     .replace(/ş/g, 's')
                     .replace(/ı/g, 'i')
@@ -6478,8 +5941,8 @@ if ($user_role === 'admin') {
         }
 
         // CMS Page Form Validation and Submission
-        // Farsça: Ã˜Â§Ã˜Â¹Ã˜ÂªÃ˜Â¨Ã˜Â§Ã˜Â±Ã˜Â³Ã™Â†Ã˜Â¬Ã›ÂŒ Ã™Âˆ Ã˜Â§Ã˜Â±Ã˜Â³Ã˜Â§Ã™Â„ Ã™ÂÃ˜Â±Ã™Â… Ã˜ÂµÃ™ÂÃ˜Â­Ã™Â‡ CMS.
-        // Türkçe: CMS Sayfası Form DoğŸrulama ve Gönderimi.
+        // Farsça: اعتبارسنجی و ارسال فرم صفحه CMS.
+        // Türkçe: CMS Sayfası Form Doğrulama ve Gönderimi.
         // English: CMS Page Form Validation and Submission.
         const cmsPageForm = document.getElementById('cmsPageForm');
 
@@ -6496,32 +5959,32 @@ if ($user_role === 'admin') {
 
                 // Validation
                 if (title.length < 3) {
-                    showToast('Ã¢ÂÂŒ Hata!\n\nSayfa başlığŸı en az 3 karakter olmalıdır.', 'error');
+                    alert('❌ Hata!\n\nSayfa başlığı en az 3 karakter olmalıdır.');
                     return;
                 }
 
                 if (title.length > 200) {
-                    showToast('Ã¢ÂÂŒ Hata!\n\nSayfa başlığŸı maksimum 200 karakter olabilir.', 'error');
+                    alert('❌ Hata!\n\nSayfa başlığı maksimum 200 karakter olabilir.');
                     return;
                 }
 
                 if (!slug.match(/^[a-z0-9-]+$/)) {
-                    showToast('Ã¢ÂÂŒ Hata!\n\nURL slug sadece küçük harf, rakam ve tire (-) içerebilir.', 'error');
+                    alert('❌ Hata!\n\nURL slug sadece küçük harf, rakam ve tire (-) içerebilir.');
                     return;
                 }
 
                 if (slug.length < 3) {
-                    showToast('Ã¢ÂÂŒ Hata!\n\nURL slug en az 3 karakter olmalıdır.', 'error');
+                    alert('❌ Hata!\n\nURL slug en az 3 karakter olmalıdır.');
                     return;
                 }
 
                 if (content.length < 50) {
-                    showToast('Ã¢ÂÂŒ Hata!\n\nSayfa içeriğŸi en az 50 karakter olmalıdır.', 'error');
+                    alert('❌ Hata!\n\nSayfa içeriği en az 50 karakter olmalıdır.');
                     return;
                 }
 
                 if (!category) {
-                    showToast('Ã¢ÂÂŒ Hata!\n\nLütfen bir kategori seçin.', 'error');
+                    alert('❌ Hata!\n\nLütfen bir kategori seçin.');
                     return;
                 }
 
@@ -6530,16 +5993,16 @@ if ($user_role === 'admin') {
                 const language = document.getElementById('pageLanguage').value;
 
                 // Success message (TODO: Replace with actual backend API call)
-                    showToast('Ã¢ÂœÂ… Başarılı!\n\n' +
-                        'Ã¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”Â\n' +
-                        'Ã°ÂŸÂ“Â„ Sayfa BaşlığŸı: ' + title + '\n' +
-                        'Ã°ÂŸÂ”Â— URL Slug: ' + slug + '\n' +
-                        'Ã°ÂŸÂ“Â Kategori: ' + getCategoryName(category) + '\n' +
-                        'Ã°ÂŸÂ‘ÂÃ¯Â¸Â Durum: ' + getStatusName(status) + '\n' +
-                        'Ã°ÂŸÂŒÂ Dil: ' + language.toUpperCase() + '\n' +
-                        'Ã°ÂŸÂ“Â ğ°çerik UzunluğŸu: ' + content.length + ' karakter\n' +
-                        'Ã¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”ÂÃ¢Â”Â\n\n' +
-                        'Sayfa başarıyla oluşturuldu!', 'success', 7000);
+                alert('✅ Başarılı!\n\n' +
+                      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+                      '📄 Sayfa Başlığı: ' + title + '\n' +
+                      '🔗 URL Slug: ' + slug + '\n' +
+                      '📁 Kategori: ' + getCategoryName(category) + '\n' +
+                      '👁️ Durum: ' + getStatusName(status) + '\n' +
+                      '🌐 Dil: ' + language.toUpperCase() + '\n' +
+                      '📝 İçerik Uzunluğu: ' + content.length + ' karakter\n' +
+                      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+                      'Sayfa başarıyla oluşturuldu!');
 
                 // TODO: Backend Integration
                 // const formData = new FormData(this);
@@ -6550,17 +6013,17 @@ if ($user_role === 'admin') {
                 // .then(response => response.json())
                 // .then(data => {
                 //     if (data.success) {
-                //         showToast('Ã¢ÂœÂ… Sayfa başarıyla oluşturuldu!', 'success');
+                //         alert('✅ Sayfa başarıyla oluşturuldu!');
                 //         cmsPageModal.style.display = 'none';
                 //         this.reset();
                 //         // Refresh the page list
                 //         location.reload();
                 //     } else {
-                //         showToast('Ã¢ÂÂŒ Hata: ' + data.message, 'error');
+                //         alert('❌ Hata: ' + data.message);
                 //     }
                 // })
                 // .catch(error => {
-                //     showToast('Ã¢ÂÂŒ Bir hata oluştu: ' + error.message, 'error');
+                //     alert('❌ Bir hata oluştu: ' + error.message);
                 // });
 
                 // Close modal and reset form
@@ -6574,11 +6037,11 @@ if ($user_role === 'admin') {
             const categories = {
                 'about': 'Hakkımızda',
                 'services': 'Hizmetler',
-                'contact': 'ğ°letişim',
+                'contact': 'İletişim',
                 'help': 'Yardım & SSS',
                 'legal': 'Yasal',
                 'blog': 'Blog',
-                'other': 'DiğŸer'
+                'other': 'Diğer'
             };
             return categories[value] || value;
         }
@@ -6594,7 +6057,7 @@ if ($user_role === 'admin') {
         }
 
         // Service Modal Functions
-        // Farsça: Ã˜ÂªÃ™ÂˆÃ˜Â§Ã˜Â¨Ã˜Â¹ Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„ Ã˜Â®Ã˜Â¯Ã™Â…Ã˜Â§Ã˜Âª.
+        // Farsça: توابع مودال خدمات.
         // Türkçe: Hizmet Modal Fonksiyonları.
         // English: Service Modal Functions.
         const serviceModal = document.getElementById('serviceModal');
@@ -6620,7 +6083,7 @@ if ($user_role === 'admin') {
         });
 
         // Ticket Modal Functions
-        // Farsça: Ã˜ÂªÃ™ÂˆÃ˜Â§Ã˜Â¨Ã˜Â¹ Ã™Â…Ã™ÂˆÃ˜Â¯Ã˜Â§Ã™Â„ Ã˜ÂªÃ›ÂŒÃšÂ©Ã˜Âª.
+        // Farsça: توابع مودال تیکت.
         // Türkçe: Destek Talebi Modal Fonksiyonları.
         // English: Ticket Modal Functions.
         const ticketModal = document.getElementById('ticketModal');
@@ -6646,8 +6109,8 @@ if ($user_role === 'admin') {
         });
 
         // Ticket Form Submission with Validation
-        // Farsça: Ã˜Â§Ã˜Â±Ã˜Â³Ã˜Â§Ã™Â„ Ã™ÂÃ˜Â±Ã™Â… Ã˜ÂªÃ›ÂŒÃšÂ©Ã˜Âª Ã˜Â¨Ã˜Â§ Ã˜Â§Ã˜Â¹Ã˜ÂªÃ˜Â¨Ã˜Â§Ã˜Â±Ã˜Â³Ã™Â†Ã˜Â¬Ã›ÂŒ.
-        // Türkçe: DoğŸrulama ile Destek Talebi Formu Gönderimi.
+        // Farsça: ارسال فرم تیکت با اعتبارسنجی.
+        // Türkçe: Doğrulama ile Destek Talebi Formu Gönderimi.
         // English: Ticket Form Submission with Validation.
         document.getElementById('ticketForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -6662,27 +6125,27 @@ if ($user_role === 'admin') {
             
             // Validation
             if (!customerId) {
-                showToast('Ã¢ÂÂŒ Lütfen bir müşteri seçin!', 'error');
+                alert('❌ Lütfen bir müşteri seçin!');
                 return;
             }
             
             if (!subject || subject.length < 5) {
-                showToast('Ã¢ÂÂŒ Konu en az 5 karakter olmalıdır!', 'error');
+                alert('❌ Konu en az 5 karakter olmalıdır!');
                 return;
             }
             
             if (!category) {
-                showToast('Ã¢ÂÂŒ Lütfen bir kategori seçin!', 'error');
+                alert('❌ Lütfen bir kategori seçin!');
                 return;
             }
             
             if (!priority) {
-                showToast('Ã¢ÂÂŒ Lütfen bir öncelik seviyesi seçin!', 'error');
+                alert('❌ Lütfen bir öncelik seviyesi seçin!');
                 return;
             }
             
             if (!message || message.length < 10) {
-                showToast('Ã¢ÂÂŒ Mesaj en az 10 karakter olmalıdır!', 'error');
+                alert('❌ Mesaj en az 10 karakter olmalıdır!');
                 return;
             }
             
@@ -6707,32 +6170,32 @@ if ($user_role === 'admin') {
             // .then(response => response.json())
             // .then(data => {
             //     if (data.success) {
-            //         showToast('Ã¢ÂœÂ… Destek talebi başarıyla oluşturuldu!', 'success');
+            //         alert('✅ Destek talebi başarıyla oluşturuldu!');
             //         ticketModal.style.display = 'none';
             //         this.reset();
             //         // Reload tickets table
             //         location.reload();
             //     } else {
-            //         showToast('Ã¢ÂÂŒ Hata: ' + data.message, 'error');
+            //         alert('❌ Hata: ' + data.message);
             //     }
             // })
             // .catch(error => {
-            //     showToast('Ã¢ÂÂŒ Bir hata oluştu: ' + error.message, 'error');
+            //     alert('❌ Bir hata oluştu: ' + error.message);
             // });
             
             // For now, just show success message
             console.log('Creating ticket:', ticketData);
-            showToast('Ã¢ÂœÂ… Destek talebi başarıyla oluşturuldu!\n\n' +
-                'Konu: ' + subject + '\n' +
-                'Kategori: ' + category + '\n' +
-                'Öncelik: ' + priority, 'success', 5000);
+            alert('✅ Destek talebi başarıyla oluşturuldu!\n\n' +
+                  'Konu: ' + subject + '\n' +
+                  'Kategori: ' + category + '\n' +
+                  'Öncelik: ' + priority);
             ticketModal.style.display = 'none';
             this.reset();
         });
 
         // Service Form Submission with Validation
-        // Farsça: Ã˜Â§Ã˜Â±Ã˜Â³Ã˜Â§Ã™Â„ Ã™ÂÃ˜Â±Ã™Â… Ã˜Â®Ã˜Â¯Ã™Â…Ã˜Â§Ã˜Âª Ã˜Â¨Ã˜Â§ Ã˜Â§Ã˜Â¹Ã˜ÂªÃ˜Â¨Ã˜Â§Ã˜Â±Ã˜Â³Ã™Â†Ã˜Â¬Ã›ÂŒ.
-        // Türkçe: DoğŸrulama ile Hizmet Formu Gönderimi.
+        // Farsça: ارسال فرم خدمات با اعتبارسنجی.
+        // Türkçe: Doğrulama ile Hizmet Formu Gönderimi.
         // English: Service Form Submission with Validation.
         document.getElementById('serviceForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -6749,32 +6212,32 @@ if ($user_role === 'admin') {
             
             // Validation
             if (!serviceName || serviceName.length < 3) {
-                showToast('Ã¢ÂÂŒ Hizmet adı en az 3 karakter olmalıdır!', 'error');
+                alert('❌ Hizmet adı en az 3 karakter olmalıdır!');
                 return;
             }
             
             if (!category) {
-                showToast('Ã¢ÂÂŒ Lütfen bir kategori seçin!', 'error');
+                alert('❌ Lütfen bir kategori seçin!');
                 return;
             }
             
             if (!duration || duration < 1) {
-                showToast('Ã¢ÂÂŒ Hizmet süresi en az 1 dakika olmalıdır!', 'error');
+                alert('❌ Hizmet süresi en az 1 dakika olmalıdır!');
                 return;
             }
             
             if (!priceSedan || priceSedan <= 0) {
-                showToast('Ã¢ÂÂŒ Sedan fiyatı geçerli bir değŸer olmalıdır!', 'error');
+                alert('❌ Sedan fiyatı geçerli bir değer olmalıdır!');
                 return;
             }
             
             if (!priceSUV || priceSUV <= 0) {
-                showToast('Ã¢ÂÂŒ SUV fiyatı geçerli bir değŸer olmalıdır!', 'error');
+                alert('❌ SUV fiyatı geçerli bir değer olmalıdır!');
                 return;
             }
             
             if (!priceTruck || priceTruck <= 0) {
-                showToast('Ã¢ÂÂŒ Kamyonet fiyatı geçerli bir değŸer olmalıdır!', 'error');
+                alert('❌ Kamyonet fiyatı geçerli bir değer olmalıdır!');
                 return;
             }
             
@@ -6803,35 +6266,35 @@ if ($user_role === 'admin') {
             // .then(response => response.json())
             // .then(data => {
             //     if (data.success) {
-            //         showToast('Ã¢ÂœÂ… Hizmet başarıyla oluşturuldu!', 'success');
+            //         alert('✅ Hizmet başarıyla oluşturuldu!');
             //         serviceModal.style.display = 'none';
             //         this.reset();
             //         // Reload services table
             //         location.reload();
             //     } else {
-            //         showToast('Ã¢ÂÂŒ Hata: ' + data.message, 'error');
+            //         alert('❌ Hata: ' + data.message);
             //     }
             // })
             // .catch(error => {
-            //     showToast('Ã¢ÂÂŒ Bir hata oluştu: ' + error.message, 'error');
+            //     alert('❌ Bir hata oluştu: ' + error.message);
             // });
             
             // For now, just show success message
             console.log('Creating service:', serviceData);
-            showToast('Ã¢ÂœÂ… Hizmet başarıyla oluşturuldu!\n\n' +
-                'Hizmet: ' + serviceName + '\n' +
-                'Kategori: ' + category + '\n' +
-                'Süre: ' + duration + ' dk\n' +
-                'Sedan: ₺' + priceSedan + '\n' +
-                'SUV: ₺' + priceSUV + '\n' +
-                'Kamyonet: ₺' + priceTruck, 'success', 6000);
+            alert('✅ Hizmet başarıyla oluşturuldu!\n\n' +
+                  'Hizmet: ' + serviceName + '\n' +
+                  'Kategori: ' + category + '\n' +
+                  'Süre: ' + duration + ' dk\n' +
+                  'Sedan: ₺' + priceSedan + '\n' +
+                  'SUV: ₺' + priceSUV + '\n' +
+                  'Kamyonet: ₺' + priceTruck);
             serviceModal.style.display = 'none';
             this.reset();
         });
 
         // User Form Submission with Validation
-        // Farsça: Ã˜Â§Ã˜Â±Ã˜Â³Ã˜Â§Ã™Â„ Ã™ÂÃ˜Â±Ã™Â… ÃšÂ©Ã˜Â§Ã˜Â±Ã˜Â¨Ã˜Â± Ã˜Â¨Ã˜Â§ Ã˜Â§Ã˜Â¹Ã˜ÂªÃ˜Â¨Ã˜Â§Ã˜Â±Ã˜Â³Ã™Â†Ã˜Â¬Ã›ÂŒ.
-        // Türkçe: DoğŸrulama ile Kullanıcı Formu Gönderimi.
+        // Farsça: ارسال فرم کاربر با اعتبارسنجی.
+        // Türkçe: Doğrulama ile Kullanıcı Formu Gönderimi.
         // English: User Form Submission with Validation.
         document.getElementById('userForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -6846,27 +6309,27 @@ if ($user_role === 'admin') {
             
             // Validation
             if (!username || username.length < 3) {
-                showToast('Kullanıcı adı en az 3 karakter olmalıdır!', 'error');
+                alert('Kullanıcı adı en az 3 karakter olmalıdır!');
                 return;
             }
             
             if (!email || !email.includes('@')) {
-                showToast('Geçerli bir email adresi girin!', 'error');
+                alert('Geçerli bir email adresi girin!');
                 return;
             }
             
             if (!password || password.length < 8) {
-                showToast('Şifre en az 8 karakter olmalıdır!', 'error');
+                alert('Şifre en az 8 karakter olmalıdır!');
                 return;
             }
             
             if (password !== passwordConfirm) {
-                showToast('Şifreler eşleşmiyor!', 'error');
+                alert('Şifreler eşleşmiyor!');
                 return;
             }
             
             if (!roleId) {
-                showToast('Lütfen bir rol seçin!', 'error');
+                alert('Lütfen bir rol seçin!');
                 return;
             }
             
@@ -6876,7 +6339,7 @@ if ($user_role === 'admin') {
             const hasNumbers = /\d/.test(password);
             
             if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
-                showToast('Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir!', 'error');
+                alert('Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir!');
                 return;
             }
             
@@ -6902,47 +6365,47 @@ if ($user_role === 'admin') {
             // .then(response => response.json())
             // .then(data => {
             //     if (data.success) {
-            //         showToast('Kullanıcı başarıyla oluşturuldu!', 'success');
+            //         alert('Kullanıcı başarıyla oluşturuldu!');
             //         userModal.style.display = 'none';
             //         this.reset();
             //         // Reload user table
             //         location.reload();
             //     } else {
-            //         showToast('Hata: ' + data.message, 'error');
+            //         alert('Hata: ' + data.message);
             //     }
             // })
             // .catch(error => {
-            //     showToast('Bir hata oluştu: ' + error.message, 'error');
+            //     alert('Bir hata oluştu: ' + error.message);
             // });
             
             // For now, just show success message
             console.log('Creating user:', userData);
-            showToast('Kullanıcı başarıyla oluşturuldu!', 'success', 4500);
+            alert('Kullanıcı başarıyla oluşturuldu!');
             userModal.style.display = 'none';
             this.reset();
         });
 
         // Search and filter functionality (basic implementation)
-        // Farsça: Ã˜Â¹Ã™Â…Ã™Â„ÃšÂ©Ã˜Â±Ã˜Â¯ Ã˜Â¬Ã˜Â³Ã˜ÂªÃ˜Â¬Ã™Âˆ Ã™Âˆ Ã™ÂÃ›ÂŒÃ™Â„Ã˜ÂªÃ˜Â± (Ã™Â¾Ã›ÂŒÃ˜Â§Ã˜Â¯Ã™Â‡Ã¢Â€ÂŒÃ˜Â³Ã˜Â§Ã˜Â²Ã›ÂŒ Ã™Â¾Ã˜Â§Ã›ÂŒÃ™Â‡).
-        // Türkçe: Arama ve filtreleme işlevselliğŸi (temel uygulama).
+        // Farsça: عملکرد جستجو و فیلتر (پیاده‌سازی پایه).
+        // Türkçe: Arama ve filtreleme işlevselliği (temel uygulama).
         // English: Search and filter functionality (basic implementation).
         document.getElementById('carwashSearch').addEventListener('input', function() {
             // Implement search functionality
-            // Farsça: Ã˜Â¹Ã™Â…Ã™Â„ÃšÂ©Ã˜Â±Ã˜Â¯ Ã˜Â¬Ã˜Â³Ã˜ÂªÃ˜Â¬Ã™Âˆ Ã˜Â±Ã˜Â§ Ã™Â¾Ã›ÂŒÃ˜Â§Ã˜Â¯Ã™Â‡Ã¢Â€ÂŒÃ˜Â³Ã˜Â§Ã˜Â²Ã›ÂŒ ÃšÂ©Ã™Â†Ã›ÂŒÃ˜Â¯.
-            // Türkçe: Arama işlevselliğŸini uygulayın.
+            // Farsça: عملکرد جستجو را پیاده‌سازی کنید.
+            // Türkçe: Arama işlevselliğini uygulayın.
             // English: Implement search functionality.
             console.log('Searching for:', this.value);
         });
 
         // Service Management Functions
-        // Farsça: Ã˜ÂªÃ™ÂˆÃ˜Â§Ã˜Â¨Ã˜Â¹ Ã™Â…Ã˜Â¯Ã›ÂŒÃ˜Â±Ã›ÂŒÃ˜Âª Ã˜Â®Ã˜Â¯Ã™Â…Ã˜Â§Ã˜Âª.
+        // Farsça: توابع مدیریت خدمات.
         // Türkçe: Hizmet Yönetimi Fonksiyonları.
         // English: Service Management Functions.
         
         function editService(serviceId) {
             // TODO: Load service data and populate modal
             console.log('Editing service:', serviceId);
-            showToast('Ã°ÂŸÂ”Â§ Hizmet düzenleme özelliğŸi yakında eklenecek!\n\nService ID: ' + serviceId, 'info');
+            alert('🔧 Hizmet düzenleme özelliği yakında eklenecek!\n\nService ID: ' + serviceId);
             
             // Future implementation:
             // fetch('/backend/api/admin/services/' + serviceId)
@@ -6957,11 +6420,10 @@ if ($user_role === 'admin') {
         }
         
         function toggleServiceStatus(serviceId) {
-            showConfirm('Bu hizmetin durumunu değŸiştirmek istediğŸinizden emin misiniz?').then(function(confirmed){
-                if (!confirmed) return;
+            if (confirm('Bu hizmetin durumunu değiştirmek istediğinizden emin misiniz?')) {
                 // TODO: Send to backend API
                 console.log('Toggling service status:', serviceId);
-                showToast('Ã¢ÂœÂ… Hizmet durumu değŸiştirildi!\n\nService ID: ' + serviceId, 'success');
+                alert('✅ Hizmet durumu değiştirildi!\n\nService ID: ' + serviceId);
                 
                 // Future implementation:
                 // fetch('/backend/api/admin/services/' + serviceId + '/toggle-status', {
@@ -6970,19 +6432,18 @@ if ($user_role === 'admin') {
                 // .then(response => response.json())
                 // .then(data => {
                 //     if (data.success) {
-                //         showToast('Durum değŸiştirildi!', 'success');
+                //         alert('Durum değiştirildi!');
                 //         location.reload();
                 //     }
                 // });
-            });
+            }
         }
         
         function deleteService(serviceId) {
-            showConfirm('Ã¢ÂšÂ Ã¯Â¸Â Bu hizmeti silmek istediğŸinizden emin misiniz?\n\nBu işlem geri alınamaz!').then(function(confirmed){
-                if (!confirmed) return;
+            if (confirm('⚠️ Bu hizmeti silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!')) {
                 // TODO: Send to backend API
                 console.log('Deleting service:', serviceId);
-                showToast('Ã°ÂŸÂ—Â‘Ã¯Â¸Â Hizmet silindi!\n\nService ID: ' + serviceId, 'success');
+                alert('🗑️ Hizmet silindi!\n\nService ID: ' + serviceId);
                 
                 // Future implementation:
                 // fetch('/backend/api/admin/services/' + serviceId, {
@@ -6991,82 +6452,94 @@ if ($user_role === 'admin') {
                 // .then(response => response.json())
                 // .then(data => {
                 //     if (data.success) {
-                //         showToast('Hizmet silindi!', 'success');
+                //         alert('Hizmet silindi!');
                 //         location.reload();
                 //     } else {
-                //         showToast('Hata: ' + data.message, 'error');
+                //         alert('Hata: ' + data.message);
                 //     }
                 // });
-            });
+            }
         }
 
         // Security Tabs Functionality
-        // Farsça: Ã˜Â¹Ã™Â…Ã™Â„ÃšÂ©Ã˜Â±Ã˜Â¯ Ã˜ÂªÃ˜Â¨Ã¢Â€ÂŒÃ™Â‡Ã˜Â§Ã›ÂŒ Ã˜Â§Ã™Â…Ã™Â†Ã›ÂŒÃ˜ÂªÃ›ÂŒ.
-        // Türkçe: Güvenlik Sekmeleri ğ°şlevselliğŸi.
+        // Farsça: عملکرد تب‌های امنیتی.
+        // Türkçe: Güvenlik Sekmeleri İşlevselliği.
         // English: Security Tabs Functionality.
-        // Defer tab attachment to idle time (non-critical)
-        requestIdleCallback(function(){
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    
-                    // Remove active class from all tabs
-                    document.querySelectorAll('.tab-btn').forEach(b => {
-                        b.style.background = 'white';
-                        b.style.color = '#333';
-                    });
-                    
-                    // Hide all tab contents
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.style.display = 'none';
-                    });
-                    
-                    // Activate clicked tab
-                    this.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-                    this.style.color = 'white';
-                    
-                    // Show corresponding content
-                    const content = document.getElementById(tabId);
-                    if (content) {
-                        content.style.display = 'block';
-                    }
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.style.background = 'white';
+                    b.style.color = '#333';
                 });
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Activate clicked tab
+                this.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                this.style.color = 'white';
+                
+                // Show corresponding content
+                const content = document.getElementById(tabId);
+                if (content) {
+                    content.style.display = 'block';
+                }
             });
-        }, { timeout: 500 });
+        });
 
         // Settings Tabs Functionality
-        // Farsça: Ã˜Â¹Ã™Â…Ã™Â„ÃšÂ©Ã˜Â±Ã˜Â¯ Ã˜ÂªÃ˜Â¨Ã¢Â€ÂŒÃ™Â‡Ã˜Â§Ã›ÂŒ Ã˜ÂªÃ™Â†Ã˜Â¸Ã›ÂŒÃ™Â…Ã˜Â§Ã˜Âª.
-        // Türkçe: Ayarlar Sekmeleri ğ°şlevselliğŸi.
+        // Farsça: عملکرد تب‌های تنظیمات.
+        // Türkçe: Ayarlar Sekmeleri İşlevselliği.
         // English: Settings Tabs Functionality.
-        requestIdleCallback(function(){
-            document.querySelectorAll('.settings-tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-settings-tab');
-                    
-                    // Remove active class from all settings tabs
-                    document.querySelectorAll('.settings-tab-btn').forEach(b => {
-                        b.style.background = 'white';
-                        b.style.color = '#333';
-                        b.classList.remove('active');
-                    });
-                    
-                    // Hide all settings tab contents
-                    document.querySelectorAll('.settings-tab-content').forEach(content => {
-                        content.style.display = 'none';
-                    });
-                    
-                    // Activate clicked tab
-                    this.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-                    this.style.color = 'white';
-                    this.classList.add('active');
+        document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-settings-tab');
+                
+                // Remove active class from all settings tabs
+                document.querySelectorAll('.settings-tab-btn').forEach(b => {
+                    b.style.background = 'white';
+                    b.style.color = '#333';
+                    b.classList.remove('active');
                 });
+                
+                // Hide all settings tab contents
+                document.querySelectorAll('.settings-tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Activate clicked tab
+                this.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                this.style.color = 'white';
+                this.classList.add('active');
+                
+                // Show corresponding content
+                // Handle special cases where tab name differs from content id
+                let contentId = tabId;
+                if (tabId === 'notifications') {
+                    contentId = 'notificationstab';
+                } else if (tabId === 'security') {
+                    contentId = 'securitytab';
+                } else if (tabId === 'backup') {
+                    contentId = 'backuptab';
+                } else if (tabId === 'email') {
+                    contentId = 'emailtab';
+                }
+                
+                const content = document.getElementById(contentId);
+                if (content) {
+                    content.style.display = 'block';
+                }
             });
-        }, { timeout: 500 });
-        
+        });
 
         // Report Category Tabs Functionality
-        // Farsça: Ã˜Â¹Ã™Â…Ã™Â„ÃšÂ©Ã˜Â±Ã˜Â¯ Ã˜ÂªÃ˜Â¨Ã¢Â€ÂŒÃ™Â‡Ã˜Â§Ã›ÂŒ Ã˜Â¯Ã˜Â³Ã˜ÂªÃ™Â‡Ã¢Â€ÂŒÃ˜Â¨Ã™Â†Ã˜Â¯Ã›ÂŒ ÃšÂ¯Ã˜Â²Ã˜Â§Ã˜Â±Ã˜Â´.
-        // Türkçe: Rapor Kategorisi Sekmeleri ğ°şlevselliğŸi.
+        // Farsça: عملکرد تب‌های دسته‌بندی گزارش.
+        // Türkçe: Rapor Kategorisi Sekmeleri İşlevselliği.
         // English: Report Category Tabs Functionality.
         function showReportCategory(category) {
             // Hide all report categories
@@ -7096,12 +6569,12 @@ if ($user_role === 'admin') {
         }
 
         // Report Download Functionality
-        // Farsça: Ã˜Â¹Ã™Â…Ã™Â„ÃšÂ©Ã˜Â±Ã˜Â¯ Ã˜Â¯Ã˜Â§Ã™Â†Ã™Â„Ã™ÂˆÃ˜Â¯ ÃšÂ¯Ã˜Â²Ã˜Â§Ã˜Â±Ã˜Â´.
-        // Türkçe: Rapor ğ°ndirme ğ°şlevselliğŸi.
+        // Farsça: عملکرد دانلود گزارش.
+        // Türkçe: Rapor İndirme İşlevselliği.
         // English: Report Download Functionality.
         function downloadReport(reportType, format) {
             // Show loading notification
-            const loadingMsg = `Ã°ÂŸÂ“ÂŠ ${reportType.toUpperCase()} raporu ${format.toUpperCase()} formatında hazırlanıyor...`;
+            const loadingMsg = `📊 ${reportType.toUpperCase()} raporu ${format.toUpperCase()} formatında hazırlanıyor...`;
             console.log(loadingMsg);
             
             // TODO: Replace with actual backend API call
@@ -7131,11 +6604,11 @@ if ($user_role === 'admin') {
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
                 
-                showToast('Ã¢ÂœÂ… Rapor başarıyla indirildi!', 'success');
+                alert('✅ Rapor başarıyla indirildi!');
             })
             .catch(error => {
                 console.error('Download error:', error);
-                showToast('Ã¢ÂÂŒ Rapor indirme hatası: ' + error.message, 'error');
+                alert('❌ Rapor indirme hatası: ' + error.message);
             });
             */
             
@@ -7155,50 +6628,19 @@ if ($user_role === 'admin') {
             };
             
             const formatIcons = {
-                'pdf': 'Ã°ÂŸÂ“Â„',
-                'excel': 'Ã°ÂŸÂ“ÂŠ',
-                'csv': 'Ã°ÂŸÂ“Â‹',
-                'pptx': 'Ã°ÂŸÂ“Â½Ã¯Â¸Â'
+                'pdf': '📄',
+                'excel': '📊',
+                'csv': '📋',
+                'pptx': '📽️'
             };
             
-            // Non-blocking simulated download notification (replace blocking alert)
-            function showToast(text) {
-                const t = document.createElement('div');
-                t.className = 'site-toast';
-                t.textContent = text;
-                // Basic inline styles to avoid external CSS dependency
-                t.style.position = 'fixed';
-                t.style.right = '20px';
-                t.style.bottom = '20px';
-                t.style.background = 'rgba(0,0,0,0.85)';
-                t.style.color = 'white';
-                t.style.padding = '12px 16px';
-                t.style.borderRadius = '8px';
-                t.style.boxShadow = '0 6px 20px rgba(0,0,0,0.2)';
-                t.style.zIndex = 99999;
-                t.style.fontSize = '0.95rem';
-                t.style.opacity = '0';
-                t.style.transition = 'opacity 240ms ease, transform 240ms ease';
-                t.style.transform = 'translateY(8px)';
-                document.body.appendChild(t);
-                // trigger animate
-                requestAnimationFrame(() => {
-                    t.style.opacity = '1';
-                    t.style.transform = 'translateY(0)';
-                });
-                // remove after 4s
-                setTimeout(() => {
-                    t.style.opacity = '0';
-                    t.style.transform = 'translateY(8px)';
-                    setTimeout(() => t.remove(), 300);
-                }, 4000);
-            }
-
-            // Simulate download delay (non-blocking)
+            // Simulate download delay
             setTimeout(() => {
-                const msg = `${formatIcons[format]} ${reportNames[reportType]} - ${format.toUpperCase()} formatında başarıyla indirildi! ` +
-                            `Tarih: ${new Date().toLocaleDateString('tr-TR')} Saat: ${new Date().toLocaleTimeString('tr-TR')}`;
-                showToast(msg);
+                alert(`${formatIcons[format]} ${reportNames[reportType]} - ${format.toUpperCase()} formatında başarıyla indirildi!\n\n` +
+                      `📅 Tarih: ${new Date().toLocaleDateString('tr-TR')}\n` +
+                      `⏰ Saat: ${new Date().toLocaleTimeString('tr-TR')}\n\n` +
+                      `💡 Not: Gerçek uygulamada bu dosya otomatik olarak indirilecektir.`);
+                
                 console.log(`Downloaded: ${reportNames[reportType]} as ${format.toUpperCase()}`);
             }, 500);
         }
@@ -7256,25 +6698,24 @@ if ($user_role === 'admin') {
     
     <!-- Dashboard Charts Initialization -->
     <script>
-        // Revenue Chart (deferred initialization)
-        requestIdleCallback(function(){
-            const revenueCtx = document.getElementById('revenueChart');
-            if (revenueCtx) {
-                new Chart(revenueCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
-                        datasets: [{
-                            label: 'Günlük Gelir (₺)',
-                            data: [35000, 42000, 38000, 45000, 52000, 48000, 45680],
-                            borderColor: '#667eea',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            borderWidth: 3
-                        }]
-                    },
-                    options: {
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart');
+        if (revenueCtx) {
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                    datasets: [{
+                        label: 'Günlük Gelir (₺)',
+                        data: [35000, 42000, 38000, 45000, 52000, 48000, 45680],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
                     responsive: true,
                     maintainAspectRatio: true,
                     plugins: {
@@ -7302,10 +6743,9 @@ if ($user_role === 'admin') {
                             }
                         }
                     }
-                    }
-                });
-            }
-        }, { timeout: 500 });
+                }
+            });
+        }
 
         // Users Chart
         const usersCtx = document.getElementById('usersChart');
@@ -7354,5 +6794,9 @@ if ($user_role === 'admin') {
         }
     </script>
 
+<?php
+// Include the universal footer
+include '../includes/footer.php';
+?>
 </body>
 </html>
