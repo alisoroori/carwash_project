@@ -1565,7 +1565,7 @@ include '../includes/dashboard_header.php';
                     <li class="nav-item">
                         <a href="#carwashes" class="nav-link" data-section="carwashes">
                             <i class="fas fa-warehouse"></i>
-                            <span>Otopark Yönetimi</span>
+                            <span>Oto Yıkama Yönetimi</span>
                         </a>
                     </li>
                     
@@ -1740,29 +1740,29 @@ include '../includes/dashboard_header.php';
 
             <!-- Car Washes Management Section -->
             <!-- Farsça: بخش مدیریت کارواش‌ها. -->
-            <!-- Türkçe: Otopark Yönetimi Bölümü. -->
+            <!-- Türkçe: Oto Yıkama Yönetimi Bölümü. -->
             <!-- English: Car Washes Management Section. -->
             <section id="carwashes" class="content-section">
                 <div class="section-header">
                     <div>
                         <h2>
-                            <i class="fas fa-parking" style="color: #667eea; margin-right: 12px;"></i>
-                            Otopark Yönetimi
+                            <i class="fas fa-car-wash" style="color: #667eea; margin-right: 12px;"></i>
+                            Oto Yıkama Yönetimi
                         </h2>
-                        <p>Otopark işletmelerini yönetin</p>
+                        <p>Oto yıkama işletmelerini yönetin</p>
                     </div>
                     <button class="add-btn" id="addCarwashBtn">
                         <i class="fas fa-plus"></i>
-                        Yeni Otopark Ekle
+                        Yeni Oto Yıkama Ekle
                     </button>
                 </div>
 
                 <!-- Car Wash Filters -->
                 <!-- Farsça: فیلترهای کارواش. -->
-                <!-- Türkçe: Otopark Filtreleri. -->
+                <!-- Türkçe: Oto Yıkama Filtreleri. -->
                 <!-- English: Car Wash Filters. -->
                 <div class="filters">
-                    <input type="text" id="carwashSearch" placeholder="Otopark ara..." class="search-input">
+                    <input type="text" id="carwashSearch" placeholder="Oto yıkama ara..." class="search-input">
                     <select id="statusFilter" class="filter-select">
                         <option value="">Tüm Durumlar</option>
                         <option value="active">Aktif</option>
@@ -1773,14 +1773,14 @@ include '../includes/dashboard_header.php';
 
                 <!-- Car Washes Table -->
                 <!-- Farsça: جدول کارواش‌ها. -->
-                <!-- Türkçe: Otopark Tablosu. -->
+                <!-- Türkçe: Oto Yıkama Tablosu. -->
                 <!-- English: Car Washes Table. -->
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th><i class="fas fa-hashtag mr-1"></i>ID</th>
-                                <th><i class="fas fa-building mr-1"></i>Otopark Adı</th>
+                                <th><i class="fas fa-building mr-1"></i>Oto Yıkama Adı</th>
                                 <th><i class="fas fa-map-marker-alt mr-1"></i>Konum</th>
                                 <th><i class="fas fa-car mr-1"></i>Kapasite</th>
                                 <th><i class="fas fa-money-bill-wave mr-1"></i>Fiyat</th>
@@ -1795,7 +1795,7 @@ include '../includes/dashboard_header.php';
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <i class="fas fa-building" style="color: #667eea; font-size: 20px;"></i>
                                         <div>
-                                            <strong>Merkez Otopark</strong><br>
+                                            <strong>Merkez Oto Yıkama</strong><br>
                                             <small style="color: #64748b;">Premium Tesis</small>
                                         </div>
                                     </div>
@@ -1832,7 +1832,7 @@ include '../includes/dashboard_header.php';
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <i class="fas fa-warehouse" style="color: #28a745; font-size: 20px;"></i>
                                         <div>
-                                            <strong>Şehir Otopark</strong><br>
+                                            <strong>Şehir Oto Yıkama</strong><br>
                                             <small style="color: #64748b;">Standart Tesis</small>
                                         </div>
                                     </div>
@@ -1869,7 +1869,7 @@ include '../includes/dashboard_header.php';
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <i class="fas fa-store" style="color: #ffc107; font-size: 20px;"></i>
                                         <div>
-                                            <strong>AVM Otopark</strong><br>
+                                            <strong>AVM Oto Yıkama</strong><br>
                                             <small style="color: #64748b;">Alışveriş Merkezi</small>
                                         </div>
                                     </div>
@@ -1953,7 +1953,7 @@ include '../includes/dashboard_header.php';
                             <tr>
                                 <th>Sipariş No</th>
                                 <th>Müşteri</th>
-                                <th>Otopark</th>
+                                <th>Oto Yıkama</th>
                                 <th>Hizmet</th>
                                 <th>Tutar</th>
                                 <th>Durum</th>
@@ -1973,7 +1973,7 @@ include '../includes/dashboard_header.php';
                                         </div>
                                     </div>
                                 </td>
-                                <td>Merkez Otopark</td>
+                                <td>Merkez Oto Yıkama</td>
                                 <td><span class="type-badge" style="background: #28a74520; color: #28a745;">Tam Detaylandırma</span></td>
                                 <td><strong>₺350</strong></td>
                                 <td><span class="status-badge" style="background: #ffc10720; color: #ff8c00; border: 1px solid #ffc107;">Devam Ediyor</span></td>
@@ -2001,7 +2001,7 @@ include '../includes/dashboard_header.php';
                                         </div>
                                     </div>
                                 </td>
-                                <td>Kadıköy Otopark</td>
+                                <td>Kadıköy Oto Yıkama</td>
                                 <td><span class="type-badge" style="background: #667eea20; color: #667eea;">İç Temizlik</span></td>
                                 <td><strong>₺200</strong></td>
                                 <td><span class="status-badge active">Tamamlandı</span></td>
@@ -2029,7 +2029,7 @@ include '../includes/dashboard_header.php';
                                         </div>
                                     </div>
                                 </td>
-                                <td>Beşiktaş Otopark</td>
+                                <td>Beşiktaş Oto Yıkama</td>
                                 <td><span class="type-badge" style="background: #dc354520; color: #dc3545;">Dış Yıkama</span></td>
                                 <td><strong>₺150</strong></td>
                                 <td><span class="status-badge inactive">İptal Edildi</span></td>
@@ -2057,7 +2057,7 @@ include '../includes/dashboard_header.php';
                                         </div>
                                     </div>
                                 </td>
-                                <td>Şişli Otopark</td>
+                                <td>Şişli Oto Yıkama</td>
                                 <td><span class="type-badge" style="background: #ffc10720; color: #ff8c00;">Cilalama</span></td>
                                 <td><strong>₺280</strong></td>
                                 <td><span class="status-badge pending">Beklemede</span></td>
@@ -2156,7 +2156,7 @@ include '../includes/dashboard_header.php';
                         <div class="stat-info">
                             <h3>₺8,540</h3>
                             <p>Ödenmesi Gereken</p>
-                            <small class="text-blue-600">Otopark ödemeleri</small>
+                            <small class="text-blue-600">Oto Yıkama ödemeleri</small>
                         </div>
                     </div>
                 </div>
@@ -2298,12 +2298,12 @@ include '../includes/dashboard_header.php';
 
                 <!-- Settlement Section -->
                 <div style="margin-top: 32px;">
-                    <h3 style="margin-bottom: 16px;"><i class="fas fa-hand-holding-usd mr-2"></i>Otopark Ödemeleri (Tasfiye)</h3>
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-hand-holding-usd mr-2"></i>Oto Yıkama Ödemeleri (Tasfiye)</h3>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Otopark</th>
+                                    <th>Oto Yıkama</th>
                                     <th>Toplam Gelir</th>
                                     <th>Komisyon (%15)</th>
                                     <th>Ödenecek Tutar</th>
@@ -2313,7 +2313,7 @@ include '../includes/dashboard_header.php';
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><strong>Merkez Otopark</strong></td>
+                                    <td><strong>Merkez Oto Yıkama</strong></td>
                                     <td>₺8,500</td>
                                     <td>-₺1,275</td>
                                     <td><strong style="color: #28a745;">₺7,225</strong></td>
@@ -2325,7 +2325,7 @@ include '../includes/dashboard_header.php';
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Kadıköy Otopark</strong></td>
+                                    <td><strong>Kadıköy Oto Yıkama</strong></td>
                                     <td>₺5,200</td>
                                     <td>-₺780</td>
                                     <td><strong style="color: #28a745;">₺4,420</strong></td>
@@ -2936,7 +2936,7 @@ include '../includes/dashboard_header.php';
                                 <td>
                                     <div>
                                         <strong>Ahmet Yılmaz</strong><br>
-                                        <small style="color: #64748b;">Merkez Otopark</small>
+                                        <small style="color: #64748b;">Merkez Oto Yıkama</small>
                                     </div>
                                 </td>
                                 <td><a href="#" style="color: #667eea;">#ORD-1245</a></td>
@@ -2972,7 +2972,7 @@ include '../includes/dashboard_header.php';
                                 <td>
                                     <div>
                                         <strong>Elif Kara</strong><br>
-                                        <small style="color: #64748b;">Kadıköy Otopark</small>
+                                        <small style="color: #64748b;">Kadıköy Oto Yıkama</small>
                                     </div>
                                 </td>
                                 <td><a href="#" style="color: #667eea;">#ORD-1244</a></td>
@@ -3005,7 +3005,7 @@ include '../includes/dashboard_header.php';
                                 <td>
                                     <div>
                                         <strong>Mehmet Demir</strong><br>
-                                        <small style="color: #64748b;">Beşiktaş Otopark</small>
+                                        <small style="color: #64748b;">Beşiktaş Oto Yıkama</small>
                                     </div>
                                 </td>
                                 <td><a href="#" style="color: #667eea;">#ORD-1243</a></td>
@@ -3289,7 +3289,7 @@ include '../includes/dashboard_header.php';
                                 </div>
                                 <div style="flex: 1;">
                                     <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Komisyon Raporu</h3>
-                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Otopark komisyonları ve ödemeler</p>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Oto Yıkama komisyonları ve ödemeler</p>
                                 </div>
                             </div>
                             
@@ -3308,7 +3308,7 @@ include '../includes/dashboard_header.php';
                                         <strong style="color: #ffc107;">₺8,540</strong>
                                     </div>
                                     <div>
-                                        <small style="color: #666; display: block; margin-bottom: 4px;">Otopark Sayısı</small>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Oto Yıkama Sayısı</small>
                                         <strong style="color: #333;">24</strong>
                                     </div>
                                 </div>
@@ -3444,15 +3444,15 @@ include '../includes/dashboard_header.php';
                                     <i class="fas fa-car" style="color: #fd7e14; font-size: 1.3rem;"></i>
                                 </div>
                                 <div style="flex: 1;">
-                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Otopark Performansı</h3>
-                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Otopark bazlı performans ve gelir analizi</p>
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.1rem;">Oto Yıkama Performansı</h3>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #666;">Oto yıkama bazlı performans ve gelir analizi</p>
                                 </div>
                             </div>
                             
                             <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                                     <div>
-                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam Otopark</small>
+                                        <small style="color: #666; display: block; margin-bottom: 4px;">Toplam Oto Yıkama</small>
                                         <strong style="color: #fd7e14; font-size: 1.1rem;">24</strong>
                                     </div>
                                     <div>
@@ -3472,7 +3472,7 @@ include '../includes/dashboard_header.php';
                             
                             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                                 <select class="filter-select" style="flex: 1; font-size: 0.85rem;">
-                                    <option>Tüm Otoparklar</option>
+                                    <option>Tüm Oto Yıkama Tesisleri</option>
                                     <option>En İyi 10</option>
                                     <option>En Düşük 10</option>
                                 </select>
@@ -4389,7 +4389,7 @@ include '../includes/dashboard_header.php';
                             <tbody>
                                 <tr>
                                     <td><strong>#LG-4523</strong></td>
-                                    <td>admin@otoparkdemotime.com</td>
+                                    <td>admin@carwashdemotime.com</td>
                                     <td><span class="status-badge active">Başarılı</span></td>
                                     <td><code>192.168.1.100</code></td>
                                     <td>Chrome 119.0</td>
@@ -4398,7 +4398,7 @@ include '../includes/dashboard_header.php';
                                 </tr>
                                 <tr>
                                     <td><strong>#LG-4522</strong></td>
-                                    <td>support@otoparkdemotime.com</td>
+                                    <td>support@carwashdemotime.com</td>
                                     <td><span class="status-badge active">Başarılı</span></td>
                                     <td><code>192.168.1.105</code></td>
                                     <td>Firefox 118.0</td>
@@ -4604,7 +4604,7 @@ include '../includes/dashboard_header.php';
                     </div>
                     <div class="form-group">
                         <label>Admin Email *</label>
-                        <input type="email" value="admin@otoparkdemotime.com" placeholder="admin@example.com">
+                        <input type="email" value="admin@carwashdemotime.com" placeholder="admin@example.com">
                         <small style="color: #64748b;">Sistem bildirimleri bu adrese gönderilecek</small>
                     </div>
                     <div class="form-group">
@@ -4763,7 +4763,7 @@ include '../includes/dashboard_header.php';
                     </div>
                     <div class="form-group">
                         <label>SMTP Username</label>
-                        <input type="text" value="no-reply@otoparkdemotime.com">
+                        <input type="text" value="no-reply@carwashdemotime.com">
                     </div>
                     <div class="form-group">
                         <label>SMTP Password</label>
@@ -5180,18 +5180,18 @@ include '../includes/dashboard_header.php';
 <!-- Modals -->
 <!-- Add Car Wash Modal -->
     <!-- Farsça: مودال افزودن کارواش. -->
-    <!-- Türkçe: Otopark Ekle Modalı. -->
+    <!-- Türkçe: Oto Yıkama Ekle Modalı. -->
     <!-- English: Add Car Wash Modal. -->
     <div id="carwashModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Yeni Otopark Ekle</h3>
+                <h3>Yeni Oto Yıkama Ekle</h3>
                 <span class="close" id="closeCarwashModal">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="carwashForm">
                     <div class="form-group">
-                        <label>Otopark Adı</label>
+                        <label>Oto Yıkama Adı</label>
                         <input type="text" id="carwashName" required>
                     </div>
                     <div class="form-group">
@@ -5214,7 +5214,7 @@ include '../includes/dashboard_header.php';
                             <option value="maintenance">Bakımda</option>
                         </select>
                     </div>
-                    <button type="submit" class="submit-btn">Otopark Ekle</button>
+                    <button type="submit" class="submit-btn">Oto Yıkama Ekle</button>
                 </form>
             </div>
         </div>
@@ -5639,7 +5639,7 @@ include '../includes/dashboard_header.php';
                         
                         <div class="form-group">
                             <label><i class="fas fa-tag mr-1"></i>Meta Anahtar Kelimeler</label>
-                            <input type="text" name="meta_keywords" id="metaKeywords" placeholder="otopark, araç yıkama, temizlik, bakım">
+                            <input type="text" name="meta_keywords" id="metaKeywords" placeholder="oto yıkama, araç yıkama, temizlik, bakım">
                             <small style="color: #64748b;">Virgülle ayrılmış anahtar kelimeler</small>
                         </div>
                         
@@ -5857,7 +5857,7 @@ include '../includes/dashboard_header.php';
             // Farsça: در اینجا شما معمولاً داده‌ها را به بک‌اند PHP ارسال می‌کنید.
             // Türkçe: Burada tipik olarak verileri PHP arka ucuna gönderirsiniz.
             // English: Here you would typically send data to PHP backend.
-            alert('Otopark başarıyla eklendi!');
+            alert('Oto yıkama başarıyla eklendi!');
             carwashModal.style.display = 'none';
         });
 
@@ -6620,7 +6620,7 @@ include '../includes/dashboard_header.php';
                 'commission': 'Komisyon Raporu',
                 'orders': 'Sipariş Raporu',
                 'services': 'Hizmet Performansı',
-                'carwash': 'Otopark Performansı',
+                'carwash': 'Oto Yıkama Performansı',
                 'customers': 'Müşteri Analizi',
                 'reviews': 'Değerlendirme Raporu',
                 'analytics': 'Kapsamlı Analiz',
@@ -6753,7 +6753,7 @@ include '../includes/dashboard_header.php';
             new Chart(usersCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Müşteriler', 'Otopark Sahipleri', 'Sürücüler'],
+                    labels: ['Müşteriler', 'Oto Yıkama Sahipleri', 'Sürücüler'],
                     datasets: [{
                         label: 'Kullanıcı Dağılımı',
                         data: [158, 24, 45],

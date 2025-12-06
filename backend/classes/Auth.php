@@ -394,6 +394,10 @@ class Auth {
         if (isset($user['status']) && in_array($user['status'], ['inactive','banned','suspended'], true)) {
             return ['success' => false, 'message' => 'Account not active'];
         }
+        // Also check is_active flag (carwash_db schema uses this)
+        if (isset($user['is_active']) && !$user['is_active']) {
+            return ['success' => false, 'message' => 'Account not active'];
+        }
 
         // Start session and store minimal user info
         if (class_exists(Session::class) && method_exists(Session::class, 'start')) {

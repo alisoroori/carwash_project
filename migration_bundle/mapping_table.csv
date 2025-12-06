@@ -1,0 +1,124 @@
+original_table,original_column,new_table,new_column,transform_notes,confidence
+carwash_profiles,id,carwashes,id,Primary key preserved,HIGH
+carwash_profiles,user_id,carwashes,user_id,Direct mapping,HIGH
+carwash_profiles,business_name,carwashes,name,Renamed for consistency,HIGH
+carwash_profiles,business_license,carwashes,license_number,Renamed for consistency,HIGH
+carwash_profiles,description,carwashes,description,Direct mapping,HIGH
+carwash_profiles,address,carwashes,address,Direct mapping,HIGH
+carwash_profiles,district,carwashes,district,Direct mapping,HIGH
+carwash_profiles,city,carwashes,city,Direct mapping,HIGH
+carwash_profiles,state,carwashes,state,Direct mapping,HIGH
+carwash_profiles,country,carwashes,country,Direct mapping,HIGH
+carwash_profiles,postal_code,carwashes,postal_code,Direct mapping,HIGH
+carwash_profiles,latitude,carwashes,latitude,Direct mapping,HIGH
+carwash_profiles,longitude,carwashes,longitude,Direct mapping,HIGH
+carwash_profiles,opening_hours,carwashes,opening_hours,Direct mapping (JSON),HIGH
+carwash_profiles,featured_image,carwashes,image,Renamed for consistency,HIGH
+carwash_profiles,gallery_images,carwashes,services,Stored in JSON field,MEDIUM
+carwash_profiles,contact_email,carwashes,email,Renamed for consistency,HIGH
+carwash_profiles,contact_phone,carwashes,phone,Renamed for consistency,HIGH
+carwash_profiles,website,carwashes,website,Direct mapping,HIGH
+carwash_profiles,social_media,carwashes,social_media,Direct mapping (JSON),HIGH
+carwash_profiles,average_rating,carwashes,rating,Renamed for consistency,HIGH
+carwash_profiles,total_reviews,carwashes,total_reviews,Direct mapping,HIGH
+carwash_profiles,verified,carwashes,is_active,Boolean flag mapping,HIGH
+carwash_profiles,created_at,carwashes,created_at,Direct mapping,HIGH
+carwash_profiles,updated_at,carwashes,updated_at,Direct mapping,HIGH
+carwash_profiles,profile_image,carwashes,profile_image,Direct mapping,HIGH
+vehicles,id,user_vehicles,id,Primary key preserved,HIGH
+vehicles,user_id,user_vehicles,user_id,Direct mapping,HIGH
+vehicles,brand,user_vehicles,brand,Direct mapping,HIGH
+vehicles,model,user_vehicles,model,Direct mapping,HIGH
+vehicles,year,user_vehicles,year,Direct mapping,HIGH
+vehicles,color,user_vehicles,color,Direct mapping,HIGH
+vehicles,license_plate,user_vehicles,license_plate,Direct mapping,HIGH
+vehicles,vehicle_type,user_vehicles,vehicle_type,Direct mapping (ENUM),HIGH
+vehicles,notes,user_vehicles,notes,Direct mapping,HIGH
+vehicles,image_path,user_vehicles,image_path,Direct mapping,HIGH
+vehicles,created_at,user_vehicles,created_at,Direct mapping,HIGH
+vehicles,updated_at,user_vehicles,updated_at,Direct mapping,HIGH
+customer_profiles,id,user_profiles,id,Primary key preserved,HIGH
+customer_profiles,user_id,user_profiles,user_id,Direct mapping,HIGH
+customer_profiles,city,user_profiles,city,Direct mapping,HIGH
+customer_profiles,address,user_profiles,address,Direct mapping,HIGH
+customer_profiles,car_brand,user_vehicles,brand,Split to separate table,MEDIUM
+customer_profiles,car_model,user_vehicles,model,Split to separate table,MEDIUM
+customer_profiles,car_year,user_vehicles,year,Split to separate table,MEDIUM
+customer_profiles,car_color,user_vehicles,color,Split to separate table,MEDIUM
+customer_profiles,license_plate,user_vehicles,license_plate,Split to separate table,MEDIUM
+customer_profiles,notifications,user_profiles,notification_settings,Renamed for consistency,HIGH
+customer_profiles,preferred_services,user_profiles,preferences,Renamed for consistency,HIGH
+customer_profiles,created_at,user_profiles,created_at,Direct mapping,HIGH
+customer_profiles,updated_at,user_profiles,updated_at,Direct mapping,HIGH
+users,profile_image,users,profile_image,Already exists,HIGH
+users,profile_image_path,users,profile_image_path,Added column,HIGH
+users,email_verified,users,email_verified,Already exists,HIGH
+users,email_verified_at,users,email_verified_at,Added column,HIGH
+users,last_login,users,last_login,Already exists,HIGH
+users,last_login_at,users,last_login_at,Added column (DATETIME variant),HIGH
+users,is_active,users,is_active,Already exists,HIGH
+users,address,users,address,Already exists,HIGH
+bookings,id,bookings,id,Primary key preserved,HIGH
+bookings,booking_number,bookings,booking_number,Auto-generated if NULL,HIGH
+bookings,user_id,bookings,user_id,Direct mapping,HIGH
+bookings,carwash_id,bookings,carwash_id,Direct mapping,HIGH
+bookings,service_id,bookings,service_id,Direct mapping,HIGH
+bookings,vehicle_id,bookings,vehicle_id,Added column for FK,HIGH
+bookings,booking_date,bookings,booking_date,Direct mapping,HIGH
+bookings,booking_time,bookings,booking_time,Direct mapping,HIGH
+bookings,vehicle_type,bookings,vehicle_type,Direct mapping (ENUM),HIGH
+bookings,vehicle_plate,bookings,vehicle_plate,Direct mapping,HIGH
+bookings,vehicle_model,bookings,vehicle_model,Direct mapping,HIGH
+bookings,vehicle_color,bookings,vehicle_color,Direct mapping,HIGH
+bookings,customer_name,bookings,customer_name,Added - populated from users,HIGH
+bookings,customer_phone,bookings,customer_phone,Added - populated from users,HIGH
+bookings,status,bookings,status,Direct mapping (ENUM),HIGH
+bookings,review_status,bookings,review_status,Added column (ENUM),HIGH
+bookings,total_price,bookings,total_price,Direct mapping,HIGH
+bookings,payment_status,bookings,payment_status,Added column (ENUM),HIGH
+bookings,payment_method,bookings,payment_method,Added column (ENUM),HIGH
+bookings,notes,bookings,notes,Direct mapping,HIGH
+bookings,cancellation_reason,bookings,cancellation_reason,Added column,HIGH
+bookings,completed_at,bookings,completed_at,Added column,HIGH
+bookings,created_at,bookings,created_at,Direct mapping,HIGH
+bookings,updated_at,bookings,updated_at,Direct mapping,HIGH
+services,id,services,id,Primary key preserved,HIGH
+services,carwash_id,services,carwash_id,Direct mapping,HIGH
+services,category_id,services,category_id,Added for FK to categories,MEDIUM
+services,name,services,name,Direct mapping,HIGH
+services,description,services,description,Direct mapping,HIGH
+services,price,services,price,Direct mapping,HIGH
+services,duration,services,duration,Direct mapping,HIGH
+services,category,services,category,Added column (ENUM),HIGH
+services,status,services,status,Direct mapping,HIGH
+services,image,services,image,Direct mapping,HIGH
+services,features,services,features,Added column (JSON),HIGH
+services,is_available,services,is_available,Direct mapping,HIGH
+services,sort_order,services,sort_order,Added column,HIGH
+services,created_at,services,created_at,Direct mapping,HIGH
+services,updated_at,services,updated_at,Direct mapping,HIGH
+payments,id,payments,id,Primary key preserved,HIGH
+payments,booking_id,payments,booking_id,Direct mapping,HIGH
+payments,transaction_id,payments,transaction_id,Direct mapping,HIGH
+payments,amount,payments,amount,Direct mapping,HIGH
+payments,total_amount,payments,total_amount,Added column,HIGH
+payments,payment_method,payments,payment_method,Direct mapping (ENUM),HIGH
+payments,status,payments,status,Direct mapping (ENUM),HIGH
+payments,payment_date,payments,payment_date,Direct mapping,HIGH
+payments,notes,payments,notes,Direct mapping,HIGH
+payments,receipt_url,payments,receipt_url,Added column,HIGH
+payments,created_at,payments,created_at,Direct mapping,HIGH
+payments,updated_at,payments,updated_at,Direct mapping,HIGH
+reviews,id,reviews,id,Primary key preserved,HIGH
+reviews,user_id,reviews,user_id,Direct mapping,HIGH
+reviews,carwash_id,reviews,carwash_id,Direct mapping,HIGH
+reviews,booking_id,reviews,booking_id,Direct mapping,HIGH
+reviews,rating,reviews,rating,Direct mapping,HIGH
+reviews,title,reviews,title,Added column,HIGH
+reviews,comment,reviews,comment,Direct mapping,HIGH
+reviews,response,reviews,response,Added column,HIGH
+reviews,responded_at,reviews,responded_at,Added column,HIGH
+reviews,is_verified,reviews,is_verified,Direct mapping,HIGH
+reviews,is_visible,reviews,is_visible,Direct mapping,HIGH
+reviews,created_at,reviews,created_at,Direct mapping,HIGH
+reviews,updated_at,reviews,updated_at,Direct mapping,HIGH

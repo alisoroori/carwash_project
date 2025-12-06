@@ -2378,7 +2378,7 @@
                     "control_name": null
                 },
                 {
-                    "label_text": "Otopark AdÄ±",
+                    "label_text": "Oto Yıkama Adı",
                     "action": "add-for",
                     "for": "carwashName",
                     "control": "input",
@@ -2719,7 +2719,7 @@
                     "control_name": null
                 },
                 {
-                    "label_text": "Otopark Adı",
+                    "label_text": "Oto Yıkama Adı",
                     "action": "add-for",
                     "for": "carwashName",
                     "control": "input",
