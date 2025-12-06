@@ -31,7 +31,8 @@ window.handleReviewFormSubmission = async function (form, opts = {}) {
         const reviewText = formData.get('review_text') || formData.get('comment') || '';
 
         if (!entityType || !entityId || !rating) {
-            alert('Please fill out all required fields.');
+            if (window.showToast) showToast('Please fill out all required fields.', 'error');
+            else alert('Please fill out all required fields.');
             return;
         }
 
@@ -57,22 +58,25 @@ window.handleReviewFormSubmission = async function (form, opts = {}) {
         let json = null;
         try {
             json = await response.json();
-        } catch (err) {
+            } catch (err) {
             console.error('[ReviewForms] JSON parse error', err);
-            alert('Unexpected response from server.');
+            if (window.showToast) showToast('Unexpected response from server.', 'error');
+            else alert('Unexpected response from server.');
             return;
         }
 
         if (!response.ok || !json.success) {
             console.warn('[ReviewForms] Submission failed:', json);
-            alert(json.message || 'Failed to submit review.');
+            if (window.showToast) showToast(json.message || 'Failed to submit review.', 'error');
+            else alert(json.message || 'Failed to submit review.');
             return;
         }
 
         console.log('[ReviewForms] Review submitted:', json);
 
         // ✅ Success feedback
-        alert(json.message || 'Review submitted successfully.');
+        if (window.showToast) showToast(json.message || 'Review submitted successfully.', 'success');
+        else alert(json.message || 'Review submitted successfully.');
 
         // ✅ Optional callbacks
         if (typeof opts.onSuccess === 'function') opts.onSuccess(json);
@@ -81,6 +85,7 @@ window.handleReviewFormSubmission = async function (form, opts = {}) {
 
     } catch (error) {
         console.error('[ReviewForms] Unexpected error:', error);
-        alert('An unexpected error occurred. Please try again.');
+        if (window.showToast) showToast('An unexpected error occurred. Please try again.', 'error');
+        else alert('An unexpected error occurred. Please try again.');
     }
 };

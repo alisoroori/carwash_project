@@ -99,13 +99,13 @@ switch ($dashboard_type) {
     case 'carwash':
         $current_dashboard_url = $carwash_dashboard_url;
         $dashboard_icon = 'fa-car-wash';
-        $dashboard_label = 'Ä°ÅŸletme Paneli';
+        $dashboard_label = 'Ğ°şletme Paneli';
         break;
     case 'customer':
     default:
         $current_dashboard_url = $customer_dashboard_url;
         $dashboard_icon = 'fa-tachometer-alt';
-        $dashboard_label = 'MÃ¼ÅŸteri Paneli';
+        $dashboard_label = 'Müşteri Paneli';
         break;
 }
 
@@ -799,16 +799,16 @@ if (!empty($raw_logo)) {
                             <?php elseif ($dashboard_type === 'admin'): ?>
                                 <a href="#settings" class="dropdown-item">
                                     <i class="fas fa-cog"></i>
-                                    <span>Sistem AyarlarÄ±</span>
+                                    <span>Sistem Ayarları</span>
                                 </a>
                                 <a href="#logs" class="dropdown-item">
                                     <i class="fas fa-list"></i>
-                                    <span>Sistem LoglarÄ±</span>
+                                    <span>Sistem Logları</span>
                                 </a>
                             <?php elseif ($dashboard_type === 'carwash'): ?>
                                 <a href="#profile" class="dropdown-item">
                                     <i class="fas fa-building"></i>
-                                    <span>Ä°ÅŸletme Profili</span>
+                                    <span>Ğ°şletme Profili</span>
                                 </a>
                                 <a href="#settings" class="dropdown-item">
                                     <i class="fas fa-cog"></i>
@@ -827,7 +827,7 @@ if (!empty($raw_logo)) {
                             
                             <a href="<?php echo $logout_url; ?>" class="dropdown-item dropdown-logout">
                                 <i class="fas fa-sign-out-alt"></i>
-                                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                                <span>Çıkış Yap</span>
                             </a>
                         </div>
                     </div>
@@ -883,19 +883,19 @@ if (!empty($raw_logo)) {
             
             <a href="<?php echo $about_url; ?>" class="mobile-nav-item" onclick="toggleMobileMenu()">
                 <i class="fas fa-info-circle"></i>
-                <span>HakkÄ±mÄ±zda</span>
+                <span>Hakkımızda</span>
             </a>
             
             <a href="<?php echo $contact_url; ?>" class="mobile-nav-item" onclick="toggleMobileMenu()">
                 <i class="fas fa-envelope"></i>
-                <span>Ä°letiÅŸim</span>
+                <span>Ğ°letişim</span>
             </a>
             
             <div class="mobile-nav-divider"></div>
             
             <a href="<?php echo $logout_url; ?>" class="mobile-nav-item" style="color: #dc2626;">
                 <i class="fas fa-sign-out-alt"></i>
-                <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                <span>Çıkış Yap</span>
             </a>
         </nav>
         
@@ -981,7 +981,7 @@ document.querySelectorAll('.user-menu-button').forEach(button => {
     });
 });
 
-console.log('âœ… Dashboard Header: Loaded successfully for <?php echo strtoupper($dashboard_type); ?> dashboard');
+console.log('✅ Dashboard Header: Loaded successfully for <?php echo strtoupper($dashboard_type); ?> dashboard');
 </script>
 
 <!-- Central layout height updater: sets --header-height, --footer-height, and --sidebar-width -->

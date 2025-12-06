@@ -135,13 +135,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="block text-sm font-medium text-gray-700 mb-2" for="auto_label_35">Email</label>
             <!-- Fixed label-for/id mismatch for accessibility -->
             <label for="auto_label_35" class="sr-only">Email</label>
-            <input type="email" id="auto_label_35" name="email" class="input-field w-full px-4 py-3 rounded-lg" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" placeholder="Email">
+            <input type="email" id="auto_label_35" name="email" autocomplete="email" class="input-field w-full px-4 py-3 rounded-lg" required value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" placeholder="Email">
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2" for="auto_label_34">Password</label>
             <label for="auto_label_34" class="sr-only">Password</label>
-            <input type="password" name="password" class="input-field w-full px-4 py-3 rounded-lg" required id="auto_label_34" placeholder="Password">
+            <input type="password" name="password" class="input-field w-full px-4 py-3 rounded-lg" autocomplete="new-password" required id="auto_label_34" placeholder="Password">
           </div>
 
           <button type="submit" class="btn-primary w-full py-3 rounded-lg font-bold">Create User</button>

@@ -438,7 +438,7 @@ window.addEventListener('resize', () => {
     }
 });
 
-console.log('âœ… Enhanced Dashboard Header loaded successfully');
+console.log('✅ Enhanced Dashboard Header loaded successfully');
 </script>
 
 

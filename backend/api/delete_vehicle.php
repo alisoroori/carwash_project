@@ -38,10 +38,12 @@ try {
 
     // Check if vehicle has active bookings (using license plate since bookings don't have vehicle_id)
     $activeBookings = $db->fetchOne("SELECT COUNT(*) as count FROM bookings WHERE vehicle_plate = :license_plate AND status IN ('pending', 'confirmed', 'in_progress')", [
-        'license_plate' => $vehicle['license_plate']
+        'license_plate' => isset($vehicle['license_plate']) ? $vehicle['license_plate'] : ''
     ]);
 
-    if ($activeBookings['count'] > 0) {
+    // Defensive: ensure activeBookings is valid array before accessing count
+    $bookingCount = ($activeBookings && is_array($activeBookings) && isset($activeBookings['count'])) ? (int)$activeBookings['count'] : 0;
+    if ($bookingCount > 0) {
         Response::error('Cannot delete vehicle with active bookings');
         exit;
     }

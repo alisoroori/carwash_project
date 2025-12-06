@@ -98,7 +98,7 @@ if (is_numeric($service_id)) {
             "SELECT price FROM services WHERE id = :service_id LIMIT 1",
             ['service_id' => (int)$service_id]
         );
-        if ($serviceData && isset($serviceData['price'])) {
+        if ($serviceData && is_array($serviceData) && isset($serviceData['price'])) {
             $price = (float)$serviceData['price'];
         }
     } catch (\Throwable $e) {
@@ -137,13 +137,13 @@ try {
                 "SELECT brand, model, license_plate, color FROM user_vehicles WHERE id = :vehicle_id AND user_id = :user_id",
                 ['vehicle_id' => (int)$vehicle, 'user_id' => $user_id]
             );
-            if ($vehicleData) {
+            if ($vehicleData && is_array($vehicleData)) {
                 // Map user_vehicles fields to bookings table format
                 // Note: bookings.vehicle_type is an enum, so we use brand as a text representation
-                $vehicleType = $vehicleData['brand'] ?: 'sedan';
-                $vehicleModel = $vehicleData['model'] ?: '';
-                $vehiclePlate = $vehicleData['license_plate'] ?: '';
-                $vehicleColor = $vehicleData['color'] ?: '';
+                $vehicleType = (isset($vehicleData['brand']) && $vehicleData['brand']) ? $vehicleData['brand'] : 'sedan';
+                $vehicleModel = isset($vehicleData['model']) ? $vehicleData['model'] : '';
+                $vehiclePlate = isset($vehicleData['license_plate']) ? $vehicleData['license_plate'] : '';
+                $vehicleColor = isset($vehicleData['color']) ? $vehicleData['color'] : '';
                 error_log('reservations/create.php: Fetched vehicle data - brand: ' . $vehicleType . ', model: ' . $vehicleModel . ', plate: ' . $vehiclePlate . ', color: ' . $vehicleColor);
             } else {
                 error_log('reservations/create.php: No vehicle found for ID ' . $vehicle);

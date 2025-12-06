@@ -464,7 +464,7 @@ include '../includes/universal_header.php';
               <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2" for="auto_label_54">
                 <i class="fas fa-envelope mr-1 sm:mr-2 text-xs sm:text-sm"></i>E-posta Adresi *
               </label>
-              <label for="auto_label_54" class="sr-only">Email</label><input type="email" name="email" placeholder="ornek@email.com" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_54">
+              <label for="auto_label_54" class="sr-only">Email</label><input type="email" name="email" placeholder="ornek@email.com" autocomplete="email" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 text-sm sm:text-base" id="auto_label_54">
             </div>
 
             <div>
@@ -479,7 +479,7 @@ include '../includes/universal_header.php';
                 <i class="fas fa-lock mr-1 sm:mr-2 text-xs sm:text-sm"></i>Şifre *
               </label>
               <div class="relative">
-                <label for="password" class="sr-only">Password</label><input type="password" name="password" id="password" placeholder="Güçlü bir şifre belirleyin" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&amp;*])(?=.{8,})" title="Şifreniz en az 8 karakter uzunluğunda olmalı ve en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
+                <label for="password" class="sr-only">Password</label><input type="password" name="password" id="password" placeholder="Güçlü bir şifre belirleyin" autocomplete="new-password" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&amp;*])(?=.{8,})" title="Şifreniz en az 8 karakter uzunluğunda olmalı ve en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
                 <button type="button" onclick="togglePassword()" class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors p-2" aria-label="Toggle password visibility">
                   <i class="fas fa-eye text-sm sm:text-base" id="passwordToggle"></i>
                 </button>
@@ -503,7 +503,7 @@ include '../includes/universal_header.php';
                 <i class="fas fa-lock mr-1 sm:mr-2 text-xs sm:text-sm"></i>Şifre Tekrar *
               </label>
               <div class="relative">
-                <label for="password_confirm" class="sr-only">Password confirm</label><input type="password" name="password_confirm" id="password_confirm" placeholder="Şifrenizi tekrar girin" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
+                <label for="password_confirm" class="sr-only">Password confirm</label><input type="password" name="password_confirm" id="password_confirm" placeholder="Şifrenizi tekrar girin" autocomplete="new-password" required class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 input-focus transition-all duration-300 pr-10 sm:pr-12 text-sm sm:text-base">
               </div>
             </div>
           </div>

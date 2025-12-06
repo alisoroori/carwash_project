@@ -32,7 +32,7 @@ try {
         'user_id' => $userId
     ]);
 
-    if (!$vehicle) {
+    if (!$vehicle || !is_array($vehicle)) {
         Response::error('Vehicle not found');
         exit;
     }
@@ -110,7 +110,7 @@ try {
 
     if ($updated) {
         $updatedVehicle = $db->fetchOne("SELECT * FROM user_vehicles WHERE id = :id", ['id' => $vehicleId]);
-        if ($updatedVehicle['image_path']) {
+        if ($updatedVehicle && is_array($updatedVehicle) && isset($updatedVehicle['image_path']) && $updatedVehicle['image_path']) {
             $updatedVehicle['image_path'] = BASE_URL . '/' . $updatedVehicle['image_path'];
         }
         Response::success('Vehicle updated successfully', ['vehicle' => $updatedVehicle]);

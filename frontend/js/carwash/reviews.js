@@ -157,7 +157,8 @@ class ReviewManager {
     }
 
     async reportReview(reviewId) {
-        if (!confirm('Are you sure you want to report this review?')) return;
+        const proceed = (window.showConfirm) ? await window.showConfirm('Are you sure you want to report this review?') : confirm('Are you sure you want to report this review?');
+        if (!proceed) return;
 
         try {
             const result = await fetch(this.endpoints.report, {

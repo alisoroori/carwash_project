@@ -170,7 +170,7 @@ class Database
         $query = "INSERT INTO $table ($columnsStr) VALUES ($placeholdersStr)";
         
         // Lightweight file for reliable insert diagnostics
-        $debugLogFile = __DIR__ . '/../../logs/db_insert_debug.log';
+        $debugLogFile = __DIR__ . '/../../../logs/db_insert_debug.log';
         $attemptLine = date('Y-m-d H:i:s') . " - INSERT ATTEMPT table=$table data=" . json_encode($data, JSON_UNESCAPED_UNICODE) . " query=" . $query . "\n";
         @file_put_contents($debugLogFile, $attemptLine, FILE_APPEND | LOCK_EX);
         // Also emit to PHP error_log so CLI and Apache logs show the attempt
@@ -307,7 +307,10 @@ class Database
             $stmt = $this->pdo->prepare($query);
             $stmt->execute($params);
             $result = $stmt->fetch();
-            return (int) $result['count'];
+            if (!$result || !is_array($result)) {
+                return 0;
+            }
+            return (int) ($result['count'] ?? 0);
         } catch (\PDOException $e) {
             error_log('Count failed: ' . $e->getMessage() . ' - Query: ' . $query);
             return 0;

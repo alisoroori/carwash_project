@@ -6,6 +6,28 @@ use App\Classes\Auth;
 use App\Classes\Response;
 use App\Classes\Database;
 
+/**
+ * Helper: Normalize profile image path to absolute URL
+ * @param string|null $path Relative or absolute path from DB
+ * @return string Absolute URL or empty string
+ */
+function normalizeProfileImageUrl($path) {
+    if (empty($path)) return '';
+    
+    // Already absolute URL
+    if (preg_match('#^https?://#i', $path)) return $path;
+    
+    // Build base URL
+    $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') 
+              . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/carwash_project';
+    
+    // Root-relative path
+    if ($path[0] === '/') return $base_url . $path;
+    
+    // Relative path - prepend base
+    return $base_url . '/' . ltrim($path, '/');
+}
+
 Auth::requireAuth();
 
 try {
@@ -25,11 +47,15 @@ try {
         WHERE u.id = :id
     ", ['id' => $userId]);
 
-    if (!$user) {
+    if (!$user || !is_array($user)) {
         Response::notFound('User not found');
     }
 
     // Merge fields: prefer user_profiles for extended fields, fallback to users
+    // Normalize profile_image to absolute URL
+    $rawProfileImage = $user['profile_img_extended'] ?? $user['profile_image'] ?? '';
+    $absoluteProfileImage = normalizeProfileImageUrl($rawProfileImage);
+    
     $profile = [
         'id' => $user['id'],
         'full_name' => $user['full_name'],
@@ -39,7 +65,7 @@ try {
         'home_phone' => $user['home_phone'],
         'national_id' => $user['national_id'],
         'driver_license' => $user['driver_license'],
-        'profile_image' => $user['profile_img_extended'] ?? $user['profile_image'],
+        'profile_image' => $absoluteProfileImage,
         'address' => $user['profile_address'] ?? $user['address'],
         'city' => $user['city'],
         'state' => $user['state'],

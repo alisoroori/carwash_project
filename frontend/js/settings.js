@@ -656,9 +656,8 @@ class CarWashSettingsApp {
    * @param {number} vehicleId - The ID of the vehicle to delete.
    */
   async deleteVehicle(vehicleId) {
-    if (!confirm('Are you sure you want to delete this vehicle?')) {
-      return; // User canceled the deletion
-    }
+    const proceed = (window.showConfirm) ? await window.showConfirm('Are you sure you want to delete this vehicle?') : confirm('Are you sure you want to delete this vehicle?');
+    if (!proceed) return;
 
     try {
       const formData = new FormData();
@@ -678,14 +677,14 @@ class CarWashSettingsApp {
       const result = await response.json();
 
       if (result.success) {
-        alert('Vehicle deleted successfully!');
+        if (window.showToast) showToast('Vehicle deleted successfully!', 'success'); else alert('Vehicle deleted successfully!');
         updateVehicleList(); // Reload the vehicle list
       } else {
         throw new Error(result.message || 'Failed to delete vehicle');
       }
     } catch (error) {
       console.error('Error deleting vehicle:', error);
-      alert(`Error: ${error.message}`);
+      if (window.showToast) showToast(`Error: ${error.message}`, 'error'); else alert(`Error: ${error.message}`);
     }
   }
 

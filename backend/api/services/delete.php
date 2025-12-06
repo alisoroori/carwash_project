@@ -53,7 +53,7 @@ try {
     $stmt = $pdo->prepare('SELECT id FROM carwashes WHERE user_id = :uid LIMIT 1');
     $stmt->execute(['uid' => $userId]);
     $cw = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$cw) {
+    if (!$cw || !is_array($cw)) {
         echo json_encode(['success' => false, 'error' => 'carwash_not_found']);
         exit;
     }
@@ -63,7 +63,7 @@ try {
     $chk = $pdo->prepare('SELECT id FROM services WHERE id = :id AND carwash_id = :cw LIMIT 1');
     $chk->execute(['id' => $serviceId, 'cw' => $carwashId]);
     $found = $chk->fetch(PDO::FETCH_ASSOC);
-    if (!$found) { echo json_encode(['success' => false, 'error' => 'not_found_or_denied']); exit; }
+    if (!$found || !is_array($found)) { echo json_encode(['success' => false, 'error' => 'not_found_or_denied']); exit; }
 
     $del = $pdo->prepare('DELETE FROM services WHERE id = :id AND carwash_id = :cw');
     $ok = $del->execute(['id' => $serviceId, 'cw' => $carwashId]);

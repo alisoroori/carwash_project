@@ -1,11 +1,104 @@
 <?php
 /**
- * Seller Header (Self-contained)
- * Outputs a complete, Turkish-language seller/carwash dashboard header.
  * Safe to include on Carwash dashboard pages as the primary header.
  */
 
+
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+
+// Load bootstrap early so Database class is available for AJAX handlers
+require_once __DIR__ . '/bootstrap.php';
+
+// ---- Workplace status AJAX handler (POST to update, GET to fetch current) ----
+// These handlers must run BEFORE any HTML output
+// POST expected fields: 'ajax_workplace_status' (optional), 'ajax_is_active' (optional)
+// GET: provide ?ajax_get_workplace_status=1 to receive JSON { status, is_active }
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax_get_workplace_status'])) {
+    $uid = $_SESSION['user_id'] ?? null;
+    if (!$uid) {
+        header('Content-Type: application/json', true, 401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+    try {
+        $db = App\Classes\Database::getInstance();
+        $cw = $db->fetchOne('SELECT status, COALESCE(is_active,0) AS is_active FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $uid]);
+        $status = $cw['status'] ?? null;
+        $isActive = isset($cw['is_active']) ? (int)$cw['is_active'] : 0;
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'status' => $status, 'is_active' => $isActive]);
+        exit;
+    } catch (Exception $e) {
+        header('Content-Type: application/json', true, 500);
+        echo json_encode(['success' => false, 'message' => 'DB error: ' . $e->getMessage()]);
+        exit;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['ajax_workplace_status']) || isset($_POST['ajax_is_active']))) {
+    $uid = $_SESSION['user_id'] ?? null;
+    if (!$uid) {
+        header('Content-Type: application/json', true, 401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+    
+    // Determine new status and is_active values
+    $isActiveVal = null;
+    if (isset($_POST['ajax_is_active'])) {
+        $isActiveVal = (int)$_POST['ajax_is_active'] ? 1 : 0;
+    }
+
+    if ($isActiveVal !== null) {
+        $new = ($isActiveVal === 1) ? 'Açık' : 'Kapalı';
+    } else {
+        $incoming = trim((string)($_POST['ajax_workplace_status'] ?? ''));
+        if ($incoming === '') {
+            header('Content-Type: application/json', true, 400);
+            echo json_encode(['success' => false, 'message' => 'Empty status']);
+            exit;
+        }
+        $incomingLower = strtolower($incoming);
+        $openVariants = ['açık', 'acik', 'open', 'active'];
+        $closedVariants = ['kapalı', 'kapali', 'closed', 'inactive'];
+        if (in_array($incomingLower, $openVariants, true)) {
+            $new = 'Açık';
+            $isActiveVal = 1;
+        } elseif (in_array($incomingLower, $closedVariants, true)) {
+            $new = 'Kapalı';
+            $isActiveVal = 0;
+        } else {
+            header('Content-Type: application/json', true, 400);
+            echo json_encode(['success' => false, 'message' => 'Invalid status token', 'token' => $incoming]);
+            exit;
+        }
+    }
+
+    // Persist to session
+    $_SESSION['workplace_status'] = $new;
+
+    // Persist to DB
+    try {
+        $db = App\Classes\Database::getInstance();
+        $pdo = $db->getPdo();
+        $upd = $pdo->prepare('UPDATE carwashes SET status = :status, is_active = :is_active, updated_at = NOW() WHERE user_id = :uid');
+        $upd->execute(['status' => $new, 'is_active' => $isActiveVal, 'uid' => $uid]);
+        $rowCount = $upd->rowCount();
+        error_log("[seller_header] Toggle update: user_id={$uid}, status={$new}, is_active={$isActiveVal}, rows_affected={$rowCount}");
+        
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'status' => $new, 'is_active' => (int)$isActiveVal]);
+        exit;
+    } catch (Exception $e) {
+        error_log("[seller_header] Toggle update FAILED: " . $e->getMessage());
+        header('Content-Type: application/json', true, 500);
+        echo json_encode(['success' => false, 'message' => 'DB error: ' . $e->getMessage()]);
+        exit;
+    }
+}
+
+// Debug flag: enable verbose debug output when APP_DEBUG=true in the environment
+$APP_DEBUG = (getenv('APP_DEBUG') !== false) ? filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN) : false;
 
 if (!isset($dashboard_type)) $dashboard_type = 'carwash';
 if (!isset($page_title)) $page_title = 'İşletme Paneli - MyCar';
@@ -68,6 +161,14 @@ if (!empty($raw)) {
 }
 $profile_src = $_SESSION['profile_image'] ?? ($base_url . '/frontend/images/default-avatar.svg');
 
+// Build canonical header profile src (use profile_image_handler like customer header)
+$ts = intval($_SESSION['profile_image_ts'] ?? time());
+if (!empty($user_id)) {
+    $header_profile_src = rtrim($base_url, '\\/') . '/backend/profile_image_handler.php?user_id=' . intval($user_id) . '&ts=' . $ts;
+} else {
+    $header_profile_src = $base_url . '/frontend/images/default-avatar.svg';
+}
+
 // Current logged-in user's display name and email (used in header)
 $user_name = $_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Kullanıcı';
 $user_email = $_SESSION['email'] ?? '';
@@ -79,50 +180,93 @@ $contact_url = $base_url . '/backend/contact.php';
 $logout_url = $base_url . '/backend/includes/logout.php';
 $dashboard_url = $base_url . '/backend/dashboard/Car_Wash_Dashboard.php';
 
-// ---- Workplace status AJAX handler (allows POST to this file to update status) ----
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_workplace_status'])) {
-    // Simple auth check
-    $uid = $_SESSION['user_id'] ?? null;
-    if (!$uid) {
-        header('Content-Type: application/json', true, 401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-        exit;
-    }
+// Load current workplace status from DB (authoritative source), fallback to session
+// IMPORTANT: Always read from DB first to ensure UI matches actual database state
+$workplace_status = null;
 
-    $new = $_POST['ajax_workplace_status'] === 'open' ? 'open' : 'closed';
-    // Persist to session immediately
-    $_SESSION['workplace_status'] = $new;
-
-    // Attempt DB persistence if Database class exists (best-effort)
+// First, try to read from carwashes table (authoritative source)
+if (!empty($user_id)) {
     try {
         if (class_exists('App\\Classes\\Database')) {
             $db = App\Classes\Database::getInstance();
-            // Try updating `users` table - fallback if schema differs is acceptable
-            $db->update('users', ['workplace_status' => $new], ['id' => $uid]);
+            $cw = $db->fetchOne('SELECT status, COALESCE(is_active,0) AS is_active FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $user_id]);
+            if ($cw && isset($cw['status']) && $cw['status'] !== null && $cw['status'] !== '') {
+                $workplace_status = $cw['status'];
+                // Sync session with DB value
+                $_SESSION['workplace_status'] = $workplace_status;
+            } elseif ($cw && isset($cw['is_active'])) {
+                // If status is empty but is_active exists, derive status from it
+                $workplace_status = ($cw['is_active'] == 1) ? 'Açık' : 'Kapalı';
+                $_SESSION['workplace_status'] = $workplace_status;
+            }
         }
-    } catch (Exception $e) {
-        // Ignore DB errors here (status still saved to session)
+    } catch (Exception $_e) {
+        // ignore carwashes read errors
     }
-
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'status' => $new]);
-    exit;
 }
 
-// Load current workplace status from session or DB (best-effort)
-$workplace_status = $_SESSION['workplace_status'] ?? null;
+// Fallback to session only if DB read failed
+if (empty($workplace_status)) {
+    $workplace_status = $_SESSION['workplace_status'] ?? null;
+}
+
+// Fallback to users.workplace_status if still empty
 if (empty($workplace_status) && isset($user_id)) {
     try {
         if (class_exists('App\\Classes\\Database')) {
             $db = App\Classes\Database::getInstance();
-            $row = $db->fetchOne('SELECT workplace_status FROM users WHERE id = :id', ['id' => $user_id]);
-            if ($row && isset($row['workplace_status'])) $workplace_status = $row['workplace_status'];
+            try {
+                $pdoChk = $db->getPdo();
+                $col = $pdoChk->query("SHOW COLUMNS FROM users LIKE 'workplace_status'")->fetch();
+                if (!empty($col)) {
+                    $row = $db->fetchOne('SELECT workplace_status FROM users WHERE id = :id', ['id' => $user_id]);
+                    if ($row && isset($row['workplace_status'])) {
+                        $workplace_status = $row['workplace_status'];
+                        $_SESSION['workplace_status'] = $workplace_status;
+                    }
+                }
+            } catch (Exception $_) {
+                // ignore schema check or query errors
+            }
         }
     } catch (Exception $e) {
         // ignore
     }
 }
-if (empty($workplace_status)) $workplace_status = 'open';
+
+// For rendering, compute open/closed using a normalized, case-insensitive check.
+// Explicit closed tokens override any is_active flag.
+$ws_norm = strtolower((string)($workplace_status ?? ''));
+$openTokens = ['açık','acik','open','active','pending','1'];
+$closedTokens = ['kapalı','kapali','closed','inactive','0'];
+if (in_array($ws_norm, $closedTokens, true) || $workplace_status === 0 || $workplace_status === '0') {
+    $is_open = false;
+} elseif (in_array($ws_norm, $openTokens, true) || $workplace_status === 1 || $workplace_status === '1') {
+    $is_open = true;
+} else {
+    // Unknown or empty value: default to closed to avoid accidentally exposing a business as open.
+    $is_open = false;
+}
+
+// Load opening hours (if available) for display in header
+$opening_hours = [];
+if (!empty($user_id) && class_exists('App\\Classes\\Database')) {
+    try {
+        $db = App\Classes\Database::getInstance();
+        $cw = $db->fetchOne('SELECT COALESCE(working_hours, opening_hours) AS working_hours FROM carwashes WHERE user_id = :uid LIMIT 1', ['uid' => $user_id]);
+        if ($cw && !empty($cw['working_hours'])) {
+            $raw = $cw['working_hours'];
+            if (is_string($raw)) {
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded)) $opening_hours = $decoded;
+            } elseif (is_array($raw)) {
+                $opening_hours = $raw;
+            }
+        }
+    } catch (Exception $_e) {
+        // ignore fetch errors
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -174,13 +318,16 @@ if (empty($workplace_status)) $workplace_status = 'open';
         .status-indicator { display:flex; align-items:center; gap:0.5rem; padding:0.25rem 0.6rem; border-radius:999px; font-size:0.85rem; font-weight:700; }
         .status-open { background: rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.18); }
         .status-closed { background: rgba(239,68,68,0.10); color:#ef4444; border:1px solid rgba(239,68,68,0.15); }
+        .closing-soon { color: #ef4444 !important; }
         @media (max-width:900px) { .toggle-label{ display:none; } }
     </style>
         <!-- Vehicle manager factory (same-origin) - required by vehicle sections -->
         <script src="/carwash_project/frontend/js/vehicleManager.js" defer></script>
         <!-- Alpine.js -->
         <script src="/carwash_project/frontend/vendor/alpine/cdn.min.js" defer></script>
-        <script defer>console.log('Alpine initialized');</script>
+        <?php if (!empty($APP_DEBUG)) {
+            echo '<script defer>console.log("seller_header: Alpine initialized");</script>';
+        } ?>
         <?php
         // Ensure a CSRF token is available for JS-driven forms and APIs
         $csrf_file = __DIR__ . '/csrf_protect.php';
@@ -220,14 +367,16 @@ if (empty($workplace_status)) $workplace_status = 'open';
 
                 <!-- Workplace Status Toggle -->
                 <div class="workplace-toggle-container" id="workplaceToggleRoot">
-                    <div class="status-indicator <?php echo ($workplace_status === 'open') ? 'status-open' : 'status-closed'; ?>" id="workplaceStatusIndicator">
-                        <span id="workplaceStatusText"><?php echo ($workplace_status === 'open') ? 'Açık' : 'Kapalı'; ?></span>
+                    <div class="status-indicator <?php echo ($is_open) ? 'status-open' : 'status-closed'; ?>" id="workplaceStatusIndicator">
+                        <span id="workplaceStatusText"><?php echo ($is_open) ? 'Açık' : 'Kapalı'; ?></span>
                     </div>
 
                     <label class="toggle-switch" title="İşletme Durumu">
-                        <input type="checkbox" id="workplaceStatusToggle" <?php echo ($workplace_status === 'open') ? 'checked' : ''; ?> aria-checked="<?php echo ($workplace_status === 'open') ? 'true' : 'false'; ?>">
+                        <input type="checkbox" id="workplaceStatusToggle" <?php echo ($is_open) ? 'checked' : ''; ?> aria-checked="<?php echo ($is_open) ? 'true' : 'false'; ?>">
                         <span class="slider"></span>
                     </label>
+                    <div id="sellerHeaderDay" style="color:#fff;font-size:0.85rem;margin-left:0.6rem;">&nbsp;</div>
+                    <div id="closingCountdown" aria-live="polite" style="margin-left:0.6rem;font-weight:600;color:#fff;">&nbsp;</div>
                 </div>
 
                 <?php
@@ -247,7 +396,7 @@ if (empty($workplace_status)) $workplace_status = 'open';
                         :aria-expanded="open.toString()" aria-haspopup="true">
 
                         <div id="headerProfileContainer" class="rounded-full overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600" style="width:40px;height:40px;">
-                            <img id="userAvatarTop" src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" style="border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <img id="userAvatarTop" src="<?php echo htmlspecialchars($header_profile_src, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" class="object-cover w-full h-full" style="border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                             <div id="userAvatarFallback" class="text-white font-semibold text-sm" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">
                                 <?php echo strtoupper(substr($user_name,0,1)); ?>
                             </div>
@@ -318,7 +467,7 @@ if (empty($workplace_status)) $workplace_status = 'open';
 <div id="mobileMenu" style="display:none; position:fixed; top:var(--header-height); left:0; right:0; bottom:0; background:rgba(255,255,255,0.97); z-index:1190; overflow:auto;">
     <div style="padding:1rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-            <img id="mobileMenuAvatar" src="<?php echo htmlspecialchars($profile_src); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+            <img id="mobileMenuAvatar" src="<?php echo htmlspecialchars($header_profile_src, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($user_name); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
             <div>
                 <div id="mobileMenuUserName" style="font-weight:700"><?php echo htmlspecialchars($user_name); ?></div>
                 <div id="mobileMenuUserEmail" style="font-size:0.85rem;opacity:0.8"><?php echo htmlspecialchars($user_email); ?></div>
@@ -372,7 +521,15 @@ window.addEventListener('resize', updateHeaderHeight);
 <script>
     (function(){
         try {
-            var profileSrc = <?php echo json_encode($profile_src); ?>;
+            // Migration: Clear old relative paths from localStorage
+            var oldPath = localStorage.getItem('carwash_profile_image');
+            if (oldPath && (oldPath.indexOf('uploads/profiles/') === 0 || oldPath.indexOf('backend/uploads/') !== -1)) {
+                // Old relative path detected - clear it so the new absolute URL can be set
+                localStorage.removeItem('carwash_profile_image');
+                localStorage.removeItem('carwash_profile_image_ts');
+            }
+            
+            var profileSrc = <?php echo json_encode($header_profile_src); ?>;
             if (profileSrc) {
                 var ts = Date.now();
                 var url = profileSrc + (profileSrc.indexOf('?') === -1 ? ('?ts=' + ts) : ('&ts=' + ts));
@@ -393,7 +550,20 @@ window.addEventListener('resize', updateHeaderHeight);
     if (!toggle) return;
 
     function setUI(state){
-        if(state === 'open'){
+        // Normalize and accept legacy tokens (case-insensitive)
+        var s = (state || '').toString();
+        var sNorm = s.toLowerCase();
+        var openTokens = ['açık','acik','open','active','1'];
+        var closedTokens = ['kapalı','kapali','closed','inactive','0'];
+
+        var isOpen = false;
+        if (openTokens.indexOf(sNorm) !== -1) isOpen = true;
+        else if (closedTokens.indexOf(sNorm) !== -1) isOpen = false;
+        else if (s === '1' || s === 1) isOpen = true;
+        else if (s === '0' || s === 0) isOpen = false;
+        // Unknown token -> leave closed by default
+
+        if(isOpen){
             toggle.checked = true;
             indicator.classList.remove('status-closed');
             indicator.classList.add('status-open');
@@ -409,14 +579,16 @@ window.addEventListener('resize', updateHeaderHeight);
     }
 
     toggle.addEventListener('change', function(){
-        var desired = toggle.checked ? 'open' : 'closed';
+        // Send Turkish explicit tokens so user choice is preserved server-side
+        var desired = toggle.checked ? 'Açık' : 'Kapalı';
         // Optimistically update UI
         setUI(desired);
 
         var form = new FormData();
         form.append('ajax_workplace_status', desired);
+        form.append('ajax_is_active', toggle.checked ? '1' : '0');
 
-        fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/seller_header.php"); ?>', {
+        fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/workplace_status_api.php"); ?>', {
             method: 'POST',
             credentials: 'same-origin',
             body: form
@@ -424,16 +596,195 @@ window.addEventListener('resize', updateHeaderHeight);
             return resp.json();
         }).then(function(json){
             if(!json || !json.success){
-                // Revert UI on failure
-                setUI(json && json.status ? json.status : (desired === 'open' ? 'closed' : 'open'));
+                // Revert UI on failure; json.status may be legacy or Turkish token
+                setUI(json && json.status ? json.status : (desired === 'Açık' ? 'Kapalı' : 'Açık'));
                 console.warn('Failed to save workplace status', json);
+                return;
+            }
+            // If server returned canonical values, update UI accordingly
+            if (json.status !== undefined || json.is_active !== undefined) {
+                var serverStatus = json.status || '';
+                var serverIsActive = (parseInt(json.is_active || 0, 10) === 1);
+                // Prefer explicit token; fallback to is_active
+                if (serverStatus && serverStatus !== '') setUI(serverStatus);
+                else setUI(serverIsActive ? '1' : '0');
             }
         }).catch(function(err){
             // Revert UI
-            setUI(desired === 'open' ? 'closed' : 'open');
+            setUI(desired === 'Açık' ? 'Kapalı' : 'Açık');
             console.error('Error saving workplace status', err);
         });
     });
+
+    // On load, sync with server authoritative state to avoid session/local mismatches
+    (function(){
+        try {
+            fetch('<?php echo htmlspecialchars($base_url . "/backend/includes/workplace_status_api.php"); ?>', { credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(j => {
+                    if (!j || !j.success) return;
+                    var st = j.status || '';
+                    var ia = (parseInt(j.is_active || 0, 10) === 1);
+                    if (st && st !== '') setUI(st);
+                    else setUI(ia ? '1' : '0');
+                }).catch(function(){ /* ignore */ });
+        } catch (e) { /* ignore */ }
+    })();
+})();
+</script>
+
+<script>
+// Display today's day name and today's opening hours in the header
+(function(){
+    var opening_hours = <?php echo json_encode($opening_hours ?? [], JSON_UNESCAPED_UNICODE); ?> || {};
+    var turkishDays = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+    var dayKeys = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+
+    function renderTodayHours(){
+        try{
+            var el = document.getElementById('sellerHeaderDay');
+            if(!el) return;
+            var now = new Date();
+            var dn = now.getDay();
+            var dayName = turkishDays[dn] || '';
+            var key = dayKeys[dn] || '';
+            var hours = null;
+            if (opening_hours) {
+                if (opening_hours.hasOwnProperty(key)) hours = opening_hours[key];
+                else {
+                    var capKey = key.charAt(0).toUpperCase() + key.slice(1);
+                    if (opening_hours.hasOwnProperty(capKey)) hours = opening_hours[capKey];
+                }
+            }
+
+            function formatHours(h) {
+                if (h === null || h === undefined) return 'Kapalı';
+                if (typeof h === 'string') return h;
+                if (Array.isArray(h)) {
+                    return h.map(formatHours).join(' / ');
+                }
+                if (typeof h === 'object') {
+                    // Common shapes: { open: '08:00', close: '18:00' } or { from: '08:00', to: '18:00' }
+                    if (h.open && h.close) return h.open + '-' + h.close;
+                    if (h.from && h.to) return h.from + '-' + h.to;
+                    // If object has numeric keys or nested intervals
+                    var parts = [];
+                    for (var k in h) {
+                        if (!h.hasOwnProperty(k)) continue;
+                        var v = h[k];
+                        if (typeof v === 'string') parts.push(v);
+                        else parts.push(formatHours(v));
+                    }
+                    if (parts.length) return parts.join(' / ');
+                    try { return JSON.stringify(h); } catch (e) { return String(h); }
+                }
+                return String(h);
+            }
+
+            var rendered = formatHours(hours);
+            el.textContent = dayName + ': ' + rendered;
+        } catch(e) { /* ignore */ }
+    }
+
+    renderTodayHours();
+    // update every minute in case hours change or day rolls over
+    setInterval(renderTodayHours, 60000);
+})();
+</script>
+
+<!-- Closing countdown: displays remaining time until today's closing in #closingCountdown -->
+<script>
+(function(){
+    var el = document.getElementById('closingCountdown');
+    if (!el) return; // nothing to do if element is absent
+
+    function getClosingDateForToday() {
+        var now = new Date();
+
+        // 1) data-closing attribute (ISO or HH:MM)
+        var data = el.getAttribute('data-closing');
+        if (data) {
+            data = data.trim();
+            if (/[T\-]/.test(data)) {
+                var iso = new Date(data);
+                if (!isNaN(iso)) return iso;
+            }
+            var m = data.match(/^(\d{1,2}):(\d{2})$/);
+            if (m) {
+                var h = parseInt(m[1], 10);
+                var min = parseInt(m[2], 10);
+                var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, min, 0, 0);
+                if (d <= now) d.setDate(d.getDate() + 1);
+                return d;
+            }
+        }
+
+        // 2) parse element with workplace hours like "09:00 - 18:30"
+        var hoursEl = document.getElementById('workplaceHours') || document.querySelector('.workplace-hours') || document.querySelector('[data-workplace-hours]');
+        if (hoursEl) {
+            var txt = (hoursEl.textContent || '').trim();
+            var m2 = txt.match(/(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})/);
+            if (m2) {
+                var ch = parseInt(m2[3], 10);
+                var cm = parseInt(m2[4], 10);
+                var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ch, cm, 0, 0);
+                if (d <= now) d.setDate(d.getDate() + 1);
+                return d;
+            }
+        }
+
+        // 3) alternate attributes on the countdown element
+        var alt = el.getAttribute('data-closing-time') || el.getAttribute('data-closing-hour');
+        if (alt) {
+            var ma = alt.match(/(\d{1,2}):(\d{2})/);
+            if (ma) {
+                var dh = parseInt(ma[1], 10);
+                var dm = parseInt(ma[2], 10);
+                var d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), dh, dm, 0, 0);
+                if (d <= now) d.setDate(d.getDate() + 1);
+                return d;
+            }
+        }
+
+        return null;
+    }
+
+    function formatRemaining(ms) {
+        var totalMinutes = Math.floor(ms / 60000);
+        var hours = Math.floor(totalMinutes / 60);
+        var minutes = totalMinutes % 60;
+        return hours + 's ' + (minutes < 10 ? '0' + minutes : minutes) + 'dk';
+    }
+
+    function update() {
+        var closing = getClosingDateForToday();
+        if (!closing) {
+            el.textContent = '';
+            el.classList.remove('closing-soon');
+            return;
+        }
+        var now = new Date();
+        var diff = closing.getTime() - now.getTime();
+        if (diff <= 0) {
+            el.textContent = 'Kapandı';
+            el.classList.remove('closing-soon');
+            return;
+        }
+        el.textContent = formatRemaining(diff);
+        if (diff <= 3 * 60 * 60 * 1000) {
+            el.classList.add('closing-soon');
+        } else {
+            el.classList.remove('closing-soon');
+        }
+    }
+
+    update();
+    var now = new Date();
+    var msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+    setTimeout(function(){
+        update();
+        setInterval(update, 60 * 1000);
+    }, msToNextMinute);
 })();
 </script>
 

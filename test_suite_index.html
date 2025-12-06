@@ -241,8 +241,11 @@
 
     <script>
         function runGenerator() {
-            if (confirm('This will generate new test bookings. Continue?')) {
-                window.location.href = '/carwash_project/generate_bookings_dataset.php';
+            const msg = 'This will generate new test bookings. Continue?';
+            if (window.showConfirm) {
+                window.showConfirm(msg).then(ok => { if (ok) window.location.href = '/carwash_project/generate_bookings_dataset.php'; });
+            } else {
+                if (confirm(msg)) window.location.href = '/carwash_project/generate_bookings_dataset.php';
             }
         }
 

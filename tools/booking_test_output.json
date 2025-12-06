@@ -1,0 +1,1 @@
+{"success":false,"exception":"Trying to access array offset on value of type bool","trace":"#0 C:\\xampp\\htdocs\\carwash_project\\backend\\api\\bookings\\create.php(99): {closure}(2, 'Trying to acces...', 'C:\\\\xampp\\\\htdocs...', 99)\n#1 C:\\xampp\\htdocs\\carwash_project\\tools\\test_booking_create.php(27): require('C:\\\\xampp\\\\htdocs...')\n#2 {main}"}

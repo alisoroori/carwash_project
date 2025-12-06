@@ -17,19 +17,25 @@ try {
 try {
     $db = Database::getInstance();
 
+    // Only return carwashes that are open (canonical status = 'Açık')
+    // Backward compatibility: accept legacy 'open', 'active', '1', 'pending'
     $rows = $db->fetchAll(
-        "SELECT id, COALESCE(name,business_name) AS name, address, city, district, COALESCE(phone,contact_phone) AS phone, average_rating AS rating, verified, COALESCE(logo_path,profile_image,featured_image) AS logo FROM carwashes ORDER BY COALESCE(name,business_name)"
+                "SELECT id, COALESCE(name,business_name) AS name, address, city, district, COALESCE(phone,contact_phone) AS phone, average_rating AS rating, verified, COALESCE(logo_path,profile_image,featured_image) AS logo 
+                 FROM carwashes 
+                 WHERE LOWER(COALESCE(status,'')) IN ('açık','acik','open','active','1') AND COALESCE(is_active,0) = 1
+                 ORDER BY COALESCE(name,business_name)"
     );
 
     $result = [];
     foreach ($rows as $r) {
+        if (!is_array($r)) continue; // Skip invalid rows
         $result[] = [
-            'id' => (int)$r['id'],
-            'name' => $r['name'] ?? '',
-            'address' => $r['address'] ?? '',
-            'city' => $r['city'] ?? '',
-            'district' => $r['district'] ?? '',
-            'phone' => $r['phone'] ?? '',
+            'id' => isset($r['id']) ? (int)$r['id'] : 0,
+            'name' => isset($r['name']) ? $r['name'] : '',
+            'address' => isset($r['address']) ? $r['address'] : '',
+            'city' => isset($r['city']) ? $r['city'] : '',
+            'district' => isset($r['district']) ? $r['district'] : '',
+            'phone' => isset($r['phone']) ? $r['phone'] : '',
             'rating' => isset($r['rating']) ? (float)$r['rating'] : null,
             'verified' => !empty($r['verified']) ? true : false,
             'logo' => !empty($r['logo']) ? $r['logo'] : null

@@ -356,6 +356,50 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Helper: Format dates for dashboard as GG.AA.YYYY (day.month.year)
+if (!function_exists('formatDashDate')) {
+    function formatDashDate($val) {
+        if (empty($val)) return '';
+        // If value already looks like a timestamp integer
+        if (is_numeric($val) && strlen((string)$val) === 10) {
+            return date('d.m.Y', (int)$val);
+        }
+        try {
+            // Try to parse with DateTime (supports many formats)
+            $dt = new DateTime($val);
+            return $dt->format('d.m.Y');
+        } catch (Exception $e) {
+            // Fallback to strtotime
+            $ts = strtotime($val);
+            if ($ts !== false) return date('d.m.Y', $ts);
+            // As last resort, return original string (escaped by caller)
+            return (string)$val;
+        }
+    }
+}
+
+// Helper: Format time for dashboard as HH:MM (24-hour) or '-' when empty
+if (!function_exists('formatDashTime')) {
+    function formatDashTime($val) {
+        if (empty($val) && $val !== '0') return '-';
+        // If already HH:MM or HH:MM:SS
+        if (preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $val)) {
+            $parts = explode(':', $val);
+            $hh = str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+            $mm = str_pad($parts[1], 2, '0', STR_PAD_LEFT);
+            return $hh . ':' . $mm;
+        }
+        try {
+            $dt = new DateTime($val);
+            return $dt->format('H:i');
+        } catch (Exception $e) {
+            $ts = strtotime($val);
+            if ($ts !== false) return date('H:i', $ts);
+            return (string)$val;
+        }
+    }
+}
+
 // Dashboard header variables
 $dashboard_type = 'customer';
 $page_title = 'Müşteri Paneli - CarWash';
@@ -393,6 +437,8 @@ if (!isset($base_url)) {
         window.CONFIG = window.CONFIG || {};
         window.CONFIG.CSRF_TOKEN = '<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>';
         window.CONFIG.BASE_URL = '<?php echo htmlspecialchars($base_url, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?>';
+        // Expose current user id to client-side scripts for actions like opening modals
+        window.CONFIG.CURRENT_USER_ID = <?php echo (int)$user_id; ?>;
     </script>
     <script>
         // Expose a canonical profile image URL and helper for client-side code
@@ -687,14 +733,32 @@ if (!isset($base_url)) {
                     },
                     
                     formatDate(dateString) {
-                        if (!dateString) return 'N/A';
-                        const date = new Date(dateString);
-                        return date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
+                        if (!dateString) return '-';
+                        try {
+                            const d = new Date(dateString);
+                            if (isNaN(d.getTime())) return '-';
+                            const dd = String(d.getDate()).padStart(2, '0');
+                            const mm = String(d.getMonth() + 1).padStart(2, '0');
+                            const yyyy = String(d.getFullYear());
+                            return dd + '.' + mm + '.' + yyyy;
+                        } catch (e) {
+                            return '-';
+                        }
                     },
-                    
+
                     formatTime(timeString) {
-                        if (!timeString) return 'N/A';
-                        return timeString.substring(0, 5); // HH:MM
+                        if (!timeString) return '-';
+                        try {
+                            const parts = String(timeString).split(':');
+                            if (parts.length >= 2) {
+                                return String(parts[0]).padStart(2, '0') + ':' + String(parts[1]).padStart(2, '0');
+                            }
+                            const dt = new Date('1970-01-01T' + timeString);
+                            if (!isNaN(dt.getTime())) {
+                                return String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
+                            }
+                        } catch (e) {}
+                        return '-';
                     },
                     
                     formatPrice(price) {
@@ -711,7 +775,13 @@ if (!isset($base_url)) {
     </script>
     <!-- Alpine.js -->
         <script src="/carwash_project/frontend/vendor/alpine/cdn.min.js" defer></script>
-        <script defer>console.log('Alpine initialized');</script>
+        <?php 
+        // Debug output only when APP_DEBUG is enabled
+        $app_debug = (getenv('APP_DEBUG') !== false) ? filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN) : false;
+        if ($app_debug) {
+            echo '<script defer>console.log("Customer_Dashboard: Alpine initialized");</script>';
+        }
+        ?>
     
     <style>
         /* ================================
@@ -2850,7 +2920,24 @@ if (!isset($base_url)) {
                                                 $tblExistsStmt->execute(['tbl' => 'carwashes']);
                                                 if ((int)$tblExistsStmt->fetchColumn() > 0) {
                                                     // Use a full-row select so new/changed columns are automatically included
-                                                    $sql = "SELECT * FROM carwashes ORDER BY name";
+                                                    // Only return carwashes that are open. Accept multiple indicators for backwards compatibility
+                                                    // Open indicators: 'Açık' (Turkish), 'open', 'active'
+                                                    // Closed indicators: 'Kapalı' (Turkish), 'closed', 'inactive'
+                                                    // If status is explicitly closed, hide even if is_active=1
+                                                    // Visibility filter: show only open carwashes
+                                                    // Primary check: status = 'Açık' (canonical value)
+                                                    // Backward compatibility: accept legacy 'open', 'active', '1', 'pending'
+                                                    // Explicitly exclude closed statuses to prevent false positives
+                                                                                                                        // Visibility rules:
+                                                                                                                        // - If status = 'Açık' (canonical) -> visible
+                                                                                                                        // - If status = explicit closed token ('Kapalı', etc.) -> hidden (closed overrides)
+                                                                                                                        // - If status is NULL -> fall back to is_active = 1
+                                                                                                                        // - Accept legacy open tokens for backwards compatibility
+                                                                                                                        // Show only carwashes that are explicitly open AND active
+                                                                                                                        $sql = "SELECT * FROM carwashes
+                                                                                                                                        WHERE LOWER(COALESCE(status,'')) IN ('açık','acik','open','active','1')
+                                                                                                                                            AND COALESCE(is_active,0) = 1
+                                                                                                                                        ORDER BY name";
                                                     $carwashes = $db->fetchAll($sql);
                                                 } else {
                                                     // No canonical table found — surface clear message to JavaScript/UI
@@ -3226,7 +3313,79 @@ if (!isset($base_url)) {
                                 if (locId && carWashId) locId.value = carWashId;
                             }
 
-                            function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+                                function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+
+                                // Client-side date formatting helper (DD.MM.YYYY) with safe fallback
+                                function formatDashClient(dateString) {
+                                    if (!dateString && dateString !== 0) return '-';
+                                    try {
+                                        // Handle numeric timestamps (seconds or milliseconds)
+                                        var s = String(dateString).trim();
+                                        var d;
+                                        if (/^\d+$/.test(s)) {
+                                            // If 10 digits assume seconds, if 13 assume ms
+                                            if (s.length === 10) d = new Date(parseInt(s, 10) * 1000);
+                                            else d = new Date(parseInt(s, 10));
+                                        } else {
+                                            d = new Date(s);
+                                        }
+                                        if (isNaN(d.getTime())) return '-';
+                                        var dd = String(d.getDate()).padStart(2, '0');
+                                        var mm = String(d.getMonth() + 1).padStart(2, '0');
+                                        var yyyy = String(d.getFullYear());
+                                        return dd + '.' + mm + '.' + yyyy;
+                                    } catch (e) {
+                                        return '-';
+                                    }
+                                }
+
+                                // Client-side time formatter: returns HH:MM or '-'
+                                function formatTimeClient(timeString) {
+                                    if (!timeString && timeString !== 0) return '-';
+                                    try {
+                                        var s = String(timeString).trim();
+                                        var parts = s.split(':');
+                                        if (parts.length >= 2) {
+                                            return String(parts[0]).padStart(2, '0') + ':' + String(parts[1]).padStart(2, '0');
+                                        }
+                                        var dt = new Date('1970-01-01T' + s);
+                                        if (!isNaN(dt.getTime())) {
+                                            return String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
+                                        }
+                                    } catch (e) {}
+                                    return '-';
+                                }
+
+                                // Parse DD.MM.YYYY or YYYY-MM-DD or timestamps into ISO YYYY-MM-DD for form submission
+                                function parseDashToISO(dateString) {
+                                    if (!dateString && dateString !== 0) return '';
+                                    try {
+                                        var s = String(dateString).trim();
+                                        // If already ISO-like YYYY-MM-DD
+                                        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+                                        // If DD.MM.YYYY
+                                        var m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+                                        if (m) {
+                                            var dd = String(m[1]).padStart(2,'0');
+                                            var mm = String(m[2]).padStart(2,'0');
+                                            var yyyy = m[3];
+                                            return yyyy + '-' + mm + '-' + dd;
+                                        }
+                                        // If numeric timestamp (10 or 13)
+                                        if (/^\d+$/.test(s)) {
+                                            if (s.length === 10) return new Date(parseInt(s,10)*1000).toISOString().slice(0,10);
+                                            return new Date(parseInt(s,10)).toISOString().slice(0,10);
+                                        }
+                                        // Try Date parse
+                                        var d = new Date(s);
+                                        if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+                                    } catch (e) {}
+                                    return '';
+                                }
+
+                                // Using native HTML5 date inputs (`type="date" lang="tr"`) and native browser
+                                // month/year navigation for consistent behavior across browsers. The old
+                                // custom JS datepicker was removed to avoid interfering with native calendars.
 
                                 // -----------------------------
                                 // Bookings (Reservations) Management
@@ -3299,7 +3458,7 @@ if (!isset($base_url)) {
                                             return;
                                         }
 
-                                        // Build rows HTML
+                                        // Build rows HTML (include Review action column)
                                         const html = rows.map(r => {
                                             const id = r.id || r.booking_id || '';
                                             const carwash = r.carwash_name || r.location || r.customer_name || '';
@@ -3310,18 +3469,37 @@ if (!isset($base_url)) {
                                             const date = r.booking_date || r.date || '';
                                             const time = r.booking_time || r.time || '';
                                             const status = r.status || '';
+                                            const reviewStatus = (r.review_status || r.reviewStatus || '').toString();
                                             // Store useful attributes for edit
                                             const dataAttrs = 'data-booking="'+encodeURIComponent(JSON.stringify({id:id,carwash_id:r.carwash_id||r.location_id,service_id:r.service_id||null,date:date,time:time,notes:r.notes||''}))+'"';
-                                            return '<tr '+dataAttrs+' class="hover:bg-gray-50">'
+
+                                            // Determine action column (Review button / Reviewed / placeholder)
+                                            const statusNormalized = (status || '').toString().toLowerCase().trim();
+                                            const reviewNormalized = (reviewStatus || '').toString().toLowerCase().trim();
+                                            const isCompleted = (statusNormalized === 'completed');
+                                            const reviewNotDone = (reviewNormalized === '' || reviewNormalized === 'pending' || reviewNormalized === 'null');
+
+                                            let actionHtml = '<span class="text-gray-400">-</span>';
+                                            if (isCompleted && reviewNotDone) {
+                                                // Use CURRENT_USER_ID injected by server-side to pass user id
+                                                const currentUserId = (window.CONFIG && window.CONFIG.CURRENT_USER_ID) ? window.CONFIG.CURRENT_USER_ID : '';
+                                                const carwashId = r.carwash_id || r.location_id || '';
+                                                actionHtml = '<button type="button" onclick="openReviewModal('+encodeURIComponent(id)+', '+encodeURIComponent(currentUserId)+', '+encodeURIComponent(carwashId)+')" data-reservation-id="'+escapeHtml(id)+'" data-row-id="reservation-row-'+escapeHtml(id)+'" class="review-btn px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg font-bold hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2" title="Hizmeti değerlendirin - 5 yıldız verin"><i class="fas fa-star"></i> ✓ Review</button>';
+                                            } else if (isCompleted && !reviewNotDone) {
+                                                actionHtml = '<span class="text-green-600 flex items-center gap-2 font-semibold"><i class="fas fa-star text-yellow-500"></i>Reviewed</span>';
+                                            }
+
+                                            return '<tr '+dataAttrs+' class="hover:bg-gray-50" id="reservation-row-'+escapeHtml(id)+'">'
                                                 +'<td class="px-6 py-4 text-sm font-medium text-gray-900">'+escapeHtml(id)+'</td>'
                                                 +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(carwash)+'</td>'
                                                 +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(plate)+'</td>'
                                                 +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(service)+'</td>'
                                                 +'<td class="px-6 py-4 text-sm text-gray-900">'+(duration ? duration + ' dk' : '')+'</td>'
                                                 +'<td class="px-6 py-4 text-sm font-medium text-gray-900">'+(price ? ('₺'+parseFloat(price).toFixed(2)) : '')+'</td>'
-                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(date)+'</td>'
-                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(time)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(formatDashClient(date))+'</td>'
+                                                +'<td class="px-6 py-4 text-sm text-gray-900">'+escapeHtml(formatTimeClient(time))+'</td>'
                                                 +'<td class="px-6 py-4">'+statusLabel(status)+'</td>'
+                                                +'<td class="px-6 py-4 text-sm">'+actionHtml+'</td>'
                                             +'</tr>';
                                         }).join('');
 
@@ -3353,8 +3531,9 @@ if (!isset($base_url)) {
                                         document.getElementById('edit_booking_id').value = obj.id || '';
                                         document.getElementById('edit_carwash_id').value = obj.carwash_id || '';
                                         document.getElementById('edit_service_id').value = obj.service_id || '';
-                                        document.getElementById('edit_date').value = obj.date || '';
-                                        document.getElementById('edit_time').value = obj.time || '';
+                                        // Display date as DD.MM.YYYY in the text input for readability
+                                        document.getElementById('edit_date').value = (typeof formatDashClient === 'function') ? (obj.date ? formatDashClient(obj.date) : '') : (obj.date || '');
+                                        document.getElementById('edit_time').value = (typeof formatTimeClient === 'function') ? (obj.time ? formatTimeClient(obj.time) : '') : (obj.time || '');
                                         document.getElementById('edit_notes').value = obj.notes || '';
                                         const modal = document.getElementById('editBookingModal');
                                         modal.classList.remove('hidden');
@@ -3374,10 +3553,17 @@ if (!isset($base_url)) {
                                     const bookingId = document.getElementById('edit_booking_id').value;
                                     const carwashId = document.getElementById('edit_carwash_id').value;
                                     const serviceId = document.getElementById('edit_service_id').value;
-                                    const date = document.getElementById('edit_date').value;
-                                    const time = document.getElementById('edit_time').value;
+                                    // Convert displayed DD.MM.YYYY back to ISO YYYY-MM-DD for backend
+                                    const rawEditDate = document.getElementById('edit_date').value;
+                                    const date = (typeof parseDashToISO === 'function') ? (parseDashToISO(rawEditDate) || rawEditDate) : rawEditDate;
+                                    const time = (typeof normalizeTimeTo24 === 'function') ? normalizeTimeTo24(document.getElementById('edit_time').value) : document.getElementById('edit_time').value;
                                     const notes = document.getElementById('edit_notes').value;
-                                    if (!bookingId) return alert('Booking id missing');
+                                    if (!bookingId) {
+                                        if (window.showError) showError('Booking id missing');
+                                        else if (window.showToast) showToast('Booking id missing', 'error');
+                                        else alert('Booking id missing');
+                                        return;
+                                    }
                                     const fd = new FormData();
                                     fd.append('booking_id', bookingId);
                                     fd.append('carwash_id', carwashId);
@@ -3430,7 +3616,8 @@ if (!isset($base_url)) {
                                 }
 
                                 async function cancelBookingById(id) {
-                                    if (!confirm('Rezervasyonu iptal etmek istiyor musunuz?')) return;
+                                    const proceed = (window.showConfirm) ? await window.showConfirm('Rezervasyonu iptal etmek istiyor musunuz?') : confirm('Rezervasyonu iptal etmek istiyor musunuz?');
+                                    if (!proceed) return;
                                     const fd = new FormData();
                                     fd.append('booking_id', id);
                                     fd.append('csrf_token', getCsrfToken());
@@ -3441,7 +3628,10 @@ if (!isset($base_url)) {
                                             await loadBookings();
                                             return;
                                         }
-                                        alert(result && result.error ? result.error : 'İptal başarısız');
+                                        const err = result && result.error ? result.error : 'İptal başarısız';
+                                        if (window.showError) showError(err);
+                                        else if (window.showToast) showToast(err, 'error');
+                                        else alert(err);
                                       } catch (err) { console.error(err); showError('Sunucu hatası'); }
                                 }
                             function escapeAttr(s){ return (s||'').replace(/\"/g,'&quot;'); }
@@ -3660,8 +3850,24 @@ if (!isset($base_url)) {
                                             $serviceJoin = "LEFT JOIN services s ON b.service_id = s.id";
                                         }
 
-                                        $sql = "SELECT \
-                                            b.id AS booking_id,\n+                                            b.booking_date,\n+                                            b.booking_time,\n+                                            b.status,\n+                                            COALESCE(cw.name, cw.business_name, '') AS carwash_name,\n+                                            {$plateExpr},\n+                                            COALESCE(s.name, b.service_type, '') AS service_name,\n+                                            COALESCE(s.duration, 0) AS duration,\n+                                            COALESCE(s.price, b.total_price, 0) AS price\n+                                        FROM bookings b\n+                                        LEFT JOIN carwashes cw ON b.carwash_id = cw.id\n+                                        {$vehicleJoin}\n+                                        {$serviceJoin}\n+                                        WHERE b.user_id = :user_id\n+                                        ORDER BY b.booking_date DESC, b.booking_time DESC";
+                                        $sql = "SELECT 
+                                            b.id AS booking_id,
+                                            b.booking_date,
+                                            b.booking_time,
+                                            b.status,
+                                            b.carwash_id,
+                                            COALESCE(b.review_status, 'pending') AS review_status,
+                                            COALESCE(cw.name, cw.business_name, '') AS carwash_name,
+                                            {$plateExpr},
+                                            COALESCE(s.name, b.service_type, '') AS service_name,
+                                            COALESCE(s.duration, 0) AS duration,
+                                            COALESCE(s.price, b.total_price, 0) AS price
+                                        FROM bookings b
+                                        LEFT JOIN carwashes cw ON b.carwash_id = cw.id
+                                        {$vehicleJoin}
+                                        {$serviceJoin}
+                                        WHERE b.user_id = :user_id
+                                        ORDER BY b.booking_date DESC, b.booking_time DESC";
 
                                         $stmt = $pdoConn->prepare($sql);
                                         $stmt->execute(['user_id' => (int)$_SESSION['user_id']]);
@@ -3702,8 +3908,8 @@ if (!isset($base_url)) {
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['service_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['duration'] ?? 0, ENT_QUOTES, 'UTF-8'); ?> dk</td>
                                                     <td class="px-6 py-4 text-sm text-gray-700">₺<?php echo number_format((float)($r['price'] ?? 0), 2); ?></td>
-                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars($r['booking_time'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars(formatDashDate($r['booking_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+                                                    <td class="px-6 py-4 text-sm text-gray-700"><?php echo htmlspecialchars(formatDashTime($r['booking_time'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="px-6 py-4"><?php 
                                                         $status = $r['status'] ?? '';
                                                         if ($status === 'confirmed' || $status === 'paid') {
@@ -3721,21 +3927,31 @@ if (!isset($base_url)) {
                                                     <td class="px-6 py-4 text-sm">
                                                         <?php 
                                                         $bookingId = $r['booking_id'] ?? '';
-                                                        $reviewStatus = $r['review_status'] ?? 'pending';
+                                                        $carwashId = $r['carwash_id'] ?? '';
+                                                        $reviewStatus = strtolower(trim($r['review_status'] ?? ''));
+                                                        $currentUserId = (int)$_SESSION['user_id'];
                                                         
-                                                        if ($status === 'completed' && $reviewStatus !== 'reviewed'): ?>
+                                                        // Normalize status from database (use raw DB value, not translated label)
+                                                        $statusNormalized = strtolower(trim($r['status'] ?? ''));
+                                                        
+                                                        // Show review button ONLY when status is 'completed' AND review not done
+                                                        // Note: SQL uses COALESCE so NULL becomes 'pending'
+                                                        $isCompleted = ($statusNormalized === 'completed');
+                                                        $reviewNotDone = ($reviewStatus === '' || $reviewStatus === 'pending' || $reviewStatus === null);
+                                                        
+                                                        if ($isCompleted && $reviewNotDone): ?>
                                                             <button 
                                                                 type="button"
-                                                                onclick="openReviewModal(<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>)"
+                                                                onclick="openReviewModal(<?php echo (int)$bookingId; ?>, <?php echo $currentUserId; ?>, <?php echo (int)$carwashId; ?>)"
                                                                 data-reservation-id="<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-row-id="reservation-row-<?php echo htmlspecialchars($bookingId, ENT_QUOTES, 'UTF-8'); ?>"
-                                                                class="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg font-bold hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
-                                                                title="Service completed - Click to leave a review"
+                                                                class="review-btn px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg font-bold hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                                                                title="Hizmeti değerlendirin - 5 yıldız verin"
                                                             >
-                                                                <i class="fas fa-check-circle"></i>
-                                                                Completed
+                                                                <i class="fas fa-star"></i>
+                                                                ✓ Review
                                                             </button>
-                                                        <?php elseif ($status === 'completed' && $reviewStatus === 'reviewed'): ?>
+                                                        <?php elseif ($isCompleted && !$reviewNotDone): ?>
                                                             <span class="text-green-600 flex items-center gap-2 font-semibold">
                                                                 <i class="fas fa-star text-yellow-500"></i>
                                                                 Reviewed
@@ -3754,7 +3970,7 @@ if (!isset($base_url)) {
 
                         <!-- New Reservation Form -->
                         <div id="reservationFormRestorePoint"></div>
-                        <div id="newReservationForm" class="p-6 hidden">
+                        <div id="newReservationForm" class="p-6 hidden max-w-full">
                             <h3 class="text-xl font-bold mb-6">Yeni Rezervasyon Oluştur</h3>
                             <form id="newReservationFormElement" class="space-y-6">
                                 <div>
@@ -3796,45 +4012,12 @@ if (!isset($base_url)) {
                                     </p>
                                 </div>
 
-                                <div>
-                                    <label for="vehicle" class="block text-sm font-bold text-gray-700 mb-2">Araç Seçin</label>
-                                    <select id="vehicle" name="vehicle_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
-                                        <option value="">Araç Seçiniz</option>
-                                        <?php
-                                        // Load user's vehicles from database
-                                        $userVehicles = [];
-                                        try {
-                                            if (isset($db) && is_object($db)) {
-                                                $userVehicles = $db->fetchAll(
-                                                    "SELECT id, brand, model, license_plate, year FROM user_vehicles WHERE user_id = :user_id ORDER BY brand, model",
-                                                    ['user_id' => $_SESSION['user_id']]
-                                                );
-                                            }
-                                        } catch (Exception $e) {
-                                            error_log('Error loading user vehicles: ' . $e->getMessage());
-                                        }
-                                        
-                                        foreach ($userVehicles as $vehicle): 
-                                            $displayName = trim($vehicle['brand'] . ' ' . $vehicle['model']);
-                                            if (!empty($vehicle['year'])) {
-                                                $displayName .= ' (' . $vehicle['year'] . ')';
-                                            }
-                                            $displayName .= ' - ' . $vehicle['license_plate'];
-                                        ?>
-                                            <option value="<?php echo htmlspecialchars($vehicle['id'], ENT_QUOTES, 'UTF-8'); ?>">
-                                                <?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <?php if (empty($userVehicles)): ?>
-                                        <p class="text-sm text-gray-500 mt-1">Kayıtlı aracınız bulunmuyor. Lütfen önce araç ekleyin.</p>
-                                    <?php endif; ?>
-                                </div>
+                                <!-- Vehicle selection removed to simplify form and improve layout -->
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label for="reservationDate" class="block text-sm font-bold text-gray-700 mb-2">Tarih</label>
-                                        <input type="date" id="reservationDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                        <input type="text" id="reservationDate" name="reservationDate" placeholder="gg.aa.yyyy" data-datepicker="true" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
                                     </div>
                                     <div>
                                             <label for="reservationTime" class="block text-sm font-bold text-gray-700 mb-2">Saat</label>
@@ -3883,7 +4066,7 @@ if (!isset($base_url)) {
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Tarih</label>
-                                <input type="date" id="edit_date" name="date" class="w-full px-3 py-2 border rounded">
+                                <input type="text" id="edit_date" name="date" placeholder="gg.aa.yyyy" data-datepicker="true" class="w-full px-3 py-2 border rounded cursor-pointer" inputmode="numeric" pattern="\d{1,2}\.\d{1,2}\.\d{4}">
                             </div>
 
                             <div>
@@ -4098,28 +4281,33 @@ if (!isset($base_url)) {
 
                         const form = (evt && evt.target && (evt.target.tagName === 'FORM' ? evt.target : evt.target.closest('form'))) || document.getElementById('newReservationFormElement');
                         if (!form) {
-                            alert('Form bulunamadı. Lütfen sayfayı yenileyin.');
+                            const msg = 'Form bulunamadı. Lütfen sayfayı yenileyin.';
+                            if (window.showError) showError(msg);
+                            else if (window.showToast) showToast(msg, 'error');
+                            else alert(msg);
                             return;
                         }
 
                         const service = (form.querySelector('#service_id') || form.querySelector('[name="service_id"]') || form.querySelector('#service') || form.querySelector('[name="service"]'))?.value || '';
-                        const vehicle = (form.querySelector('#vehicle') || form.querySelector('[name="vehicle"]'))?.value || '';
-                        const date = (form.querySelector('#reservationDate') || form.querySelector('[name="reservationDate"]'))?.value || '';
+                        const rawDate = (form.querySelector('#reservationDate') || form.querySelector('[name="reservationDate"]'))?.value || '';
+                        const date = parseDashToISO(rawDate) || rawDate; // convert DD.MM.YYYY to ISO for backend
                         let time = (form.querySelector('#reservationTime') || form.querySelector('[name="reservationTime"]'))?.value || '';
                         time = normalizeTimeTo24(time);
                         const location = (form.querySelector('#location') || form.querySelector('[name="location"]'))?.value || '';
                         const location_id = (form.querySelector('#location_id') || form.querySelector('[name="location_id"]'))?.value || '';
                         const notes = (form.querySelector('#notes') || form.querySelector('[name="notes"]'))?.value || '';
 
-                        if (!service || !vehicle || !date || !time || !location) {
-                            alert('Lütfen tüm zorunlu alanları doldurun.');
+                        if (!service || !date || !time || !location) {
+                            const msg = 'Lütfen tüm zorunlu alanları doldurun.';
+                            if (window.showError) showError(msg);
+                            else if (window.showToast) showToast(msg, 'error');
+                            else alert(msg);
                             return;
                         }
 
                         // Build FormData for POST
                         const fd = new FormData();
                         fd.append('service_id', service);
-                        fd.append('vehicle', vehicle);
                         fd.append('reservationDate', date);
                         fd.append('reservationTime', time);
                         fd.append('location', location);
@@ -4135,7 +4323,10 @@ if (!isset($base_url)) {
                             });
                             const result = await resp.json();
                             if (!result || !result.success) {
-                                alert(result && result.message ? result.message : 'Rezervasyon oluşturulamadı.');
+                                const err = result && result.message ? result.message : 'Rezervasyon oluşturulamadı.';
+                                if (window.showError) showError(err);
+                                else if (window.showToast) showToast(err, 'error');
+                                else alert(err);
                                 return;
                             }
 
@@ -4145,10 +4336,16 @@ if (!isset($base_url)) {
                                 return;
                             }
 
-                            alert('Rezervasyon oluşturuldu, fakat yönlendirme bilgisi alınamadı.');
+                            const warn = 'Rezervasyon oluşturuldu, fakat yönlendirme bilgisi alınamadı.';
+                            if (window.showWarning) showWarning(warn);
+                            else if (window.showToast) showToast(warn, 'info');
+                            else alert(warn);
                         } catch (err) {
                             console.error('Reservation create error:', err);
-                            alert('Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.');
+                            const msg = 'Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.';
+                            if (window.showError) showError(msg);
+                            else if (window.showToast) showToast(msg, 'error');
+                            else alert(msg);
                         }
                     }
 
@@ -4332,6 +4529,8 @@ if (!isset($base_url)) {
         <!-- Modal Body -->
         <form id="reviewForm" class="px-6 py-6">
             <input type="hidden" id="review_reservation_id" name="reservation_id" value="">
+            <input type="hidden" id="review_user_id" name="user_id" value="">
+            <input type="hidden" id="review_carwash_id" name="carwash_id" value="">
             
             <!-- Star Rating -->
             <div class="mb-6">
@@ -4446,6 +4645,13 @@ if (!isset($base_url)) {
 #review_comment:focus {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+
+/* Ensure review buttons are visible even if some utility classes conflict */
+.review-btn {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
 </style>
 
 <script>
@@ -4478,25 +4684,30 @@ if (!isset($base_url)) {
         5: 'Mükemmel'
     };
     
-    // Open review modal
-    window.openReviewModal = function(reservationId) {
+    // Open review modal with all required parameters
+    window.openReviewModal = function(reservationId, userId, carwashId) {
         if (!reservationId) {
             console.error('Reservation ID is required');
+            if (typeof window.showError === 'function') {
+                window.showError('Rezervasyon ID bulunamadı');
+            }
             return;
         }
         
         // Reset form
         resetReviewForm();
         
-        // Set reservation ID
+        // Set all hidden input values
         document.getElementById('review_reservation_id').value = reservationId;
+        document.getElementById('review_user_id').value = userId || '';
+        document.getElementById('review_carwash_id').value = carwashId || '';
         
         // Show modal
         reviewModal.classList.remove('hidden');
         reviewModal.classList.add('show');
         document.body.style.overflow = 'hidden';
         
-        console.log('Review modal opened for reservation:', reservationId);
+        console.log('Review modal opened for reservation:', reservationId, 'user:', userId, 'carwash:', carwashId);
     };
     
     // Close review modal
@@ -4518,6 +4729,10 @@ if (!isset($base_url)) {
         hideError();
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Gönder';
+        // Clear hidden inputs
+        document.getElementById('review_reservation_id').value = '';
+        document.getElementById('review_user_id').value = '';
+        document.getElementById('review_carwash_id').value = '';
     }
     
     // Update star display
@@ -4663,6 +4878,8 @@ if (!isset($base_url)) {
                 // Show success message
                 if (typeof window.showSuccess === 'function') {
                     window.showSuccess('Review submitted successfully! Reservation moved to History.');
+                } else if (window.showToast) {
+                    window.showToast('Review submitted successfully! Reservation moved to History.', 'success');
                 } else {
                     alert('Review submitted successfully! Reservation moved to History.');
                 }
@@ -4714,6 +4931,83 @@ if (!isset($base_url)) {
     
     console.log('✅ Review modal system initialized');
 })();
+</script>
+
+<!-- Auto-test: click first visible review button to verify modal opens -->
+<script>
+    (function(){
+        try {
+            // Run after DOM ready to ensure elements exist
+            function runTest(){
+                var btn = document.querySelector('.review-btn');
+                if (!btn) {
+                    console.log('Auto-test: no .review-btn found (no completed reservations or server did not render buttons)');
+                    return;
+                }
+
+                // Ensure button is visible before clicking
+                var cs = window.getComputedStyle(btn);
+                if (cs && (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0)) {
+                    console.warn('Auto-test: review-btn appears hidden by CSS; forcing visibility and continuing');
+                    btn.style.display = 'inline-flex';
+                    btn.style.visibility = 'visible';
+                    btn.style.opacity = '1';
+                }
+
+                console.log('Auto-test: clicking first review button to verify modal opens');
+                btn.click();
+
+                // Check modal opened within 800ms
+                setTimeout(function(){
+                    var modal = document.getElementById('reviewModal');
+                    if (modal && modal.classList.contains('show')) {
+                        console.log('Auto-test: review modal opened successfully');
+                        if (typeof window.showSuccess === 'function') window.showSuccess('Review modal auto-test: opened successfully');
+                    } else {
+                        console.error('Auto-test: review modal did NOT open');
+                        if (typeof window.showError === 'function') window.showError('Review modal auto-test: failed to open');
+                    }
+                }, 800);
+            }
+
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runTest); else runTest();
+            
+            // Also produce a per-reservation visibility report for completed reservations
+            function reportReviewButtonVisibility(){
+                try {
+                    var report = [];
+                    document.querySelectorAll('tr[id^="reservation-row-"]').forEach(function(row){
+                        var status = (row.getAttribute('data-status') || '').toString().toLowerCase().trim();
+                        if (status !== 'completed') return; // only care about completed
+                        var reservationId = row.id.replace('reservation-row-','') || '';
+                        var btn = row.querySelector('.review-btn');
+                        if (!btn) {
+                            report.push({ reservation_id: reservationId, visible: false, reason: 'missing_button' });
+                            return;
+                        }
+                        var cs = window.getComputedStyle(btn);
+                        if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) {
+                            report.push({ reservation_id: reservationId, visible: false, reason: 'hidden_by_css', details: { display: cs.display, visibility: cs.visibility, opacity: cs.opacity } });
+                        } else {
+                            report.push({ reservation_id: reservationId, visible: true });
+                        }
+                    });
+
+                    // Emit to console as structured JSON for CI or manual inspection
+                    console.log('ReviewButtonVisibilityReport', report);
+                    // Debug UI notification intentionally disabled for CI/production.
+                    // if (typeof window.showSuccess === 'function') {
+                    //     window.showSuccess('Review button visibility checked (' + report.length + ' completed reservations scanned)');
+                    // }
+                } catch (e) {
+                    console.error('reportReviewButtonVisibility error', e);
+                }
+            }
+
+            // Run after a short delay to allow any dynamic rendering to complete
+            setTimeout(reportReviewButtonVisibility, 600);
+        } catch (e) { console.error('Auto-test exception:', e); }
+    })();
 </script>
 
 <!-- Footer follows naturally at the bottom after content -->

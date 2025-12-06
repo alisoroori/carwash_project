@@ -72,7 +72,8 @@ class BackupScheduler {
 
     async handleBackupDelete(event) {
         const backupId = event.target.dataset.id;
-        if (!confirm('Are you sure you want to delete this backup schedule?')) return;
+        const proceed = (window.showConfirm) ? await window.showConfirm('Are you sure you want to delete this backup schedule?') : confirm('Are you sure you want to delete this backup schedule?');
+        if (!proceed) return;
 
         try {
             const response = await fetch(`${this.endpoint}?action=delete&id=${backupId}`, {

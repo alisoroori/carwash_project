@@ -147,7 +147,8 @@ function createVehicleManagerFactory() {
         editVehicle(vehicle) { this.openVehicleForm(vehicle); },
 
         async deleteVehicle(id) {
-            if (!confirm('Bu aracı silmek istediğinizden emin misiniz?')) return;
+            const proceed = (window.showConfirm) ? await window.showConfirm('Bu aracı silmek istediğinizden emin misiniz?') : confirm('Bu aracı silmek istediğinizden emin misiniz?');
+            if (!proceed) return;
             this.loading = true;
             
             // Store the index for optimistic rollback if needed

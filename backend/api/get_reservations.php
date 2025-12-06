@@ -52,12 +52,13 @@ try {
         ORDER BY b.completed_at DESC, b.created_at DESC
     ", ['user_id' => $userId]);
 
-    // Format the response data
+    // Format the response data - defensive: ensure each booking is valid array
     $formattedBookings = [];
     foreach ($bookings as $booking) {
+        if (!is_array($booking)) continue; // Skip invalid rows
         $formattedBookings[] = [
-            'booking_id' => $booking['booking_id'],
-            'service_name' => $booking['service_name'] ?? 'Unknown Service',
+            'booking_id' => isset($booking['booking_id']) ? $booking['booking_id'] : null,
+            'service_name' => isset($booking['service_name']) ? $booking['service_name'] : 'Unknown Service',
             'service_category' => $booking['service_category'] ?? '',
             'service_description' => $booking['service_description'] ?? '',
             'service_duration' => $booking['service_duration'] ? $booking['service_duration'] . ' dk' : '',

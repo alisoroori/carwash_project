@@ -1,17 +1,17 @@
 <form id="custBookingForm" action="/carwash_project/backend/api/bookings/create.php" method="post" data-enable-validation="1">
   <div class="form-row">
     <label for="cust_name">Name</label>
-    <input id="cust_name" name="name" type="text" data-validate="required">
+    <input id="cust_name" name="name" type="text" autocomplete="name" data-validate="required">
   </div>
 
   <div class="form-row">
     <label for="cust_email">Email</label>
-    <input id="cust_email" name="email" type="email" data-validate="required|email">
+    <input id="cust_email" name="email" type="email" autocomplete="email" data-validate="required|email">
   </div>
 
   <div class="form-row">
     <label for="cust_password">Password (confirming identity)</label>
-    <input id="cust_password" name="password" type="password" data-validate="required|min:6">
+    <input id="cust_password" name="password" type="password" autocomplete="current-password" data-validate="required|min:6">
   </div>
 
   <!-- CSRF hidden input will be injected/populated by the JS -->

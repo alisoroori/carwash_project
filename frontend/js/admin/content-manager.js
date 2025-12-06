@@ -130,7 +130,7 @@ class ContentManager {
                 this.closeModal('pageModal');
                 this.loadSection('pages');
             } else {
-                alert(data.error || 'Failed to save page');
+                if (window.showToast) showToast(data.error || 'Failed to save page', 'error'); else alert(data.error || 'Failed to save page');
             }
         } catch (error) {
             console.error('Error saving page:', error);

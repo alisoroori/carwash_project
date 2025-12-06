@@ -16,12 +16,10 @@ try {
         SELECT duration FROM services WHERE id = ? AND status = 'active'
     ");
     $stmt->execute([$service_id]);
-    $service = $stmt->fetch();
-
-    if (!$service) {
+    $service = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$service || !is_array($service)) {
         throw new Exception('Service not found');
     }
-
     // Get booked slots
     $stmt = $conn->prepare("
         SELECT booking_time 
@@ -40,7 +38,10 @@ try {
     $slots = [];
     $start = strtotime('09:00');
     $end = strtotime('17:00');
-    $duration = $service['duration'] * 60;
+    $duration = isset($service['duration']) ? ((int)$service['duration'] * 60) : 0;
+    if ($duration <= 0) {
+        throw new Exception('Invalid service duration');
+    }
 
     for ($time = $start; $time <= $end - $duration; $time += $duration) {
         $slot = date('H:i:s', $time);
